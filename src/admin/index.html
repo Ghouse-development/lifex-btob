@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理画面 | LIFE X 加盟店専用サイト</title>
+    <link href="../styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="../utils/api.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <div x-data="adminApp()" x-init="init()" class="h-full">
+        <!-- Login Screen -->
+        <div x-show="!isAuthenticated" class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <div class="sm:mx-auto sm:w-full sm:max-w-md">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">LIFE X</h1>
+                    <p class="text-gray-600">管理画面</p>
+                </div>
+            </div>
+
+            <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+                <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                    <form @submit.prevent="login()">
+                        <div>
+                            <label for="email" class="form-label">メールアドレス</label>
+                            <input 
+                                id="email" 
+                                type="email" 
+                                x-model="credentials.email" 
+                                required 
+                                class="form-input"
+                                placeholder="admin@ghouse.co.jp">
+                        </div>
+
+                        <div class="mt-6">
+                            <label for="password" class="form-label">パスワード</label>
+                            <input 
+                                id="password" 
+                                type="password" 
+                                x-model="credentials.password" 
+                                required 
+                                class="form-input">
+                        </div>
+
+                        <div class="mt-6">
+                            <button 
+                                type="submit" 
+                                :disabled="isLoading"
+                                class="btn-primary w-full"
+                                :class="{ 'opacity-50 cursor-not-allowed': isLoading }">
+                                <span x-show="!isLoading">ログイン</span>
+                                <span x-show="isLoading" class="flex items-center justify-center">
+                                    <div class="loading-spinner w-4 h-4 mr-2"></div>
+                                    認証中...
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-6">
+                        <div class="relative">
+                            <div class="absolute inset-0 flex items-center">
+                                <div class="w-full border-t border-gray-300"></div>
+                            </div>
+                            <div class="relative flex justify-center text-sm">
+                                <span class="px-2 bg-white text-gray-500">デモ用</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 text-sm text-gray-600">
+                            <p><strong>デモアカウント:</strong></p>
+                            <p>メール: admin@ghouse.co.jp</p>
+                            <p>パスワード: demo123</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div x-show="isAuthenticated" class="min-h-full">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center h-16">
+                        <div class="flex items-center">
+                            <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                            <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理画面</span>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span x-text="currentUser.email" class="text-sm text-gray-600"></span>
+                            <button @click="logout()" class="btn-secondary text-sm">ログアウト</button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="flex">
+                <!-- Sidebar -->
+                <div class="w-64 bg-gray-800 min-h-screen">
+                    <nav class="mt-8">
+                        <div class="px-4 space-y-2">
+                            <button 
+                                @click="activeSection = 'dashboard'"
+                                :class="activeSection === 'dashboard' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+                                class="w-full text-left px-3 py-2 rounded-md text-sm font-medium">
+                                📊 ダッシュボード
+                            </button>
+                            <button 
+                                @click="activeSection = 'plans'"
+                                :class="activeSection === 'plans' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+                                class="w-full text-left px-3 py-2 rounded-md text-sm font-medium">
+                                🏠 プラン管理
+                            </button>
+                            <button 
+                                @click="activeSection = 'files'"
+                                :class="activeSection === 'files' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+                                class="w-full text-left px-3 py-2 rounded-md text-sm font-medium">
+                                📁 ファイル管理
+                            </button>
+                            <button 
+                                @click="activeSection = 'news'"
+                                :class="activeSection === 'news' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+                                class="w-full text-left px-3 py-2 rounded-md text-sm font-medium">
+                                📢 お知らせ管理
+                            </button>
+                            <button 
+                                @click="activeSection = 'analytics'"
+                                :class="activeSection === 'analytics' ? 'bg-gray-700 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'"
+                                class="w-full text-left px-3 py-2 rounded-md text-sm font-medium">
+                                📈 アクセス解析
+                            </button>
+                        </div>
+                    </nav>
+                </div>
+
+                <!-- Main Content -->
+                <div class="flex-1 p-8">
+                    <!-- Dashboard -->
+                    <div x-show="activeSection === 'dashboard'">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">ダッシュボード</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                            <div class="card">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-primary-500 rounded-md flex items-center justify-center">
+                                            <span class="text-white text-sm">🏠</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">総プラン数</dt>
+                                            <dd x-text="stats.totalPlans" class="text-lg font-medium text-gray-900">-</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                                            <span class="text-white text-sm">📊</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">公開中</dt>
+                                            <dd x-text="stats.publishedPlans" class="text-lg font-medium text-gray-900">-</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                                            <span class="text-white text-sm">⏰</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">下書き</dt>
+                                            <dd x-text="stats.draftPlans" class="text-lg font-medium text-gray-900">-</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                                            <span class="text-white text-sm">📁</span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-5 w-0 flex-1">
+                                        <dl>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">総ファイル数</dt>
+                                            <dd x-text="stats.totalFiles" class="text-lg font-medium text-gray-900">-</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Activity -->
+                        <div class="card">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">最近の更新</h3>
+                            <div class="space-y-3">
+                                <template x-for="activity in recentActivities" :key="activity.id">
+                                    <div class="flex items-center space-x-3 py-2">
+                                        <div class="flex-shrink-0 w-2 h-2 bg-primary-400 rounded-full"></div>
+                                        <div class="flex-1">
+                                            <p x-text="activity.description" class="text-sm text-gray-900"></p>
+                                            <p x-text="activity.timestamp" class="text-xs text-gray-500"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Plans Management -->
+                    <div x-show="activeSection === 'plans'">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-900">プラン管理</h2>
+                            <button class="btn-primary">+ 新規プラン作成</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>プラン名</th>
+                                            <th>ステータス</th>
+                                            <th>坪数</th>
+                                            <th>売価</th>
+                                            <th>更新日</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="6" class="text-center py-8 text-gray-500">
+                                                プラン管理機能は実装中です
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Other sections placeholders -->
+                    <div x-show="activeSection === 'files'">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">ファイル管理</h2>
+                        <div class="card">
+                            <p class="text-center py-8 text-gray-500">ファイル管理機能は実装中です</p>
+                        </div>
+                    </div>
+
+                    <div x-show="activeSection === 'news'">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">お知らせ管理</h2>
+                        <div class="card">
+                            <p class="text-center py-8 text-gray-500">お知らせ管理機能は実装中です</p>
+                        </div>
+                    </div>
+
+                    <div x-show="activeSection === 'analytics'">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-6">アクセス解析</h2>
+                        <div class="card">
+                            <p class="text-center py-8 text-gray-500">アクセス解析機能は実装中です</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function adminApp() {
+            return {
+                isAuthenticated: false,
+                isLoading: false,
+                activeSection: 'dashboard',
+                currentUser: null,
+                credentials: {
+                    email: '',
+                    password: ''
+                },
+                stats: {
+                    totalPlans: 0,
+                    publishedPlans: 0,
+                    draftPlans: 0,
+                    totalFiles: 0
+                },
+                recentActivities: [],
+
+                init() {
+                    // Check if already authenticated (in a real app, check session/token)
+                    const isLoggedIn = localStorage.getItem('adminLoggedIn');
+                    if (isLoggedIn === 'true') {
+                        this.isAuthenticated = true;
+                        this.currentUser = { email: 'admin@ghouse.co.jp' };
+                        this.loadDashboardData();
+                    }
+                },
+
+                async login() {
+                    this.isLoading = true;
+                    
+                    // Simulate authentication (replace with real auth)
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (this.credentials.email === 'admin@ghouse.co.jp' && 
+                        this.credentials.password === 'demo123') {
+                        
+                        this.isAuthenticated = true;
+                        this.currentUser = { email: this.credentials.email };
+                        localStorage.setItem('adminLoggedIn', 'true');
+                        
+                        lifeXAPI.showToast('ログインしました', 'success');
+                        this.loadDashboardData();
+                    } else {
+                        lifeXAPI.showToast('認証に失敗しました', 'error');
+                    }
+                    
+                    this.isLoading = false;
+                },
+
+                logout() {
+                    this.isAuthenticated = false;
+                    this.currentUser = null;
+                    localStorage.removeItem('adminLoggedIn');
+                    this.credentials = { email: '', password: '' };
+                    lifeXAPI.showToast('ログアウトしました', 'info');
+                },
+
+                async loadDashboardData() {
+                    try {
+                        const plansData = await lifeXAPI.getPlansIndex();
+                        const plans = plansData.plans;
+                        
+                        this.stats.totalPlans = plans.length;
+                        this.stats.publishedPlans = plans.filter(p => p.status === 'published').length;
+                        this.stats.draftPlans = plans.filter(p => p.status === 'draft').length;
+                        
+                        // Simulate file count
+                        this.stats.totalFiles = plans.length * 15; // Approximate files per plan
+                        
+                        // Mock recent activities
+                        this.recentActivities = [
+                            {
+                                id: 1,
+                                description: 'プラン LX-035C が更新されました',
+                                timestamp: '2時間前'
+                            },
+                            {
+                                id: 2,
+                                description: '新しいお知らせが追加されました',
+                                timestamp: '5時間前'
+                            },
+                            {
+                                id: 3,
+                                description: 'プラン LX-030A の資料がアップロードされました',
+                                timestamp: '1日前'
+                            }
+                        ];
+                    } catch (error) {
+                        console.error('Failed to load dashboard data:', error);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

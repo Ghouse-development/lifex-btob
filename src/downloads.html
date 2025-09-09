@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ダウンロード | LIFE X 加盟店専用サイト</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="./utils/api.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="nav-link">ホーム</a>
+                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/plans.html" class="nav-link">プラン一覧</a>
+                    <a href="/docs/rules.html" class="nav-link">ルール</a>
+                    <a href="/downloads.html" class="nav-link active">ダウンロード</a>
+                </nav>
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Mobile Menu -->
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border p-4 z-50 min-w-48">
+                        <a href="/" class="nav-link block">ホーム</a>
+                        <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
+                        <a href="/plans.html" class="nav-link block">プラン一覧</a>
+                        <a href="/docs/rules.html" class="nav-link block">ルール</a>
+                        <a href="/downloads.html" class="nav-link block">ダウンロード</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="downloadsPage()" x-init="init()">
+        <!-- Breadcrumb -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <nav class="breadcrumb">
+                <a href="/">ホーム</a>
+                <span class="breadcrumb-separator">></span>
+                <span class="text-gray-900">ダウンロード</span>
+            </nav>
+        </div>
+
+        <!-- Page Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">ダウンロード</h1>
+                <p class="text-lg text-gray-600 mb-8">パンフレット、ロゴ、資金計画書雛形、営業カタログ等の資料</p>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="card mb-8">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="flex-1">
+                        <input 
+                            type="text" 
+                            x-model="searchQuery" 
+                            @input="debounceSearch()"
+                            placeholder="資料名で検索..." 
+                            class="form-input w-full">
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <select x-model="selectedCategory" @change="applyFilters()" class="form-input">
+                            <option value="">全てのカテゴリ</option>
+                            <option value="パンフレット">パンフレット</option>
+                            <option value="ロゴ">ロゴ</option>
+                            <option value="テンプレート">テンプレート</option>
+                            <option value="カタログ">カタログ</option>
+                        </select>
+                        <select x-model="sortBy" @change="applySorting()" class="form-input">
+                            <option value="updated">更新日順</option>
+                            <option value="name">名前順</option>
+                            <option value="size">サイズ順</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div x-show="loading" class="flex justify-center py-12">
+                <div class="loading-spinner"></div>
+            </div>
+
+            <!-- Downloads Grid -->
+            <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <template x-for="item in displayItems" :key="item.id">
+                    <div class="card hover:shadow-md transition-shadow duration-200">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 x-text="item.title" class="text-lg font-semibold text-gray-900 mb-2"></h3>
+                                <p x-text="item.description" class="text-gray-600 text-sm mb-3"></p>
+                            </div>
+                            <span x-text="`v${item.version}`" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded flex-shrink-0 ml-2"></span>
+                        </div>
+
+                        <!-- File Info -->
+                        <div class="space-y-2 mb-4 text-sm text-gray-600">
+                            <div class="flex justify-between">
+                                <span>ファイルサイズ:</span>
+                                <span x-text="item.size" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>更新日:</span>
+                                <span x-text="lifeXAPI.formatDate(item.updated)" class="font-medium"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>形式:</span>
+                                <span x-text="getFileExtension(item.url)" class="font-medium uppercase bg-gray-100 px-2 py-1 rounded text-xs"></span>
+                            </div>
+                        </div>
+
+                        <!-- Tags -->
+                        <div class="flex flex-wrap gap-1 mb-4">
+                            <template x-for="tag in item.tags" :key="tag">
+                                <span x-text="tag" class="tag text-xs"></span>
+                            </template>
+                        </div>
+
+                        <!-- Download Button -->
+                        <button 
+                            @click="downloadFile(item)"
+                            class="btn-primary w-full">
+                            📥 ダウンロード
+                        </button>
+                    </div>
+                </template>
+            </div>
+
+            <!-- No Results -->
+            <div x-show="!loading && displayItems.length === 0" class="card text-center py-12">
+                <div class="text-gray-400 mb-4">
+                    <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">該当する資料が見つかりませんでした</h3>
+                <p class="text-gray-600 mb-4">検索条件を変更してお試しください</p>
+                <button @click="clearFilters()" class="btn-primary">
+                    検索条件をリセット
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function downloadsPage() {
+            return {
+                loading: true,
+                allItems: [],
+                displayItems: [],
+                searchQuery: '',
+                selectedCategory: '',
+                sortBy: 'updated',
+                searchTimeout: null,
+
+                async init() {
+                    try {
+                        await this.loadResources();
+                        this.applyFilters();
+                    } catch (error) {
+                        console.error('Error loading resources:', error);
+                        lifeXAPI.showToast('リソースの読み込みに失敗しました', 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadResources() {
+                    const resources = await lifeXAPI.getResources();
+                    this.allItems = resources.downloads.items;
+                },
+
+                debounceSearch() {
+                    clearTimeout(this.searchTimeout);
+                    this.searchTimeout = setTimeout(() => {
+                        this.applyFilters();
+                    }, 300);
+                },
+
+                applyFilters() {
+                    let filtered = [...this.allItems];
+
+                    // Search filter
+                    if (this.searchQuery.trim()) {
+                        const query = this.searchQuery.toLowerCase();
+                        filtered = filtered.filter(item => 
+                            item.title.toLowerCase().includes(query) ||
+                            item.description.toLowerCase().includes(query) ||
+                            item.tags.some(tag => tag.toLowerCase().includes(query))
+                        );
+                    }
+
+                    // Category filter
+                    if (this.selectedCategory) {
+                        filtered = filtered.filter(item => 
+                            item.tags.includes(this.selectedCategory)
+                        );
+                    }
+
+                    this.displayItems = filtered;
+                    this.applySorting();
+                },
+
+                applySorting() {
+                    this.displayItems.sort((a, b) => {
+                        switch (this.sortBy) {
+                            case 'name':
+                                return a.title.localeCompare(b.title);
+                            case 'size':
+                                return this.parseFileSize(a.size) - this.parseFileSize(b.size);
+                            case 'updated':
+                            default:
+                                return new Date(b.updated) - new Date(a.updated);
+                        }
+                    });
+                },
+
+                parseFileSize(sizeStr) {
+                    const units = { 'KB': 1024, 'MB': 1024 * 1024, 'GB': 1024 * 1024 * 1024 };
+                    const match = sizeStr.match(/^([\d.]+)\s*([A-Z]+)$/i);
+                    if (!match) return 0;
+                    return parseFloat(match[1]) * (units[match[2].toUpperCase()] || 1);
+                },
+
+                getFileExtension(url) {
+                    return url.split('.').pop().toLowerCase();
+                },
+
+                downloadFile(item) {
+                    lifeXAPI.downloadFile(item.url, item.title);
+                    
+                    // Track download (could be sent to analytics)
+                    console.log('Downloaded:', item.title);
+                },
+
+                clearFilters() {
+                    this.searchQuery = '';
+                    this.selectedCategory = '';
+                    this.applyFilters();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

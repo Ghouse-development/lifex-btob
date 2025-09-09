@@ -1,0 +1,25 @@
+{
+  "name": "life-x-site",
+  "version": "1.0.0",
+  "description": "LIFE X 規格住宅加盟店専用サイト",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.html .",
+    "lint:fix": "eslint --ext .js,.html . --fix"
+  },
+  "dependencies": {
+    "alpinejs": "^3.13.3"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "eslint": "^8.0.0",
+    "@tailwindcss/typography": "^0.5.10",
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32"
+  },
+  "type": "module"
+}

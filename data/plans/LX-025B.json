@@ -1,0 +1,200 @@
+{
+  "id": "LX-025B",
+  "name": "LIFE X 25B",
+  "tsubo": 25.4,
+  "depth": 6.37,
+  "width": 7.28,
+  "prices": {
+    "sell": 21200000,
+    "cost": 16100000,
+    "gross": 5100000
+  },
+  "options": {
+    "solar": false,
+    "evoltz": true,
+    "ventilationType": "Type2"
+  },
+  "tags": ["1LDK", "平屋", "西入り"],
+  "files": {
+    "presentation": [
+      {
+        "title": "営業プレゼン",
+        "url": "/static/docs/plans/LX-025B/presentation.pptx",
+        "ver": "1.0",
+        "updated": "2025-08-15",
+        "size": "2.1MB"
+      }
+    ],
+    "drawings": {
+      "execution": [
+        {
+          "title": "実施図",
+          "url": "/static/docs/plans/LX-025B/drawings/execution.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "3.8MB"
+        }
+      ],
+      "kitchen": [
+        {
+          "title": "キッチン図",
+          "url": "/static/docs/plans/LX-025B/drawings/kitchen.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "1.6MB"
+        }
+      ],
+      "washstand": [
+        {
+          "title": "洗面化粧台図",
+          "url": "/static/docs/plans/LX-025B/drawings/washstand.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "1.1MB"
+        }
+      ],
+      "bath": [
+        {
+          "title": "システムバス図",
+          "url": "/static/docs/plans/LX-025B/drawings/bath.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "1.3MB"
+        }
+      ],
+      "toilet": [
+        {
+          "title": "トイレ図",
+          "url": "/static/docs/plans/LX-025B/drawings/toilet.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "700KB"
+        }
+      ],
+      "lighting": [
+        {
+          "title": "照明図",
+          "url": "/static/docs/plans/LX-025B/drawings/lighting.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "1.9MB"
+        }
+      ],
+      "ventilation": [
+        {
+          "title": "換気システム図",
+          "url": "/static/docs/plans/LX-025B/drawings/ventilation.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "1.2MB"
+        }
+      ],
+      "evoltz": [
+        {
+          "title": "evoltz仕様",
+          "url": "/static/docs/plans/LX-025B/drawings/evoltz.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "850KB"
+        }
+      ],
+      "application": [
+        {
+          "title": "申請図",
+          "url": "/static/docs/plans/LX-025B/drawings/application.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "2.9MB"
+        }
+      ],
+      "structure": [
+        {
+          "title": "構造図",
+          "url": "/static/docs/plans/LX-025B/drawings/structure.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "4.7MB"
+        }
+      ],
+      "precuts": [
+        {
+          "title": "プレカット図",
+          "url": "/static/docs/plans/LX-025B/drawings/precuts.pdf",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "6.2MB"
+        }
+      ]
+    },
+    "excel": {
+      "interior": [
+        {
+          "title": "内装プレゼン",
+          "url": "/static/docs/plans/LX-025B/excel/interior.xlsx",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "3.1MB"
+        }
+      ],
+      "specsExterior": [
+        {
+          "title": "仕様書・外装",
+          "url": "/static/docs/plans/LX-025B/excel/specs-exterior.xlsx",
+          "ver": "1.0",
+          "updated": "2025-08-15",
+          "size": "2.6MB"
+        }
+      ]
+    },
+    "doors": [
+      {
+        "title": "建具プレゼン",
+        "url": "/static/docs/plans/LX-025B/doors.pdf",
+        "ver": "1.0",
+        "updated": "2025-08-15",
+        "size": "2.4MB"
+      }
+    ],
+    "sashes": [
+      {
+        "title": "サッシプレゼン",
+        "url": "/static/docs/plans/LX-025B/sashes.pdf",
+        "ver": "1.0",
+        "updated": "2025-08-15",
+        "size": "1.7MB"
+      }
+    ],
+    "budget": [
+      {
+        "title": "資金計画書",
+        "url": "/static/docs/plans/LX-025B/budget.xlsx",
+        "ver": "1.0",
+        "updated": "2025-08-15",
+        "size": "1.0MB"
+      }
+    ],
+    "estimate": [
+      {
+        "title": "実行予算",
+        "url": "/static/docs/plans/LX-025B/estimate.xlsx",
+        "ver": "1.0",
+        "updated": "2025-08-15",
+        "size": "1.6MB"
+      }
+    ],
+    "wih": [
+      {
+        "title": "Walk in Homeデータ",
+        "url": "/static/docs/plans/LX-025B/walk-in-home.w3d",
+        "ver": "1.0",
+        "updated": "2025-08-15",
+        "size": "10.8MB"
+      }
+    ]
+  },
+  "status": "published",
+  "version": "1.0",
+  "updatedAt": "2025-08-15T14:30:00+09:00",
+  "thumbnail": "/assets/images/plans/LX-025B/thumbnail.jpg",
+  "floorPlan": "/assets/images/plans/LX-025B/floor-plan.jpg"
+}

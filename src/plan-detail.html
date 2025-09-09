@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">プラン詳細 | LIFE X 加盟店専用サイト</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="./utils/api.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="nav-link">ホーム</a>
+                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/plans.html" class="nav-link">プラン一覧</a>
+                    <a href="/docs/rules.html" class="nav-link">ルール</a>
+                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                </nav>
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Mobile Menu -->
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border p-4 z-50 min-w-48">
+                        <a href="/" class="nav-link block">ホーム</a>
+                        <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
+                        <a href="/plans.html" class="nav-link block">プラン一覧</a>
+                        <a href="/docs/rules.html" class="nav-link block">ルール</a>
+                        <a href="/downloads.html" class="nav-link block">ダウンロード</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="planDetailPage()" x-init="init()">
+        <!-- Loading State -->
+        <div x-show="loading" class="flex justify-center py-12">
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Error State -->
+        <div x-show="error" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="card text-center py-12">
+                <div class="text-red-400 mb-4">
+                    <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">プランが見つかりませんでした</h3>
+                <p class="text-gray-600 mb-4">指定されたプランIDが存在しないか、削除されている可能性があります。</p>
+                <a href="/plans.html" class="btn-primary">
+                    プラン一覧に戻る
+                </a>
+            </div>
+        </div>
+
+        <!-- Plan Content -->
+        <div x-show="!loading && !error && plan">
+            <!-- Breadcrumb -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <nav class="breadcrumb">
+                    <a href="/">ホーム</a>
+                    <span class="breadcrumb-separator">></span>
+                    <a href="/plans.html">プラン一覧</a>
+                    <span class="breadcrumb-separator">></span>
+                    <span x-text="plan?.name" class="text-gray-900"></span>
+                </nav>
+            </div>
+
+            <!-- Plan Header -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                <div class="card">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Plan Image -->
+                        <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
+                            <template x-if="plan?.floorPlan">
+                                <img :src="plan.floorPlan" :alt="plan.name" class="w-full h-full object-cover rounded-lg">
+                            </template>
+                            <template x-if="!plan?.floorPlan">
+                                <div class="text-gray-400">
+                                    <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-4 0H3m2-5l2-2m0 0l2 2m-2-2v6" />
+                                    </svg>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Plan Info -->
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h1 x-text="plan?.name" class="text-3xl font-bold text-gray-900 mb-2"></h1>
+                                    <div class="flex items-center space-x-4">
+                                        <span x-text="plan?.id" class="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-full"></span>
+                                        <span x-text="`v${plan?.version}`" class="text-sm bg-primary-100 text-primary-800 px-3 py-1 rounded-full"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Basic Specs -->
+                            <div class="grid grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">坪数</div>
+                                    <div x-text="plan?.tsubo + '坪'" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">奥行</div>
+                                    <div x-text="plan?.depth + 'm'" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">間口</div>
+                                    <div x-text="plan?.width + 'm'" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                            </div>
+
+                            <!-- Prices -->
+                            <div class="grid grid-cols-3 gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">売価</div>
+                                    <div x-text="lifeXAPI.formatPrice(plan?.prices?.sell)" class="text-xl font-bold text-primary-600"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">原価</div>
+                                    <div x-text="lifeXAPI.formatPrice(plan?.prices?.cost)" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">粗利</div>
+                                    <div x-text="lifeXAPI.formatPrice(plan?.prices?.gross)" class="text-xl font-bold text-green-600"></div>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="mb-6">
+                                <div class="text-gray-500 text-sm mb-2">特徴・間取り</div>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="tag in plan?.tags" :key="tag">
+                                        <span x-text="tag" class="tag"></span>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <!-- Options -->
+                            <div class="mb-6">
+                                <div class="text-gray-500 text-sm mb-2">オプション</div>
+                                <div class="flex flex-wrap gap-4">
+                                    <div class="flex items-center">
+                                        <span class="mr-2">太陽光:</span>
+                                        <span :class="plan?.options?.solar ? 'text-green-600' : 'text-gray-400'" x-text="plan?.options?.solar ? '対応' : '非対応'"></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="mr-2">evoltz:</span>
+                                        <span :class="plan?.options?.evoltz ? 'text-green-600' : 'text-gray-400'" x-text="plan?.options?.evoltz ? '装備' : '非装備'"></span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="mr-2">換気:</span>
+                                        <span x-text="plan?.options?.ventilationType" class="text-gray-900"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Last Updated -->
+                            <div class="text-sm text-gray-500">
+                                最終更新: <span x-text="lifeXAPI.formatDate(plan?.updatedAt)"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Tabs -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                <div class="card">
+                    <!-- Tab Navigation -->
+                    <div class="border-b border-gray-200 mb-6">
+                        <nav class="-mb-px flex space-x-8 overflow-x-auto">
+                            <button 
+                                @click="activeTab = 'presentation'"
+                                :class="activeTab === 'presentation' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                プレゼン
+                            </button>
+                            <button 
+                                @click="activeTab = 'drawings'"
+                                :class="activeTab === 'drawings' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                図面
+                            </button>
+                            <button 
+                                @click="activeTab = 'excel'"
+                                :class="activeTab === 'excel' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                Excel資料
+                            </button>
+                            <button 
+                                @click="activeTab = 'others'"
+                                :class="activeTab === 'others' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                class="whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm">
+                                その他
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="min-h-64">
+                        <!-- Presentation Tab -->
+                        <div x-show="activeTab === 'presentation'">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">プレゼン資料</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <template x-for="file in plan?.files?.presentation" :key="file.url">
+                                    <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
+                                        <div class="flex items-start justify-between mb-2">
+                                            <h4 x-text="file.title" class="font-medium text-gray-900"></h4>
+                                            <span x-text="`v${file.ver}`" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+                                        </div>
+                                        <div class="text-sm text-gray-600 mb-3">
+                                            <div>サイズ: <span x-text="file.size"></span></div>
+                                            <div>更新: <span x-text="lifeXAPI.formatDate(file.updated)"></span></div>
+                                        </div>
+                                        <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                            📥 ダウンロード
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Drawings Tab -->
+                        <div x-show="activeTab === 'drawings'">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">図面</h3>
+                            <div class="space-y-6">
+                                <template x-for="[category, files] in Object.entries(plan?.files?.drawings || {})" :key="category">
+                                    <div>
+                                        <h4 x-text="getCategoryName(category)" class="font-medium text-gray-900 mb-3"></h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <template x-for="file in files" :key="file.url">
+                                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
+                                                    <div class="flex items-start justify-between mb-2">
+                                                        <h5 x-text="file.title" class="font-medium text-gray-900 text-sm"></h5>
+                                                        <span x-text="`v${file.ver}`" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+                                                    </div>
+                                                    <div class="text-sm text-gray-600 mb-3">
+                                                        <div>サイズ: <span x-text="file.size"></span></div>
+                                                        <div>更新: <span x-text="lifeXAPI.formatDate(file.updated)"></span></div>
+                                                    </div>
+                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                                        📥 ダウンロード
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Excel Tab -->
+                        <div x-show="activeTab === 'excel'">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Excel資料</h3>
+                            <div class="space-y-6">
+                                <template x-for="[category, files] in Object.entries(plan?.files?.excel || {})" :key="category">
+                                    <div>
+                                        <h4 x-text="getCategoryName(category)" class="font-medium text-gray-900 mb-3"></h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <template x-for="file in files" :key="file.url">
+                                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
+                                                    <div class="flex items-start justify-between mb-2">
+                                                        <h5 x-text="file.title" class="font-medium text-gray-900 text-sm"></h5>
+                                                        <span x-text="`v${file.ver}`" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
+                                                    </div>
+                                                    <div class="text-sm text-gray-600 mb-3">
+                                                        <div>サイズ: <span x-text="file.size"></span></div>
+                                                        <div>更新: <span x-text="lifeXAPI.formatDate(file.updated)"></span></div>
+                                                    </div>
+                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                                        📥 ダウンロード
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Others Tab -->
+                        <div x-show="activeTab === 'others'">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">その他の資料</h3>
+                            <div class="space-y-6">
+                                <!-- 建具・サッシ -->
+                                <div>
+                                    <h4 class="font-medium text-gray-900 mb-3">建具・サッシ</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <template x-for="file in plan?.files?.doors || []" :key="file.url">
+                                            <div class="border border-gray-200 rounded-lg p-4">
+                                                <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
+                                                <div class="text-sm text-gray-600 mb-3">
+                                                    <div>サイズ: <span x-text="file.size"></span></div>
+                                                </div>
+                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                                    📥 ダウンロード
+                                                </button>
+                                            </div>
+                                        </template>
+                                        <template x-for="file in plan?.files?.sashes || []" :key="file.url">
+                                            <div class="border border-gray-200 rounded-lg p-4">
+                                                <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
+                                                <div class="text-sm text-gray-600 mb-3">
+                                                    <div>サイズ: <span x-text="file.size"></span></div>
+                                                </div>
+                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                                    📥 ダウンロード
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- 資金計画・予算 -->
+                                <div>
+                                    <h4 class="font-medium text-gray-900 mb-3">資金計画・予算</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <template x-for="file in [...(plan?.files?.budget || []), ...(plan?.files?.estimate || [])]" :key="file.url">
+                                            <div class="border border-gray-200 rounded-lg p-4">
+                                                <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
+                                                <div class="text-sm text-gray-600 mb-3">
+                                                    <div>サイズ: <span x-text="file.size"></span></div>
+                                                </div>
+                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                                    📥 ダウンロード
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Walk in Home -->
+                                <div x-show="plan?.files?.wih?.length > 0">
+                                    <h4 class="font-medium text-gray-900 mb-3">Walk in Home</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <template x-for="file in plan?.files?.wih || []" :key="file.url">
+                                            <div class="border border-gray-200 rounded-lg p-4">
+                                                <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
+                                                <div class="text-sm text-gray-600 mb-3">
+                                                    <div>サイズ: <span x-text="file.size"></span></div>
+                                                </div>
+                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
+                                                    📥 ダウンロード
+                                                </button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Related Plans -->
+            <div x-show="relatedPlans.length > 0" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+                <div class="card">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6">関連プラン</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <template x-for="relatedPlan in relatedPlans" :key="relatedPlan.id">
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
+                                <h4 class="font-medium text-gray-900 mb-2">
+                                    <a :href="`/plans/${relatedPlan.id}.html`" x-text="relatedPlan.name" class="hover:text-primary-600"></a>
+                                </h4>
+                                <div class="text-sm text-gray-600 mb-2">
+                                    <span x-text="relatedPlan.tsubo + '坪'"></span> |
+                                    <span x-text="relatedPlan.depth + 'm × ' + relatedPlan.width + 'm'"></span>
+                                </div>
+                                <div class="text-sm font-semibold text-primary-600">
+                                    <span x-text="lifeXAPI.formatPrice(relatedPlan.prices.sell)"></span>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function planDetailPage() {
+            return {
+                loading: true,
+                error: false,
+                plan: null,
+                relatedPlans: [],
+                activeTab: 'presentation',
+
+                async init() {
+                    try {
+                        const planId = this.getPlanIdFromURL();
+                        if (!planId) {
+                            this.error = true;
+                            return;
+                        }
+
+                        await Promise.all([
+                            this.loadPlan(planId),
+                            this.loadRelatedPlans(planId)
+                        ]);
+                        
+                        if (this.plan) {
+                            document.title = `${this.plan.name} | LIFE X 加盟店専用サイト`;
+                        }
+                    } catch (error) {
+                        console.error('Error loading plan:', error);
+                        this.error = true;
+                        lifeXAPI.showToast('プランデータの読み込みに失敗しました', 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                getPlanIdFromURL() {
+                    const path = window.location.pathname;
+                    const matches = path.match(/\/plans\/([^\/]+)\.html/);
+                    return matches ? matches[1] : null;
+                },
+
+                async loadPlan(planId) {
+                    try {
+                        this.plan = await lifeXAPI.getPlan(planId);
+                    } catch (error) {
+                        this.error = true;
+                        throw error;
+                    }
+                },
+
+                async loadRelatedPlans(currentPlanId) {
+                    try {
+                        const plansData = await lifeXAPI.getPlansIndex();
+                        const allPlans = plansData.plans.filter(p => p.status === 'published' && p.id !== currentPlanId);
+                        
+                        if (!this.plan) return;
+                        
+                        // Find plans with similar characteristics
+                        const similarPlans = allPlans.filter(p => {
+                            // Similar size (±5 tsubo)
+                            const sizeDiff = Math.abs(p.tsubo - this.plan.tsubo);
+                            // Shared tags
+                            const sharedTags = p.tags.filter(tag => this.plan.tags.includes(tag));
+                            
+                            return sizeDiff <= 5 || sharedTags.length > 0;
+                        });
+
+                        // Sort by relevance and take top 3
+                        this.relatedPlans = similarPlans
+                            .sort((a, b) => {
+                                const aSharedTags = a.tags.filter(tag => this.plan.tags.includes(tag)).length;
+                                const bSharedTags = b.tags.filter(tag => this.plan.tags.includes(tag)).length;
+                                const aSizeDiff = Math.abs(a.tsubo - this.plan.tsubo);
+                                const bSizeDiff = Math.abs(b.tsubo - this.plan.tsubo);
+                                
+                                // First sort by shared tags, then by size similarity
+                                if (aSharedTags !== bSharedTags) return bSharedTags - aSharedTags;
+                                return aSizeDiff - bSizeDiff;
+                            })
+                            .slice(0, 3);
+                    } catch (error) {
+                        console.error('Error loading related plans:', error);
+                    }
+                },
+
+                getCategoryName(category) {
+                    const categoryNames = {
+                        execution: '実施図',
+                        kitchen: 'キッチン',
+                        washstand: '洗面化粧台',
+                        bath: 'システムバス',
+                        toilet: 'トイレ',
+                        lighting: '照明',
+                        ventilation: '換気システム',
+                        evoltz: 'evoltz',
+                        solar: '太陽光',
+                        application: '申請図',
+                        structure: '構造図',
+                        precuts: 'プレカット図',
+                        interior: '内装プレゼン',
+                        specsExterior: '仕様書・外装'
+                    };
+                    return categoryNames[category] || category;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
