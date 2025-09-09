@@ -1,26 +1,14 @@
 {
   "version": 2,
-  "build": {
-    "env": {
-      "NODE_ENV": "production"
-    }
-  },
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
+  "installCommand": "npm install",
   "framework": null,
   "rewrites": [
     {
       "source": "/plans/(.*)",
       "destination": "/plan-detail.html?plan=$1"
-    },
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/((?!api).*)",
-      "destination": "/index.html"
     }
   ],
   "redirects": [
@@ -31,15 +19,6 @@
     }
   ],
   "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "s-maxage=60, stale-while-revalidate=300"
-        }
-      ]
-    },
     {
       "source": "/data/(.*)",
       "headers": [
@@ -57,11 +36,19 @@
           "value": "s-maxage=86400, immutable"
         }
       ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
     }
-  ],
-  "functions": {
-    "api/admin/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  }
+  ]
 }

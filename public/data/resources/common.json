@@ -1,0 +1,217 @@
+{
+  "rules": {
+    "title": "設計・営業・施工ルール",
+    "items": [
+      {
+        "id": "design-rules",
+        "title": "設計ルール",
+        "description": "LIFE X規格住宅の設計基準とガイドライン",
+        "url": "/static/docs/resources/design-rules-v2.1.pdf",
+        "version": "2.1",
+        "updated": "2025-08-20",
+        "size": "3.2MB",
+        "tags": ["設計", "基準", "ガイドライン"]
+      },
+      {
+        "id": "sales-rules",
+        "title": "営業ルール",
+        "description": "加盟店営業活動における基本ルールと注意事項",
+        "url": "/static/docs/resources/sales-rules-v1.8.pdf",
+        "version": "1.8",
+        "updated": "2025-08-15",
+        "size": "2.7MB",
+        "tags": ["営業", "ルール", "注意事項"]
+      },
+      {
+        "id": "construction-rules",
+        "title": "施工ルール",
+        "description": "施工品質管理と工程管理の基準",
+        "url": "/static/docs/resources/construction-rules-v2.3.pdf",
+        "version": "2.3",
+        "updated": "2025-09-01",
+        "size": "4.5MB",
+        "tags": ["施工", "品質管理", "工程管理"]
+      }
+    ]
+  },
+  "standardSpecs": {
+    "title": "標準仕様",
+    "items": [
+      {
+        "id": "standard-specs-2025",
+        "title": "LIFE X 標準仕様書 2025年版",
+        "description": "2025年度版の標準仕様一覧",
+        "url": "/static/docs/resources/standard-specs-2025-v3.0.pdf",
+        "version": "3.0",
+        "updated": "2025-09-01",
+        "size": "8.7MB",
+        "tags": ["仕様書", "標準", "2025年版"]
+      },
+      {
+        "id": "material-catalog",
+        "title": "使用材料カタログ",
+        "description": "標準使用材料の詳細カタログ",
+        "url": "/static/docs/resources/material-catalog-v1.4.pdf",
+        "version": "1.4",
+        "updated": "2025-08-25",
+        "size": "12.3MB",
+        "tags": ["材料", "カタログ", "仕様"]
+      }
+    ]
+  },
+  "styleBook": {
+    "title": "スタイルブック",
+    "items": [
+      {
+        "id": "lifex-stylebook-2025",
+        "title": "LIFE X スタイルブック 2025",
+        "description": "外観・内装デザインバリエーションガイド",
+        "url": "/static/docs/resources/lifex-stylebook-2025-v2.0.pdf",
+        "version": "2.0",
+        "updated": "2025-08-30",
+        "size": "15.6MB",
+        "tags": ["スタイル", "デザイン", "バリエーション"]
+      },
+      {
+        "id": "color-variations",
+        "title": "カラーバリエーション集",
+        "description": "外壁・屋根・内装のカラー選択肢",
+        "url": "/static/docs/resources/color-variations-v1.2.pdf",
+        "version": "1.2",
+        "updated": "2025-08-22",
+        "size": "6.8MB",
+        "tags": ["カラー", "外壁", "屋根", "内装"]
+      }
+    ]
+  },
+  "housemakingFlow": {
+    "title": "家づくりの流れ",
+    "items": [
+      {
+        "id": "customer-journey",
+        "title": "お客様向け家づくりの流れ",
+        "description": "契約から引渡しまでの全工程ガイド",
+        "url": "/static/docs/resources/customer-journey-v1.5.pdf",
+        "version": "1.5",
+        "updated": "2025-08-18",
+        "size": "4.2MB",
+        "tags": ["フロー", "お客様", "工程"]
+      },
+      {
+        "id": "timeline-template",
+        "title": "工程表テンプレート",
+        "description": "標準的な建築工程のテンプレート",
+        "url": "/static/docs/resources/timeline-template-v2.1.xlsx",
+        "version": "2.1",
+        "updated": "2025-08-25",
+        "size": "1.8MB",
+        "tags": ["工程表", "テンプレート", "建築"]
+      }
+    ]
+  },
+  "operationsFlow": {
+    "title": "業務の流れ",
+    "items": [
+      {
+        "id": "partner-operations",
+        "title": "加盟店業務フロー",
+        "description": "加盟店が実施する業務の標準フロー",
+        "url": "/static/docs/resources/partner-operations-v2.2.pdf",
+        "version": "2.2",
+        "updated": "2025-08-20",
+        "size": "5.1MB",
+        "tags": ["業務フロー", "加盟店", "標準"]
+      },
+      {
+        "id": "quality-checklist",
+        "title": "品質管理チェックリスト",
+        "description": "各工程における品質管理項目",
+        "url": "/static/docs/resources/quality-checklist-v1.7.xlsx",
+        "version": "1.7",
+        "updated": "2025-08-28",
+        "size": "2.3MB",
+        "tags": ["品質管理", "チェックリスト", "工程"]
+      }
+    ]
+  },
+  "downloads": {
+    "title": "ダウンロード",
+    "items": [
+      {
+        "id": "company-brochure",
+        "title": "会社パンフレット",
+        "description": "LIFE X紹介用会社パンフレット",
+        "url": "/static/docs/resources/company-brochure-v3.1.pdf",
+        "version": "3.1",
+        "updated": "2025-09-01",
+        "size": "7.8MB",
+        "tags": ["パンフレット", "会社紹介"]
+      },
+      {
+        "id": "logo-data",
+        "title": "ロゴデータ集",
+        "description": "LIFE Xロゴの各種フォーマット",
+        "url": "/static/docs/resources/logo-data-v1.3.zip",
+        "version": "1.3",
+        "updated": "2025-08-15",
+        "size": "4.5MB",
+        "tags": ["ロゴ", "ブランディング"]
+      },
+      {
+        "id": "budget-template",
+        "title": "資金計画書雛形",
+        "description": "お客様提示用資金計画書のテンプレート",
+        "url": "/static/docs/resources/budget-template-v2.4.xlsx",
+        "version": "2.4",
+        "updated": "2025-08-30",
+        "size": "1.9MB",
+        "tags": ["資金計画", "テンプレート"]
+      },
+      {
+        "id": "sales-catalog",
+        "title": "営業カタログ",
+        "description": "営業活動で使用する総合カタログ",
+        "url": "/static/docs/resources/sales-catalog-v2.0.pdf",
+        "version": "2.0",
+        "updated": "2025-08-25",
+        "size": "11.2MB",
+        "tags": ["営業", "カタログ", "総合"]
+      }
+    ]
+  },
+  "designResources": {
+    "title": "設計資料",
+    "items": [
+      {
+        "id": "standard-specs-detail",
+        "title": "標準仕様書詳細版",
+        "description": "設計者向け詳細仕様書",
+        "url": "/static/docs/resources/standard-specs-detail-v2.8.pdf",
+        "version": "2.8",
+        "updated": "2025-09-01",
+        "size": "18.4MB",
+        "tags": ["仕様書", "詳細", "設計者向け"]
+      },
+      {
+        "id": "section-drawings",
+        "title": "標準矩計図集",
+        "description": "各部位の標準的な矩計図",
+        "url": "/static/docs/resources/section-drawings-v1.9.pdf",
+        "version": "1.9",
+        "updated": "2025-08-28",
+        "size": "9.7MB",
+        "tags": ["矩計図", "標準", "各部位"]
+      },
+      {
+        "id": "detail-drawings",
+        "title": "納まり詳細図集",
+        "description": "重要部位の納まり詳細図",
+        "url": "/static/docs/resources/detail-drawings-v2.1.pdf",
+        "version": "2.1",
+        "updated": "2025-08-22",
+        "size": "12.6MB",
+        "tags": ["納まり", "詳細図", "重要部位"]
+      }
+    ]
+  }
+}

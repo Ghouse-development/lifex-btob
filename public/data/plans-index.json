@@ -1,0 +1,125 @@
+{
+  "plans": [
+    {
+      "id": "LX-030A",
+      "name": "LIFE X 30A",
+      "tsubo": 30.2,
+      "depth": 7.28,
+      "width": 8.19,
+      "prices": {
+        "sell": 23800000,
+        "cost": 17800000,
+        "gross": 6000000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": true,
+        "ventilationType": "Type1"
+      },
+      "tags": ["2LDK", "平屋", "南入り"],
+      "status": "published",
+      "version": "1.2",
+      "updatedAt": "2025-09-01T10:00:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-030A/thumbnail.jpg",
+      "floorPlan": "/assets/images/plans/LX-030A/floor-plan.jpg"
+    },
+    {
+      "id": "LX-025B",
+      "name": "LIFE X 25B",
+      "tsubo": 25.4,
+      "depth": 6.37,
+      "width": 7.28,
+      "prices": {
+        "sell": 21200000,
+        "cost": 16100000,
+        "gross": 5100000
+      },
+      "options": {
+        "solar": false,
+        "evoltz": true,
+        "ventilationType": "Type2"
+      },
+      "tags": ["1LDK", "平屋", "西入り"],
+      "status": "published",
+      "version": "1.0",
+      "updatedAt": "2025-08-15T14:30:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-025B/thumbnail.jpg",
+      "floorPlan": "/assets/images/plans/LX-025B/floor-plan.jpg"
+    },
+    {
+      "id": "LX-035C",
+      "name": "LIFE X 35C",
+      "tsubo": 35.8,
+      "depth": 8.19,
+      "width": 9.1,
+      "prices": {
+        "sell": 26500000,
+        "cost": 19200000,
+        "gross": 7300000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": true,
+        "ventilationType": "Type1"
+      },
+      "tags": ["3LDK", "2階建", "東入り"],
+      "status": "published",
+      "version": "1.1",
+      "updatedAt": "2025-08-28T09:15:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-035C/thumbnail.jpg",
+      "floorPlan": "/assets/images/plans/LX-035C/floor-plan.jpg"
+    }
+  ],
+  "filters": {
+    "tsubo": {
+      "min": 25.4,
+      "max": 35.8,
+      "ranges": [
+        { "label": "25坪未満", "min": 0, "max": 25 },
+        { "label": "25-30坪", "min": 25, "max": 30 },
+        { "label": "30-35坪", "min": 30, "max": 35 },
+        { "label": "35坪以上", "min": 35, "max": 999 }
+      ]
+    },
+    "depth": {
+      "min": 6.37,
+      "max": 8.19,
+      "ranges": [
+        { "label": "6m未満", "min": 0, "max": 6 },
+        { "label": "6-7m", "min": 6, "max": 7 },
+        { "label": "7-8m", "min": 7, "max": 8 },
+        { "label": "8m以上", "min": 8, "max": 999 }
+      ]
+    },
+    "width": {
+      "min": 7.28,
+      "max": 9.1,
+      "ranges": [
+        { "label": "7m未満", "min": 0, "max": 7 },
+        { "label": "7-8m", "min": 7, "max": 8 },
+        { "label": "8-9m", "min": 8, "max": 9 },
+        { "label": "9m以上", "min": 9, "max": 999 }
+      ]
+    },
+    "prices": {
+      "sell": {
+        "min": 21200000,
+        "max": 26500000
+      },
+      "cost": {
+        "min": 16100000,
+        "max": 19200000
+      },
+      "gross": {
+        "min": 5100000,
+        "max": 7300000
+      }
+    },
+    "tags": ["1LDK", "2LDK", "3LDK", "平屋", "2階建", "南入り", "西入り", "東入り"],
+    "options": {
+      "solar": [true, false],
+      "evoltz": [true, false],
+      "ventilationType": ["Type1", "Type2"]
+    }
+  }
+}
