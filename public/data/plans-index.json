@@ -16,7 +16,7 @@
         "evoltz": true,
         "ventilationType": "Type1"
       },
-      "tags": ["2LDK", "平屋", "南入り"],
+      "tags": ["平屋", "南入り", "1階LDK", "1階水廻り"],
       "status": "published",
       "version": "1.2",
       "updatedAt": "2025-09-01T10:00:00+09:00",
@@ -42,7 +42,7 @@
         "evoltz": true,
         "ventilationType": "Type2"
       },
-      "tags": ["1LDK", "平屋", "西入り"],
+      "tags": ["平屋", "西入り", "1階LDK", "1階水廻り"],
       "status": "published",
       "version": "1.0",
       "updatedAt": "2025-08-15T14:30:00+09:00",
@@ -68,7 +68,7 @@
         "evoltz": true,
         "ventilationType": "Type1"
       },
-      "tags": ["3LDK", "2階建", "東入り"],
+      "tags": ["2階建", "東入り", "1階LDK", "1階水廻り"],
       "status": "published",
       "version": "1.1",
       "updatedAt": "2025-08-28T09:15:00+09:00",
@@ -124,7 +124,7 @@
         "max": 7300000
       }
     },
-    "tags": ["1LDK", "2LDK", "3LDK", "平屋", "2階建", "南入り", "西入り", "東入り"],
+    "tags": ["平屋", "2階建", "南入り", "北入り", "東入り", "西入り", "1階LDK", "2階LDK", "1階水廻り", "2階水廻り"],
     "options": {
       "solar": [true, false],
       "evoltz": [true, false],

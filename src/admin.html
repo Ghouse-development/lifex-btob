@@ -20,6 +20,7 @@
                 <nav class="hidden md:flex space-x-8">
                     <a href="/" class="nav-link">ホーム</a>
                     <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/design.html" class="nav-link">デザインから探す</a>
                     <a href="/plans.html" class="nav-link">プラン一覧</a>
                     <a href="/rules.html" class="nav-link">ルール</a>
                     <a href="/downloads.html" class="nav-link">ダウンロード</a>
@@ -125,6 +126,121 @@
                                             <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-800">
                                                 削除
                                             </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Rules Management Section -->
+            <div id="rules" class="card mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">ルール管理</h2>
+                    <button @click="showAddRuleModal = true" class="btn-primary">
+                        + 新規ルール追加
+                    </button>
+                </div>
+
+                <!-- Rules Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">営業ルール</h3>
+                        <ul class="space-y-2">
+                            <template x-for="rule in salesRules" :key="rule.id">
+                                <li class="flex justify-between items-center">
+                                    <span x-text="rule.title" class="text-sm"></span>
+                                    <div class="space-x-1">
+                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
+                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">設計ルール</h3>
+                        <ul class="space-y-2">
+                            <template x-for="rule in designRules" :key="rule.id">
+                                <li class="flex justify-between items-center">
+                                    <span x-text="rule.title" class="text-sm"></span>
+                                    <div class="space-x-1">
+                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
+                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">施工ルール</h3>
+                        <ul class="space-y-2">
+                            <template x-for="rule in constructionRules" :key="rule.id">
+                                <li class="flex justify-between items-center">
+                                    <span x-text="rule.title" class="text-sm"></span>
+                                    <div class="space-x-1">
+                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
+                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-900 mb-3">品質管理</h3>
+                        <ul class="space-y-2">
+                            <template x-for="rule in qualityRules" :key="rule.id">
+                                <li class="flex justify-between items-center">
+                                    <span x-text="rule.title" class="text-sm"></span>
+                                    <div class="space-x-1">
+                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
+                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Downloads Management Section -->
+            <div id="downloads" class="card mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">ダウンロード管理</h2>
+                    <button @click="showAddDownloadModal = true" class="btn-primary">
+                        + 新規ファイル追加
+                    </button>
+                </div>
+
+                <!-- Downloads List -->
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ファイル名</th>
+                                <th>カテゴリ</th>
+                                <th>サイズ</th>
+                                <th>更新日</th>
+                                <th>ダウンロード数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="download in downloads" :key="download.id">
+                                <tr>
+                                    <td x-text="download.name"></td>
+                                    <td>
+                                        <span x-text="download.category" class="badge badge-blue"></span>
+                                    </td>
+                                    <td x-text="download.size"></td>
+                                    <td x-text="download.updatedAt"></td>
+                                    <td x-text="download.downloadCount"></td>
+                                    <td>
+                                        <div class="flex space-x-2">
+                                            <button @click="editDownload(download)" class="text-blue-600 hover:text-blue-800">編集</button>
+                                            <button @click="deleteDownload(download)" class="text-red-600 hover:text-red-800">削除</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -355,6 +471,193 @@
                 </div>
             </div>
         </div>
+
+        <!-- Add/Edit Rule Modal -->
+        <div x-show="showAddRuleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showAddRuleModal = false">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
+                <div class="mt-3">
+                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-900">
+                            <span x-text="editingRule ? 'ルール編集' : '新規ルール追加'"></span>
+                        </h3>
+                        <button @click="showAddRuleModal = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="py-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
+                            <select x-model="ruleFormData.category" class="form-input w-full">
+                                <option value="">選択してください</option>
+                                <option value="sales">営業ルール</option>
+                                <option value="design">設計ルール</option>
+                                <option value="construction">施工ルール</option>
+                                <option value="quality">品質管理</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ルールタイトル</label>
+                            <input type="text" x-model="ruleFormData.title" class="form-input w-full" placeholder="例：標準価格の適用範囲">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ルール内容</label>
+                            <textarea x-model="ruleFormData.content" rows="6" class="form-input w-full" 
+                                placeholder="ルールの詳細内容を記入してください"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">重要度</label>
+                            <select x-model="ruleFormData.priority" class="form-input w-full">
+                                <option value="high">高（必須事項）</option>
+                                <option value="medium">中（推奨事項）</option>
+                                <option value="low">低（参考事項）</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">適用対象</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="ruleFormData.targets.fc" class="mr-2">
+                                    <span>FC加盟店</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="ruleFormData.targets.builder" class="mr-2">
+                                    <span>ビルダー</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="ruleFormData.targets.supplier" class="mr-2">
+                                    <span>サプライヤー</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">関連資料URL</label>
+                            <input type="text" x-model="ruleFormData.documentUrl" class="form-input w-full" placeholder="https://example.com/document.pdf">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button @click="showAddRuleModal = false" class="btn-secondary">
+                            キャンセル
+                        </button>
+                        <button @click="saveRule()" class="btn-primary">
+                            <span x-text="editingRule ? '更新する' : '追加する'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Download Modal -->
+        <div x-show="showAddDownloadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showAddDownloadModal = false">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
+                <div class="mt-3">
+                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-900">
+                            <span x-text="editingDownload ? 'ファイル編集' : '新規ファイル追加'"></span>
+                        </h3>
+                        <button @click="showAddDownloadModal = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="py-6 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイル名</label>
+                            <input type="text" x-model="downloadFormData.name" class="form-input w-full" placeholder="例：LIFE X パンフレット.pdf">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
+                            <select x-model="downloadFormData.category" class="form-input w-full">
+                                <option value="">選択してください</option>
+                                <option value="営業資料">営業資料</option>
+                                <option value="技術資料">技術資料</option>
+                                <option value="施工マニュアル">施工マニュアル</option>
+                                <option value="テンプレート">テンプレート</option>
+                                <option value="教育資料">教育資料</option>
+                                <option value="その他">その他</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
+                            <textarea x-model="downloadFormData.description" rows="3" class="form-input w-full" 
+                                placeholder="ファイルの内容説明を記入してください"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイルアップロード</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="mt-2 text-sm text-gray-600">
+                                    <button type="button" class="font-medium text-primary-600 hover:text-primary-500">
+                                        ファイルを選択
+                                    </button>
+                                    またはドラッグ＆ドロップ
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">PDF, DOC, XLS, PPT up to 10MB</p>
+                                <input type="file" class="hidden" @change="handleFileUpload($event)">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ファイルサイズ</label>
+                                <input type="text" x-model="downloadFormData.size" class="form-input" placeholder="例：5.2MB" readonly>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">ファイル形式</label>
+                                <input type="text" x-model="downloadFormData.format" class="form-input" placeholder="例：PDF" readonly>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">アクセス権限</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="downloadFormData.permissions.all" class="mr-2">
+                                    <span>全ユーザー</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="downloadFormData.permissions.fc" class="mr-2">
+                                    <span>FC加盟店のみ</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" x-model="downloadFormData.permissions.premium" class="mr-2">
+                                    <span>プレミアム会員のみ</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ダウンロードURL（既存ファイルの場合）</label>
+                            <input type="text" x-model="downloadFormData.url" class="form-input w-full" placeholder="https://example.com/files/document.pdf">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button @click="showAddDownloadModal = false" class="btn-secondary">
+                            キャンセル
+                        </button>
+                        <button @click="saveDownload()" class="btn-primary">
+                            <span x-text="editingDownload ? '更新する' : '追加する'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -366,6 +669,44 @@
                 plans: [],
                 showAddPlanModal: false,
                 editingPlan: null,
+                // ルール管理
+                showAddRuleModal: false,
+                editingRule: null,
+                salesRules: [],
+                designRules: [],
+                constructionRules: [],
+                qualityRules: [],
+                // ダウンロード管理
+                showAddDownloadModal: false,
+                editingDownload: null,
+                downloads: [],
+                // ルール用フォームデータ
+                ruleFormData: {
+                    category: '',
+                    title: '',
+                    content: '',
+                    priority: 'medium',
+                    targets: {
+                        fc: true,
+                        builder: false,
+                        supplier: false
+                    },
+                    documentUrl: ''
+                },
+                // ダウンロード用フォームデータ
+                downloadFormData: {
+                    name: '',
+                    category: '',
+                    description: '',
+                    size: '',
+                    format: '',
+                    url: '',
+                    permissions: {
+                        all: true,
+                        fc: false,
+                        premium: false
+                    }
+                },
                 formData: {
                     id: '',
                     name: '',
@@ -405,6 +746,17 @@
                     if (authToken === 'authenticated') {
                         this.authenticated = true;
                         this.loadPlans();
+                        this.loadRules();
+                        this.loadDownloads();
+                    }
+                    // ハッシュナビゲーション対応
+                    if (window.location.hash) {
+                        setTimeout(() => {
+                            const element = document.querySelector(window.location.hash);
+                            if (element) {
+                                element.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }, 100);
                     }
                 },
 
@@ -415,6 +767,8 @@
                         this.authError = false;
                         sessionStorage.setItem('admin_auth', 'authenticated');
                         this.loadPlans();
+                        this.loadRules();
+                        this.loadDownloads();
                     } else {
                         this.authError = true;
                     }
@@ -596,6 +950,219 @@
                     setTimeout(() => {
                         alert('インデックスの再構築が完了しました');
                     }, 2000);
+                },
+
+                // ルール管理メソッド
+                loadRules() {
+                    // サンプルデータ
+                    this.salesRules = [
+                        { id: 1, title: '標準価格の適用範囲', category: 'sales' },
+                        { id: 2, title: 'オプション価格設定基準', category: 'sales' }
+                    ];
+                    this.designRules = [
+                        { id: 3, title: '耐震等級3の確保', category: 'design' },
+                        { id: 4, title: '基礎設計の標準仕様', category: 'design' }
+                    ];
+                    this.constructionRules = [
+                        { id: 5, title: '各工程の品質チェックポイント', category: 'construction' },
+                        { id: 6, title: '施工精度の許容範囲', category: 'construction' }
+                    ];
+                    this.qualityRules = [
+                        { id: 7, title: '第三者検査機関の活用', category: 'quality' },
+                        { id: 8, title: '品質向上のための改善活動', category: 'quality' }
+                    ];
+                },
+
+                editRule(rule) {
+                    this.editingRule = rule;
+                    this.ruleFormData = {
+                        category: rule.category,
+                        title: rule.title,
+                        content: rule.content || '',
+                        priority: rule.priority || 'medium',
+                        targets: rule.targets || { fc: true, builder: false, supplier: false },
+                        documentUrl: rule.documentUrl || ''
+                    };
+                    this.showAddRuleModal = true;
+                },
+
+                saveRule() {
+                    if (!this.ruleFormData.category || !this.ruleFormData.title) {
+                        alert('カテゴリとタイトルは必須です');
+                        return;
+                    }
+
+                    const newRule = {
+                        id: this.editingRule ? this.editingRule.id : Date.now(),
+                        ...this.ruleFormData
+                    };
+
+                    if (this.editingRule) {
+                        // 編集モード
+                        switch(this.ruleFormData.category) {
+                            case 'sales':
+                                const salesIndex = this.salesRules.findIndex(r => r.id === this.editingRule.id);
+                                if (salesIndex !== -1) this.salesRules[salesIndex] = newRule;
+                                break;
+                            case 'design':
+                                const designIndex = this.designRules.findIndex(r => r.id === this.editingRule.id);
+                                if (designIndex !== -1) this.designRules[designIndex] = newRule;
+                                break;
+                            case 'construction':
+                                const constructionIndex = this.constructionRules.findIndex(r => r.id === this.editingRule.id);
+                                if (constructionIndex !== -1) this.constructionRules[constructionIndex] = newRule;
+                                break;
+                            case 'quality':
+                                const qualityIndex = this.qualityRules.findIndex(r => r.id === this.editingRule.id);
+                                if (qualityIndex !== -1) this.qualityRules[qualityIndex] = newRule;
+                                break;
+                        }
+                        alert('ルールを更新しました');
+                    } else {
+                        // 新規追加モード
+                        switch(this.ruleFormData.category) {
+                            case 'sales':
+                                this.salesRules.push(newRule);
+                                break;
+                            case 'design':
+                                this.designRules.push(newRule);
+                                break;
+                            case 'construction':
+                                this.constructionRules.push(newRule);
+                                break;
+                            case 'quality':
+                                this.qualityRules.push(newRule);
+                                break;
+                        }
+                        alert('ルールを追加しました');
+                    }
+
+                    this.showAddRuleModal = false;
+                    this.editingRule = null;
+                    this.resetRuleForm();
+                },
+
+                resetRuleForm() {
+                    this.ruleFormData = {
+                        category: '',
+                        title: '',
+                        content: '',
+                        priority: 'medium',
+                        targets: { fc: true, builder: false, supplier: false },
+                        documentUrl: ''
+                    };
+                },
+
+                deleteRule(rule) {
+                    if (confirm(`ルール「${rule.title}」を削除してもよろしいですか？`)) {
+                        switch(rule.category) {
+                            case 'sales':
+                                this.salesRules = this.salesRules.filter(r => r.id !== rule.id);
+                                break;
+                            case 'design':
+                                this.designRules = this.designRules.filter(r => r.id !== rule.id);
+                                break;
+                            case 'construction':
+                                this.constructionRules = this.constructionRules.filter(r => r.id !== rule.id);
+                                break;
+                            case 'quality':
+                                this.qualityRules = this.qualityRules.filter(r => r.id !== rule.id);
+                                break;
+                        }
+                        alert('ルールを削除しました');
+                    }
+                },
+
+                // ダウンロード管理メソッド
+                loadDownloads() {
+                    // サンプルデータ
+                    this.downloads = [
+                        { id: 1, name: 'LIFE X パンフレット.pdf', category: '営業資料', size: '5.2MB', updatedAt: '2025-09-01', downloadCount: 142 },
+                        { id: 2, name: '標準仕様書.xlsx', category: '技術資料', size: '2.8MB', updatedAt: '2025-08-28', downloadCount: 89 },
+                        { id: 3, name: '資金計画書テンプレート.xlsx', category: 'テンプレート', size: '1.5MB', updatedAt: '2025-08-15', downloadCount: 234 }
+                    ];
+                },
+
+                editDownload(download) {
+                    this.editingDownload = download;
+                    this.downloadFormData = {
+                        name: download.name,
+                        category: download.category,
+                        description: download.description || '',
+                        size: download.size,
+                        format: download.format || '',
+                        url: download.url || '',
+                        permissions: download.permissions || { all: true, fc: false, premium: false }
+                    };
+                    this.showAddDownloadModal = true;
+                },
+
+                saveDownload() {
+                    if (!this.downloadFormData.name || !this.downloadFormData.category) {
+                        alert('ファイル名とカテゴリは必須です');
+                        return;
+                    }
+
+                    const newDownload = {
+                        id: this.editingDownload ? this.editingDownload.id : Date.now(),
+                        ...this.downloadFormData,
+                        updatedAt: new Date().toLocaleDateString('ja-JP'),
+                        downloadCount: this.editingDownload ? this.editingDownload.downloadCount : 0
+                    };
+
+                    if (this.editingDownload) {
+                        // 編集モード
+                        const index = this.downloads.findIndex(d => d.id === this.editingDownload.id);
+                        if (index !== -1) {
+                            this.downloads[index] = newDownload;
+                        }
+                        alert('ファイル情報を更新しました');
+                    } else {
+                        // 新規追加モード
+                        this.downloads.push(newDownload);
+                        alert('ファイルを追加しました');
+                    }
+
+                    this.showAddDownloadModal = false;
+                    this.editingDownload = null;
+                    this.resetDownloadForm();
+                },
+
+                resetDownloadForm() {
+                    this.downloadFormData = {
+                        name: '',
+                        category: '',
+                        description: '',
+                        size: '',
+                        format: '',
+                        url: '',
+                        permissions: { all: true, fc: false, premium: false }
+                    };
+                },
+
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        // ファイルサイズをMB単位で計算
+                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                        this.downloadFormData.size = sizeMB + 'MB';
+                        
+                        // ファイル形式を取得
+                        const extension = file.name.split('.').pop().toUpperCase();
+                        this.downloadFormData.format = extension;
+                        
+                        // ファイル名を自動入力
+                        if (!this.downloadFormData.name) {
+                            this.downloadFormData.name = file.name;
+                        }
+                    }
+                },
+
+                deleteDownload(download) {
+                    if (confirm(`ファイル「${download.name}」を削除してもよろしいですか？`)) {
+                        this.downloads = this.downloads.filter(d => d.id !== download.id);
+                        alert('ファイルを削除しました');
+                    }
                 }
             }
         }

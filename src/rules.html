@@ -20,6 +20,7 @@
                 <nav class="hidden md:flex space-x-8">
                     <a href="/" class="nav-link">ホーム</a>
                     <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/design.html" class="nav-link">デザインから探す</a>
                     <a href="/plans.html" class="nav-link">プラン一覧</a>
                     <a href="/rules.html" class="nav-link active">ルール</a>
                     <a href="/downloads.html" class="nav-link">ダウンロード</a>
@@ -35,6 +36,7 @@
                     <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border p-4 z-50 min-w-48">
                         <a href="/" class="nav-link block">ホーム</a>
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
+                        <a href="/design.html" class="nav-link block">デザインから探す</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
                         <a href="/rules.html" class="nav-link block">ルール</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
@@ -78,9 +80,9 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">💰 価格・見積りルール</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">💰 価格・見積りルール</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('標準価格の適用範囲')" class="cursor-pointer">• 標準価格の適用範囲</li>
                                 <li @click="showDetail('オプション価格設定基準')" class="cursor-pointer">• オプション価格設定基準</li>
                                 <li @click="showDetail('値引き・割引の制限事項')" class="cursor-pointer">• 値引き・割引の制限事項</li>
@@ -88,9 +90,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">📞 お客様対応基準</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📞 お客様対応基準</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('初回面談時の説明事項')" class="cursor-pointer">• 初回面談時の説明事項</li>
                                 <li @click="showDetail('契約前の重要事項説明')" class="cursor-pointer">• 契約前の重要事項説明</li>
                                 <li @click="showDetail('アフターサービス対応')" class="cursor-pointer">• アフターサービス対応</li>
@@ -98,9 +100,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">📢 広告・宣伝ルール</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📢 広告・宣伝ルール</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('LIFE Xブランドガイドライン')" class="cursor-pointer">• LIFE Xブランドガイドライン</li>
                                 <li @click="showDetail('広告表現の制限事項')" class="cursor-pointer">• 広告表現の制限事項</li>
                                 <li @click="showDetail('SNS・Web広告の運用基準')" class="cursor-pointer">• SNS・Web広告の運用基準</li>
@@ -108,9 +110,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">📝 契約・手続きルール</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📝 契約・手続きルール</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('契約書類の作成・管理')" class="cursor-pointer">• 契約書類の作成・管理</li>
                                 <li @click="showDetail('工事請負契約の締結手順')" class="cursor-pointer">• 工事請負契約の締結手順</li>
                                 <li @click="showDetail('変更契約の取り扱い')" class="cursor-pointer">• 変更契約の取り扱い</li>
@@ -133,14 +135,14 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-blue-900 mb-3 flex items-center justify-between">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3 flex items-center justify-between">
                                 <span>🏗️ 構造設計基準</span>
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-blue-800 space-y-2">
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('建築基準法に準拠した構造計算')" class="cursor-pointer">• 建築基準法に準拠した構造計算</li>
                                 <li @click="showDetail('耐震等級3の確保')" class="cursor-pointer">• 耐震等級3の確保</li>
                                 <li @click="showDetail('基礎設計の標準仕様遵守')" class="cursor-pointer">• 基礎設計の標準仕様遵守</li>
@@ -148,14 +150,14 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-blue-900 mb-3 flex items-center justify-between">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3 flex items-center justify-between">
                                 <span>🎨 意匠設計基準</span>
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-blue-800 space-y-2">
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('LIFE Xデザインガイドライン準拠')" class="cursor-pointer">• LIFE Xデザインガイドライン準拠</li>
                                 <li @click="showDetail('標準プランからの変更制限事項')" class="cursor-pointer">• 標準プランからの変更制限事項</li>
                                 <li @click="showDetail('外観・内装の品質基準')" class="cursor-pointer">• 外観・内装の品質基準</li>
@@ -163,14 +165,14 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-blue-900 mb-3 flex items-center justify-between">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3 flex items-center justify-between">
                                 <span>⚡ 設備設計基準</span>
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-blue-800 space-y-2">
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('電気設備の標準仕様')" class="cursor-pointer">• 電気設備の標準仕様</li>
                                 <li @click="showDetail('給排水設備の配置基準')" class="cursor-pointer">• 給排水設備の配置基準</li>
                                 <li @click="showDetail('空調・換気システムの設計基準')" class="cursor-pointer">• 空調・換気システムの設計基準</li>
@@ -178,14 +180,14 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-blue-900 mb-3 flex items-center justify-between">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3 flex items-center justify-between">
                                 <span>📋 申請・手続き</span>
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-blue-800 space-y-2">
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('建築確認申請の手順')" class="cursor-pointer">• 建築確認申請の手順</li>
                                 <li @click="showDetail('長期優良住宅認定申請')" class="cursor-pointer">• 長期優良住宅認定申請</li>
                                 <li @click="showDetail('住宅性能評価申請')" class="cursor-pointer">• 住宅性能評価申請</li>
@@ -208,9 +210,9 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-orange-900 mb-3">⚒️ 施工品質基準</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">⚒️ 施工品質基準</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('標準価格の適用範囲')" class="cursor-pointer">• 標準価格の適用範囲</li>
                                 <li @click="showDetail('オプション価格設定基準')" class="cursor-pointer">• オプション価格設定基準</li>
                                 <li @click="showDetail('値引き・割引の制限事項')" class="cursor-pointer">• 値引き・割引の制限事項</li>
@@ -218,9 +220,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">📞 お客様対応基準</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📞 お客様対応基準</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('初回面談時の説明事項')" class="cursor-pointer">• 初回面談時の説明事項</li>
                                 <li @click="showDetail('契約前の重要事項説明')" class="cursor-pointer">• 契約前の重要事項説明</li>
                                 <li @click="showDetail('アフターサービス対応')" class="cursor-pointer">• アフターサービス対応</li>
@@ -228,9 +230,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">📢 広告・宣伝ルール</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📢 広告・宣伝ルール</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('LIFE Xブランドガイドライン')" class="cursor-pointer">• LIFE Xブランドガイドライン</li>
                                 <li @click="showDetail('広告表現の制限事項')" class="cursor-pointer">• 広告表現の制限事項</li>
                                 <li @click="showDetail('SNS・Web広告の運用基準')" class="cursor-pointer">• SNS・Web広告の運用基準</li>
@@ -238,9 +240,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-green-900 mb-3">📝 契約・手続きルール</h3>
-                            <ul class="text-sm text-green-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📝 契約・手続きルール</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('契約書類の作成・管理')" class="cursor-pointer">• 契約書類の作成・管理</li>
                                 <li @click="showDetail('工事請負契約の締結手順')" class="cursor-pointer">• 工事請負契約の締結手順</li>
                                 <li @click="showDetail('変更契約の取り扱い')" class="cursor-pointer">• 変更契約の取り扱い</li>
@@ -263,9 +265,9 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-orange-900 mb-3">⚒️ 施工品質基準</h3>
-                            <ul class="text-sm text-orange-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">⚒️ 施工品質基準</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('各工程の品質チェックポイント')" class="cursor-pointer">• 各工程の品質チェックポイント</li>
                                 <li @click="showDetail('使用材料の品質管理')" class="cursor-pointer">• 使用材料の品質管理</li>
                                 <li @click="showDetail('施工精度の許容範囲')" class="cursor-pointer">• 施工精度の許容範囲</li>
@@ -273,9 +275,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-orange-900 mb-3">📅 工程管理基準</h3>
-                            <ul class="text-sm text-orange-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📅 工程管理基準</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('標準工程表の遵守')" class="cursor-pointer">• 標準工程表の遵守</li>
                                 <li @click="showDetail('工程遅延時の対応手順')" class="cursor-pointer">• 工程遅延時の対応手順</li>
                                 <li @click="showDetail('雨天・悪天候時の作業基準')" class="cursor-pointer">• 雨天・悪天候時の作業基準</li>
@@ -283,9 +285,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-orange-900 mb-3">🏠 現場管理基準</h3>
-                            <ul class="text-sm text-orange-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">🏠 現場管理基準</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('現場の整理整頓・5S活動')" class="cursor-pointer">• 現場の整理整頓・5S活動</li>
                                 <li @click="showDetail('安全管理・事故防止対策')" class="cursor-pointer">• 安全管理・事故防止対策</li>
                                 <li @click="showDetail('廃棄物処理・環境対策')" class="cursor-pointer">• 廃棄物処理・環境対策</li>
@@ -293,9 +295,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-orange-900 mb-3">📋 検査・記録</h3>
-                            <ul class="text-sm text-orange-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">📋 検査・記録</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('各種検査の実施・記録')" class="cursor-pointer">• 各種検査の実施・記録</li>
                                 <li @click="showDetail('施工写真の撮影・管理')" class="cursor-pointer">• 施工写真の撮影・管理</li>
                                 <li @click="showDetail('品質管理書類の作成')" class="cursor-pointer">• 品質管理書類の作成</li>
@@ -318,9 +320,9 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-purple-900 mb-3">🔍 品質管理体制</h3>
-                            <ul class="text-sm text-purple-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">🔍 品質管理体制</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('第三者検査機関の活用')" class="cursor-pointer">• 第三者検査機関の活用</li>
                                 <li @click="showDetail('内部監査の実施')" class="cursor-pointer">• 内部監査の実施</li>
                                 <li @click="showDetail('品質向上のための改善活動')" class="cursor-pointer">• 品質向上のための改善活動</li>
@@ -328,9 +330,9 @@
                             </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6">
-                            <h3 class="font-semibold text-purple-900 mb-3">🔧 アフターサービス</h3>
-                            <ul class="text-sm text-purple-800 space-y-2">
+                        <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
+                            <h3 class="font-semibold text-gray-900 mb-3">🔧 アフターサービス</h3>
+                            <ul class="text-sm text-gray-700 space-y-2">
                                 <li @click="showDetail('引渡し後の定期点検')" class="cursor-pointer">• 引渡し後の定期点検</li>
                                 <li @click="showDetail('保証対応・メンテナンス')" class="cursor-pointer">• 保証対応・メンテナンス</li>
                                 <li @click="showDetail('お客様相談窓口の運営')" class="cursor-pointer">• お客様相談窓口の運営</li>
@@ -535,7 +537,7 @@
                             <h3 class="text-xl font-bold mb-4">構造設計基準の詳細</h3>
                             <div class="space-y-6">
                                 <div>
-                                    <h4 class="text-lg font-semibold text-blue-900 mb-2">1. 建築基準法に準拠した構造計算</h4>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-2">1. 建築基準法に準拠した構造計算</h4>
                                     <p class="text-gray-700 mb-3">全ての構造計算は、最新の建築基準法および関連法令に準拠して実施します。</p>
                                     <ul class="list-disc ml-6 space-y-2 text-gray-600">
                                         <li>許容応力度計算の実施</li>
@@ -546,7 +548,7 @@
                                 </div>
                                 
                                 <div>
-                                    <h4 class="text-lg font-semibold text-blue-900 mb-2">2. 耐震等級3の確保</h4>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-2">2. 耐震等級3の確保</h4>
                                     <p class="text-gray-700 mb-3">住宅性能表示制度における最高等級の耐震性能を確保します。</p>
                                     <ul class="list-disc ml-6 space-y-2 text-gray-600">
                                         <li>建築基準法の1.5倍の地震力に耐える構造</li>
@@ -557,7 +559,7 @@
                                 </div>
                                 
                                 <div>
-                                    <h4 class="text-lg font-semibold text-blue-900 mb-2">3. 基礎設計の標準仕様</h4>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-2">3. 基礎設計の標準仕様</h4>
                                     <p class="text-gray-700 mb-3">地盤調査結果に基づき、適切な基礎形式を選定します。</p>
                                     <ul class="list-disc ml-6 space-y-2 text-gray-600">
                                         <li>スウェーデン式サウンディング試験の実施</li>
@@ -576,7 +578,7 @@
                             <h3 class="text-xl font-bold mb-4">意匠設計基準の詳細</h3>
                             <div class="space-y-6">
                                 <div>
-                                    <h4 class="text-lg font-semibold text-blue-900 mb-2">1. LIFE Xデザインガイドライン</h4>
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-2">1. LIFE Xデザインガイドライン</h4>
                                     <p class="text-gray-700 mb-3">統一されたデザインコンセプトに基づいた設計を行います。</p>
                                     <ul class="list-disc ml-6 space-y-2 text-gray-600">
                                         <li>シンプルモダンを基調とした外観デザイン</li>
@@ -1044,6 +1046,616 @@
                     
                     // Show notification
                     alert('PDFをダウンロードしました');
+                },
+
+                showDetail(title) {
+                    // ルールの詳細データ
+                    const ruleDetails = {
+                        // 営業ルール - 価格・見積りルール
+                        '標準価格の適用範囲': {
+                            title: '標準価格の適用範囲',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 基本原則</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>LIFE X標準プランの基本価格は全国統一価格として設定</li>
+                                    <li>地域係数による価格調整は本部承認が必要</li>
+                                    <li>標準仕様の変更は別途オプション価格を適用</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">2. 適用条件</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>建築面積：25坪～35坪の範囲内</li>
+                                    <li>標準仕様書に記載された設備・材料を使用</li>
+                                    <li>平坦地での施工（高低差1m以内）</li>
+                                    <li>準防火地域以下の地域</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">3. 追加費用が発生する場合</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>地盤改良工事が必要な場合</li>
+                                    <li>特殊な基礎工事が必要な場合</li>
+                                    <li>防火・準耐火地域での追加対応</li>
+                                    <li>狭小地・変形地での施工</li>
+                                </ul>
+
+                                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                                    <p class="font-semibold">⚠️ 注意事項</p>
+                                    <p class="text-sm mt-2">標準価格を逸脱する見積りを提出する場合は、必ず事前に本部へ相談してください。</p>
+                                </div>
+                            `
+                        },
+                        'オプション価格設定基準': {
+                            title: 'オプション価格設定基準',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. オプション価格の構成</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>材料費：メーカー定価の65%～75%</li>
+                                    <li>施工費：標準施工単価表に基づく</li>
+                                    <li>管理費：材料費＋施工費の15%</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">2. 主要オプション価格</h3>
+                                <table class="w-full border-collapse border border-gray-300 mb-4">
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 p-2">項目</th>
+                                        <th class="border border-gray-300 p-2">標準価格</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">太陽光発電（4kW）</td>
+                                        <td class="border border-gray-300 p-2">120万円</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">蓄電池（7kWh）</td>
+                                        <td class="border border-gray-300 p-2">150万円</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">床暖房（LDK）</td>
+                                        <td class="border border-gray-300 p-2">45万円</td>
+                                    </tr>
+                                </table>
+
+                                <h3 class="font-bold text-lg mb-3">3. 価格変更の手続き</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>10%以上の値引きは本部承認が必要</li>
+                                    <li>キャンペーン価格の適用は期間限定</li>
+                                    <li>複数オプションのセット割引は最大15%まで</li>
+                                </ul>
+                            `
+                        },
+                        '値引き・割引の制限事項': {
+                            title: '値引き・割引の制限事項',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 値引き上限</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>標準価格からの値引き：最大5%</li>
+                                    <li>オプション価格からの値引き：最大10%</li>
+                                    <li>総額からの値引き：最大3%</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">2. 承認が必要な値引き</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>5%を超える値引き：エリアマネージャー承認</li>
+                                    <li>10%を超える値引き：本部承認</li>
+                                    <li>特別値引き：役員承認</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">3. 禁止事項</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>原価を下回る価格での販売</li>
+                                    <li>他社対抗での無制限値引き</li>
+                                    <li>口約束による値引き</li>
+                                </ul>
+
+                                <div class="bg-red-50 border-l-4 border-red-400 p-4 mt-4">
+                                    <p class="font-semibold">❌ 重要</p>
+                                    <p class="text-sm mt-2">無断での過度な値引きは加盟契約違反となる可能性があります。</p>
+                                </div>
+                            `
+                        },
+                        '見積書作成の標準フォーマット': {
+                            title: '見積書作成の標準フォーマット',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 必須記載事項</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>見積番号・発行日・有効期限（30日間）</li>
+                                    <li>お客様名・建築地・敷地面積・建築面積</li>
+                                    <li>プラン名・仕様グレード</li>
+                                    <li>工事内容の詳細内訳</li>
+                                    <li>支払条件・工期</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">2. 内訳書の構成</h3>
+                                <ol class="list-decimal ml-6 mb-4 space-y-2">
+                                    <li>本体工事費</li>
+                                    <li>付帯工事費</li>
+                                    <li>オプション工事費</li>
+                                    <li>諸経費</li>
+                                    <li>消費税</li>
+                                </ol>
+
+                                <h3 class="font-bold text-lg mb-3">3. 添付資料</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>配置図・平面図・立面図</li>
+                                    <li>仕様書（概要版）</li>
+                                    <li>工程表（概略）</li>
+                                    <li>保証内容説明書</li>
+                                </ul>
+
+                                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mt-4">
+                                    <p class="font-semibold">📝 テンプレート</p>
+                                    <p class="text-sm mt-2">標準見積書のテンプレートは管理画面からダウンロード可能です。</p>
+                                </div>
+                            `
+                        },
+
+                        // 設計ルール
+                        '耐震等級3の確保': {
+                            title: '耐震等級3の確保',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 構造計算の実施</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>全棟で構造計算を実施（許容応力度計算）</li>
+                                    <li>建築基準法の1.5倍の地震力に対する安全性確保</li>
+                                    <li>第三者機関による構造計算適合性判定</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">2. 基礎の仕様</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>ベタ基礎を標準採用</li>
+                                    <li>基礎幅：150mm以上</li>
+                                    <li>立上り高さ：GL+400mm以上</li>
+                                    <li>配筋：D13@200ダブル配筋</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">3. 構造材の仕様</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>土台：檜120角以上</li>
+                                    <li>柱：檜または杉120角以上</li>
+                                    <li>梁：米松または集成材</li>
+                                    <li>構造用合板：24mm以上</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">4. 接合部の仕様</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>金物工法による接合</li>
+                                    <li>ホールダウン金物の適正配置</li>
+                                    <li>筋交い金物の使用</li>
+                                </ul>
+                            `
+                        },
+
+                        // 施工ルール
+                        '各工程の品質チェックポイント': {
+                            title: '各工程の品質チェックポイント',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 基礎工事</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>地盤調査データとの照合</li>
+                                    <li>配筋検査（かぶり厚・ピッチ）</li>
+                                    <li>コンクリート強度試験</li>
+                                    <li>レベル・通り・直角の確認</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">2. 躯体工事</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>土台の防腐・防蟻処理確認</li>
+                                    <li>柱の垂直精度（1/1000以内）</li>
+                                    <li>梁の水平精度</li>
+                                    <li>金物の取付状況</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">3. 防水工事</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>ルーフィングの重ね幅（100mm以上）</li>
+                                    <li>サッシ周りの防水テープ施工</li>
+                                    <li>バルコニーFRP防水の膜厚</li>
+                                    <li>散水試験の実施</li>
+                                </ul>
+
+                                <h3 class="font-bold text-lg mb-3">4. 断熱工事</h3>
+                                <ul class="list-disc ml-6 mb-4 space-y-2">
+                                    <li>断熱材の隙間なき充填</li>
+                                    <li>防湿シートの施工</li>
+                                    <li>気密測定（C値1.0以下）</li>
+                                </ul>
+
+                                <div class="bg-green-50 border-l-4 border-green-400 p-4 mt-4">
+                                    <p class="font-semibold">✅ チェックリスト</p>
+                                    <p class="text-sm mt-2">各工程のチェックリストは施工管理アプリで確認できます。</p>
+                                </div>
+                            `
+                        },
+
+                        // 営業ルール - 顧客対応
+                        '初回面談時の説明事項': {
+                            title: '初回面談時の説明事項',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 面談前の準備</h3>
+                                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                                    <ul class="list-disc ml-6 space-y-2">
+                                        <li>会社案内パンフレット</li>
+                                        <li>LIFE X標準プランカタログ</li>
+                                        <li>施工事例集（直近10件以上）</li>
+                                        <li>価格表・概算見積書テンプレート</li>
+                                        <li>ヒアリングシート</li>
+                                    </ul>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3">2. 必須説明事項</h3>
+                                <div class="space-y-4">
+                                    <div class="border-l-4 border-blue-500 pl-4">
+                                        <h4 class="font-semibold">会社概要説明（5分）</h4>
+                                        <ul class="list-disc ml-6 mt-2 space-y-1 text-gray-700">
+                                            <li>LIFE Xフランチャイズシステムの概要</li>
+                                            <li>地域での施工実績</li>
+                                            <li>アフターサービス体制</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="border-l-4 border-green-500 pl-4">
+                                        <h4 class="font-semibold">商品説明（10分）</h4>
+                                        <ul class="list-disc ml-6 mt-2 space-y-1 text-gray-700">
+                                            <li>LIFE X標準プランの特徴</li>
+                                            <li>耐震性能・省エネ性能</li>
+                                            <li>標準仕様とオプション</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="border-l-4 border-yellow-500 pl-4">
+                                        <h4 class="font-semibold">価格・スケジュール説明（5分）</h4>
+                                        <ul class="list-disc ml-6 mt-2 space-y-1 text-gray-700">
+                                            <li>概算価格の提示</li>
+                                            <li>標準工期（着工から竣工まで）</li>
+                                            <li>支払いスケジュール</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3 mt-6">3. ヒアリング項目</h3>
+                                <table class="w-full border-collapse border border-gray-300">
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 p-2 text-left">項目</th>
+                                        <th class="border border-gray-300 p-2 text-left">確認内容</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">ご予算</td>
+                                        <td class="border border-gray-300 p-2">総予算・自己資金・借入予定額</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">建築時期</td>
+                                        <td class="border border-gray-300 p-2">希望着工時期・完成希望時期</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">土地</td>
+                                        <td class="border border-gray-300 p-2">所有/購入予定・場所・面積</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">家族構成</td>
+                                        <td class="border border-gray-300 p-2">人数・年齢・将来計画</td>
+                                    </tr>
+                                </table>
+
+                                <div class="bg-red-50 border-l-4 border-red-500 p-4 mt-6">
+                                    <h4 class="font-bold text-red-800">⚠️ 注意事項</h4>
+                                    <ul class="list-disc ml-6 mt-2 space-y-1 text-red-700">
+                                        <li>初回面談では契約を急がない</li>
+                                        <li>過度な値引き交渉には応じない</li>
+                                        <li>他社批判は絶対に行わない</li>
+                                        <li>約束事項は必ず書面で残す</li>
+                                    </ul>
+                                </div>
+                            `
+                        },
+                        '契約前の重要事項説明': {
+                            title: '契約前の重要事項説明',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 法定説明事項</h3>
+                                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-semibold mb-2">建設業法に基づく説明</h4>
+                                    <ul class="list-disc ml-6 space-y-2">
+                                        <li>建設業許可番号の提示</li>
+                                        <li>請負契約約款の説明</li>
+                                        <li>工事保険の内容</li>
+                                        <li>瑕疵担保責任の範囲</li>
+                                    </ul>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3">2. 契約内容の詳細説明</h3>
+                                <div class="space-y-3">
+                                    <div class="border-l-4 border-green-500 pl-4">
+                                        <h4 class="font-semibold">工事内容</h4>
+                                        <ul class="list-disc ml-6 mt-2 space-y-1 text-gray-700">
+                                            <li>設計図書の内容確認</li>
+                                            <li>仕様書の詳細説明</li>
+                                            <li>標準仕様とオプションの区別</li>
+                                            <li>別途工事の有無と内容</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="border-l-4 border-yellow-500 pl-4">
+                                        <h4 class="font-semibold">金額・支払条件</h4>
+                                        <ul class="list-disc ml-6 mt-2 space-y-1 text-gray-700">
+                                            <li>請負金額の内訳</li>
+                                            <li>支払時期と金額</li>
+                                            <li>追加変更の取扱い</li>
+                                            <li>消費税の取扱い</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="border-l-4 border-purple-500 pl-4">
+                                        <h4 class="font-semibold">工期・引渡し</h4>
+                                        <ul class="list-disc ml-6 mt-2 space-y-1 text-gray-700">
+                                            <li>着工予定日・完成予定日</li>
+                                            <li>工期延長の可能性</li>
+                                            <li>引渡し時の確認事項</li>
+                                            <li>鍵の引渡し方法</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3 mt-6">3. 確認チェックリスト</h3>
+                                <table class="w-full border-collapse border border-gray-300">
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 p-2">確認項目</th>
+                                        <th class="border border-gray-300 p-2 w-20">チェック</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">設計図書をお客様に渡したか</td>
+                                        <td class="border border-gray-300 p-2 text-center">□</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">見積書の内訳を説明したか</td>
+                                        <td class="border border-gray-300 p-2 text-center">□</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">支払条件を確認したか</td>
+                                        <td class="border border-gray-300 p-2 text-center">□</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">工期を確認したか</td>
+                                        <td class="border border-gray-300 p-2 text-center">□</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">アフターサービスを説明したか</td>
+                                        <td class="border border-gray-300 p-2 text-center">□</td>
+                                    </tr>
+                                </table>
+
+                                <div class="bg-red-50 border-l-4 border-red-500 p-4 mt-6">
+                                    <h4 class="font-bold text-red-800">⚠️ 重要</h4>
+                                    <p class="text-red-700 mt-2">全ての説明事項について、お客様の理解と同意を得たことを書面で確認し、署名・捺印をいただくこと。</p>
+                                </div>
+                            `
+                        },
+                        'アフターサービス対応': {
+                            title: 'アフターサービス対応',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 定期点検スケジュール</h3>
+                                <table class="w-full border-collapse border border-gray-300 mb-6">
+                                    <tr class="bg-blue-100">
+                                        <th class="border border-gray-300 p-2">時期</th>
+                                        <th class="border border-gray-300 p-2">点検内容</th>
+                                        <th class="border border-gray-300 p-2">所要時間</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">1ヶ月</td>
+                                        <td class="border border-gray-300 p-2">初期不具合確認・建具調整</td>
+                                        <td class="border border-gray-300 p-2">1時間</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">6ヶ月</td>
+                                        <td class="border border-gray-300 p-2">設備機器点検・外装確認</td>
+                                        <td class="border border-gray-300 p-2">2時間</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">1年</td>
+                                        <td class="border border-gray-300 p-2">総合点検・瑕疵確認</td>
+                                        <td class="border border-gray-300 p-2">3時間</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">2年</td>
+                                        <td class="border border-gray-300 p-2">総合点検・メンテナンス提案</td>
+                                        <td class="border border-gray-300 p-2">2時間</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">5年</td>
+                                        <td class="border border-gray-300 p-2">防水・外装重点点検</td>
+                                        <td class="border border-gray-300 p-2">3時間</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2">10年</td>
+                                        <td class="border border-gray-300 p-2">10年保証最終点検</td>
+                                        <td class="border border-gray-300 p-2">4時間</td>
+                                    </tr>
+                                </table>
+
+                                <h3 class="font-bold text-lg mb-3">2. 緊急対応フロー</h3>
+                                <div class="bg-red-50 p-4 rounded-lg mb-4">
+                                    <h4 class="font-semibold text-red-800 mb-2">24時間以内対応が必要な事象</h4>
+                                    <ul class="list-disc ml-6 space-y-2 text-red-700">
+                                        <li>雨漏り・漏水</li>
+                                        <li>電気・ガス・水道の不具合</li>
+                                        <li>施錠不良・防犯上の問題</li>
+                                        <li>構造的な異常・危険</li>
+                                    </ul>
+                                </div>
+
+                                <div class="border-l-4 border-blue-500 pl-4 mb-4">
+                                    <h4 class="font-semibold mb-2">対応手順</h4>
+                                    <ol class="list-decimal ml-6 space-y-2">
+                                        <li>受付（24時間コールセンター）</li>
+                                        <li>緊急度判定（30分以内）</li>
+                                        <li>現場確認（当日～翌日）</li>
+                                        <li>応急処置の実施</li>
+                                        <li>本格修理の手配</li>
+                                        <li>完了報告・記録</li>
+                                    </ol>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3">3. 保証内容</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-green-800 mb-2">構造躯体</h4>
+                                        <p class="text-green-700">10年保証</p>
+                                        <ul class="list-disc ml-6 mt-2 text-sm">
+                                            <li>基礎・土台</li>
+                                            <li>柱・梁</li>
+                                            <li>屋根・外壁</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-gray-700 mb-2">防水</h4>
+                                        <p class="text-blue-700">10年保証</p>
+                                        <ul class="list-disc ml-6 mt-2 text-sm">
+                                            <li>屋根防水</li>
+                                            <li>外壁防水</li>
+                                            <li>バルコニー防水</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-yellow-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-yellow-800 mb-2">設備機器</h4>
+                                        <p class="text-yellow-700">2年保証</p>
+                                        <ul class="list-disc ml-6 mt-2 text-sm">
+                                            <li>給湯器</li>
+                                            <li>エアコン</li>
+                                            <li>換気システム</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-gray-700 mb-2">内装・建具</h4>
+                                        <p class="text-purple-700">2年保証</p>
+                                        <ul class="list-disc ml-6 mt-2 text-sm">
+                                            <li>クロス・床材</li>
+                                            <li>建具・サッシ</li>
+                                            <li>造作家具</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gray-100 p-4 rounded-lg mt-6">
+                                    <h4 class="font-bold mb-2">📞 アフターサービス窓口</h4>
+                                    <p class="text-lg font-semibold">0120-XXX-XXXX</p>
+                                    <p class="text-sm text-gray-600">受付時間：9:00～18:00（緊急時24時間）</p>
+                                </div>
+                            `
+                        },
+                        'クレーム対応フロー': {
+                            title: 'クレーム対応フロー',
+                            content: `
+                                <h3 class="font-bold text-lg mb-3">1. 初期対応（発生から24時間以内）</h3>
+                                <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                                    <h4 class="font-bold text-red-800 mb-2">⚡ 緊急対応の原則</h4>
+                                    <ol class="list-decimal ml-6 space-y-2">
+                                        <li><strong>傾聴</strong>：お客様の話を最後まで聞く（遮らない）</li>
+                                        <li><strong>共感</strong>：お客様の気持ちに寄り添う</li>
+                                        <li><strong>謝罪</strong>：不快な思いをさせたことへの謝罪</li>
+                                        <li><strong>確認</strong>：事実関係の確認（5W1H）</li>
+                                        <li><strong>記録</strong>：全ての内容を記録に残す</li>
+                                    </ol>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3">2. クレームレベル分類</h3>
+                                <table class="w-full border-collapse border border-gray-300 mb-6">
+                                    <tr class="bg-gray-100">
+                                        <th class="border border-gray-300 p-2">レベル</th>
+                                        <th class="border border-gray-300 p-2">内容</th>
+                                        <th class="border border-gray-300 p-2">対応者</th>
+                                        <th class="border border-gray-300 p-2">報告先</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2 text-center bg-green-50">軽微</td>
+                                        <td class="border border-gray-300 p-2">簡単な手直し・調整</td>
+                                        <td class="border border-gray-300 p-2">担当者</td>
+                                        <td class="border border-gray-300 p-2">工事責任者</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2 text-center bg-yellow-50">中度</td>
+                                        <td class="border border-gray-300 p-2">補修工事・部品交換</td>
+                                        <td class="border border-gray-300 p-2">工事責任者</td>
+                                        <td class="border border-gray-300 p-2">店長</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2 text-center bg-orange-50">重度</td>
+                                        <td class="border border-gray-300 p-2">大規模補修・賠償</td>
+                                        <td class="border border-gray-300 p-2">店長</td>
+                                        <td class="border border-gray-300 p-2">本部</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-gray-300 p-2 text-center bg-red-50">緊急</td>
+                                        <td class="border border-gray-300 p-2">安全・法的問題</td>
+                                        <td class="border border-gray-300 p-2">店長+本部</td>
+                                        <td class="border border-gray-300 p-2">経営層</td>
+                                    </tr>
+                                </table>
+
+                                <h3 class="font-bold text-lg mb-3">3. 対応フローチャート</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="bg-blue-500 text-white px-4 py-2 rounded">クレーム受付</div>
+                                        <div class="mx-2">→</div>
+                                        <div class="bg-blue-500 text-white px-4 py-2 rounded">内容確認・記録</div>
+                                    </div>
+                                    <div class="flex items-center ml-32">
+                                        <div class="mx-2">↓</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-yellow-500 text-white px-4 py-2 rounded">レベル判定</div>
+                                        <div class="mx-2">→</div>
+                                        <div class="bg-yellow-500 text-white px-4 py-2 rounded">責任者報告</div>
+                                    </div>
+                                    <div class="flex items-center ml-32">
+                                        <div class="mx-2">↓</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-green-500 text-white px-4 py-2 rounded">対応方針決定</div>
+                                        <div class="mx-2">→</div>
+                                        <div class="bg-green-500 text-white px-4 py-2 rounded">お客様への回答</div>
+                                    </div>
+                                    <div class="flex items-center ml-32">
+                                        <div class="mx-2">↓</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-purple-500 text-white px-4 py-2 rounded">対応実施</div>
+                                        <div class="mx-2">→</div>
+                                        <div class="bg-purple-500 text-white px-4 py-2 rounded">完了確認・記録</div>
+                                    </div>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3 mt-6">4. NG対応例</h3>
+                                <div class="bg-red-50 p-4 rounded-lg">
+                                    <ul class="list-disc ml-6 space-y-2 text-red-700">
+                                        <li>「私の担当ではない」と責任回避する</li>
+                                        <li>「お客様の使い方が悪い」と責任転嫁する</li>
+                                        <li>「規定ではこうなっている」と杓子定規な対応</li>
+                                        <li>感情的になって言い返す</li>
+                                        <li>その場しのぎの約束をする</li>
+                                        <li>報告・連絡・相談を怠る</li>
+                                    </ul>
+                                </div>
+
+                                <h3 class="font-bold text-lg mb-3 mt-6">5. 再発防止策</h3>
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <ol class="list-decimal ml-6 space-y-2">
+                                        <li>クレーム内容の分析・分類</li>
+                                        <li>原因の特定（なぜなぜ分析）</li>
+                                        <li>改善策の立案・実施</li>
+                                        <li>全社での情報共有</li>
+                                        <li>定期的な研修実施</li>
+                                        <li>改善効果の検証</li>
+                                    </ol>
+                                </div>
+                            `
+                        }
+                    };
+
+                    // 選択されたルールの詳細を取得
+                    const detail = ruleDetails[title] || {
+                        title: title,
+                        content: '<p>詳細情報を準備中です。</p>'
+                    };
+
+                    this.selectedDetail = detail;
+                    this.showDetailModal = true;
                 }
             }
         }
@@ -1051,9 +1663,9 @@
     
     <!-- Maintenance Button - Fixed Top Right -->
     <div class="fixed top-4 right-4 z-50">
-        <button onclick="window.location.href='/admin.html'" 
+        <button onclick="window.location.href='/admin.html#rules'" 
                 class="bg-white text-gray-400 p-2 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-600 transition-all duration-300 opacity-70 hover:opacity-100 border border-gray-200" 
-                title="メンテナンス">
+                title="ルール管理">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
             </svg>

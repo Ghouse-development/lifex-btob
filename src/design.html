@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デザインから探す | LIFE X 加盟店専用サイト</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="./utils/api.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="nav-link">ホーム</a>
+                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/design.html" class="nav-link active">デザインから探す</a>
+                    <a href="/plans.html" class="nav-link">プラン一覧</a>
+                    <a href="/rules.html" class="nav-link">ルール</a>
+                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="designSearchPage()" x-init="init()">
+        <!-- Page Title -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-2">デザインから探す</h1>
+                    <p class="text-lg text-gray-600">外観パースから、お好みのプランをお選びください</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exterior Designs Grid -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <!-- Filter/Sort Options -->
+            <div class="flex justify-between items-center mb-8">
+                <div class="text-gray-700">
+                    <span x-text="plans.length"></span> プラン
+                </div>
+                <div class="flex items-center space-x-4">
+                    <select x-model="sortBy" @change="sortPlans()" class="form-input text-sm">
+                        <option value="name">プラン名順</option>
+                        <option value="tsubo">坪数順</option>
+                        <option value="price">価格順</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Plans Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <template x-for="plan in sortedPlans" :key="plan.id">
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                        <!-- Exterior Image -->
+                        <a :href="'/plan-detail.html?id=' + plan.id" class="block aspect-w-16 aspect-h-12 bg-gray-200 cursor-pointer group">
+                            <template x-if="plan.exteriorImage">
+                                <img :src="plan.exteriorImage" 
+                                     :alt="plan.name + ' 外観パース'" 
+                                     class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
+                            </template>
+                            <template x-if="!plan.exteriorImage">
+                                <div class="w-full h-56 flex items-center justify-center bg-gray-100">
+                                    <svg class="w-20 h-20 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                </div>
+                            </template>
+                        </a>
+                        
+                        <!-- Plan Info -->
+                        <div class="p-4">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">
+                                <a :href="'/plan-detail.html?id=' + plan.id" 
+                                   class="hover:text-primary-600 transition-colors" 
+                                   x-text="plan.name || plan.id"></a>
+                            </h3>
+                            
+                            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                                <div>
+                                    <span class="text-gray-600">坪数:</span>
+                                    <span class="font-semibold" x-text="(plan.tsubo || '-') + '坪'"></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">間口:</span>
+                                    <span class="font-semibold" x-text="(plan.width || '-') + 'm'"></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">奥行:</span>
+                                    <span class="font-semibold" x-text="(plan.depth || '-') + 'm'"></span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-600">売価:</span>
+                                    <span class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></span>
+                                </div>
+                            </div>
+
+                            <!-- Tags -->
+                            <div class="flex flex-wrap gap-1">
+                                <template x-for="tag in (plan.tags || []).slice(0, 3)" :key="tag">
+                                    <span x-text="tag" class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"></span>
+                                </template>
+                                <template x-if="plan.tags && plan.tags.length > 3">
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">
+                                        +<span x-text="plan.tags.length - 3"></span>
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- No Plans Message -->
+            <div x-show="plans.length === 0" class="text-center py-12">
+                <svg class="mx-auto h-24 w-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                <p class="mt-4 text-gray-500">プランデータを読み込み中...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function designSearchPage() {
+            return {
+                plans: [],
+                sortedPlans: [],
+                sortBy: 'name',
+                loading: true,
+
+                async init() {
+                    await this.loadPlans();
+                    this.sortPlans();
+                },
+
+                async loadPlans() {
+                    try {
+                        // plans-index.jsonからプランデータを読み込み
+                        const response = await fetch('/data/plans-index.json');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.plans = data.plans || [];
+                            
+                            // サンプル外観画像を追加（実際は各プランの画像URLを使用）
+                            this.plans = this.plans.map((plan, index) => ({
+                                ...plan,
+                                exteriorImage: plan.exteriorImage || `/assets/images/plans/${plan.id}/exterior.jpg`
+                            }));
+                        }
+                    } catch (error) {
+                        console.error('Failed to load plans:', error);
+                        // サンプルデータ
+                        this.plans = [
+                            { 
+                                id: 'LX-030A', 
+                                name: 'LIFE X 30A', 
+                                tsubo: 30.2, 
+                                width: 8.19,
+                                depth: 7.28,
+                                prices: { sell: 23800000 },
+                                tags: ['平屋', '南入り', '1階LDK'],
+                                exteriorImage: '/assets/images/plans/LX-030A/exterior.jpg'
+                            },
+                            { 
+                                id: 'LX-025B', 
+                                name: 'LIFE X 25B', 
+                                tsubo: 25.4,
+                                width: 7.28,
+                                depth: 6.37,
+                                prices: { sell: 21200000 },
+                                tags: ['平屋', '西入り', '1階LDK'],
+                                exteriorImage: '/assets/images/plans/LX-025B/exterior.jpg'
+                            },
+                            { 
+                                id: 'LX-035C', 
+                                name: 'LIFE X 35C', 
+                                tsubo: 35.8,
+                                width: 9.1,
+                                depth: 8.19,
+                                prices: { sell: 26500000 },
+                                tags: ['2階建', '東入り', '1階LDK'],
+                                exteriorImage: '/assets/images/plans/LX-035C/exterior.jpg'
+                            }
+                        ];
+                    }
+                    this.loading = false;
+                },
+
+                sortPlans() {
+                    const sorted = [...this.plans];
+                    switch(this.sortBy) {
+                        case 'name':
+                            sorted.sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id));
+                            break;
+                        case 'tsubo':
+                            sorted.sort((a, b) => (a.tsubo || 0) - (b.tsubo || 0));
+                            break;
+                        case 'price':
+                            sorted.sort((a, b) => ((a.prices?.sell || 0) - (b.prices?.sell || 0)));
+                            break;
+                    }
+                    this.sortedPlans = sorted;
+                }
+            }
+        }
+    </script>
+
+<!-- AI Bot Component -->
+<div x-data="aibotComponent()" x-init="init()" class="aibot-container">
+    <!-- AI Bot Floating Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button @click="toggleChat()" 
+                class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group" 
+                title="AIサポート">
+            <svg x-show="!chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+            </svg>
+            <svg x-show="chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- AI Chat Window -->
+    <div x-show="chatOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-4"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform translate-y-4"
+         class="fixed bottom-24 right-6 w-96 max-w-full bg-white rounded-xl shadow-2xl z-50"
+         style="display: none;">
+        
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-t-xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <span class="text-lg">🤖</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">LIFE X AIサポート</h3>
+                        <p class="text-xs text-white/80">ご質問をどうぞ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="aibotChatArea">
+            <!-- Welcome Message -->
+            <div class="mb-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-sm">AI</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p class="text-gray-700 text-sm">こんにちは！LIFE Xについて何でもお気軽にご質問ください。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Messages -->
+            <template x-for="message in messages" :key="message.id">
+                <div class="mb-4">
+                    <div class="flex items-start space-x-3" :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                             :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'">
+                            <span class="text-white text-sm" x-text="message.type === 'user' ? 'You' : 'AI'"></span>
+                        </div>
+                        <div class="p-3 rounded-lg shadow-sm max-w-xs" 
+                             :class="message.type === 'user' ? 'bg-blue-100' : 'bg-white'">
+                            <p class="text-gray-700 text-sm" x-html="message.content"></p>
+                            <p class="text-xs text-gray-500 mt-1" x-text="message.timestamp"></p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Typing Indicator -->
+            <div x-show="isTyping" class="mb-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-sm">AI</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm">
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex space-x-2">
+                <input type="text" 
+                       x-model="currentMessage" 
+                       @keydown.enter="sendMessage()"
+                       placeholder="メッセージを入力..."
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                <button @click="sendMessage()" 
+                        :disabled="!currentMessage.trim() || isTyping"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
+                    送信
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function aibotComponent() {
+    return {
+        chatOpen: false,
+        messages: [],
+        currentMessage: '',
+        isTyping: false,
+
+        init() {
+            // 初期化処理
+        },
+
+        toggleChat() {
+            this.chatOpen = !this.chatOpen;
+            if (this.chatOpen) {
+                setTimeout(() => {
+                    const chatArea = document.getElementById('aibotChatArea');
+                    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+                }, 100);
+            }
+        },
+
+        async sendMessage() {
+            if (!this.currentMessage.trim() || this.isTyping) return;
+
+            const message = this.currentMessage.trim();
+            const userMessage = {
+                id: Date.now(),
+                type: 'user',
+                content: message,
+                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            this.messages.push(userMessage);
+            this.currentMessage = '';
+            this.isTyping = true;
+
+            // Scroll to bottom
+            setTimeout(() => {
+                const chatArea = document.getElementById('aibotChatArea');
+                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+
+            // Generate AI response
+            await this.generateResponse(message);
+        },
+
+        async generateResponse(question) {
+            // AI応答のシミュレーション
+            let response = '';
+            const lowerQuestion = question.toLowerCase();
+            
+            if (lowerQuestion.includes('デザイン') || lowerQuestion.includes('外観')) {
+                response = 'デザインから探すページでは、外観パースの一覧から直感的にプランを選択できます。画像をクリックすると詳細ページへ移動します。';
+            } else if (lowerQuestion.includes('価格') || lowerQuestion.includes('料金') || lowerQuestion.includes('費用')) {
+                response = 'LIFE Xの価格については、標準価格表に基づいて見積もりを作成いたします。詳細は営業担当者にお問い合わせください。';
+            } else if (lowerQuestion.includes('プラン')) {
+                response = 'LIFE Xでは30坪から35坪まで様々なプランをご用意しています。プラン一覧ページでご確認いただけます。';
+            } else if (lowerQuestion.includes('耐震') || lowerQuestion.includes('地震')) {
+                response = 'LIFE Xでは耐震等級3を標準仕様としています。建築基準法の1.5倍の地震力に耐える構造です。';
+            } else {
+                response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
+            }
+
+            // タイピング遅延のシミュレーション
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const aiMessage = {
+                id: Date.now(),
+                type: 'ai',
+                content: response,
+                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            this.isTyping = false;
+            this.messages.push(aiMessage);
+
+            // Scroll to bottom
+            setTimeout(() => {
+                const chatArea = document.getElementById('aibotChatArea');
+                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+        }
+    }
+}
+</script>
+</body>
+</html>

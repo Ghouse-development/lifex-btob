@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プラン管理 | LIFE X 管理画面</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="./utils/api.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X 管理画面</h1>
+                    <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/admin-plans.html" class="nav-link active">プラン管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール管理</a>
+                    <a href="/admin-downloads.html" class="nav-link">ダウンロード管理</a>
+                    <a href="/" class="nav-link">サイトに戻る</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="adminPlans()" x-init="init()">
+        <!-- Page Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">プラン管理</h1>
+                    <p class="text-gray-600 mt-2">住宅プランの追加・編集・削除を管理</p>
+                </div>
+                <button @click="openAddModal()" class="btn-primary">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    新規プラン追加
+                </button>
+            </div>
+
+            <!-- Filter & Search -->
+            <div class="card mb-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <input type="text" 
+                           x-model="searchQuery"
+                           @input="filterPlans()"
+                           placeholder="プラン名で検索..." 
+                           class="form-input flex-1">
+                    <select x-model="filterCategory" @change="filterPlans()" class="form-input">
+                        <option value="">全てのカテゴリ</option>
+                        <option value="30坪">30坪</option>
+                        <option value="33坪">33坪</option>
+                        <option value="35坪">35坪</option>
+                        <option value="平屋">平屋</option>
+                        <option value="2階建て">2階建て</option>
+                    </select>
+                    <select x-model="sortBy" @change="sortPlans()" class="form-input">
+                        <option value="name">名前順</option>
+                        <option value="date">更新日順</option>
+                        <option value="size">坪数順</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Plans Table -->
+            <div class="card">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プラン名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">坪数</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間取り</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">価格</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新日</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="plan in filteredPlans" :key="plan.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.id"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="plan.name"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`${plan.size}坪`"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.layout"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`¥${plan.price.toLocaleString()}万円`"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span x-show="plan.status === 'active'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            公開中
+                                        </span>
+                                        <span x-show="plan.status === 'draft'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            下書き
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.updated"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button @click="editPlan(plan)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
+                                        <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-900">削除</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div x-show="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4" x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></h3>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">プランID</label>
+                            <input type="text" x-model="formData.id" class="form-input w-full" placeholder="LX-001">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">プラン名</label>
+                            <input type="text" x-model="formData.name" class="form-input w-full" placeholder="ファミリープラン30">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">坪数</label>
+                            <input type="number" x-model="formData.size" class="form-input w-full" placeholder="30">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">間取り</label>
+                            <input type="text" x-model="formData.layout" class="form-input w-full" placeholder="4LDK">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">価格（万円）</label>
+                            <input type="number" x-model="formData.price" class="form-input w-full" placeholder="2000">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
+                            <select x-model="formData.status" class="form-input w-full">
+                                <option value="active">公開中</option>
+                                <option value="draft">下書き</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
+                            <textarea x-model="formData.description" rows="3" class="form-input w-full" placeholder="プランの説明を入力"></textarea>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">特徴（カンマ区切り）</label>
+                            <input type="text" x-model="formData.features" class="form-input w-full" placeholder="吹き抜け, 和室, パントリー">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">画像URL</label>
+                            <div class="space-y-2">
+                                <input type="text" x-model="formData.images.exterior" class="form-input w-full" placeholder="外観画像URL">
+                                <input type="text" x-model="formData.images.interior" class="form-input w-full" placeholder="内観画像URL">
+                                <input type="text" x-model="formData.images.floorPlan" class="form-input w-full" placeholder="間取り図URL">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button @click="closeModal()" class="btn-secondary">キャンセル</button>
+                        <button @click="savePlan()" class="btn-primary">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function adminPlans() {
+            return {
+                plans: [
+                    { id: 'LX-030A', name: 'ベーシックプラン30', size: 30, layout: '3LDK', price: 1800, status: 'active', updated: '2024-01-15' },
+                    { id: 'LX-030B', name: 'ファミリープラン30', size: 30, layout: '4LDK', price: 2000, status: 'active', updated: '2024-01-14' },
+                    { id: 'LX-033A', name: 'コンパクトプラン33', size: 33, layout: '4LDK', price: 2200, status: 'active', updated: '2024-01-13' },
+                    { id: 'LX-033B', name: 'ゆとりプラン33', size: 33, layout: '4LDK+S', price: 2400, status: 'draft', updated: '2024-01-12' },
+                    { id: 'LX-035A', name: 'プレミアムプラン35', size: 35, layout: '5LDK', price: 2600, status: 'active', updated: '2024-01-11' },
+                ],
+                filteredPlans: [],
+                searchQuery: '',
+                filterCategory: '',
+                sortBy: 'name',
+                showModal: false,
+                editingPlan: null,
+                formData: {
+                    id: '',
+                    name: '',
+                    size: '',
+                    layout: '',
+                    price: '',
+                    status: 'active',
+                    description: '',
+                    features: '',
+                    images: {
+                        exterior: '',
+                        interior: '',
+                        floorPlan: ''
+                    }
+                },
+
+                init() {
+                    this.filterPlans();
+                },
+
+                filterPlans() {
+                    let filtered = [...this.plans];
+                    
+                    if (this.searchQuery) {
+                        filtered = filtered.filter(plan => 
+                            plan.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                            plan.id.toLowerCase().includes(this.searchQuery.toLowerCase())
+                        );
+                    }
+                    
+                    if (this.filterCategory) {
+                        if (this.filterCategory.includes('坪')) {
+                            const size = parseInt(this.filterCategory);
+                            filtered = filtered.filter(plan => plan.size === size);
+                        } else {
+                            filtered = filtered.filter(plan => 
+                                plan.name.includes(this.filterCategory)
+                            );
+                        }
+                    }
+                    
+                    this.filteredPlans = filtered;
+                    this.sortPlans();
+                },
+
+                sortPlans() {
+                    this.filteredPlans.sort((a, b) => {
+                        switch(this.sortBy) {
+                            case 'name':
+                                return a.name.localeCompare(b.name);
+                            case 'date':
+                                return new Date(b.updated) - new Date(a.updated);
+                            case 'size':
+                                return a.size - b.size;
+                            default:
+                                return 0;
+                        }
+                    });
+                },
+
+                openAddModal() {
+                    this.editingPlan = null;
+                    this.formData = {
+                        id: '',
+                        name: '',
+                        size: '',
+                        layout: '',
+                        price: '',
+                        status: 'active',
+                        description: '',
+                        features: '',
+                        images: {
+                            exterior: '',
+                            interior: '',
+                            floorPlan: ''
+                        }
+                    };
+                    this.showModal = true;
+                },
+
+                editPlan(plan) {
+                    this.editingPlan = plan;
+                    this.formData = {
+                        ...plan,
+                        images: plan.images || { exterior: '', interior: '', floorPlan: '' }
+                    };
+                    this.showModal = true;
+                },
+
+                deletePlan(plan) {
+                    if (confirm(`プラン「${plan.name}」を削除しますか？`)) {
+                        this.plans = this.plans.filter(p => p.id !== plan.id);
+                        this.filterPlans();
+                        lifeXAPI.showToast('プランを削除しました', 'success');
+                    }
+                },
+
+                savePlan() {
+                    if (this.editingPlan) {
+                        const index = this.plans.findIndex(p => p.id === this.editingPlan.id);
+                        if (index !== -1) {
+                            this.plans[index] = { ...this.formData, updated: new Date().toISOString().split('T')[0] };
+                        }
+                        lifeXAPI.showToast('プランを更新しました', 'success');
+                    } else {
+                        this.plans.push({ ...this.formData, updated: new Date().toISOString().split('T')[0] });
+                        lifeXAPI.showToast('プランを追加しました', 'success');
+                    }
+                    this.filterPlans();
+                    this.closeModal();
+                },
+
+                closeModal() {
+                    this.showModal = false;
+                    this.editingPlan = null;
+                }
+            }
+        }
+    </script>
+</body>
+</html>

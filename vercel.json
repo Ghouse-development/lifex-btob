@@ -15,6 +15,18 @@
       "destination": "/admin.html"
     },
     {
+      "source": "/admin-plans",
+      "destination": "/admin-plans.html"
+    },
+    {
+      "source": "/admin-rules",
+      "destination": "/admin-rules.html"
+    },
+    {
+      "source": "/admin-downloads",
+      "destination": "/admin-downloads.html"
+    },
+    {
       "source": "/matrix",
       "destination": "/matrix.html"
     },
@@ -33,6 +45,10 @@
     {
       "source": "/ai",
       "destination": "/ai.html"
+    },
+    {
+      "source": "/design",
+      "destination": "/design.html"
     }
   ],
   "headers": [

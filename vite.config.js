@@ -15,7 +15,11 @@ export default defineConfig({
         downloads: resolve(__dirname, 'src/downloads.html'),
         'plan-detail': resolve(__dirname, 'src/plan-detail.html'),
         admin: resolve(__dirname, 'src/admin.html'),
-        ai: resolve(__dirname, 'src/ai.html')
+        'admin-plans': resolve(__dirname, 'src/admin-plans.html'),
+        'admin-rules': resolve(__dirname, 'src/admin-rules.html'),
+        'admin-downloads': resolve(__dirname, 'src/admin-downloads.html'),
+        ai: resolve(__dirname, 'src/ai.html'),
+        design: resolve(__dirname, 'src/design.html')
       }
     }
   },
