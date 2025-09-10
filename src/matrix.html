@@ -215,51 +215,34 @@
                 },
 
                 getCellData(depth, width) {
-                    // 26パターンのプランデータ定義（プラン名付き）
+                    // 26パターンのプランデータ定義（ランダムに配置）
                     const planPatterns = [
-                        // 間口4.5P (4095mm)
-                        { depth: '7280', width: '4095', planName: 'LX-20A' },
-                        { depth: '8190', width: '4095', planName: 'LX-22A' },
-                        { depth: '9100', width: '4095', planName: 'LX-25A' },
-                        
-                        // 間口5P (4550mm)
-                        { depth: '7735', width: '4550', planName: 'LX-22B' },
-                        { depth: '8645', width: '4550', planName: 'LX-24B' },
-                        { depth: '9555', width: '4550', planName: 'LX-27B' },
-                        { depth: '10465', width: '4550', planName: 'LX-29B' },
-                        
-                        // 間口5.5P (5005mm)
-                        { depth: '8190', width: '5005', planName: 'LX-25C' },
-                        { depth: '9100', width: '5005', planName: 'LX-28C' },
-                        { depth: '10010', width: '5005', planName: 'LX-30C' },
-                        { depth: '10920', width: '5005', planName: 'LX-33C' },
-                        
-                        // 間口6P (5460mm)
-                        { depth: '8645', width: '5460', planName: 'LX-28D' },
-                        { depth: '9555', width: '5460', planName: 'LX-31D' },
-                        { depth: '10465', width: '5460', planName: 'LX-34D' },
-                        { depth: '11375', width: '5460', planName: 'LX-37D' },
-                        
-                        // 間口6.5P (5915mm)
-                        { depth: '9100', width: '5915', planName: 'LX-32E' },
-                        { depth: '10010', width: '5915', planName: 'LX-35E' },
-                        { depth: '10920', width: '5915', planName: 'LX-38E' },
-                        
-                        // 間口7P (6370mm)
-                        { depth: '9555', width: '6370', planName: 'LX-36F' },
-                        { depth: '10465', width: '6370', planName: 'LX-39F' },
-                        { depth: '11375', width: '6370', planName: 'LX-42F' },
-                        
-                        // 間口7.5P (6825mm)
-                        { depth: '10010', width: '6825', planName: 'LX-40G' },
-                        { depth: '10920', width: '6825', planName: 'LX-44G' },
-                        
-                        // 間口8P (7280mm)
-                        { depth: '10465', width: '7280', planName: 'LX-45H' },
-                        { depth: '11375', width: '7280', planName: 'LX-49H' },
-                        
-                        // 間口8.5P (7735mm)
-                        { depth: '10920', width: '7735', planName: 'LX-50I' }
+                        { depth: '6825', width: '5460', planName: 'LX-22A' },
+                        { depth: '7280', width: '4550', planName: 'LX-20B' },
+                        { depth: '7735', width: '6370', planName: 'LX-30C' },
+                        { depth: '8190', width: '5005', planName: 'LX-25D' },
+                        { depth: '8645', width: '7280', planName: 'LX-38E' },
+                        { depth: '9100', width: '4095', planName: 'LX-23F' },
+                        { depth: '9555', width: '5915', planName: 'LX-34G' },
+                        { depth: '10010', width: '7735', planName: 'LX-46H' },
+                        { depth: '10465', width: '4550', planName: 'LX-29I' },
+                        { depth: '10920', width: '6370', planName: 'LX-42J' },
+                        { depth: '11375', width: '5005', planName: 'LX-35K' },
+                        { depth: '11830', width: '6825', planName: 'LX-48L' },
+                        { depth: '7280', width: '6825', planName: 'LX-31M' },
+                        { depth: '8190', width: '7735', planName: 'LX-39N' },
+                        { depth: '9100', width: '5460', planName: 'LX-30O' },
+                        { depth: '10010', width: '4095', planName: 'LX-25P' },
+                        { depth: '10920', width: '5915', planName: 'LX-40Q' },
+                        { depth: '12285', width: '5460', planName: 'LX-41R' },
+                        { depth: '8645', width: '5005', planName: 'LX-27S' },
+                        { depth: '9555', width: '7280', planName: 'LX-43T' },
+                        { depth: '11375', width: '4550', planName: 'LX-32U' },
+                        { depth: '12740', width: '6370', planName: 'LX-48V' },
+                        { depth: '7735', width: '5460', planName: 'LX-26W' },
+                        { depth: '13195', width: '5915', planName: 'LX-47X' },
+                        { depth: '10465', width: '6825', planName: 'LX-44Y' },
+                        { depth: '13650', width: '7280', planName: 'LX-60Z' }
                     ];
                     
                     // 指定された間口と奥行の組み合わせがプランパターンに存在するかチェック

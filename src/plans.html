@@ -195,59 +195,98 @@
         <!-- All Plans Grid Display -->
         <div x-show="!loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">全プラン一覧</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 gap-4">
                 <template x-for="plan in filteredPlans" :key="plan.id">
-                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" @click="showPlanDetail(plan)">
-                        <!-- Plan ID -->
-                        <div class="bg-gray-100 px-4 py-2 border-b">
-                            <p class="text-sm font-semibold text-gray-700" x-text="'ID: ' + plan.id"></p>
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex" @click="showPlanDetail(plan)">
+                        <!-- Images Section (Left) -->
+                        <div class="w-72 flex-shrink-0 p-4 border-r border-gray-200">
+                            <div class="grid grid-cols-3 gap-2">
+                                <!-- 外観パース -->
+                                <div>
+                                    <p class="text-xs text-gray-600 mb-1">外観</p>
+                                    <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
+                                        <template x-if="plan.exteriorImage">
+                                            <img :src="plan.exteriorImage" :alt="plan.name + ' 外観'" class="w-full h-full object-cover rounded">
+                                        </template>
+                                        <template x-if="!plan.exteriorImage">
+                                            <svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                            </svg>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- 1階間取り -->
+                                <div>
+                                    <p class="text-xs text-gray-600 mb-1">1階</p>
+                                    <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
+                                        <template x-if="plan.floorPlan1F">
+                                            <img :src="plan.floorPlan1F" :alt="plan.name + ' 1階間取り'" class="w-full h-full object-cover rounded">
+                                        </template>
+                                        <template x-if="!plan.floorPlan1F">
+                                            <svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                            </svg>
+                                        </template>
+                                    </div>
+                                </div>
+                                
+                                <!-- 2階間取り -->
+                                <div>
+                                    <p class="text-xs text-gray-600 mb-1">2階</p>
+                                    <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
+                                        <template x-if="plan.floorPlan2F">
+                                            <img :src="plan.floorPlan2F" :alt="plan.name + ' 2階間取り'" class="w-full h-full object-cover rounded">
+                                        </template>
+                                        <template x-if="!plan.floorPlan2F">
+                                            <svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                            </svg>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
-                        <!-- Images -->
-                        <div class="p-4 space-y-3">
-                            <!-- 外観パース -->
-                            <div>
-                                <p class="text-xs text-gray-600 mb-1">外観パース</p>
-                                <div class="aspect-video bg-gray-100 rounded flex items-center justify-center">
-                                    <template x-if="plan.exteriorImage">
-                                        <img :src="plan.exteriorImage" :alt="plan.name + ' 外観'" class="w-full h-full object-cover rounded">
-                                    </template>
-                                    <template x-if="!plan.exteriorImage">
-                                        <svg class="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                        </svg>
-                                    </template>
+                        <!-- Plan Details (Right) -->
+                        <div class="flex-1 p-4">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-900" x-text="plan.name || plan.id"></h3>
+                                    <p class="text-sm text-gray-500" x-text="'ID: ' + plan.id"></p>
+                                </div>
+                                <button class="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700">
+                                    詳細を見る
+                                </button>
+                            </div>
+                            
+                            <div class="grid grid-cols-5 gap-4 text-sm">
+                                <div>
+                                    <p class="text-gray-600">坪数</p>
+                                    <p class="font-semibold" x-text="(plan.tsubo || '-') + '坪'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">奥行</p>
+                                    <p class="font-semibold" x-text="(plan.depth || '-') + 'm'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">間口</p>
+                                    <p class="font-semibold" x-text="(plan.width || '-') + 'm'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">売価</p>
+                                    <p class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">粗利</p>
+                                    <p class="font-semibold text-green-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'"></p>
                                 </div>
                             </div>
                             
-                            <!-- 1階間取り -->
-                            <div>
-                                <p class="text-xs text-gray-600 mb-1">1階間取り</p>
-                                <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
-                                    <template x-if="plan.floorPlan1F">
-                                        <img :src="plan.floorPlan1F" :alt="plan.name + ' 1階間取り'" class="w-full h-full object-cover rounded">
-                                    </template>
-                                    <template x-if="!plan.floorPlan1F">
-                                        <svg class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                                        </svg>
-                                    </template>
-                                </div>
-                            </div>
-                            
-                            <!-- 2階間取り -->
-                            <div>
-                                <p class="text-xs text-gray-600 mb-1">2階間取り</p>
-                                <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
-                                    <template x-if="plan.floorPlan2F">
-                                        <img :src="plan.floorPlan2F" :alt="plan.name + ' 2階間取り'" class="w-full h-full object-cover rounded">
-                                    </template>
-                                    <template x-if="!plan.floorPlan2F">
-                                        <svg class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                                        </svg>
-                                    </template>
-                                </div>
+                            <div class="mt-3 flex flex-wrap gap-1">
+                                <template x-for="tag in (plan.tags || [])" :key="tag">
+                                    <span x-text="tag" class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"></span>
+                                </template>
                             </div>
                         </div>
                     </div>
