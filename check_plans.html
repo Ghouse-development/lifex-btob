@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Check Plans</title>
+</head>
+<body>
+    <script>
+        const plansData = localStorage.getItem('plans_data');
+        if (plansData) {
+            const data = JSON.parse(plansData);
+            console.log('Plans data:', data);
+            console.log('Number of plans:', (data.plans || []).length);
+            if (data.plans && data.plans.length > 0) {
+                console.log('Plan IDs:', data.plans.map(p => p.id));
+            }
+        } else {
+            console.log('No plans data in localStorage');
+        }
+        
+        // Check all localStorage keys
+        console.log('All localStorage keys:', Object.keys(localStorage));
+    </script>
+    <h1>Check browser console for plans data</h1>
+</body>
+</html>
