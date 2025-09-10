@@ -145,21 +145,20 @@
 
                 async loadPlans() {
                     try {
-                        // plans-index.jsonからプランデータを読み込み
-                        const response = await fetch('/data/plans-index.json');
-                        if (response.ok) {
-                            const data = await response.json();
-                            this.plans = data.plans || [];
-                            
-                            // サンプル外観画像を追加（実際は各プランの画像URLを使用）
-                            this.plans = this.plans.map((plan, index) => ({
-                                ...plan,
-                                exteriorImage: plan.exteriorImage || `/assets/images/plans/${plan.id}/exterior.jpg`
-                            }));
-                        }
+                        // 管理画面で保存されたプランデータを取得
+                        const data = await lifeXAPI.getPlansIndex();
+                        this.plans = data.plans || [];
+                        
+                        // 公開されているプランのみ表示
+                        this.plans = this.plans.filter(plan => plan.status === 'published' || plan.status === 'active');
+                        
+                        // 外観画像のパスを設定
+                        this.plans = this.plans.map((plan) => ({
+                            ...plan,
+                            exteriorImage: plan.exteriorImage || plan.images?.exterior || ''
+                        }));
                     } catch (error) {
                         console.error('Failed to load plans:', error);
-                        // サンプルデータ
                         this.plans = [];
                     }
                     this.loading = false;
