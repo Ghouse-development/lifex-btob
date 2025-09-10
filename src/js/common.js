@@ -408,29 +408,242 @@ window.lifeXAPI = {
     // プランデータ取得
     async getPlansIndex() {
         try {
-            // LocalStorageから取得を試みる
-            const localData = localStorage.getItem('plans_data');
+            // 複数のソースからデータを復元を試みる
+            console.log('Attempting to restore plans data from multiple sources...');
+            
+            // 1. 'plans_data'からの取得を試みる
+            let localData = localStorage.getItem('plans_data');
             if (localData) {
+                console.log('Found plans data in localStorage (plans_data)');
                 const data = JSON.parse(localData);
-                // plans配列が存在しない場合は空配列を設定
-                if (!data.plans) {
-                    data.plans = [];
-                }
+                if (!data.plans) data.plans = [];
                 return data;
             }
             
-            // APIから取得を試みる（本番環境用）
-            const response = await fetch('/api/plans');
-            const contentType = response.headers.get('content-type');
-            if (response.ok && contentType && contentType.includes('application/json')) {
-                return await response.json();
+            // 2. 'lifex_plans'からの取得を試みる（古いキー）
+            localData = localStorage.getItem('lifex_plans');
+            if (localData) {
+                console.log('Found plans data in localStorage (lifex_plans)');
+                const data = JSON.parse(localData);
+                if (!data.plans) data.plans = [];
+                // 新しいキーに移行
+                localStorage.setItem('plans_data', localData);
+                return data;
             }
+            
+            // 3. 'plans'からの取得を試みる（配列形式）
+            localData = localStorage.getItem('plans');
+            if (localData) {
+                console.log('Found plans array in localStorage (plans)');
+                const plans = JSON.parse(localData);
+                const data = { plans: Array.isArray(plans) ? plans : [] };
+                // 新しいキーに移行
+                localStorage.setItem('plans_data', JSON.stringify(data));
+                return data;
+            }
+            
+            // 4. 個別にLocalStorageキーを検索
+            console.log('Searching for individual plan data in localStorage...');
+            const planKeys = Object.keys(localStorage).filter(key => 
+                key.startsWith('plan_') || key.startsWith('lifex_plan_')
+            );
+            
+            if (planKeys.length > 0) {
+                console.log(`Found ${planKeys.length} individual plan entries`);
+                const plans = [];
+                planKeys.forEach(key => {
+                    try {
+                        const planData = JSON.parse(localStorage.getItem(key));
+                        if (planData && planData.id) {
+                            plans.push(planData);
+                        }
+                    } catch (e) {
+                        console.warn(`Failed to parse plan data for key ${key}:`, e);
+                    }
+                });
+                
+                if (plans.length > 0) {
+                    const data = { plans };
+                    localStorage.setItem('plans_data', JSON.stringify(data));
+                    console.log(`Restored ${plans.length} plans from individual entries`);
+                    return data;
+                }
+            }
+            
+            // 5. IndexedDBからプランメタデータを復元
+            console.log('Attempting to restore plans from IndexedDB...');
+            try {
+                // IndexedDBからすべてのプランIDを取得
+                const imageStorage = window.imageStorage || new ImageStorage();
+                await imageStorage.init();
+                
+                // すべてのデータベースエントリを取得
+                const transaction = imageStorage.db.transaction(['images'], 'readonly');
+                const store = transaction.objectStore('images');
+                const getAllRequest = store.getAll();
+                
+                const allImages = await new Promise((resolve, reject) => {
+                    getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+                    getAllRequest.onerror = () => reject(getAllRequest.error);
+                });
+                
+                if (allImages.length > 0) {
+                    // プランIDごとにグループ化
+                    const planGroups = {};
+                    allImages.forEach(img => {
+                        if (!planGroups[img.planId]) {
+                            planGroups[img.planId] = [];
+                        }
+                        planGroups[img.planId].push(img);
+                    });
+                    
+                    // 基本的なプラン情報を復元
+                    const plans = Object.keys(planGroups).map(planId => ({
+                        id: planId,
+                        name: planId.replace(/^[A-Z]+-/, '').replace(/-/g, ' '),
+                        tsubo: 30, // デフォルト値
+                        width: 7280, // デフォルト値
+                        depth: 10010, // デフォルト値
+                        floors: {
+                            building: 2,
+                            ldk: 1,
+                            bathroom: 1
+                        },
+                        category: 'general',
+                        tags: ['restored'],
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString()
+                    }));
+                    
+                    if (plans.length > 0) {
+                        const data = { plans };
+                        localStorage.setItem('plans_data', JSON.stringify(data));
+                        console.log(`Restored ${plans.length} plans from IndexedDB`);
+                        return data;
+                    }
+                }
+            } catch (indexedDbError) {
+                console.warn('Failed to restore from IndexedDB:', indexedDbError);
+            }
+            
+            // 6. APIから取得を試みる（本番環境用）
+            try {
+                const response = await fetch('/api/plans');
+                const contentType = response.headers.get('content-type');
+                if (response.ok && contentType && contentType.includes('application/json')) {
+                    console.log('Loaded plans from API');
+                    return await response.json();
+                }
+            } catch (apiError) {
+                console.debug('Plans API not available');
+            }
+            
         } catch (error) {
-            console.debug('Plans API not available, using empty data');
+            console.error('Error in getPlansIndex:', error);
         }
         
-        // エラー時は空のプランを返す
+        console.log('No plans data found, returning empty array');
         return { plans: [] };
+    },
+
+    // データバックアップ機能
+    async createBackup() {
+        try {
+            const backupData = {
+                timestamp: new Date().toISOString(),
+                version: '1.0',
+                localStorage: {},
+                indexedDB: {}
+            };
+
+            // LocalStorageをバックアップ
+            Object.keys(localStorage).forEach(key => {
+                if (key.includes('plan') || key.includes('lifex') || key.includes('data')) {
+                    try {
+                        backupData.localStorage[key] = localStorage.getItem(key);
+                    } catch (e) {
+                        console.warn(`Failed to backup localStorage key ${key}:`, e);
+                    }
+                }
+            });
+
+            // IndexedDBをバックアップ
+            try {
+                const imageStorage = window.imageStorage || new ImageStorage();
+                await imageStorage.init();
+                
+                const transaction = imageStorage.db.transaction(['images'], 'readonly');
+                const store = transaction.objectStore('images');
+                const getAllRequest = store.getAll();
+                
+                const allImages = await new Promise((resolve, reject) => {
+                    getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+                    getAllRequest.onerror = () => reject(getAllRequest.error);
+                });
+                
+                backupData.indexedDB.images = allImages;
+            } catch (e) {
+                console.warn('Failed to backup IndexedDB:', e);
+            }
+
+            // JSONファイルとしてダウンロード
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lifex-backup-${new Date().toISOString().slice(0, 19).replace(/[:.]/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            return { success: true, message: 'バックアップが作成されました' };
+        } catch (error) {
+            console.error('Backup creation failed:', error);
+            return { success: false, message: 'バックアップの作成に失敗しました: ' + error.message };
+        }
+    },
+
+    // データリストア機能
+    async restoreFromBackup(file) {
+        try {
+            const text = await file.text();
+            const backupData = JSON.parse(text);
+
+            if (!backupData.timestamp || !backupData.localStorage) {
+                throw new Error('無効なバックアップファイルです');
+            }
+
+            // LocalStorageをリストア
+            if (backupData.localStorage) {
+                Object.entries(backupData.localStorage).forEach(([key, value]) => {
+                    try {
+                        localStorage.setItem(key, value);
+                    } catch (e) {
+                        console.warn(`Failed to restore localStorage key ${key}:`, e);
+                    }
+                });
+            }
+
+            // IndexedDBをリストア
+            if (backupData.indexedDB && backupData.indexedDB.images) {
+                const imageStorage = window.imageStorage || new ImageStorage();
+                await imageStorage.init();
+
+                for (const imageData of backupData.indexedDB.images) {
+                    try {
+                        await imageStorage.saveImage(imageData.id, imageData.planId, imageData.type, imageData.data);
+                    } catch (e) {
+                        console.warn(`Failed to restore image ${imageData.id}:`, e);
+                    }
+                }
+            }
+
+            return { success: true, message: 'データが復元されました。ページを再読み込みしてください。' };
+        } catch (error) {
+            console.error('Restore failed:', error);
+            return { success: false, message: 'データの復元に失敗しました: ' + error.message };
+        }
     },
     
     // プランデータ取得（画像付きの完全版）

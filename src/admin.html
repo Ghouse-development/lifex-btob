@@ -286,6 +286,49 @@
                 </a>
             </div>
 
+            <!-- Data Recovery Section -->
+            <div class="mt-12 max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm p-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                        <svg class="w-6 h-6 mr-3 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s8-1.79 8-4" />
+                        </svg>
+                        データバックアップ・復元
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Backup Section -->
+                        <div class="space-y-4">
+                            <h4 class="font-medium text-gray-900">データバックアップ</h4>
+                            <p class="text-sm text-gray-600">プランデータと画像をJSONファイルとしてバックアップします。</p>
+                            <button 
+                                @click="createBackup()" 
+                                :disabled="loading"
+                                class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors">
+                                <span x-show="!loading">バックアップを作成</span>
+                                <span x-show="loading">作成中...</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Restore Section -->
+                        <div class="space-y-4">
+                            <h4 class="font-medium text-gray-900">データ復元</h4>
+                            <p class="text-sm text-gray-600">バックアップファイルからデータを復元します。</p>
+                            <input 
+                                type="file" 
+                                accept=".json"
+                                @change="handleRestoreFile($event)"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                        </div>
+                    </div>
+                    
+                    <!-- Status Messages -->
+                    <div x-show="statusMessage" class="mt-4 p-4 rounded-lg" 
+                         :class="statusMessage.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                        <p x-text="statusMessage.text"></p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Recent Activities -->
             <div class="mt-8 max-w-5xl mx-auto">
@@ -344,6 +387,8 @@
                     monthlyPV: 0
                 },
                 recentActivities: [],
+                loading: false,
+                statusMessage: null,
 
                 async init() {
                     // Load stats from API or localStorage
@@ -560,6 +605,75 @@
                     } catch (error) {
                         console.error('Export failed:', error);
                         lifeXAPI.showToast('データエクスポートに失敗しました', 'error');
+                    }
+                },
+
+                // 新しいバックアップ機能（IndexedDB対応）
+                async createBackup() {
+                    this.loading = true;
+                    this.statusMessage = null;
+                    
+                    try {
+                        const result = await lifeXAPI.createBackup();
+                        this.statusMessage = {
+                            success: result.success,
+                            text: result.message
+                        };
+                        
+                        if (result.success) {
+                            // 統計情報を更新
+                            const backupInfo = {
+                                lastBackup: new Date().toLocaleString('ja-JP')
+                            };
+                            localStorage.setItem('system_backup_info', JSON.stringify(backupInfo));
+                            await this.loadStats();
+                        }
+                    } catch (error) {
+                        console.error('Backup failed:', error);
+                        this.statusMessage = {
+                            success: false,
+                            text: 'バックアップ作成中にエラーが発生しました: ' + error.message
+                        };
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // リストア機能
+                async handleRestoreFile(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    if (!confirm('データを復元すると現在のデータが上書きされます。続行しますか？')) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    this.loading = true;
+                    this.statusMessage = null;
+
+                    try {
+                        const result = await lifeXAPI.restoreFromBackup(file);
+                        this.statusMessage = {
+                            success: result.success,
+                            text: result.message
+                        };
+                        
+                        if (result.success) {
+                            // 統計情報を更新
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        }
+                    } catch (error) {
+                        console.error('Restore failed:', error);
+                        this.statusMessage = {
+                            success: false,
+                            text: 'データ復元中にエラーが発生しました: ' + error.message
+                        };
+                    } finally {
+                        this.loading = false;
+                        event.target.value = '';
                     }
                 }
             }
