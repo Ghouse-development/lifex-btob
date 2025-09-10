@@ -68,7 +68,7 @@
                     <input type="text" 
                            x-model="searchQuery"
                            @input="filterPlans()"
-                           placeholder="プラン名で検索..." 
+                           placeholder="プランコードで検索..." 
                            class="form-input flex-1">
                     <select x-model="filterCategory" @change="filterPlans()" class="form-input">
                         <option value="">全てのカテゴリ</option>
@@ -92,8 +92,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プラン名</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランコード</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">坪数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間取り</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">価格<span class="text-red-500 ml-1">(税込)</span></th>
@@ -106,7 +105,6 @@
                             <template x-for="plan in filteredPlans" :key="plan.id">
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.id"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="plan.name"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`${plan.size}坪`"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.layout"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`¥${plan.price.toLocaleString()}万円(税込)`"></td>
@@ -139,12 +137,16 @@
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">プランID</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">プランコード</label>
                             <input type="text" x-model="formData.id" class="form-input w-full" placeholder="LX-001">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">プラン名</label>
-                            <input type="text" x-model="formData.name" class="form-input w-full" placeholder="ファミリープラン30">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">階数</label>
+                            <select x-model="formData.floors" @change="updateFloorPlans()" class="form-input w-full">
+                                <option value="1">平屋</option>
+                                <option value="2">2階建て</option>
+                                <option value="3">3階建て</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">坪数</label>
@@ -170,15 +172,39 @@
                             <textarea x-model="formData.description" rows="3" class="form-input w-full" placeholder="プランの説明を入力"></textarea>
                         </div>
                         <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">特徴（カンマ区切り）</label>
-                            <input type="text" x-model="formData.features" class="form-input w-full" placeholder="吹き抜け, 和室, パントリー">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">特徴タグ</label>
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <template x-for="tag in ['吹抜', 'フリースペース', '書斎', '畳スペース', 'パントリー', 'ウォークインクローゼット', 'ロフト', '土間収納', '小屋裏収納', 'バルコニー']" :key="tag">
+                                    <button type="button"
+                                            @click="toggleFeatureTag(tag)"
+                                            :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700'"
+                                            class="px-3 py-1 rounded-full text-sm transition-colors duration-200">
+                                        <span x-text="tag"></span>
+                                    </button>
+                                </template>
+                            </div>
+                            <input type="text" x-model="formData.customTags" class="form-input w-full" placeholder="その他のタグ（カンマ区切り）">
                         </div>
                         <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">画像URL</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">画像</label>
                             <div class="space-y-2">
-                                <input type="text" x-model="formData.images.exterior" class="form-input w-full" placeholder="外観画像URL">
-                                <input type="text" x-model="formData.images.interior" class="form-input w-full" placeholder="内観画像URL">
-                                <input type="text" x-model="formData.images.floorPlan" class="form-input w-full" placeholder="間取り図URL">
+                                <div>
+                                    <label class="text-xs text-gray-600">外観画像</label>
+                                    <input type="text" x-model="formData.images.exterior" class="form-input w-full" placeholder="外観画像URL">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600">内観画像</label>
+                                    <input type="text" x-model="formData.images.interior" class="form-input w-full" placeholder="内観画像URL">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-600">間取り図（階数分登録）</label>
+                                    <template x-for="floor in Array.from({length: parseInt(formData.floors) || 1}, (_, i) => i + 1)" :key="floor">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-sm text-gray-600 w-16" x-text="`${floor}階`"></span>
+                                            <input type="text" x-model="formData.floorPlans[floor - 1]" class="form-input flex-1" :placeholder="`${floor}階の間取り図URL`">
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                         
@@ -206,11 +232,11 @@
                             
                             <!-- 図面 -->
                             <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">図面</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">図面（複数ファイル可）</label>
                                 <div class="grid grid-cols-2 gap-3">
                                     <template x-for="drawing in ['実施図', 'キッチン', '洗面化粧台', 'システムバス', 'トイレ', '照明', '換気システム', 'evoltz', '太陽光（オプション）', '内装プレゼン（EXCEL）', '仕様書・外装プレゼン（EXCEL）', '建具プレゼン', 'サッシプレゼン', '申請図・構造図・プレカット図']" :key="drawing">
                                         <div class="file-upload-item">
-                                            <input type="file" @change="handleFileSelect($event, 'drawing', drawing)" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
+                                            <input type="file" multiple @change="handleFileSelect($event, 'drawing', drawing)" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
                                             <label :for="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')" class="cursor-pointer">
                                                 <div class="border border-gray-300 rounded p-2 text-xs hover:bg-gray-50 transition-colors flex items-center justify-between">
                                                     <span x-text="drawing"></span>
@@ -219,7 +245,9 @@
                                                     </svg>
                                                 </div>
                                             </label>
-                                            <div x-show="formData.files && formData.files.drawings && formData.files.drawings[drawing]" class="text-xs text-green-600 mt-1" x-text="formData.files && formData.files.drawings && formData.files.drawings[drawing] ? '✓ アップロード済み' : ''"></div>
+                                            <div x-show="formData.files && formData.files.drawings && formData.files.drawings[drawing]" class="text-xs text-green-600 mt-1">
+                                                <span x-text="formData.files && formData.files.drawings && formData.files.drawings[drawing] ? `✓ ${Array.isArray(formData.files.drawings[drawing]) ? formData.files.drawings[drawing].length : 1}ファイル` : ''"></span>
+                                            </div>
                                         </div>
                                     </template>
                                 </div>
@@ -266,11 +294,11 @@
         function adminPlans() {
             return {
                 plans: [
-                    { id: 'LX-030A', name: 'ベーシックプラン30', size: 30, layout: '3LDK', price: 1800, status: 'active', updated: '2024-01-15' },
-                    { id: 'LX-030B', name: 'ファミリープラン30', size: 30, layout: '4LDK', price: 2000, status: 'active', updated: '2024-01-14' },
-                    { id: 'LX-033A', name: 'コンパクトプラン33', size: 33, layout: '4LDK', price: 2200, status: 'active', updated: '2024-01-13' },
-                    { id: 'LX-033B', name: 'ゆとりプラン33', size: 33, layout: '4LDK+S', price: 2400, status: 'draft', updated: '2024-01-12' },
-                    { id: 'LX-035A', name: 'プレミアムプラン35', size: 35, layout: '5LDK', price: 2600, status: 'active', updated: '2024-01-11' },
+                    { id: 'LX-030A', size: 30, layout: '3LDK', price: 1800, status: 'active', updated: '2024-01-15' },
+                    { id: 'LX-030B', size: 30, layout: '4LDK', price: 2000, status: 'active', updated: '2024-01-14' },
+                    { id: 'LX-033A', size: 33, layout: '4LDK', price: 2200, status: 'active', updated: '2024-01-13' },
+                    { id: 'LX-033B', size: 33, layout: '4LDK+S', price: 2400, status: 'draft', updated: '2024-01-12' },
+                    { id: 'LX-035A', size: 35, layout: '5LDK', price: 2600, status: 'active', updated: '2024-01-11' },
                 ],
                 filteredPlans: [],
                 searchQuery: '',
@@ -280,18 +308,19 @@
                 editingPlan: null,
                 formData: {
                     id: '',
-                    name: '',
+                    floors: '2',
                     size: '',
                     layout: '',
                     price: '',
                     status: 'active',
                     description: '',
-                    features: '',
+                    featureTags: [],
+                    customTags: '',
                     images: {
                         exterior: '',
-                        interior: '',
-                        floorPlan: ''
+                        interior: ''
                     },
+                    floorPlans: [],
                     files: {
                         presentation: null,
                         drawings: {},
@@ -308,7 +337,6 @@
                     
                     if (this.searchQuery) {
                         filtered = filtered.filter(plan => 
-                            plan.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
                             plan.id.toLowerCase().includes(this.searchQuery.toLowerCase())
                         );
                     }
@@ -347,18 +375,19 @@
                     this.editingPlan = null;
                     this.formData = {
                         id: '',
-                        name: '',
+                        floors: '2',
                         size: '',
                         layout: '',
                         price: '',
                         status: 'active',
                         description: '',
-                        features: '',
+                        featureTags: [],
+                        customTags: '',
                         images: {
                             exterior: '',
-                            interior: '',
-                            floorPlan: ''
+                            interior: ''
                         },
+                        floorPlans: ['', ''],
                         files: {
                             presentation: null,
                             drawings: {},
@@ -416,11 +445,25 @@
                 handleFileSelect(event, type, subtype = null) {
                     const files = event.target.files;
                     if (files.length > 0) {
-                        this.processFile(files[0], type, subtype);
+                        // 複数ファイル対応
+                        if (files.length > 1) {
+                            this.processFile(Array.from(files), type, subtype);
+                        } else {
+                            this.processFile(files[0], type, subtype);
+                        }
                     }
                 },
                 
                 processFile(file, type, subtype = null) {
+                    // 複数ファイル対応
+                    if (Array.isArray(file)) {
+                        file.forEach(f => this.processSingleFile(f, type, subtype));
+                    } else {
+                        this.processSingleFile(file, type, subtype);
+                    }
+                },
+                
+                processSingleFile(file, type, subtype = null) {
                     // ファイルサイズチェック（100MB以下）
                     if (file.size > 100 * 1024 * 1024) {
                         alert('ファイルサイズは100MB以下にしてください');
@@ -441,7 +484,14 @@
                         if (!this.formData.files.drawings) {
                             this.formData.files.drawings = {};
                         }
-                        this.formData.files.drawings[subtype] = fileInfo;
+                        // 複数ファイル対応
+                        if (!this.formData.files.drawings[subtype]) {
+                            this.formData.files.drawings[subtype] = [];
+                        }
+                        if (!Array.isArray(this.formData.files.drawings[subtype])) {
+                            this.formData.files.drawings[subtype] = [this.formData.files.drawings[subtype]];
+                        }
+                        this.formData.files.drawings[subtype].push(fileInfo);
                     } else if (type === 'document' && subtype) {
                         if (!this.formData.files.documents) {
                             this.formData.files.documents = {};
@@ -451,6 +501,23 @@
                     
                     // 実際のアップロード処理はここに実装
                     console.log('File uploaded:', type, subtype, fileInfo);
+                },
+                
+                toggleFeatureTag(tag) {
+                    if (!this.formData.featureTags) {
+                        this.formData.featureTags = [];
+                    }
+                    const index = this.formData.featureTags.indexOf(tag);
+                    if (index > -1) {
+                        this.formData.featureTags.splice(index, 1);
+                    } else {
+                        this.formData.featureTags.push(tag);
+                    }
+                },
+                
+                updateFloorPlans() {
+                    const floors = parseInt(this.formData.floors) || 1;
+                    this.formData.floorPlans = Array(floors).fill('');
                 }
             }
         }
