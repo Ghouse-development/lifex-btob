@@ -324,6 +324,11 @@
                 async init() {
                     // Load stats from API or localStorage
                     await this.loadStats();
+                    
+                    // プラン更新イベントをリッスン
+                    window.addEventListener('plans-updated', () => {
+                        this.loadStats();
+                    });
                 },
 
                 logout() {
@@ -334,6 +339,7 @@
 
                 async loadStats() {
                     try {
+                        // プラン統計
                         const plansData = await lifeXAPI.getPlansIndex();
                         this.stats.plans = plansData.plans.length;
                         this.stats.plansUpdated = plansData.plans.filter(plan => {
@@ -342,6 +348,47 @@
                             return updatedDate.getMonth() === thisMonth.getMonth() && 
                                    updatedDate.getFullYear() === thisMonth.getFullYear();
                         }).length;
+                        
+                        // ルール統計
+                        const rulesData = localStorage.getItem('rules_categories_data');
+                        if (rulesData) {
+                            const rules = JSON.parse(rulesData);
+                            let totalRules = 0;
+                            let requiredRules = 0;
+                            (rules.categories || []).forEach(cat => {
+                                totalRules += (cat.rules || []).length;
+                                requiredRules += (cat.rules || []).filter(r => r.importance === '必須').length;
+                            });
+                            this.stats.rules = totalRules;
+                            this.stats.rulesRequired = requiredRules;
+                        }
+                        
+                        // ダウンロード統計
+                        const downloadsData = localStorage.getItem('downloads_data');
+                        if (downloadsData) {
+                            const downloads = JSON.parse(downloadsData);
+                            let totalFiles = 0;
+                            (downloads.categories || []).forEach(cat => {
+                                totalFiles += (cat.files || []).length;
+                            });
+                            this.stats.downloads = totalFiles;
+                        }
+                        
+                        // FAQ統計
+                        const faqData = localStorage.getItem('faq_data');
+                        if (faqData) {
+                            const faqs = JSON.parse(faqData);
+                            this.stats.faqs = (faqs.faqs || []).length;
+                            const uniqueCategories = new Set((faqs.faqs || []).map(f => f.category));
+                            this.stats.faqCategories = uniqueCategories.size;
+                        }
+                        
+                        // 管理者統計
+                        const adminData = localStorage.getItem('admin_users_data');
+                        if (adminData) {
+                            const admins = JSON.parse(adminData);
+                            this.stats.admins = (admins.users || []).length;
+                        }
                     } catch (error) {
                         console.error('Failed to load stats:', error);
                     }

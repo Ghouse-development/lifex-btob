@@ -627,6 +627,7 @@
                             // UIから削除
                             this.plans = this.plans.filter(p => p.id !== plan.id);
                             this.filterPlans();
+                            this.updateStats();
                             lifeXAPI.showToast('プランを削除しました', 'success');
                         } catch (error) {
                             console.error('プランの削除に失敗しました:', error);
@@ -675,6 +676,7 @@
                         
                         await this.loadPlans();
                         this.filterPlans();
+                        this.updateStats();
                         this.closeModal();
                     } catch (error) {
                         console.error('プランの保存に失敗しました:', error);
@@ -685,6 +687,11 @@
                 closeModal() {
                     this.showModal = false;
                     this.editingPlan = null;
+                },
+                
+                updateStats() {
+                    // 統計情報を更新するためのイベントを発行
+                    window.dispatchEvent(new CustomEvent('plans-updated'));
                 },
                 
                 handleDrop(event, type, subtype = null) {
