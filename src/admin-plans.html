@@ -601,7 +601,9 @@
                     this.formData = {
                         ...plan,
                         tsubo: plan.tsubo || plan.size || '',
-                        sellPrice: plan.sellPrice || plan.price || '',
+                        sellPrice: plan.prices?.sell || plan.sellPrice || plan.price || '',
+                        cost: plan.prices?.cost || plan.cost || '',
+                        grossProfit: plan.prices?.gross || plan.grossProfit || '',
                         tags: plan.tags || [],
                         featureTags: plan.featureTags || plan.tags || [],
                         images: plan.images || { exterior: '', interior: '' },
@@ -611,11 +613,25 @@
                     this.showModal = true;
                 },
 
-                deletePlan(plan) {
+                async deletePlan(plan) {
                     if (confirm(`プラン「${plan.name}」を削除しますか？`)) {
-                        this.plans = this.plans.filter(p => p.id !== plan.id);
-                        this.filterPlans();
-                        lifeXAPI.showToast('プランを削除しました', 'success');
+                        try {
+                            // LocalStorageから削除
+                            const localData = localStorage.getItem('plans_data');
+                            if (localData) {
+                                let plansData = JSON.parse(localData);
+                                plansData.plans = plansData.plans.filter(p => p.id !== plan.id);
+                                localStorage.setItem('plans_data', JSON.stringify(plansData));
+                            }
+                            
+                            // UIから削除
+                            this.plans = this.plans.filter(p => p.id !== plan.id);
+                            this.filterPlans();
+                            lifeXAPI.showToast('プランを削除しました', 'success');
+                        } catch (error) {
+                            console.error('プランの削除に失敗しました:', error);
+                            lifeXAPI.showToast('プランの削除に失敗しました', 'error');
+                        }
                     }
                 },
 
@@ -632,13 +648,22 @@
                         const planData = {
                             ...this.formData,
                             updatedAt: new Date().toISOString(),
-                            tsubo: parseInt(this.formData.tsubo) || 0,
+                            tsubo: parseFloat(this.formData.tsubo) || 0,
                             width: parseInt(this.formData.width) || 0,
                             depth: parseInt(this.formData.depth) || 0,
-                            sellPrice: parseFloat(this.formData.sellPrice) || 0,
-                            cost: parseFloat(this.formData.cost) || 0,
-                            grossProfit: parseFloat(this.formData.grossProfit) || 0
+                            prices: {
+                                sell: parseFloat(this.formData.sellPrice) || 0,
+                                cost: parseFloat(this.formData.cost) || 0,
+                                gross: parseFloat(this.formData.grossProfit) || 0
+                            }
                         };
+                        
+                        // 不要なフィールドを削除
+                        delete planData.sellPrice;
+                        delete planData.cost;
+                        delete planData.grossProfit;
+                        delete planData.featureTags;
+                        delete planData.customTags;
                         
                         if (this.editingPlan) {
                             await lifeXAPI.updatePlan(this.editingPlan.id, planData);
