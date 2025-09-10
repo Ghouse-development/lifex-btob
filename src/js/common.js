@@ -117,75 +117,24 @@ window.lifeXAPI = {
     // プランデータ取得
     async getPlansIndex() {
         try {
-            // 実際のAPIエンドポイントに置き換える
-            // const response = await fetch('/api/plans');
-            // return await response.json();
+            // LocalStorageから取得を試みる
+            const localData = localStorage.getItem('plans_data');
+            if (localData) {
+                return JSON.parse(localData);
+            }
             
-            // ダミーデータ
-            return {
-                plans: [
-                    {
-                        id: 'LX-030A',
-                        name: 'LX-030A プラン',
-                        tsubo: 30.2,
-                        width: 5460,
-                        depth: 9100,
-                        prices: { sell: 25000000, cost: 18000000, gross: 4727273 },
-                        tags: ['3LDK', '北入り', '2階建て', '1階LDK'],
-                        status: 'published',
-                        exteriorImage: '/images/plans/LX-030A-exterior.jpg',
-                        floorPlan1F: '/images/plans/LX-030A-1F.jpg',
-                        floorPlan2F: '/images/plans/LX-030A-2F.jpg',
-                        updatedAt: '2024-01-15'
-                    },
-                    {
-                        id: 'LX-030B',
-                        name: 'LX-030B プラン',
-                        tsubo: 30.5,
-                        width: 5460,
-                        depth: 9100,
-                        prices: { sell: 26000000, cost: 18500000, gross: 5136364 },
-                        tags: ['4LDK', '南入り', '2階建て', '1階LDK'],
-                        status: 'published',
-                        exteriorImage: '/images/plans/LX-030B-exterior.jpg',
-                        floorPlan1F: '/images/plans/LX-030B-1F.jpg',
-                        floorPlan2F: '/images/plans/LX-030B-2F.jpg',
-                        updatedAt: '2024-01-14'
-                    },
-                    {
-                        id: 'LX-033A',
-                        name: 'LX-033A プラン',
-                        tsubo: 33.1,
-                        width: 6370,
-                        depth: 9100,
-                        prices: { sell: 27200000, cost: 19800000, gross: 4927273 },
-                        tags: ['4LDK', '東入り', '2階建て', '1階LDK', 'シューズクローク'],
-                        status: 'published',
-                        exteriorImage: '/images/plans/LX-033A-exterior.jpg',
-                        floorPlan1F: '/images/plans/LX-033A-1F.jpg',
-                        floorPlan2F: '/images/plans/LX-033A-2F.jpg',
-                        updatedAt: '2024-01-13'
-                    },
-                    {
-                        id: 'LX-035A',
-                        name: 'LX-035A プラン',
-                        tsubo: 35.8,
-                        width: 6825,
-                        depth: 9100,
-                        prices: { sell: 28300000, cost: 20500000, gross: 5227273 },
-                        tags: ['5LDK', '西入り', '2階建て', '1階LDK', 'ファミリークローク'],
-                        status: 'published',
-                        exteriorImage: '/images/plans/LX-035A-exterior.jpg',
-                        floorPlan1F: '/images/plans/LX-035A-1F.jpg',
-                        floorPlan2F: '/images/plans/LX-035A-2F.jpg',
-                        updatedAt: '2024-01-12'
-                    }
-                ]
-            };
+            // APIから取得を試みる（本番環境用）
+            const response = await fetch('/api/plans');
+            const contentType = response.headers.get('content-type');
+            if (response.ok && contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
         } catch (error) {
-            console.error('Error fetching plans:', error);
-            throw error;
+            console.debug('Plans API not available, using empty data');
         }
+        
+        // エラー時は空のプランを返す
+        return { plans: [] };
     },
 
     // 価格フォーマット

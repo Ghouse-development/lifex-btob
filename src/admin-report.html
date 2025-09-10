@@ -225,38 +225,16 @@
             return {
                 selectedPeriod: '6months',
                 stats: {
-                    currentMonthPV: 145230,
-                    pvGrowth: 12.5,
-                    currentMonthDownloads: 8456,
-                    downloadGrowth: 8.3,
-                    currentMonthRegistrations: 234,
-                    registrationGrowth: 15.2,
-                    activeUsers: 1842
+                    currentMonthPV: 0,
+                    pvGrowth: 0,
+                    currentMonthDownloads: 0,
+                    downloadGrowth: 0,
+                    currentMonthRegistrations: 0,
+                    registrationGrowth: 0,
+                    activeUsers: 0
                 },
-                popularContent: [
-                    { name: 'プランカタログ', views: 25430 },
-                    { name: 'ホーム', views: 18720 },
-                    { name: '資金計画書', views: 12340 },
-                    { name: 'ルール・ガイドライン', views: 9870 },
-                    { name: 'よくある質問', views: 8950 },
-                    { name: 'パンフレット', views: 7650 },
-                    { name: '標準仕様書', views: 6430 },
-                    { name: 'ロゴデータ', views: 5280 },
-                    { name: '営業カタログ', views: 4560 },
-                    { name: 'マニュアル', views: 3890 }
-                ],
-                downloadRanking: [
-                    { name: '資金計画書テンプレート', downloads: 1820 },
-                    { name: 'LIFE Xパンフレット', downloads: 1650 },
-                    { name: '標準仕様書', downloads: 1430 },
-                    { name: '営業カタログ', downloads: 1280 },
-                    { name: 'ロゴデータ', downloads: 980 },
-                    { name: 'マニュアル全集', downloads: 890 },
-                    { name: '契約書雛形', downloads: 760 },
-                    { name: '矩計図', downloads: 680 },
-                    { name: '営業ルール', downloads: 520 },
-                    { name: '設計ガイドライン', downloads: 450 }
-                ],
+                popularContent: [],
+                downloadRanking: [],
                 pvChart: null,
                 downloadChart: null,
                 
@@ -275,7 +253,7 @@
                             labels: ['6月', '7月', '8月', '9月', '10月', '11月'],
                             datasets: [{
                                 label: 'ページビュー',
-                                data: [98000, 112000, 125000, 138000, 142000, 145230],
+                                data: [0, 0, 0, 0, 0, 0],
                                 borderColor: 'rgb(59, 130, 246)',
                                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                                 tension: 0.4,
@@ -310,7 +288,7 @@
                             labels: ['6月', '7月', '8月', '9月', '10月', '11月'],
                             datasets: [{
                                 label: 'ダウンロード数',
-                                data: [6200, 7100, 7800, 8200, 7900, 8456],
+                                data: [0, 0, 0, 0, 0, 0],
                                 backgroundColor: 'rgba(34, 197, 94, 0.8)',
                                 borderColor: 'rgb(34, 197, 94)',
                                 borderWidth: 1
