@@ -1,0 +1,212 @@
+<!-- AI Bot Component -->
+<div x-data="aibotComponent()" x-init="init()">
+    <!-- AI Bot Floating Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button @click="toggleChat()" 
+                class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group" 
+                title="AIサポート">
+            <svg x-show="!chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+            </svg>
+            <svg x-show="chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- AI Chat Window -->
+    <div x-show="chatOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0 transform translate-y-4"
+         x-transition:enter-end="opacity-100 transform translate-y-0"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100 transform translate-y-0"
+         x-transition:leave-end="opacity-0 transform translate-y-4"
+         class="fixed bottom-24 right-6 w-96 max-w-full bg-white rounded-xl shadow-2xl z-50"
+         style="display: none;">
+        
+        <!-- Chat Header -->
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-t-xl">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                        <span class="text-lg">🤖</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold">LIFE X AIサポート</h3>
+                        <p class="text-xs text-white/80">ご質問をどうぞ</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="aibotChatArea">
+            <!-- Welcome Message -->
+            <div class="mb-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-sm">AI</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p class="text-gray-700 text-sm">こんにちは！LIFE Xについて何でもお気軽にご質問ください。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Messages -->
+            <template x-for="message in messages" :key="message.id">
+                <div class="mb-4">
+                    <div class="flex items-start space-x-3" :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                             :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'">
+                            <span class="text-white text-sm" x-text="message.type === 'user' ? 'You' : 'AI'"></span>
+                        </div>
+                        <div class="p-3 rounded-lg shadow-sm max-w-xs" 
+                             :class="message.type === 'user' ? 'bg-blue-100' : 'bg-white'">
+                            <p class="text-gray-700 text-sm" x-html="message.content"></p>
+                            <p class="text-xs text-gray-500 mt-1" x-text="message.timestamp"></p>
+                        </div>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Typing Indicator -->
+            <div x-show="isTyping" class="mb-4">
+                <div class="flex items-start space-x-3">
+                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span class="text-white text-sm">AI</span>
+                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-sm">
+                        <div class="flex space-x-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex space-x-2">
+                <input type="text" 
+                       x-model="currentMessage" 
+                       @keydown.enter="sendMessage()"
+                       placeholder="メッセージを入力..."
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                <button @click="sendMessage()" 
+                        :disabled="!currentMessage.trim() || isTyping"
+                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
+                    送信
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function aibotComponent() {
+    return {
+        chatOpen: false,
+        messages: [],
+        currentMessage: '',
+        isTyping: false,
+
+        init() {
+            // 初期化処理
+        },
+
+        toggleChat() {
+            this.chatOpen = !this.chatOpen;
+            if (this.chatOpen) {
+                setTimeout(() => {
+                    const chatArea = document.getElementById('aibotChatArea');
+                    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+                }, 100);
+            }
+        },
+
+        async sendMessage() {
+            if (!this.currentMessage.trim() || this.isTyping) return;
+
+            const message = this.currentMessage.trim();
+            const userMessage = {
+                id: Date.now(),
+                type: 'user',
+                content: message,
+                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            this.messages.push(userMessage);
+            this.currentMessage = '';
+            this.isTyping = true;
+
+            // Scroll to bottom
+            setTimeout(() => {
+                const chatArea = document.getElementById('aibotChatArea');
+                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+
+            // Generate AI response
+            await this.generateResponse(message);
+        },
+
+        async generateResponse(question) {
+            // AI応答のシミュレーション
+            let response = '';
+            const lowerQuestion = question.toLowerCase();
+            
+            if (lowerQuestion.includes('価格') || lowerQuestion.includes('料金') || lowerQuestion.includes('費用')) {
+                response = 'LIFE Xの価格については、標準価格表に基づいて見積もりを作成いたします。詳細は営業担当者にお問い合わせください。';
+            } else if (lowerQuestion.includes('プラン')) {
+                response = 'LIFE Xでは30坪から35坪まで様々なプランをご用意しています。プラン一覧ページでご確認いただけます。';
+            } else if (lowerQuestion.includes('耐震') || lowerQuestion.includes('地震')) {
+                response = 'LIFE Xでは耐震等級3を標準仕様としています。建築基準法の1.5倍の地震力に耐える構造です。';
+            } else if (lowerQuestion.includes('工期') || lowerQuestion.includes('期間')) {
+                response = '標準的な工事期間は約4〜5ヶ月です。詳細な工程表は契約時にご説明いたします。';
+            } else if (lowerQuestion.includes('保証')) {
+                response = '構造躯体・防水は10年保証、設備機器はメーカー保証に準じます。定期点検も実施いたします。';
+            } else if (lowerQuestion.includes('ダウンロード')) {
+                response = 'ダウンロードページから各種資料をダウンロードいただけます。パンフレット、資金計画書、標準仕様書などがございます。';
+            } else if (lowerQuestion.includes('間取') || lowerQuestion.includes('マトリックス')) {
+                response = '間取マトリックスページでは、建物間口と奥行の組み合わせから最適なプランを検索できます。';
+            } else {
+                response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
+            }
+
+            // タイピング遅延のシミュレーション
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const aiMessage = {
+                id: Date.now(),
+                type: 'ai',
+                content: response,
+                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            this.isTyping = false;
+            this.messages.push(aiMessage);
+
+            // Scroll to bottom
+            setTimeout(() => {
+                const chatArea = document.getElementById('aibotChatArea');
+                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+            }, 100);
+        }
+    }
+}
+</script>
+
+<style>
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+</style>
