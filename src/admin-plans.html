@@ -259,9 +259,11 @@
                                                 <span class="font-medium">外観パース</span>
                                             </div>
                                             <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                            <div x-show="formData.files && formData.files.images && formData.files.images.exterior" class="text-green-600 mt-1 text-xs">
-                                                <div class="truncate" x-text="formData.files && formData.files.images && formData.files.images.exterior ? `✓ ${formData.files.images.exterior.name}` : ''"></div>
-                                            </div>
+                                            <template x-if="formData.files && formData.files.images && formData.files.images.exterior && formData.files.images.exterior.name">
+                                                <div class="text-green-600 mt-1 text-xs">
+                                                    <div class="truncate" x-text="`✓ ${formData.files.images.exterior.name}`"></div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
@@ -286,9 +288,11 @@
                                                 <span class="font-medium">内観パース</span>
                                             </div>
                                             <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                            <div x-show="formData.files && formData.files.images && formData.files.images.interior" class="text-green-600 mt-1 text-xs">
-                                                <div class="truncate" x-text="formData.files && formData.files.images && formData.files.images.interior ? `✓ ${formData.files.images.interior.name}` : ''"></div>
-                                            </div>
+                                            <template x-if="formData.files && formData.files.images && formData.files.images.interior && formData.files.images.interior.name">
+                                                <div class="text-green-600 mt-1 text-xs">
+                                                    <div class="truncate" x-text="`✓ ${formData.files.images.interior.name}`"></div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
                                 </div>
@@ -315,9 +319,11 @@
                                                         <span class="font-medium" x-text="`${floor}階間取り図`"></span>
                                                     </div>
                                                     <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                                    <div x-show="formData.files && formData.files.floorPlans && formData.files.floorPlans[floor]" class="text-green-600 mt-1 text-xs">
-                                                        <div class="truncate" x-text="formData.files && formData.files.floorPlans && formData.files.floorPlans[floor] ? `✓ ${formData.files.floorPlans[floor].name}` : ''"></div>
-                                                    </div>
+                                                    <template x-if="formData.files && formData.files.floorPlans && formData.files.floorPlans[floor] && formData.files.floorPlans[floor].name">
+                                                        <div class="text-green-600 mt-1 text-xs">
+                                                            <div class="truncate" x-text="`✓ ${formData.files.floorPlans[floor].name}`"></div>
+                                                        </div>
+                                                    </template>
                                                 </div>
                                             </div>
                                         </div>
@@ -342,9 +348,11 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                                 </svg>
                                                 <p class="text-sm text-gray-600 mt-2">プレゼン（パワーポイント）をドラッグ＆ドロップまたはクリックして選択</p>
-                                                <div x-show="formData.files && formData.files.presentation" class="text-green-600 mt-2 text-xs">
-                                                    <div class="truncate" x-text="`✓ ${formData.files.presentation.name}`"></div>
-                                                </div>
+                                                <template x-if="formData.files && formData.files.presentation && formData.files.presentation.name">
+                                                    <div class="text-green-600 mt-2 text-xs">
+                                                        <div class="truncate" x-text="`✓ ${formData.files.presentation.name}`"></div>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </label>
                                     </div>
@@ -381,7 +389,7 @@
                                                             </template>
                                                         </div>
                                                     </template>
-                                                    <template x-if="!Array.isArray(formData.files.drawings[drawing])">
+                                                    <template x-if="!Array.isArray(formData.files.drawings[drawing]) && formData.files.drawings[drawing]">
                                                         <div class="truncate" x-text="`✓ ${formData.files.drawings[drawing].name}`"></div>
                                                     </template>
                                                 </div>
@@ -421,7 +429,7 @@
                                                             </template>
                                                         </div>
                                                     </template>
-                                                    <template x-if="!Array.isArray(formData.files.documents[doc])">
+                                                    <template x-if="!Array.isArray(formData.files.documents[doc]) && formData.files.documents[doc]">
                                                         <div class="truncate" x-text="`✓ ${formData.files.documents[doc].name}`"></div>
                                                     </template>
                                                 </div>

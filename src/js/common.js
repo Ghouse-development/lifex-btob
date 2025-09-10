@@ -246,6 +246,114 @@ window.lifeXAPI = {
                 document.body.removeChild(toast);
             }
         }, 3300);
+    },
+    
+    // ダウンロード取得
+    async getDownloads() {
+        try {
+            // ローカルストレージから取得を試みる
+            const localData = localStorage.getItem('downloads_data');
+            if (localData) {
+                return JSON.parse(localData);
+            }
+            
+            // APIから取得を試みる（本番環境用）
+            const response = await fetch('/api/downloads');
+            const contentType = response.headers.get('content-type');
+            if (response.ok && contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+        } catch (error) {
+            // エラーは開発環境では正常なので、詳細ログは出さない
+            console.debug('Downloads API not available, using empty data');
+        }
+        // エラー時は空のカテゴリーを返す
+        return {
+            categories: {
+                catalog: { items: [] },
+                financial: { items: [] },
+                specifications: { items: [] },
+                drawings: { items: [] },
+                logo: { items: [] },
+                sales: { items: [] },
+                contracts: { items: [] },
+                manuals: { items: [] }
+            }
+        };
+    },
+    
+    // ルール取得
+    async getRules() {
+        try {
+            // ローカルストレージから取得を試みる
+            const localData = localStorage.getItem('rules_data');
+            if (localData) {
+                return JSON.parse(localData);
+            }
+            
+            const response = await fetch('/api/rules');
+            const contentType = response.headers.get('content-type');
+            if (response.ok && contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.debug('Rules API not available, using empty data');
+        }
+        return { rules: [] };
+    },
+    
+    // FAQ取得
+    async getFAQ() {
+        try {
+            // ローカルストレージから取得を試みる
+            const localData = localStorage.getItem('faq_data');
+            if (localData) {
+                return JSON.parse(localData);
+            }
+            
+            const response = await fetch('/api/faq');
+            const contentType = response.headers.get('content-type');
+            if (response.ok && contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.debug('FAQ API not available, using empty data');
+        }
+        return { faqs: [] };
+    },
+    
+    // プラン作成
+    async createPlan(planData) {
+        try {
+            const response = await fetch('/api/plans', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(planData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating plan:', error);
+            throw error;
+        }
+    },
+    
+    // プラン更新
+    async updatePlan(planId, planData) {
+        try {
+            const response = await fetch(`/api/plans/${planId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(planData)
+            });
+            return await response.json();
+        } catch (error) {
+            console.error('Error updating plan:', error);
+            throw error;
+        }
     }
 };
 
@@ -262,6 +370,14 @@ window.authManager = {
     logout() {
         sessionStorage.removeItem('admin_token');
         window.location.href = '/admin-login.html';
+    },
+    
+    requireAuth() {
+        if (!this.isAuthenticated()) {
+            window.location.href = '/admin-login.html';
+            return false;
+        }
+        return true;
     }
 };
 
