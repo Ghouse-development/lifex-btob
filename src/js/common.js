@@ -120,7 +120,12 @@ window.lifeXAPI = {
             // LocalStorageから取得を試みる
             const localData = localStorage.getItem('plans_data');
             if (localData) {
-                return JSON.parse(localData);
+                const data = JSON.parse(localData);
+                // plans配列が存在しない場合は空配列を設定
+                if (!data.plans) {
+                    data.plans = [];
+                }
+                return data;
             }
             
             // APIから取得を試みる（本番環境用）

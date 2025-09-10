@@ -341,8 +341,9 @@
                     try {
                         // プラン統計
                         const plansData = await lifeXAPI.getPlansIndex();
-                        this.stats.plans = plansData.plans.length;
-                        this.stats.plansUpdated = plansData.plans.filter(plan => {
+                        this.stats.plans = (plansData.plans || []).length;
+                        this.stats.plansUpdated = (plansData.plans || []).filter(plan => {
+                            if (!plan.updatedAt) return false;
                             const updatedDate = new Date(plan.updatedAt);
                             const thisMonth = new Date();
                             return updatedDate.getMonth() === thisMonth.getMonth() && 
