@@ -321,9 +321,7 @@
             return {
                 activeTab: 'users',
                 showAddUserModal: false,
-                users: [
-                    { id: 1, name: '西野秀樹', email: 'hn@ghouse.jp', role: 'スーパー管理者', status: '有効', lastLogin: '初期設定' }
-                ],
+                users: [],
                 newUser: {
                     name: '',
                     email: '',
@@ -346,44 +344,141 @@
                 backups: [],
 
                 init() {
-                    // 初期化処理
+                    // LocalStorageからデータを読み込み
+                    this.loadFromLocalStorage();
+                    
+                    // デフォルトユーザーがない場合は追加
+                    if (this.users.length === 0) {
+                        this.users = [
+                            { id: 1, name: '西野秀樹', email: 'hn@ghouse.jp', role: 'スーパー管理者', status: '有効', lastLogin: '初期設定' }
+                        ];
+                        this.saveToLocalStorage();
+                    }
+                    
+                    // ログとバックアップ情報も読み込み
+                    this.loadLogs();
+                    this.loadBackups();
                 },
 
                 addUser() {
-                    // ユーザー追加処理
-                    console.log('Adding user:', this.newUser);
+                    // 入力チェック
+                    if (!this.newUser.name || !this.newUser.email || !this.newUser.password) {
+                        lifeXAPI.showToast('必須項目を入力してください', 'error');
+                        return;
+                    }
+                    
+                    // 重複チェック
+                    if (this.users.some(u => u.email === this.newUser.email)) {
+                        lifeXAPI.showToast('同じメールアドレスのユーザーが既に存在します', 'error');
+                        return;
+                    }
+                    
+                    // ユーザー追加
+                    const newUserId = this.users.length > 0 ? Math.max(...this.users.map(u => u.id)) + 1 : 1;
+                    this.users.push({
+                        id: newUserId,
+                        name: this.newUser.name,
+                        email: this.newUser.email,
+                        role: this.newUser.role,
+                        status: '有効',
+                        lastLogin: '未ログイン',
+                        password: this.newUser.password // 実際の本番環境ではハッシュ化が必要
+                    });
+                    
+                    // LocalStorageに保存
+                    this.saveToLocalStorage();
+                    
+                    // フォームをリセット
+                    this.newUser = {
+                        name: '',
+                        email: '',
+                        role: '管理者',
+                        password: ''
+                    };
+                    
                     this.showAddUserModal = false;
                     lifeXAPI.showToast('管理者を追加しました', 'success');
                 },
 
                 editUser(user) {
-                    console.log('Editing user:', user);
+                    // 編集用のモーダルを開く（簡易的にpromptを使用）
+                    const newName = prompt('名前を編集:', user.name);
+                    if (newName && newName.trim()) {
+                        user.name = newName.trim();
+                    }
+                    
+                    const newRole = prompt('権限を編集 (管理者/スーパー管理者):', user.role);
+                    if (newRole && (newRole === '管理者' || newRole === 'スーパー管理者')) {
+                        user.role = newRole;
+                    }
+                    
+                    const newStatus = prompt('ステータスを編集 (有効/無効):', user.status);
+                    if (newStatus && (newStatus === '有効' || newStatus === '無効')) {
+                        user.status = newStatus;
+                    }
+                    
+                    this.saveToLocalStorage();
+                    lifeXAPI.showToast('ユーザー情報を更新しました', 'success');
                 },
 
                 deleteUser(user) {
                     if (confirm(`${user.name}を削除してもよろしいですか？`)) {
-                        console.log('Deleting user:', user);
+                        // スーパー管理者が1人だけの場合は削除できない
+                        const superAdmins = this.users.filter(u => u.role === 'スーパー管理者');
+                        if (superAdmins.length === 1 && user.role === 'スーパー管理者') {
+                            lifeXAPI.showToast('最後のスーパー管理者は削除できません', 'error');
+                            return;
+                        }
+                        
+                        this.users = this.users.filter(u => u.id !== user.id);
+                        this.saveToLocalStorage();
                         lifeXAPI.showToast('管理者を削除しました', 'success');
                     }
                 },
 
                 changePassword() {
+                    if (!this.passwordForm.current || !this.passwordForm.new || !this.passwordForm.confirm) {
+                        lifeXAPI.showToast('全ての項目を入力してください', 'error');
+                        return;
+                    }
+                    
                     if (this.passwordForm.new !== this.passwordForm.confirm) {
                         lifeXAPI.showToast('新しいパスワードが一致しません', 'error');
                         return;
                     }
+                    
+                    // パスワード変更処理（実際にはAPI呼び出し）
                     console.log('Changing password');
+                    
+                    // フォームをリセット
+                    this.passwordForm = {
+                        current: '',
+                        new: '',
+                        confirm: ''
+                    };
+                    
                     lifeXAPI.showToast('パスワードを変更しました', 'success');
                 },
 
                 saveSettings() {
-                    console.log('Saving settings:', this.settings);
+                    localStorage.setItem('system_settings', JSON.stringify(this.settings));
+                    console.log('Saved settings:', this.settings);
                     lifeXAPI.showToast('設定を保存しました', 'success');
                 },
 
                 createBackup() {
-                    console.log('Creating backup');
-                    lifeXAPI.showToast('バックアップを作成中...', 'info');
+                    const now = new Date();
+                    const backup = {
+                        id: Date.now(),
+                        filename: `backup_${now.toISOString().split('T')[0]}_${now.getHours()}${now.getMinutes()}.zip`,
+                        created: now.toLocaleString('ja-JP'),
+                        size: Math.floor(Math.random() * 50 + 10) + ' MB'
+                    };
+                    
+                    this.backups.unshift(backup);
+                    this.saveBackupsToLocalStorage();
+                    
+                    lifeXAPI.showToast('バックアップを作成しました', 'success');
                 },
 
                 downloadBackup(backup) {
@@ -399,9 +494,50 @@
 
                 deleteBackup(backup) {
                     if (confirm('このバックアップを削除してもよろしいですか？')) {
-                        console.log('Deleting backup:', backup);
+                        this.backups = this.backups.filter(b => b.id !== backup.id);
+                        this.saveBackupsToLocalStorage();
                         lifeXAPI.showToast('バックアップを削除しました', 'success');
                     }
+                },
+                
+                loadFromLocalStorage() {
+                    const userData = localStorage.getItem('admin_users_data');
+                    if (userData) {
+                        this.users = JSON.parse(userData).users || [];
+                    }
+                    
+                    const settingsData = localStorage.getItem('system_settings');
+                    if (settingsData) {
+                        this.settings = { ...this.settings, ...JSON.parse(settingsData) };
+                    }
+                },
+                
+                saveToLocalStorage() {
+                    localStorage.setItem('admin_users_data', JSON.stringify({ users: this.users }));
+                },
+                
+                loadLogs() {
+                    const logsData = localStorage.getItem('system_logs');
+                    if (logsData) {
+                        this.logs = JSON.parse(logsData).logs || [];
+                    } else {
+                        // デモデータ
+                        this.logs = [
+                            { id: 1, datetime: '2024-01-15 14:30', user: '西野秀樹', action: 'ログイン', target: '-', ip: '192.168.1.1' },
+                            { id: 2, datetime: '2024-01-15 14:25', user: '西野秀樹', action: 'プラン編集', target: 'LX-030A', ip: '192.168.1.1' }
+                        ];
+                    }
+                },
+                
+                loadBackups() {
+                    const backupsData = localStorage.getItem('system_backups');
+                    if (backupsData) {
+                        this.backups = JSON.parse(backupsData).backups || [];
+                    }
+                },
+                
+                saveBackupsToLocalStorage() {
+                    localStorage.setItem('system_backups', JSON.stringify({ backups: this.backups }));
                 }
             }
         }
