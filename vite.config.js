@@ -18,6 +18,7 @@ export default defineConfig({
         'admin-login': resolve(__dirname, 'src/admin-login.html'),
         'admin-plans': resolve(__dirname, 'src/admin-plans.html'),
         'admin-rules': resolve(__dirname, 'src/admin-rules.html'),
+        'admin-faq': resolve(__dirname, 'src/admin-faq.html'),
         'admin-downloads': resolve(__dirname, 'src/admin-downloads.html'),
         'admin-login-google': resolve(__dirname, 'src/admin-login-google.html'),
         'admin-users': resolve(__dirname, 'src/admin-users.html'),
