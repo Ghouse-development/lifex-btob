@@ -127,9 +127,9 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`${plan.tsubo || plan.size}坪`"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="(plan.width && plan.depth) ? `${plan.width}×${plan.depth}mm` : '-'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.layout"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`¥${(plan.sellPrice || plan.price || 0).toLocaleString()}万円`"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.cost ? `¥${plan.cost.toLocaleString()}万円` : '-'"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.grossProfit ? `¥${plan.grossProfit.toLocaleString()}万円` : '-'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`¥${((plan.prices?.sell || plan.sellPrice || plan.price || 0) / 10000).toLocaleString()}万円`"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="(plan.prices?.cost || plan.cost) ? `¥${((plan.prices?.cost || plan.cost) / 10000).toLocaleString()}万円` : '-'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="(plan.prices?.gross || plan.grossProfit) ? `¥${((plan.prices?.gross || plan.grossProfit) / 10000).toLocaleString()}万円` : '-'"></td>
                                     <td class="px-6 py-4 text-sm text-gray-500">
                                         <div class="flex flex-wrap gap-1">
                                             <template x-for="tag in (plan.tags || []).concat(plan.featureTags || [])" :key="tag">
@@ -601,9 +601,9 @@
                     this.formData = {
                         ...plan,
                         tsubo: plan.tsubo || plan.size || '',
-                        sellPrice: plan.prices?.sell || plan.sellPrice || plan.price || '',
-                        cost: plan.prices?.cost || plan.cost || '',
-                        grossProfit: plan.prices?.gross || plan.grossProfit || '',
+                        sellPrice: plan.prices?.sell ? plan.prices.sell / 10000 : (plan.sellPrice || plan.price || ''),  // 円→万円に変換
+                        cost: plan.prices?.cost ? plan.prices.cost / 10000 : (plan.cost || ''),      // 円→万円に変換
+                        grossProfit: plan.prices?.gross ? plan.prices.gross / 10000 : (plan.grossProfit || ''), // 円→万円に変換
                         tags: plan.tags || [],
                         featureTags: plan.featureTags || plan.tags || [],
                         images: plan.images || { exterior: '', interior: '' },
@@ -652,9 +652,9 @@
                             width: parseInt(this.formData.width) || 0,
                             depth: parseInt(this.formData.depth) || 0,
                             prices: {
-                                sell: parseFloat(this.formData.sellPrice) || 0,
-                                cost: parseFloat(this.formData.cost) || 0,
-                                gross: parseFloat(this.formData.grossProfit) || 0
+                                sell: (parseFloat(this.formData.sellPrice) || 0) * 10000,  // 万円→円に変換
+                                cost: (parseFloat(this.formData.cost) || 0) * 10000,      // 万円→円に変換
+                                gross: (parseFloat(this.formData.grossProfit) || 0) * 10000 // 万円→円に変換
                             }
                         };
                         
