@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>間取マトリックス | LIFE X 加盟店専用サイト</title>
     <link href="./styles/main.css" rel="stylesheet">
+    <script src="./utils/api.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script type="module" src="./utils/api.js"></script>
 </head>
 <body class="h-full bg-gray-50">
     <!-- Header -->
@@ -166,6 +166,11 @@
                 loading: true,
                 plans: [],
                 totalPlans: 0,
+                matrixData: {
+                    rows: [],
+                    columns: []
+                },
+                matrixMode: 'width', // 'width' or 'depth'
                 
                 // 建物間口の選択肢
                 widthOptions: [
@@ -202,12 +207,24 @@
 
                 async init() {
                     try {
-                        const plansData = await lifeXAPI.getPlansIndex();
+                        // lifeXAPIが利用可能になるまで待つ
+                        if (typeof window.lifeXAPI === 'undefined') {
+                            console.log('Waiting for lifeXAPI...');
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                        
+                        const plansData = await window.lifeXAPI.getPlansIndex();
                         this.plans = plansData.plans.filter(plan => plan.status === 'published');
                         this.totalPlans = this.plans.length;
+                        
+                        // matrixDataを初期化
+                        this.matrixData.rows = this.depthOptions;
+                        this.matrixData.columns = this.widthOptions;
                     } catch (error) {
                         console.error('Error loading plans:', error);
-                        lifeXAPI.showToast('プランデータの読み込みに失敗しました', 'error');
+                        if (window.lifeXAPI && window.lifeXAPI.showToast) {
+                            window.lifeXAPI.showToast('プランデータの読み込みに失敗しました', 'error');
+                        }
                     } finally {
                         this.loading = false;
                     }
@@ -240,12 +257,16 @@
                     
                     if (cellData.hasPlans) {
                         // プラン詳細またはプラン一覧ページに遷移
-                        lifeXAPI.showToast(`間口${width.mm}mm × 奥行${depth.mm}mmのプラン詳細を表示`, 'info');
+                        if (window.lifeXAPI && window.lifeXAPI.showToast) {
+                            window.lifeXAPI.showToast(`間口${width.mm}mm × 奥行${depth.mm}mmのプラン詳細を表示`, 'info');
+                        }
                         
                         // 実際の実装では以下のようにプランページにリダイレクト
                         // window.location.href = `/plans.html?width=${width.mm}&depth=${depth.mm}`;
                     } else {
-                        lifeXAPI.showToast('この組み合わせのプランはありません', 'info');
+                        if (window.lifeXAPI && window.lifeXAPI.showToast) {
+                            window.lifeXAPI.showToast('この組み合わせのプランはありません', 'info');
+                        }
                     }
                 }
             }
