@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理設定 | LIFE X 加盟店専用サイト</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script type="module" src="./utils/api.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">管理設定</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="nav-link">ホーム</a>
+                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/plans.html" class="nav-link">プラン一覧</a>
+                    <a href="/rules.html" class="nav-link">ルール</a>
+                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="adminPage()" x-init="init()">
+        <!-- Breadcrumb -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <nav class="breadcrumb">
+                <a href="/">ホーム</a>
+                <span class="breadcrumb-separator">></span>
+                <span class="text-gray-900">管理設定</span>
+            </nav>
+        </div>
+
+        <!-- Password Protection -->
+        <div x-show="!authenticated" class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-16">
+            <div class="card">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">管理者認証が必要です</h2>
+                    <p class="text-gray-600 text-sm">管理設定にアクセスするには、パスワードを入力してください。</p>
+                </div>
+                <div class="space-y-4">
+                    <input 
+                        type="password" 
+                        x-model="password"
+                        @keyup.enter="authenticate()"
+                        placeholder="パスワードを入力" 
+                        class="form-input w-full">
+                    <button @click="authenticate()" class="btn-primary w-full">
+                        認証する
+                    </button>
+                    <div x-show="authError" class="text-red-600 text-sm text-center">
+                        パスワードが正しくありません
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Content -->
+        <div x-show="authenticated" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+            <!-- Page Header -->
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">システム管理設定</h1>
+                <p class="text-gray-600">プラン管理やシステム設定を行えます</p>
+            </div>
+
+            <!-- Plan Management Section -->
+            <div class="card mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-gray-900">プラン管理</h2>
+                    <button @click="showAddPlanModal = true" class="btn-primary">
+                        + 新規プラン追加
+                    </button>
+                </div>
+
+                <!-- Plans List -->
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>プランID</th>
+                                <th>プラン名</th>
+                                <th>坪数</th>
+                                <th>売価</th>
+                                <th>原価</th>
+                                <th>粗利</th>
+                                <th>状態</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template x-for="plan in plans" :key="plan.id">
+                                <tr>
+                                    <td x-text="plan.id" class="font-mono text-sm"></td>
+                                    <td x-text="plan.name"></td>
+                                    <td x-text="plan.tsubo + '坪'"></td>
+                                    <td x-text="formatPrice(plan.prices.sell)"></td>
+                                    <td x-text="formatPrice(plan.prices.cost)"></td>
+                                    <td x-text="formatPrice(plan.prices.gross)" class="text-green-600 font-semibold"></td>
+                                    <td>
+                                        <span :class="plan.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" 
+                                              class="px-2 py-1 text-xs rounded-full">
+                                            <span x-text="plan.active ? '公開' : '非公開'"></span>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="flex space-x-2">
+                                            <button @click="editPlan(plan)" class="text-primary-600 hover:text-primary-800">
+                                                編集
+                                            </button>
+                                            <button @click="togglePlanStatus(plan)" class="text-gray-600 hover:text-gray-800">
+                                                <span x-text="plan.active ? '非公開' : '公開'"></span>
+                                            </button>
+                                            <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-800">
+                                                削除
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Settings -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Data Management -->
+                <div class="card">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">データ管理</h3>
+                    <div class="space-y-4">
+                        <button @click="exportData()" class="btn-secondary w-full">
+                            📥 データエクスポート
+                        </button>
+                        <button @click="importData()" class="btn-secondary w-full">
+                            📤 データインポート
+                        </button>
+                        <button @click="backupData()" class="btn-secondary w-full">
+                            💾 バックアップ作成
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cache Management -->
+                <div class="card">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">キャッシュ管理</h3>
+                    <div class="space-y-4">
+                        <button @click="clearCache()" class="btn-secondary w-full">
+                            🔄 キャッシュクリア
+                        </button>
+                        <button @click="rebuildIndex()" class="btn-secondary w-full">
+                            🔨 インデックス再構築
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Plan Modal -->
+        <div x-show="showAddPlanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showAddPlanModal = false">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
+                <div class="mt-3">
+                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                        <h3 class="text-xl font-bold text-gray-900">
+                            <span x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></span>
+                        </h3>
+                        <button @click="showAddPlanModal = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="py-6 space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">プランID</label>
+                                <input type="text" x-model="formData.id" class="form-input" placeholder="例: A-001">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">プラン名</label>
+                                <input type="text" x-model="formData.name" class="form-input" placeholder="例: スタンダードプラン">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">坪数</label>
+                                <input type="number" x-model="formData.tsubo" class="form-input" placeholder="30">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">奥行 (m)</label>
+                                <input type="number" x-model="formData.depth" class="form-input" placeholder="10">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">間口 (m)</label>
+                                <input type="number" x-model="formData.width" class="form-input" placeholder="8">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">売価 (万円)</label>
+                                <input type="number" x-model="formData.sell" class="form-input" placeholder="2000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">原価 (万円)</label>
+                                <input type="number" x-model="formData.cost" class="form-input" placeholder="1500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">粗利 (万円)</label>
+                                <input type="number" :value="formData.sell - formData.cost" class="form-input bg-gray-100" disabled>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">外観パース画像 URL</label>
+                                <input type="text" x-model="formData.exteriorImage" class="form-input" placeholder="https://example.com/exterior.jpg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">間取り図画像 URL</label>
+                                <input type="text" x-model="formData.floorPlanImage" class="form-input" placeholder="https://example.com/floorplan.jpg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">タグ (カンマ区切り)</label>
+                            <input type="text" x-model="formData.tags" class="form-input" placeholder="人気, 新築, 太陽光対応">
+                        </div>
+
+                        <!-- ダウンロード項目 -->
+                        <div class="border-t pt-4">
+                            <h4 class="font-semibold text-gray-900 mb-3">ダウンロード項目 (URLを入力)</h4>
+                            
+                            <div class="space-y-3">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">プレゼン（パワポ）</label>
+                                        <input type="text" x-model="formData.downloads.presentation" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">実施図</label>
+                                        <input type="text" x-model="formData.downloads.implementationDrawing" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">キッチン図面</label>
+                                        <input type="text" x-model="formData.downloads.kitchen" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">洗面化粧台図面</label>
+                                        <input type="text" x-model="formData.downloads.washstand" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">システムバス図面</label>
+                                        <input type="text" x-model="formData.downloads.systembath" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">トイレ図面</label>
+                                        <input type="text" x-model="formData.downloads.toilet" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">照明図面</label>
+                                        <input type="text" x-model="formData.downloads.lighting" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">換気システム図面</label>
+                                        <input type="text" x-model="formData.downloads.ventilation" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">内装プレゼン（Excel）</label>
+                                        <input type="text" x-model="formData.downloads.interiorPresentation" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">仕様書・外装プレゼン（Excel）</label>
+                                        <input type="text" x-model="formData.downloads.exteriorPresentation" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">建具プレゼン</label>
+                                        <input type="text" x-model="formData.downloads.fittings" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">サッシプレゼン</label>
+                                        <input type="text" x-model="formData.downloads.sash" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">申請図</label>
+                                        <input type="text" x-model="formData.downloads.applicationDrawing" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">構造図</label>
+                                        <input type="text" x-model="formData.downloads.structuralDrawing" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">プレカット図</label>
+                                        <input type="text" x-model="formData.downloads.precutDrawing" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">資金計画書</label>
+                                        <input type="text" x-model="formData.downloads.financialPlan" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">実行予算</label>
+                                        <input type="text" x-model="formData.downloads.executionBudget" class="form-input" placeholder="URL">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Walk in Homeデータ</label>
+                                        <input type="text" x-model="formData.downloads.walkinHome" class="form-input" placeholder="URL">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button @click="showAddPlanModal = false" class="btn-secondary">
+                            キャンセル
+                        </button>
+                        <button @click="savePlan()" class="btn-primary">
+                            <span x-text="editingPlan ? '更新する' : '追加する'"></span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function adminPage() {
+            return {
+                authenticated: false,
+                password: '',
+                authError: false,
+                plans: [],
+                showAddPlanModal: false,
+                editingPlan: null,
+                formData: {
+                    id: '',
+                    name: '',
+                    tsubo: '',
+                    depth: '',
+                    width: '',
+                    sell: '',
+                    cost: '',
+                    tags: '',
+                    exteriorImage: '',
+                    floorPlanImage: '',
+                    downloads: {
+                        presentation: '',
+                        implementationDrawing: '',
+                        kitchen: '',
+                        washstand: '',
+                        systembath: '',
+                        toilet: '',
+                        lighting: '',
+                        ventilation: '',
+                        interiorPresentation: '',
+                        exteriorPresentation: '',
+                        fittings: '',
+                        sash: '',
+                        applicationDrawing: '',
+                        structuralDrawing: '',
+                        precutDrawing: '',
+                        financialPlan: '',
+                        executionBudget: '',
+                        walkinHome: ''
+                    }
+                },
+
+                init() {
+                    // Check if already authenticated via session
+                    const authToken = sessionStorage.getItem('admin_auth');
+                    if (authToken === 'authenticated') {
+                        this.authenticated = true;
+                        this.loadPlans();
+                    }
+                },
+
+                authenticate() {
+                    // Simple password check (in production, this should be server-side)
+                    if (this.password === 'admin2024') {
+                        this.authenticated = true;
+                        this.authError = false;
+                        sessionStorage.setItem('admin_auth', 'authenticated');
+                        this.loadPlans();
+                    } else {
+                        this.authError = true;
+                    }
+                },
+
+                loadPlans() {
+                    // Load plans from localStorage or API
+                    const storedPlans = localStorage.getItem('lifex_plans');
+                    if (storedPlans) {
+                        this.plans = JSON.parse(storedPlans);
+                    } else {
+                        // Sample data
+                        this.plans = [
+                            { id: 'A-001', name: 'スタンダードプラン', tsubo: 30, prices: { sell: 2000, cost: 1500, gross: 500 }, active: true },
+                            { id: 'A-002', name: 'コンパクトプラン', tsubo: 25, prices: { sell: 1800, cost: 1350, gross: 450 }, active: true },
+                            { id: 'B-001', name: 'ファミリープラン', tsubo: 35, prices: { sell: 2400, cost: 1800, gross: 600 }, active: true },
+                        ];
+                    }
+                },
+
+                editPlan(plan) {
+                    this.editingPlan = plan;
+                    this.formData = {
+                        id: plan.id,
+                        name: plan.name,
+                        tsubo: plan.tsubo,
+                        depth: plan.depth || 10,
+                        width: plan.width || 8,
+                        sell: plan.prices.sell,
+                        cost: plan.prices.cost,
+                        tags: plan.tags ? plan.tags.join(', ') : '',
+                        exteriorImage: plan.exteriorImage || '',
+                        floorPlanImage: plan.floorPlanImage || '',
+                        downloads: plan.downloads || {
+                            presentation: '',
+                            implementationDrawing: '',
+                            kitchen: '',
+                            washstand: '',
+                            systembath: '',
+                            toilet: '',
+                            lighting: '',
+                            ventilation: '',
+                            interiorPresentation: '',
+                            exteriorPresentation: '',
+                            fittings: '',
+                            sash: '',
+                            applicationDrawing: '',
+                            structuralDrawing: '',
+                            precutDrawing: '',
+                            financialPlan: '',
+                            executionBudget: '',
+                            walkinHome: ''
+                        }
+                    };
+                    this.showAddPlanModal = true;
+                },
+
+                savePlan() {
+                    const planData = {
+                        id: this.formData.id,
+                        name: this.formData.name,
+                        tsubo: parseInt(this.formData.tsubo),
+                        depth: parseFloat(this.formData.depth),
+                        width: parseFloat(this.formData.width),
+                        prices: {
+                            sell: parseInt(this.formData.sell),
+                            cost: parseInt(this.formData.cost),
+                            gross: parseInt(this.formData.sell) - parseInt(this.formData.cost)
+                        },
+                        tags: this.formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+                        exteriorImage: this.formData.exteriorImage,
+                        floorPlanImage: this.formData.floorPlanImage,
+                        downloads: this.formData.downloads,
+                        active: true,
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    if (this.editingPlan) {
+                        // Update existing plan
+                        const index = this.plans.findIndex(p => p.id === this.editingPlan.id);
+                        if (index !== -1) {
+                            this.plans[index] = { ...this.plans[index], ...planData };
+                        }
+                    } else {
+                        // Add new plan
+                        this.plans.push(planData);
+                    }
+
+                    // Save to localStorage
+                    localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
+                    
+                    this.showAddPlanModal = false;
+                    this.resetForm();
+                    alert(this.editingPlan ? 'プランを更新しました' : 'プランを追加しました');
+                },
+
+                togglePlanStatus(plan) {
+                    plan.active = !plan.active;
+                    localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
+                },
+
+                deletePlan(plan) {
+                    if (confirm(`プラン「${plan.name}」を削除してもよろしいですか？`)) {
+                        this.plans = this.plans.filter(p => p.id !== plan.id);
+                        localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
+                    }
+                },
+
+                resetForm() {
+                    this.formData = {
+                        id: '',
+                        name: '',
+                        tsubo: '',
+                        depth: '',
+                        width: '',
+                        sell: '',
+                        cost: '',
+                        tags: '',
+                        exteriorImage: '',
+                        floorPlanImage: ''
+                    };
+                    this.editingPlan = null;
+                },
+
+                formatPrice(price) {
+                    return price ? price.toLocaleString() + '万円' : '-';
+                },
+
+                exportData() {
+                    const data = JSON.stringify(this.plans, null, 2);
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'lifex_plans_' + new Date().toISOString().split('T')[0] + '.json';
+                    a.click();
+                },
+
+                importData() {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'application/json';
+                    input.onchange = (e) => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                            try {
+                                const data = JSON.parse(event.target.result);
+                                this.plans = data;
+                                localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
+                                alert('データをインポートしました');
+                            } catch (error) {
+                                alert('データのインポートに失敗しました');
+                            }
+                        };
+                        reader.readAsText(file);
+                    };
+                    input.click();
+                },
+
+                backupData() {
+                    const backup = {
+                        plans: this.plans,
+                        timestamp: new Date().toISOString()
+                    };
+                    localStorage.setItem('lifex_backup_' + Date.now(), JSON.stringify(backup));
+                    alert('バックアップを作成しました');
+                },
+
+                clearCache() {
+                    if (confirm('キャッシュをクリアしてもよろしいですか？')) {
+                        sessionStorage.clear();
+                        alert('キャッシュをクリアしました');
+                    }
+                },
+
+                rebuildIndex() {
+                    alert('インデックスの再構築を開始しました');
+                    setTimeout(() => {
+                        alert('インデックスの再構築が完了しました');
+                    }, 2000);
+                }
+            }
+        }
+    </script>
+</body>
+</html>

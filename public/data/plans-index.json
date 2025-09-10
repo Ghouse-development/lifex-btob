@@ -20,8 +20,11 @@
       "status": "published",
       "version": "1.2",
       "updatedAt": "2025-09-01T10:00:00+09:00",
-      "thumbnail": "/assets/images/plans/LX-030A/thumbnail.jpg",
-      "floorPlan": "/assets/images/plans/LX-030A/floor-plan.jpg"
+      "thumbnail": "/assets/images/plans/LX-030A/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-030A/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-030A/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-030A/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-030A/floor-2f.svg"
     },
     {
       "id": "LX-025B",
@@ -43,8 +46,11 @@
       "status": "published",
       "version": "1.0",
       "updatedAt": "2025-08-15T14:30:00+09:00",
-      "thumbnail": "/assets/images/plans/LX-025B/thumbnail.jpg",
-      "floorPlan": "/assets/images/plans/LX-025B/floor-plan.jpg"
+      "thumbnail": "/assets/images/plans/LX-025B/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-025B/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-025B/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-025B/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-025B/floor-2f.svg"
     },
     {
       "id": "LX-035C",
@@ -66,8 +72,11 @@
       "status": "published",
       "version": "1.1",
       "updatedAt": "2025-08-28T09:15:00+09:00",
-      "thumbnail": "/assets/images/plans/LX-035C/thumbnail.jpg",
-      "floorPlan": "/assets/images/plans/LX-035C/floor-plan.jpg"
+      "thumbnail": "/assets/images/plans/LX-035C/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-035C/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-035C/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-035C/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-035C/floor-2f.svg"
     }
   ],
   "filters": {

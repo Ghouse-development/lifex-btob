@@ -138,34 +138,54 @@
     "title": "ダウンロード",
     "items": [
       {
-        "id": "company-brochure",
-        "title": "会社パンフレット",
-        "description": "LIFE X紹介用会社パンフレット",
-        "url": "/static/docs/resources/company-brochure-v3.1.pdf",
-        "version": "3.1",
+        "id": "brochure",
+        "title": "パンフレット",
+        "description": "LIFE X総合パンフレット・会社案内",
+        "url": "/static/docs/resources/lifex-brochure-v3.2.pdf",
+        "version": "3.2",
         "updated": "2025-09-01",
-        "size": "7.8MB",
-        "tags": ["パンフレット", "会社紹介"]
+        "size": "8.5MB",
+        "tags": ["パンフレット"]
+      },
+      {
+        "id": "budget-plan",
+        "title": "資金計画書",
+        "description": "お客様向け資金計画書テンプレート",
+        "url": "/static/docs/resources/budget-plan-template-v2.4.xlsx",
+        "version": "2.4",
+        "updated": "2025-08-30",
+        "size": "2.1MB",
+        "tags": ["資金計画書"]
+      },
+      {
+        "id": "standard-specs",
+        "title": "標準仕様書",
+        "description": "LIFE X標準仕様の詳細資料",
+        "url": "/static/docs/resources/standard-specifications-v3.0.pdf",
+        "version": "3.0",
+        "updated": "2025-09-01",
+        "size": "12.3MB",
+        "tags": ["標準仕様書"]
+      },
+      {
+        "id": "section-drawings",
+        "title": "矩計図",
+        "description": "標準矩計図集・詳細図面",
+        "url": "/static/docs/resources/section-drawings-v2.1.pdf",
+        "version": "2.1",
+        "updated": "2025-08-28",
+        "size": "9.7MB",
+        "tags": ["矩計図"]
       },
       {
         "id": "logo-data",
-        "title": "ロゴデータ集",
-        "description": "LIFE Xロゴの各種フォーマット",
-        "url": "/static/docs/resources/logo-data-v1.3.zip",
+        "title": "ロゴデータ",
+        "description": "LIFE Xロゴの各種フォーマット（AI・PNG・SVG等）",
+        "url": "/static/docs/resources/lifex-logo-data-v1.3.zip",
         "version": "1.3",
         "updated": "2025-08-15",
         "size": "4.5MB",
-        "tags": ["ロゴ", "ブランディング"]
-      },
-      {
-        "id": "budget-template",
-        "title": "資金計画書雛形",
-        "description": "お客様提示用資金計画書のテンプレート",
-        "url": "/static/docs/resources/budget-template-v2.4.xlsx",
-        "version": "2.4",
-        "updated": "2025-08-30",
-        "size": "1.9MB",
-        "tags": ["資金計画", "テンプレート"]
+        "tags": ["ロゴデータ"]
       },
       {
         "id": "sales-catalog",
@@ -175,7 +195,7 @@
         "version": "2.0",
         "updated": "2025-08-25",
         "size": "11.2MB",
-        "tags": ["営業", "カタログ", "総合"]
+        "tags": ["営業カタログ"]
       }
     ]
   },

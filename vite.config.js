@@ -11,6 +11,7 @@ export default defineConfig({
         main: resolve(__dirname, 'src/index.html'),
         matrix: resolve(__dirname, 'src/matrix.html'),
         plans: resolve(__dirname, 'src/plans.html'),
+        rules: resolve(__dirname, 'src/rules.html'),
         downloads: resolve(__dirname, 'src/downloads.html'),
         'plan-detail': resolve(__dirname, 'src/plan-detail.html'),
         admin: resolve(__dirname, 'src/admin/index.html')

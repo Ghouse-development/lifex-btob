@@ -21,7 +21,7 @@
                     <a href="/" class="nav-link">ホーム</a>
                     <a href="/matrix.html" class="nav-link">間取マトリックス</a>
                     <a href="/plans.html" class="nav-link active">プラン一覧</a>
-                    <a href="/docs/rules.html" class="nav-link">ルール</a>
+                    <a href="/rules.html" class="nav-link">ルール</a>
                     <a href="/downloads.html" class="nav-link">ダウンロード</a>
                 </nav>
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
@@ -36,7 +36,7 @@
                         <a href="/" class="nav-link block">ホーム</a>
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                        <a href="/docs/rules.html" class="nav-link block">ルール</a>
+                        <a href="/rules.html" class="nav-link block">ルール</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
                     </div>
                 </div>
@@ -152,14 +152,6 @@
                     <div>
                         <label class="form-label">オプション</label>
                         <div class="space-y-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="filters.options.solar" @change="applyFilters()" class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
-                                <span class="ml-2 text-sm">太陽光システム</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="filters.options.evoltz" @change="applyFilters()" class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
-                                <span class="ml-2 text-sm">evoltz装備</span>
-                            </label>
                         </div>
                     </div>
                 </div>
@@ -199,14 +191,77 @@
                 </div>
             </div>
         </div>
+        
+        <!-- All Plans Grid Display -->
+        <div x-show="!loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">全プラン一覧</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <template x-for="plan in filteredPlans" :key="plan.id">
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" @click="showPlanDetail(plan)">
+                        <!-- Plan ID -->
+                        <div class="bg-gray-100 px-4 py-2 border-b">
+                            <p class="text-sm font-semibold text-gray-700" x-text="'ID: ' + plan.id"></p>
+                        </div>
+                        
+                        <!-- Images -->
+                        <div class="p-4 space-y-3">
+                            <!-- 外観パース -->
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">外観パース</p>
+                                <div class="aspect-video bg-gray-100 rounded flex items-center justify-center">
+                                    <template x-if="plan.exteriorImage">
+                                        <img :src="plan.exteriorImage" :alt="plan.name + ' 外観'" class="w-full h-full object-cover rounded">
+                                    </template>
+                                    <template x-if="!plan.exteriorImage">
+                                        <svg class="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        </svg>
+                                    </template>
+                                </div>
+                            </div>
+                            
+                            <!-- 1階間取り -->
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">1階間取り</p>
+                                <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
+                                    <template x-if="plan.floorPlan1F">
+                                        <img :src="plan.floorPlan1F" :alt="plan.name + ' 1階間取り'" class="w-full h-full object-cover rounded">
+                                    </template>
+                                    <template x-if="!plan.floorPlan1F">
+                                        <svg class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                        </svg>
+                                    </template>
+                                </div>
+                            </div>
+                            
+                            <!-- 2階間取り -->
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">2階間取り</p>
+                                <div class="aspect-square bg-gray-100 rounded flex items-center justify-center">
+                                    <template x-if="plan.floorPlan2F">
+                                        <img :src="plan.floorPlan2F" :alt="plan.name + ' 2階間取り'" class="w-full h-full object-cover rounded">
+                                    </template>
+                                    <template x-if="!plan.floorPlan2F">
+                                        <svg class="w-12 h-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                        </svg>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
 
         <!-- Loading State -->
         <div x-show="loading" class="flex justify-center py-12">
             <div class="loading-spinner"></div>
         </div>
 
-        <!-- Plans Display -->
-        <div x-show="!loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <!-- Plans Display (Hidden) -->
+        <div x-show="false" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <!-- Cards View -->
             <div x-show="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="plan in displayPlans" :key="plan.id">
@@ -279,80 +334,98 @@
                                     <span x-text="lifeXAPI.formatDate(plan.updatedAt)"></span>
                                     <span>更新</span>
                                 </div>
-                                <a :href="`/plans/${plan.id}.html`" class="btn-primary text-sm px-3 py-1">
+                                <button @click="showPlanDetail(plan)" class="btn-primary text-sm px-3 py-1">
                                     詳細を見る
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </template>
             </div>
 
-            <!-- Table View -->
-            <div x-show="viewMode === 'table'" class="card overflow-x-auto">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th class="cursor-pointer" @click="setSortBy('name')">
-                                プラン名
-                                <svg x-show="sortBy === 'name'" :class="sortOrder === 'desc' ? 'rotate-180' : ''" class="inline w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                </svg>
-                            </th>
-                            <th class="cursor-pointer" @click="setSortBy('tsubo')">
-                                坪数
-                                <svg x-show="sortBy === 'tsubo'" :class="sortOrder === 'desc' ? 'rotate-180' : ''" class="inline w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                </svg>
-                            </th>
-                            <th>寸法</th>
-                            <th class="cursor-pointer" @click="setSortBy('sell')">
-                                売価
-                                <svg x-show="sortBy === 'sell'" :class="sortOrder === 'desc' ? 'rotate-180' : ''" class="inline w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                </svg>
-                            </th>
-                            <th class="cursor-pointer" @click="setSortBy('gross')">
-                                粗利
-                                <svg x-show="sortBy === 'gross'" :class="sortOrder === 'desc' ? 'rotate-180' : ''" class="inline w-4 h-4 ml-1 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                                </svg>
-                            </th>
-                            <th>タグ</th>
-                            <th>更新日</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <template x-for="plan in displayPlans" :key="plan.id">
-                            <tr class="hover:bg-gray-50">
-                                <td class="font-medium">
-                                    <div x-text="plan.name"></div>
-                                    <div x-text="plan.id" class="text-xs text-gray-500"></div>
-                                </td>
-                                <td x-text="plan.tsubo + '坪'"></td>
-                                <td class="text-sm">
-                                    <div x-text="'奥行: ' + plan.depth + 'm'"></div>
-                                    <div x-text="'間口: ' + plan.width + 'm'"></div>
-                                </td>
-                                <td x-text="lifeXAPI.formatPrice(plan.prices.sell)" class="price-display"></td>
-                                <td x-text="lifeXAPI.formatPrice(plan.prices.gross)" class="text-green-600 font-semibold"></td>
-                                <td>
-                                    <div class="flex flex-wrap gap-1">
-                                        <template x-for="tag in plan.tags.slice(0, 2)" :key="tag">
-                                            <span x-text="tag" class="tag text-xs"></span>
-                                        </template>
-                                        <span x-show="plan.tags.length > 2" class="text-xs text-gray-500">+<span x-text="plan.tags.length - 2"></span></span>
+            <!-- Enhanced Table View with Images -->
+            <div x-show="viewMode === 'table'" class="space-y-4">
+                <template x-for="plan in displayPlans" :key="plan.id">
+                    <div class="card hover:shadow-lg transition-shadow">
+                        <div class="flex">
+                            <!-- Images Section -->
+                            <div class="w-96 flex-shrink-0 p-4 border-r border-gray-200">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <!-- 外観パース -->
+                                    <div>
+                                        <div class="text-xs text-gray-600 mb-1">外観パース</div>
+                                        <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <template x-if="plan.exteriorImage">
+                                                <img :src="plan.exteriorImage" :alt="plan.name + ' 外観'" class="w-full h-full object-cover rounded-lg">
+                                            </template>
+                                            <template x-if="!plan.exteriorImage">
+                                                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                                </svg>
+                                            </template>
+                                        </div>
                                     </div>
-                                </td>
-                                <td x-text="lifeXAPI.formatDate(plan.updatedAt)" class="text-sm"></td>
-                                <td>
-                                    <a :href="`/plans/${plan.id}.html`" class="btn-primary text-xs px-2 py-1">詳細</a>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
+                                    <!-- 間取り図 -->
+                                    <div>
+                                        <div class="text-xs text-gray-600 mb-1">間取り図</div>
+                                        <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
+                                            <template x-if="plan.floorPlanImage">
+                                                <img :src="plan.floorPlanImage" :alt="plan.name + ' 間取り'" class="w-full h-full object-cover rounded-lg">
+                                            </template>
+                                            <template x-if="!plan.floorPlanImage">
+                                                <svg class="w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                                                </svg>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Plan Details -->
+                            <div class="flex-1 p-6">
+                                <div class="flex justify-between items-start mb-4">
+                                    <div>
+                                        <h3 class="text-xl font-bold text-gray-900" x-text="plan.name"></h3>
+                                        <p class="text-sm text-gray-500" x-text="plan.id"></p>
+                                    </div>
+                                    <button @click="showPlanDetail(plan)" class="btn-primary">
+                                        詳細を見る
+                                    </button>
+                                </div>
+                                
+                                <div class="grid grid-cols-5 gap-4 mb-4">
+                                    <div>
+                                        <div class="text-xs text-gray-600">坪数</div>
+                                        <div class="text-lg font-semibold" x-text="plan.tsubo + '坪'"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">奥行</div>
+                                        <div class="text-lg font-semibold" x-text="plan.depth + 'm'"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">間口</div>
+                                        <div class="text-lg font-semibold" x-text="plan.width + 'm'"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">売価</div>
+                                        <div class="text-lg font-semibold text-primary-600" x-text="lifeXAPI.formatPrice(plan.prices.sell)"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">粗利</div>
+                                        <div class="text-lg font-semibold text-green-600" x-text="lifeXAPI.formatPrice(plan.prices.gross)"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="tag in plan.tags" :key="tag">
+                                        <span x-text="tag" class="tag"></span>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
 
             <!-- No Results -->
@@ -367,6 +440,358 @@
                 <button @click="clearAllFilters()" class="btn-primary">
                     フィルタをリセット
                 </button>
+            </div>
+        </div>
+
+        <!-- Plan Detail Modal -->
+        <div x-show="showDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="closeDetailModal">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-6xl shadow-lg rounded-md bg-white" @click.stop>
+                <div class="mt-3">
+                    <!-- Modal Header -->
+                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
+                        <h3 x-text="selectedPlan?.name" class="text-2xl font-bold text-gray-900"></h3>
+                        <button @click="closeDetailModal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Plan Basic Info -->
+                    <div class="py-6">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 mb-6">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.tsubo + '坪'"></div>
+                                <div class="text-gray-600 text-sm">坪数</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.depth + 'm'"></div>
+                                <div class="text-gray-600 text-sm">奥行</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.width + 'm'"></div>
+                                <div class="text-gray-600 text-sm">間口</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600" x-text="lifeXAPI.formatPrice(selectedPlan?.prices.sell)"></div>
+                                <div class="text-gray-600 text-sm">売価</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600" x-text="lifeXAPI.formatPrice(selectedPlan?.prices.gross)"></div>
+                                <div class="text-gray-600 text-sm">粗利</div>
+                            </div>
+                        </div>
+
+                        <!-- Document Categories -->
+                        <div class="space-y-6">
+                            <!-- プレゼンテーション資料 -->
+                            <div class="border border-gray-200 rounded-lg">
+                                <div class="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200">
+                                    <h4 class="text-lg font-semibold text-blue-900 flex items-center">
+                                        <span class="text-xl mr-2">📊</span>
+                                        プレゼンテーション資料
+                                    </h4>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <button @click="downloadDocument(selectedPlan.id, 'presentation', 'PowerPoint')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">📝</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">営業プレゼン</div>
+                                                    <div class="text-sm text-gray-500">PowerPoint</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 図面データ -->
+                            <div class="border border-gray-200 rounded-lg">
+                                <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b border-gray-200">
+                                    <h4 class="text-lg font-semibold text-green-900 flex items-center">
+                                        <span class="text-xl mr-2">📐</span>
+                                        図面データ
+                                    </h4>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', '実施図')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">📋</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">実施図</div>
+                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', 'キッチン')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🍳</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">キッチン図面</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', '洗面化粧台')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🚿</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">洗面化粧台</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', 'システムバス')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🛁</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">システムバス</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', 'トイレ')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🚽</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">トイレ図面</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', '照明')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">💡</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">照明計画</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'drawing', '換気システム')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🌪️</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">換気システム</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Excel資料 -->
+                            <div class="border border-gray-200 rounded-lg">
+                                <div class="bg-gradient-to-r from-orange-50 to-orange-100 px-6 py-4 border-b border-gray-200">
+                                    <h4 class="text-lg font-semibold text-orange-900 flex items-center">
+                                        <span class="text-xl mr-2">📊</span>
+                                        Excel資料
+                                    </h4>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <button @click="downloadDocument(selectedPlan.id, 'excel', '内装プレゼン')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🏠</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">内装プレゼン</div>
+                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'excel', '外装プレゼン')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🏘️</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">仕様書・外装プレゼン</div>
+                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'excel', '建具プレゼン')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🚪</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">建具プレゼン</div>
+                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'excel', 'サッシプレゼン')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🪟</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">サッシプレゼン</div>
+                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 申請・構造図面 -->
+                            <div class="border border-gray-200 rounded-lg">
+                                <div class="bg-gradient-to-r from-purple-50 to-purple-100 px-6 py-4 border-b border-gray-200">
+                                    <h4 class="text-lg font-semibold text-purple-900 flex items-center">
+                                        <span class="text-xl mr-2">📋</span>
+                                        申請・構造図面
+                                    </h4>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <button @click="downloadDocument(selectedPlan.id, 'structure', '申請図')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">📄</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">申請図</div>
+                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'structure', '構造図')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🏗️</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">構造図</div>
+                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'structure', 'プレカット図')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🔧</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">プレカット図</div>
+                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 予算・実行予算 -->
+                            <div class="border border-gray-200 rounded-lg">
+                                <div class="bg-gradient-to-r from-emerald-50 to-emerald-100 px-6 py-4 border-b border-gray-200">
+                                    <h4 class="text-lg font-semibold text-emerald-900 flex items-center">
+                                        <span class="text-xl mr-2">💰</span>
+                                        予算・実行予算
+                                    </h4>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <button @click="downloadDocument(selectedPlan.id, 'budget', '資金計画書')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">📊</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">資金計画書</div>
+                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                        <button @click="downloadDocument(selectedPlan.id, 'budget', '実行予算')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">💵</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">実行予算</div>
+                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Walk in Homeデータ -->
+                            <div class="border border-gray-200 rounded-lg">
+                                <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 px-6 py-4 border-b border-gray-200">
+                                    <h4 class="text-lg font-semibold text-indigo-900 flex items-center">
+                                        <span class="text-xl mr-2">🎮</span>
+                                        Walk in Home データ
+                                    </h4>
+                                </div>
+                                <div class="p-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <button @click="downloadDocument(selectedPlan.id, 'walkin', 'VRデータ')" class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                            <div class="flex items-center">
+                                                <span class="text-2xl mr-3">🥽</span>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-gray-900">VRデータ</div>
+                                                    <div class="text-sm text-gray-500">Walk in Home</div>
+                                                </div>
+                                            </div>
+                                            <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="flex justify-end pt-6 border-t border-gray-200">
+                        <button @click="closeDetailModal" class="btn-secondary mr-3">閉じる</button>
+                        <button @click="downloadAllDocuments(selectedPlan.id)" class="btn-primary">📦 全資料一括ダウンロード</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -390,19 +815,36 @@
                     depth: { min: '', max: '' },
                     width: { min: '', max: '' },
                     price: { min: '', max: '' },
-                    options: { solar: null, evoltz: null }
+                    options: {}
                 },
                 
                 // Display
-                viewMode: 'cards',
+                viewMode: 'table', // デフォルトをtableに変更
                 sortBy: 'updated',
                 sortOrder: 'desc',
+                
+                // Modal
+                showDetailModal: false,
+                selectedPlan: null,
 
                 async init() {
                     try {
                         await this.loadPlans();
                         this.parseURLParams();
-                        this.applyFilters();
+                        
+                        // 初期表示で全プランを表示
+                        this.filteredPlans = [...this.allPlans];
+                        this.applySorting();
+                        
+                        // URLパラメータがある場合のみフィルタを適用
+                        const hasURLFilters = Object.keys(this.filters).some(key => {
+                            if (key === 'options') return false;
+                            return this.filters[key].min || this.filters[key].max;
+                        });
+                        
+                        if (hasURLFilters) {
+                            this.applyFilters();
+                        }
                     } catch (error) {
                         console.error('Error loading plans:', error);
                         lifeXAPI.showToast('プランデータの読み込みに失敗しました', 'error');
@@ -493,12 +935,6 @@
                         filterObj.tags = this.selectedTags;
                     }
 
-                    // Options filter
-                    if (this.filters.options.solar !== null || this.filters.options.evoltz !== null) {
-                        filterObj.options = {};
-                        if (this.filters.options.solar !== null) filterObj.options.solar = this.filters.options.solar;
-                        if (this.filters.options.evoltz !== null) filterObj.options.evoltz = this.filters.options.evoltz;
-                    }
 
                     filtered = lifeXAPI.filterPlans(filtered, filterObj);
                     this.filteredPlans = filtered;
@@ -527,7 +963,7 @@
                         depth: { min: '', max: '' },
                         width: { min: '', max: '' },
                         price: { min: '', max: '' },
-                        options: { solar: null, evoltz: null }
+                        options: {}
                     };
                     this.applyFilters();
                 },
@@ -559,9 +995,66 @@
                     link.click();
 
                     lifeXAPI.showToast('CSVファイルをダウンロードしました', 'success');
+                },
+
+                showPlanDetail(plan) {
+                    this.selectedPlan = plan;
+                    this.showDetailModal = true;
+                    document.body.style.overflow = 'hidden';
+                },
+
+                closeDetailModal() {
+                    this.showDetailModal = false;
+                    this.selectedPlan = null;
+                    document.body.style.overflow = 'auto';
+                },
+
+                downloadDocument(planId, category, documentType) {
+                    // Generate file path based on plan ID and document type
+                    const fileName = `${planId}_${documentType}.${this.getFileExtension(category, documentType)}`;
+                    const filePath = `/static/plans/${planId}/${category}/${fileName}`;
+                    
+                    lifeXAPI.downloadFile(filePath, `${this.selectedPlan.name}_${documentType}`);
+                    lifeXAPI.showToast(`${documentType}をダウンロードしました`, 'success');
+                    
+                    console.log('Downloaded:', documentType, 'for plan:', planId);
+                },
+
+                getFileExtension(category, documentType) {
+                    // Return appropriate file extension based on document type
+                    const extensions = {
+                        presentation: 'pptx',
+                        drawing: 'pdf',
+                        excel: 'xlsx',
+                        structure: 'pdf',
+                        budget: 'xlsx',
+                        walkin: 'wih'
+                    };
+                    return extensions[category] || 'pdf';
+                },
+
+                downloadAllDocuments(planId) {
+                    // In a real implementation, this would trigger a server-side zip creation
+                    lifeXAPI.showToast(`${this.selectedPlan.name}の全資料の一括ダウンロードを開始します`, 'info');
+                    
+                    // For demo purposes, just show a loading message
+                    setTimeout(() => {
+                        lifeXAPI.showToast('全資料のZIPファイル作成が完了しました', 'success');
+                    }, 3000);
                 }
             }
         }
     </script>
+    
+    <!-- Maintenance Button - Fixed Top Right -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="window.location.href='/admin.html'" 
+                class="bg-white text-gray-400 p-2 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-600 transition-all duration-300 opacity-70 hover:opacity-100 border border-gray-200" 
+                title="メンテナンス">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
 </body>
 </html>

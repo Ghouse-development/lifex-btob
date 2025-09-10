@@ -8,246 +8,182 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script type="module" src="./utils/api.js"></script>
 </head>
-<body class="h-full bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
+<body class="h-full bg-white">
+    <!-- Header - Simple & Clean -->
+    <header class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
-                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
+                    <h1 class="text-lg font-medium text-gray-900">LIFE X</h1>
+                    <span class="ml-2 text-sm text-gray-500">加盟店専用</span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="nav-link active">ホーム</a>
-                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
-                    <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/docs/rules.html" class="nav-link">ルール</a>
-                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                    <a href="/" class="text-gray-900 hover:text-gray-600 text-sm font-medium">ホーム</a>
+                    <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
+                    <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
+                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール</a>
+                    <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
                 </nav>
-                <div class="md:hidden">
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
-                </div>
-            </div>
-            
-            <!-- Mobile Menu -->
-            <div x-show="mobileMenuOpen" x-data="{ mobileMenuOpen: false }" class="md:hidden">
-                <div class="px-2 pt-2 pb-3 space-y-1 border-t border-gray-200">
-                    <a href="/" class="nav-link block">ホーム</a>
-                    <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
-                    <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                    <a href="/docs/rules.html" class="nav-link block">ルール</a>
-                    <a href="/downloads.html" class="nav-link block">ダウンロード</a>
+                    
+                    <!-- Mobile Menu -->
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border border-gray-200 p-4 z-50 min-w-48">
+                        <a href="/" class="block py-2 text-sm text-gray-900">ホーム</a>
+                        <a href="/matrix.html" class="block py-2 text-sm text-gray-600">間取マトリックス</a>
+                        <a href="/plans.html" class="block py-2 text-sm text-gray-600">プラン一覧</a>
+                        <a href="/rules.html" class="block py-2 text-sm text-gray-600">ルール</a>
+                        <a href="/downloads.html" class="block py-2 text-sm text-gray-600">ダウンロード</a>
+                    </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <div x-data="homePage()" x-init="init()">
-        <!-- Hero Section -->
-        <section class="hero-gradient text-white py-20 relative overflow-hidden">
-            <div class="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-transparent"></div>
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                <div class="text-center fade-in">
-                    <div class="flex justify-center mb-6">
-                        <div class="bg-white/10 backdrop-blur-md rounded-2xl px-6 py-3 border border-white/20">
-                            <span class="text-white/90 font-medium">🏠 LIFE X Partner Portal</span>
-                        </div>
-                    </div>
-                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                        <span class="block">LIFE X</span>
-                        <span class="block text-3xl md:text-4xl font-medium text-white/90">加盟店専用サイト</span>
+    <div x-data="homePage()">
+        <!-- Main Title - Simple & Fast -->
+        <section class="py-12 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-4">
+                        LIFE X 加盟店専用ポータル
                     </h1>
-                    <p class="text-xl md:text-2xl text-white/80 mb-12 max-w-3xl mx-auto leading-relaxed">
-                        規格住宅の販売・設計・施工に必要な情報・資料を<br class="hidden md:block">
-                        迅速かつ効率的に取得できる専用ポータル
+                    <p class="text-lg text-gray-600">
+                        規格住宅の設計・営業・施工に必要な情報とツール
                     </p>
-                    
-                    <!-- Quick Navigation -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 slide-up">
-                        <a href="/matrix.html" class="glass rounded-2xl p-8 hover:bg-white/30 transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 group">
-                            <div class="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">📊</div>
-                            <div class="font-bold text-xl mb-3 text-white group-hover:text-white">間取マトリックス</div>
-                            <div class="text-white/80 leading-relaxed">坪数×間口で効率的に検索<br>視覚的なマトリックス表示</div>
-                        </a>
-                        <a href="/plans.html" class="glass rounded-2xl p-8 hover:bg-white/30 transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 group">
-                            <div class="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">🏠</div>
-                            <div class="font-bold text-xl mb-3 text-white group-hover:text-white">プラン一覧</div>
-                            <div class="text-white/80 leading-relaxed">全プランの詳細資料を確認<br>高度なフィルタ・検索機能</div>
-                        </a>
-                        <a href="/downloads.html" class="glass rounded-2xl p-8 hover:bg-white/30 transition-all duration-500 transform hover:-translate-y-3 hover:scale-105 group">
-                            <div class="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">📁</div>
-                            <div class="font-bold text-xl mb-3 text-white group-hover:text-white">ダウンロード</div>
-                            <div class="text-white/80 leading-relaxed">パンフ・カタログ等の資料<br>営業・設計に必要な全資料</div>
-                        </a>
-                    </div>
                 </div>
             </div>
-            
-            <!-- 装飾的な背景要素 -->
-            <div class="absolute top-10 right-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
-            <div class="absolute bottom-10 left-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
         </section>
 
-        <!-- Main Content -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- News Section -->
-                <div class="lg:col-span-2">
-                    <div class="card card-hover">
-                        <div class="flex items-center justify-between mb-8">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
-                                    <span class="text-white text-lg">📢</span>
-                                </div>
-                                <h2 class="heading-secondary">お知らせ</h2>
-                            </div>
-                            <div class="bg-gradient-to-r from-primary-100 to-primary-200 px-4 py-2 rounded-full">
-                                <span class="text-sm font-medium text-primary-800">最新情報</span>
-                            </div>
+        <!-- Main Navigation Grid - Minimal Cards -->
+        <section class="py-8 bg-gray-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- プラン検索 -->
+                    <a href="/plans.html" class="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                        <div class="mb-3">
+                            <span class="text-2xl">🏢</span>
                         </div>
-                        
-                        <div x-show="loading" class="flex justify-center py-8">
-                            <div class="loading-spinner"></div>
+                        <h3 class="text-base font-medium text-gray-900 mb-1">プラン検索</h3>
+                        <p class="text-sm text-gray-500">条件に合うプランを検索</p>
+                    </a>
+                    
+                    <!-- 間取マトリックス -->
+                    <a href="/matrix.html" class="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                        <div class="mb-3">
+                            <span class="text-2xl">📊</span>
                         </div>
-                        
-                        <div x-show="!loading" class="space-y-6">
-                            <template x-for="item in news" :key="item.id">
-                                <article class="border-b border-gray-200 pb-6 last:border-b-0">
-                                    <div class="flex items-center mb-2">
-                                        <span x-text="lifeXAPI.formatDate(item.date)" class="text-sm text-gray-500 mr-3"></span>
-                                        <span x-text="item.category" class="tag" :class="{
-                                            'bg-red-100 text-red-800': item.priority === 'high',
-                                            'bg-yellow-100 text-yellow-800': item.priority === 'medium',
-                                            'bg-gray-100 text-gray-800': item.priority === 'low'
-                                        }"></span>
-                                    </div>
-                                    <h3 x-text="item.title" class="text-lg font-medium text-gray-900 mb-2"></h3>
-                                    <p x-text="item.body" class="text-gray-600 mb-3"></p>
-                                    <div x-show="item.links && item.links.length > 0" class="flex flex-wrap gap-2">
-                                        <template x-for="link in item.links" :key="link.url">
-                                            <a :href="link.url" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
-                                                <span x-text="link.title"></span> →
-                                            </a>
-                                        </template>
-                                    </div>
-                                </article>
-                            </template>
+                        <h3 class="text-base font-medium text-gray-900 mb-1">間取マトリックス</h3>
+                        <p class="text-sm text-gray-500">坪数×間口で検索</p>
+                    </a>
+                    
+                    <!-- ダウンロード -->
+                    <a href="/downloads.html" class="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                        <div class="mb-3">
+                            <span class="text-2xl">📥</span>
                         </div>
-                    </div>
+                        <h3 class="text-base font-medium text-gray-900 mb-1">資料ダウンロード</h3>
+                        <p class="text-sm text-gray-500">営業・設計資料</p>
+                    </a>
+                    
+                    <!-- ルール・ガイドライン -->
+                    <a href="/rules.html" class="bg-white p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                        <div class="mb-3">
+                            <span class="text-2xl">📋</span>
+                        </div>
+                        <h3 class="text-base font-medium text-gray-900 mb-1">ルール・規定</h3>
+                        <p class="text-sm text-gray-500">営業・施工ルール</p>
+                    </a>
                 </div>
+            </div>
+        </section>
 
-                <!-- Quick Stats & Recently Updated -->
-                <div class="space-y-8">
-                    <!-- Quick Stats -->
-                    <div class="card card-hover">
-                        <div class="flex items-center space-x-3 mb-6">
-                            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                                <span class="text-white text-sm">📊</span>
-                            </div>
-                            <h3 class="text-xl font-semibold text-gray-900">クイック情報</h3>
-                        </div>
-                        <div x-show="!loading" class="space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">登録プラン数</span>
-                                <span x-text="planCount" class="font-semibold text-gray-900"></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">平均坪数</span>
-                                <span x-text="avgTsubo" class="font-semibold text-gray-900"></span>
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">価格帯</span>
-                                <span x-text="priceRange" class="font-semibold text-gray-900"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recently Updated Plans -->
-                    <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">最近更新されたプラン</h3>
-                        <div x-show="!loading" class="space-y-3">
-                            <template x-for="plan in recentPlans" :key="plan.id">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <a :href="`/plans/${plan.id}.html`" x-text="plan.name" class="text-sm font-medium text-primary-600 hover:text-primary-800"></a>
-                                        <div x-text="lifeXAPI.formatDate(plan.updatedAt)" class="text-xs text-gray-500"></div>
+        <!-- Updates & Information - Clean List -->
+        <section class="py-12 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Latest Updates -->
+                    <div class="lg:col-span-2">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">最新情報</h2>
+                        <div class="space-y-3" x-data="{ updates: [] }" x-init="updates = await lifeXAPI.getUpdates()">
+                            <template x-for="update in updates.slice(0, 5)" :key="update.id">
+                                <div class="bg-white p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <span x-text="update.category" class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded"></span>
+                                                <span x-text="lifeXAPI.formatDate(update.date)" class="text-xs text-gray-500"></span>
+                                            </div>
+                                            <h3 x-text="update.title" class="text-sm font-medium text-gray-900 mb-1"></h3>
+                                            <p x-text="update.description" class="text-sm text-gray-600"></p>
+                                        </div>
                                     </div>
-                                    <span x-text="`v${plan.version}`" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"></span>
                                 </div>
                             </template>
                         </div>
                     </div>
 
-                    <!-- Quick Links -->
-                    <div class="card">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">よく使われるリンク</h3>
-                        <div class="space-y-2">
-                            <a href="/docs/specs.html" class="block text-sm text-primary-600 hover:text-primary-800 py-1">📋 標準仕様書</a>
-                            <a href="/docs/stylebook.html" class="block text-sm text-primary-600 hover:text-primary-800 py-1">🎨 スタイルブック</a>
-                            <a href="/flow/housemaking.html" class="block text-sm text-primary-600 hover:text-primary-800 py-1">🏗️ 家づくりの流れ</a>
-                            <a href="/design/index.html" class="block text-sm text-primary-600 hover:text-primary-800 py-1">📐 設計資料</a>
+                    <!-- Quick Stats -->
+                    <div>
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">統計情報</h2>
+                        <div class="space-y-4">
+                            <div class="bg-white p-4 border border-gray-200 rounded-lg">
+                                <div class="text-2xl font-light text-gray-900" x-text="stats.totalPlans"></div>
+                                <div class="text-sm text-gray-500">総プラン数</div>
+                            </div>
+                            <div class="bg-white p-4 border border-gray-200 rounded-lg">
+                                <div class="text-2xl font-light text-gray-900" x-text="stats.totalDownloads"></div>
+                                <div class="text-sm text-gray-500">ダウンロード資料数</div>
+                            </div>
+                            <div class="bg-white p-4 border border-gray-200 rounded-lg">
+                                <div class="text-2xl font-light text-gray-900" x-text="stats.lastUpdate"></div>
+                                <div class="text-sm text-gray-500">最終更新</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
+
+        <!-- Contact Information - Simple Footer -->
+        <section class="py-8 bg-gray-50 border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                    <h2 class="text-base font-medium text-gray-900 mb-4">お問い合わせ</h2>
+                    <div class="text-sm text-gray-600 space-y-1">
+                        <p>株式会社Gハウス</p>
+                        <p>〒535-0022 大阪府大阪市旭区新森2-23-12</p>
+                        <p>TEL: 06-6954-0648（担当：商品企画部　LIFE X担当）</p>
+                        <p>Email: LIFE-X@ghouse.jp</p>
+                    </div>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
         function homePage() {
-            return {
-                loading: true,
-                news: [],
-                planCount: 0,
-                avgTsubo: '',
-                priceRange: '',
-                recentPlans: [],
-
-                async init() {
-                    try {
-                        await Promise.all([
-                            this.loadNews(),
-                            this.loadPlansData()
-                        ]);
-                    } catch (error) {
-                        console.error('Error loading data:', error);
-                        lifeXAPI.showToast('データの読み込みに失敗しました', 'error');
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async loadNews() {
-                    const newsData = await lifeXAPI.getNews();
-                    this.news = newsData.items.slice(0, 5); // 最新5件のみ表示
-                },
-
-                async loadPlansData() {
-                    const plansData = await lifeXAPI.getPlansIndex();
-                    const plans = plansData.plans.filter(plan => plan.status === 'published');
-                    
-                    this.planCount = plans.length;
-                    
-                    // 平均坪数計算
-                    const avgTsubo = plans.reduce((sum, plan) => sum + plan.tsubo, 0) / plans.length;
-                    this.avgTsubo = `${avgTsubo.toFixed(1)}坪`;
-                    
-                    // 価格帯計算
-                    const prices = plans.map(plan => plan.prices.sell);
-                    const minPrice = Math.min(...prices);
-                    const maxPrice = Math.max(...prices);
-                    this.priceRange = `${lifeXAPI.formatPrice(minPrice)} ~ ${lifeXAPI.formatPrice(maxPrice)}`;
-                    
-                    // 最近更新されたプラン（最新3件）
-                    const sortedPlans = lifeXAPI.sortPlans(plans, 'updated', 'desc');
-                    this.recentPlans = sortedPlans.slice(0, 3);
-                }
-            }
+            return {}
         }
     </script>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p class="text-sm">&copy; 2024 LIFE X. All rights reserved.</p>
+                <a href="/admin.html" class="text-gray-400 hover:text-gray-600 text-xs mt-2 inline-block opacity-50 hover:opacity-100 transition-all duration-300" title="管理設定">
+                    <svg class="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+    
 </body>
 </html>

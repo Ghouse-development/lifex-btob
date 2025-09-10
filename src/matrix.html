@@ -21,7 +21,7 @@
                     <a href="/" class="nav-link">ホーム</a>
                     <a href="/matrix.html" class="nav-link active">間取マトリックス</a>
                     <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/docs/rules.html" class="nav-link">ルール</a>
+                    <a href="/rules.html" class="nav-link">ルール</a>
                     <a href="/downloads.html" class="nav-link">ダウンロード</a>
                 </nav>
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
@@ -36,7 +36,7 @@
                         <a href="/" class="nav-link block">ホーム</a>
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                        <a href="/docs/rules.html" class="nav-link block">ルール</a>
+                        <a href="/rules.html" class="nav-link block">ルール</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
                     </div>
                 </div>
@@ -61,23 +61,18 @@
                 <p class="text-lg text-gray-600 mb-8">坪数と間口でプランを効率的に検索できます</p>
             </div>
 
-            <!-- Matrix Controls -->
-            <div class="card mb-8">
-                <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div class="flex items-center space-x-4">
-                        <label class="form-label">表示基準:</label>
-                        <select x-model="matrixMode" @change="updateMatrix()" class="form-input">
-                            <option value="depth">奥行 × 坪数</option>
-                            <option value="width">間口 × 坪数</option>
-                        </select>
+            <!-- Matrix Info -->
+            <div class="card mb-8 text-center">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">建物間口 × 建物奥行マトリックス</h2>
+                <p class="text-gray-600 mb-4">該当するマスをクリックすると、対応するプランの詳細情報を確認できます</p>
+                <div class="flex justify-center space-x-4 text-sm">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-primary-100 border border-primary-300 rounded"></div>
+                        <span>プラン有り</span>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <label class="form-label">色分け:</label>
-                        <select x-model="colorMode" @change="updateMatrix()" class="form-input">
-                            <option value="count">プラン件数</option>
-                            <option value="gross">平均粗利</option>
-                            <option value="price">平均売価</option>
-                        </select>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-4 h-4 bg-gray-100 border border-gray-200 rounded"></div>
+                        <span>プラン無し</span>
                     </div>
                 </div>
             </div>
@@ -90,78 +85,60 @@
             <!-- Matrix Grid -->
             <div x-show="!loading" class="card overflow-x-auto">
                 <div class="min-w-max">
-                    <!-- Matrix Headers -->
-                    <div class="grid grid-flow-col auto-cols-fr gap-2 mb-2">
-                        <div class="p-2"></div> <!-- Empty corner -->
-                        <template x-for="col in matrixData.columns" :key="col.label">
-                            <div class="p-2 text-center font-semibold text-sm bg-gray-100 rounded">
-                                <span x-text="col.label"></span>
-                                <div x-text="matrixMode === 'depth' ? '(奥行)' : '(間口)'" class="text-xs text-gray-500"></div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <!-- Matrix Rows -->
-                    <template x-for="row in matrixData.rows" :key="row.label">
-                        <div class="grid grid-flow-col auto-cols-fr gap-2 mb-2">
-                            <!-- Row Header -->
-                            <div class="p-2 font-semibold text-sm bg-gray-100 rounded text-center">
-                                <span x-text="row.label"></span>
-                                <div class="text-xs text-gray-500">(坪数)</div>
-                            </div>
-                            
-                            <!-- Matrix Cells -->
-                            <template x-for="col in matrixData.columns" :key="col.label">
-                                <div 
-                                    class="matrix-cell min-h-20 flex flex-col items-center justify-center relative"
-                                    :class="getCellClass(row, col)"
-                                    @click="handleCellClick(row, col)">
+                    <!-- Matrix Table -->
+                    <table class="w-full border-collapse">
+                        <!-- Header Row -->
+                        <thead>
+                            <tr>
+                                <th class="p-3 bg-gradient-to-br from-gray-100 to-gray-200 border border-gray-300 text-xs font-bold text-gray-700">
+                                    間口(mm)<br/>
+                                    奥行(mm)
+                                </th>
+                                <template x-for="width in widthOptions" :key="width.mm">
+                                    <th class="p-3 bg-gradient-to-br from-primary-100 to-primary-200 border border-gray-300 text-xs font-bold text-primary-800 min-w-20">
+                                        <div x-text="width.mm"></div>
+                                        <div x-text="`(${width.p}P)`" class="text-primary-600"></div>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        
+                        <!-- Body Rows -->
+                        <tbody>
+                            <template x-for="depth in depthOptions" :key="depth.mm">
+                                <tr>
+                                    <!-- Row Header -->
+                                    <td class="p-3 bg-gradient-to-br from-primary-100 to-primary-200 border border-gray-300 text-xs font-bold text-primary-800 text-center">
+                                        <div x-text="depth.mm"></div>
+                                        <div x-text="`(${depth.p}P)`" class="text-primary-600"></div>
+                                    </td>
                                     
-                                    <template x-if="getCellData(row, col).count > 0">
-                                        <div class="text-center">
-                                            <div x-text="getCellData(row, col).count" class="text-lg font-bold text-gray-900"></div>
-                                            <div class="text-xs text-gray-600">プラン</div>
-                                            <div class="text-xs text-gray-500 mt-1">
-                                                <template x-if="colorMode === 'gross'">
-                                                    <span x-text="lifeXAPI.formatPrice(getCellData(row, col).avgGross)"></span>
+                                    <!-- Matrix Cells -->
+                                    <template x-for="width in widthOptions" :key="width.mm">
+                                        <td class="p-2 border border-gray-300 text-center min-w-20 h-20">
+                                            <div 
+                                                class="w-full h-full flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all duration-300 hover:shadow-md"
+                                                :class="getCellClass(depth, width)"
+                                                @click="handleCellClick(depth, width)">
+                                                
+                                                <template x-if="getCellData(depth, width).hasPlans">
+                                                    <div class="text-center">
+                                                        <div class="text-xs text-gray-600 mb-1">画像予定</div>
+                                                        <div class="w-8 h-8 bg-primary-300 rounded mx-auto mb-1"></div>
+                                                        <div class="text-xs font-medium text-primary-700">クリック</div>
+                                                    </div>
                                                 </template>
-                                                <template x-if="colorMode === 'price'">
-                                                    <span x-text="lifeXAPI.formatPrice(getCellData(row, col).avgPrice)"></span>
+                                                
+                                                <template x-if="!getCellData(depth, width).hasPlans">
+                                                    <div class="text-gray-400 text-xs">-</div>
                                                 </template>
                                             </div>
-                                        </div>
+                                        </td>
                                     </template>
-                                    
-                                    <template x-if="getCellData(row, col).count === 0">
-                                        <div class="text-gray-400 text-sm">該当なし</div>
-                                    </template>
-                                </div>
+                                </tr>
                             </template>
-                        </div>
-                    </template>
-                </div>
-
-                <!-- Legend -->
-                <div class="mt-6 pt-6 border-t border-gray-200">
-                    <div class="flex flex-wrap items-center gap-4">
-                        <div class="text-sm font-medium text-gray-700">凡例:</div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-green-200 border border-green-300 rounded"></div>
-                            <span class="text-xs">1-2プラン</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-blue-200 border border-blue-300 rounded"></div>
-                            <span class="text-xs">3-4プラン</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-purple-200 border border-purple-300 rounded"></div>
-                            <span class="text-xs">5プラン以上</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-gray-100 border border-gray-200 rounded"></div>
-                            <span class="text-xs">該当なし</span>
-                        </div>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -188,20 +165,46 @@
             return {
                 loading: true,
                 plans: [],
-                matrixMode: 'depth', // depth or width
-                colorMode: 'count', // count, gross, price
-                matrixData: {
-                    rows: [],
-                    columns: []
-                },
                 totalPlans: 0,
+                
+                // 建物間口の選択肢
+                widthOptions: [
+                    { mm: '4095', p: '4.5' },
+                    { mm: '4550', p: '5' },
+                    { mm: '5005', p: '5.5' },
+                    { mm: '5460', p: '6' },
+                    { mm: '5915', p: '6.5' },
+                    { mm: '6370', p: '7' },
+                    { mm: '6825', p: '7.5' },
+                    { mm: '7280', p: '8' },
+                    { mm: '7735', p: '8.5' }
+                ],
+                
+                // 建物奥行の選択肢
+                depthOptions: [
+                    { mm: '6825', p: '7.5' },
+                    { mm: '7280', p: '8' },
+                    { mm: '7735', p: '8.5' },
+                    { mm: '8190', p: '9' },
+                    { mm: '8645', p: '9.5' },
+                    { mm: '9100', p: '10' },
+                    { mm: '9555', p: '10.5' },
+                    { mm: '10010', p: '11' },
+                    { mm: '10465', p: '11.5' },
+                    { mm: '10920', p: '12' },
+                    { mm: '11375', p: '12.5' },
+                    { mm: '11830', p: '13' },
+                    { mm: '12285', p: '13.5' },
+                    { mm: '12740', p: '14' },
+                    { mm: '13195', p: '14.5' },
+                    { mm: '13650', p: '15' }
+                ],
 
                 async init() {
                     try {
                         const plansData = await lifeXAPI.getPlansIndex();
                         this.plans = plansData.plans.filter(plan => plan.status === 'published');
                         this.totalPlans = this.plans.length;
-                        this.updateMatrix();
                     } catch (error) {
                         console.error('Error loading plans:', error);
                         lifeXAPI.showToast('プランデータの読み込みに失敗しました', 'error');
@@ -210,88 +213,54 @@
                     }
                 },
 
-                updateMatrix() {
-                    // 坪数レンジの定義
-                    const tsuboRanges = [
-                        { label: '25坪未満', min: 0, max: 25 },
-                        { label: '25-30坪', min: 25, max: 30 },
-                        { label: '30-35坪', min: 30, max: 35 },
-                        { label: '35坪以上', min: 35, max: 999 }
-                    ];
-
-                    // 間口/奥行レンジの定義
-                    const dimensionRanges = this.matrixMode === 'depth' ? [
-                        { label: '6m未満', min: 0, max: 6 },
-                        { label: '6-7m', min: 6, max: 7 },
-                        { label: '7-8m', min: 7, max: 8 },
-                        { label: '8m以上', min: 8, max: 999 }
-                    ] : [
-                        { label: '7m未満', min: 0, max: 7 },
-                        { label: '7-8m', min: 7, max: 8 },
-                        { label: '8-9m', min: 8, max: 9 },
-                        { label: '9m以上', min: 9, max: 999 }
-                    ];
-
-                    this.matrixData = {
-                        rows: tsuboRanges,
-                        columns: dimensionRanges
-                    };
-                },
-
-                getCellData(row, col) {
-                    const filteredPlans = this.plans.filter(plan => {
-                        const tsuboMatch = plan.tsubo >= row.min && (row.max === 999 ? true : plan.tsubo < row.max);
-                        const dimensionValue = this.matrixMode === 'depth' ? plan.depth : plan.width;
-                        const dimensionMatch = dimensionValue >= col.min && (col.max === 999 ? true : dimensionValue < col.max);
-                        return tsuboMatch && dimensionMatch;
-                    });
-
-                    const count = filteredPlans.length;
-                    const avgGross = count > 0 ? filteredPlans.reduce((sum, plan) => sum + plan.prices.gross, 0) / count : 0;
-                    const avgPrice = count > 0 ? filteredPlans.reduce((sum, plan) => sum + plan.prices.sell, 0) / count : 0;
-
+                getCellData(depth, width) {
+                    // この組み合わせでプランがあるかチェック（現在はダミーデータ）
+                    // 実際のプランデータに間口・奥行の情報があれば、ここでマッチング処理を行う
+                    const hasPlans = Math.random() > 0.7; // ダミーデータ：30%の確率でプランあり
+                    
                     return {
-                        count,
-                        avgGross,
-                        avgPrice,
-                        plans: filteredPlans
+                        hasPlans,
+                        depth: depth.mm,
+                        width: width.mm
                     };
                 },
 
-                getCellClass(row, col) {
-                    const cellData = this.getCellData(row, col);
-                    if (cellData.count === 0) {
-                        return 'empty';
-                    }
-
-                    let colorClass = 'has-plans ';
-                    if (cellData.count >= 5) {
-                        colorClass += 'bg-purple-100 border-purple-300';
-                    } else if (cellData.count >= 3) {
-                        colorClass += 'bg-blue-100 border-blue-300';
+                getCellClass(depth, width) {
+                    const cellData = this.getCellData(depth, width);
+                    
+                    if (cellData.hasPlans) {
+                        return 'bg-primary-100 hover:bg-primary-200 border-primary-300';
                     } else {
-                        colorClass += 'bg-green-100 border-green-300';
+                        return 'bg-gray-100 hover:bg-gray-150 border-gray-200';
                     }
-
-                    return colorClass;
                 },
 
-                handleCellClick(row, col) {
-                    const cellData = this.getCellData(row, col);
-                    if (cellData.count === 0) return;
-
-                    // プラン一覧ページにフィルタ条件を渡して遷移
-                    const params = new URLSearchParams({
-                        tsubo_min: row.min,
-                        tsubo_max: row.max === 999 ? '' : row.max,
-                        [this.matrixMode + '_min']: col.min,
-                        [this.matrixMode + '_max']: col.max === 999 ? '' : col.max
-                    });
-
-                    window.location.href = `/plans.html?${params.toString()}`;
+                handleCellClick(depth, width) {
+                    const cellData = this.getCellData(depth, width);
+                    
+                    if (cellData.hasPlans) {
+                        // プラン詳細またはプラン一覧ページに遷移
+                        lifeXAPI.showToast(`間口${width.mm}mm × 奥行${depth.mm}mmのプラン詳細を表示`, 'info');
+                        
+                        // 実際の実装では以下のようにプランページにリダイレクト
+                        // window.location.href = `/plans.html?width=${width.mm}&depth=${depth.mm}`;
+                    } else {
+                        lifeXAPI.showToast('この組み合わせのプランはありません', 'info');
+                    }
                 }
             }
         }
     </script>
+    
+    <!-- Maintenance Button - Fixed Top Right -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="window.location.href='/admin.html'" 
+                class="bg-white text-gray-400 p-2 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-600 transition-all duration-300 opacity-70 hover:opacity-100 border border-gray-200" 
+                title="メンテナンス">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
 </body>
 </html>

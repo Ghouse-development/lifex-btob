@@ -10,7 +10,17 @@
       "Bash(git remote add:*)",
       "Bash(git branch:*)",
       "Bash(git push:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npx eslint:*)",
+      "Bash(sed:*)",
+      "Bash(git checkout:*)",
+      "Bash(node:*)",
+      "Bash(python:*)",
+      "Bash(/c/Users/nishino/AppData/Local/Microsoft/WindowsApps/python fix_rules_buttons.py)",
+      "Bash(for plan in LX-030A LX-025B LX-035C)",
+      "Bash(do)",
+      "Bash(done)",
+      "Bash(npx html-validate:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIアシスタント | LIFE X 加盟店専用サイト</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">AIアシスタント</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="nav-link">ホーム</a>
+                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/plans.html" class="nav-link">プラン一覧</a>
+                    <a href="/rules.html" class="nav-link">ルール</a>
+                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                    <a href="/ai.html" class="nav-link active">AIアシスタント</a>
+                </nav>
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Mobile Menu -->
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border p-4 z-50 min-w-48">
+                        <a href="/" class="nav-link block">ホーム</a>
+                        <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
+                        <a href="/plans.html" class="nav-link block">プラン一覧</a>
+                        <a href="/rules.html" class="nav-link block">ルール</a>
+                        <a href="/downloads.html" class="nav-link block">ダウンロード</a>
+                        <a href="/ai.html" class="nav-link block">AIアシスタント</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="aiAssistant()" x-init="init()">
+        <!-- Breadcrumb -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <nav class="breadcrumb">
+                <a href="/">ホーム</a>
+                <span class="breadcrumb-separator">></span>
+                <span class="text-gray-900">AIアシスタント</span>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <!-- Page Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-violet-500 to-violet-600 rounded-full mb-4">
+                    <span class="text-4xl">🤖</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">LIFE X AIアシスタント</h1>
+                <p class="text-lg text-gray-600">住宅建築・LIFE Xに関するご質問にAIがお答えします</p>
+            </div>
+
+            <!-- Suggested Topics -->
+            <div class="mb-6">
+                <h3 class="text-sm font-semibold text-gray-600 mb-3">よくある質問をクリック：</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button @click="askSuggestion('LIFE Xの標準プランについて教えてください')" 
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors">
+                        標準プランについて
+                    </button>
+                    <button @click="askSuggestion('耐震等級3の詳細を教えてください')" 
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors">
+                        耐震等級について
+                    </button>
+                    <button @click="askSuggestion('工事期間はどのくらいですか？')" 
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors">
+                        工事期間
+                    </button>
+                    <button @click="askSuggestion('オプション設備にはどんなものがありますか？')" 
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors">
+                        オプション設備
+                    </button>
+                    <button @click="askSuggestion('価格の目安を教えてください')" 
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-full text-sm hover:bg-gray-50 transition-colors">
+                        価格の目安
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Interface -->
+            <div class="card">
+                <!-- Chat Messages -->
+                <div class="bg-gray-50 rounded-lg h-[500px] overflow-y-auto p-6 mb-4" x-ref="chatContainer">
+                    <template x-for="message in messages" :key="message.id">
+                        <div class="mb-6">
+                            <div :class="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+                                <div :class="message.role === 'user' ? 'max-w-2xl' : 'max-w-3xl'">
+                                    <div class="flex items-start space-x-3">
+                                        <div x-show="message.role === 'assistant'" class="flex-shrink-0 w-8 h-8 bg-violet-500 rounded-full flex items-center justify-center">
+                                            <span class="text-white text-sm">AI</span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div :class="message.role === 'user' ? 'bg-primary-600 text-white rounded-2xl rounded-tr-sm' : 'bg-white border border-gray-200 rounded-2xl rounded-tl-sm'" 
+                                                 class="px-5 py-3 shadow-sm">
+                                                <div x-html="message.content" class="text-sm leading-relaxed"></div>
+                                            </div>
+                                            <div class="text-xs text-gray-500 mt-1" :class="message.role === 'user' ? 'text-right' : 'text-left'">
+                                                <span x-text="message.timestamp"></span>
+                                            </div>
+                                        </div>
+                                        <div x-show="message.role === 'user'" class="flex-shrink-0 w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
+                                            <span class="text-white text-sm">You</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <!-- Typing Indicator -->
+                    <div x-show="isTyping" class="mb-6">
+                        <div class="flex justify-start">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0 w-8 h-8 bg-violet-500 rounded-full flex items-center justify-center">
+                                    <span class="text-white text-sm">AI</span>
+                                </div>
+                                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-sm px-5 py-3 shadow-sm">
+                                    <div class="flex space-x-2">
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex space-x-3">
+                        <input 
+                            type="text" 
+                            x-model="input"
+                            @keyup.enter="sendMessage()"
+                            placeholder="質問を入力してください..." 
+                            class="form-input flex-1"
+                            :disabled="isTyping">
+                        <button 
+                            @click="sendMessage()" 
+                            :disabled="isTyping || !input.trim()"
+                            class="btn-primary px-6">
+                            <span x-show="!isTyping">送信</span>
+                            <span x-show="isTyping">
+                                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="mt-3 text-xs text-gray-500">
+                        ※ AIアシスタントは一般的な情報提供を行います。個別の案件については担当者にご相談ください。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-blue-900 mb-2">💡 ヒント</h3>
+                    <p class="text-sm text-blue-800">
+                        具体的な質問をすると、より詳細な回答が得られます。例：「30坪の標準プランの特徴は？」
+                    </p>
+                </div>
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-green-900 mb-2">📞 お問い合わせ</h3>
+                    <p class="text-sm text-green-800">
+                        詳細な技術サポートが必要な場合は、カスタマーサポートまでご連絡ください。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function aiAssistant() {
+            return {
+                messages: [],
+                input: '',
+                isTyping: false,
+                knowledgeBase: {
+                    'プラン': {
+                        keywords: ['プラン', '間取り', '標準', 'カスタマイズ'],
+                        response: 'LIFE Xでは156種類の標準プランをご用意しています。各プランは坪数、間口、奥行きによって分類され、お客様のニーズに合わせて選択できます。基本構造を維持しながら、内装や設備のカスタマイズも可能です。'
+                    },
+                    '耐震': {
+                        keywords: ['耐震', '地震', '構造', '安全'],
+                        response: 'LIFE Xの全住宅は、標準仕様で耐震等級3（最高等級）を確保しています。これは建築基準法の1.5倍の地震力に耐える設計で、極めて稀な地震でも倒壊・崩壊しない強度を持っています。'
+                    },
+                    '工期': {
+                        keywords: ['工期', '期間', '工事', '引渡し', '着工'],
+                        response: '標準的な工事期間は着工から引渡しまで約4～5ヶ月です。内訳は、基礎工事：約1ヶ月、躯体工事：約1ヶ月、内外装工事：約1.5ヶ月、設備工事・完了検査：約0.5ヶ月となります。'
+                    },
+                    '価格': {
+                        keywords: ['価格', '費用', '金額', '予算', '坪単価'],
+                        response: 'LIFE Xの価格は、坪数や仕様により異なりますが、一般的に坪単価60～80万円が目安です。この価格には基本仕様が含まれており、オプション追加により変動します。詳細な見積りは個別にご相談ください。'
+                    },
+                    'オプション': {
+                        keywords: ['オプション', '追加', '設備', '太陽光', 'evoltz'],
+                        response: '主なオプションとして、太陽光発電システム、evoltz（V2H対応）、スマートホーム機能、床暖房、造作家具などをご用意しています。省エネや快適性を高める様々な選択肢があります。'
+                    },
+                    '保証': {
+                        keywords: ['保証', 'アフター', 'メンテナンス', '点検'],
+                        response: 'LIFE Xでは、構造躯体・防水に10年保証を提供しています。また、1年、2年、5年、10年の定期点検を実施し、長期にわたって安心してお住まいいただけるサポート体制を整えています。'
+                    },
+                    '性能': {
+                        keywords: ['性能', '断熱', '省エネ', '気密'],
+                        response: 'LIFE Xの住宅は、高断熱・高気密設計により優れた省エネ性能を実現しています。ZEH基準に対応可能で、年間を通じて快適な室内環境を維持しながら、光熱費の削減にも貢献します。'
+                    }
+                },
+
+                init() {
+                    this.messages = [
+                        {
+                            id: Date.now(),
+                            role: 'assistant',
+                            content: 'こんにちは！LIFE X AIアシスタントです。<br>住宅建築やLIFE Xに関するご質問をお気軽にどうぞ。',
+                            timestamp: this.getTimestamp()
+                        }
+                    ];
+                },
+
+                sendMessage() {
+                    if (!this.input.trim() || this.isTyping) return;
+                    
+                    // Add user message
+                    this.messages.push({
+                        id: Date.now(),
+                        role: 'user',
+                        content: this.input,
+                        timestamp: this.getTimestamp()
+                    });
+                    
+                    const question = this.input;
+                    this.input = '';
+                    this.isTyping = true;
+                    
+                    // Scroll to bottom
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+                    
+                    // Simulate AI response with delay
+                    setTimeout(() => {
+                        const response = this.generateResponse(question);
+                        this.messages.push({
+                            id: Date.now(),
+                            role: 'assistant',
+                            content: response,
+                            timestamp: this.getTimestamp()
+                        });
+                        this.isTyping = false;
+                        
+                        this.$nextTick(() => {
+                            this.scrollToBottom();
+                        });
+                    }, 1500);
+                },
+
+                askSuggestion(question) {
+                    this.input = question;
+                    this.sendMessage();
+                },
+
+                generateResponse(question) {
+                    const lowerQuestion = question.toLowerCase();
+                    
+                    // Check knowledge base for matching topics
+                    for (const [topic, data] of Object.entries(this.knowledgeBase)) {
+                        for (const keyword of data.keywords) {
+                            if (lowerQuestion.includes(keyword)) {
+                                return data.response;
+                            }
+                        }
+                    }
+                    
+                    // Default responses for common patterns
+                    if (lowerQuestion.includes('こんにちは') || lowerQuestion.includes('はじめまして')) {
+                        return 'こんにちは！LIFE Xについてどのようなご質問がございますか？プラン、価格、工期、性能など、お気軽にお尋ねください。';
+                    }
+                    
+                    if (lowerQuestion.includes('ありがとう')) {
+                        return 'どういたしまして！他にもご質問がございましたら、お気軽にお聞きください。';
+                    }
+                    
+                    // Fallback response
+                    return `「${question}」についてのご質問ありがとうございます。<br><br>` +
+                           'より詳細な情報については、以下をご確認ください：<br>' +
+                           '• プラン一覧ページで具体的なプランをご覧いただけます<br>' +
+                           '• ダウンロードページから詳細資料を入手できます<br>' +
+                           '• 個別のご相談は担当者までお問い合わせください<br><br>' +
+                           '他にご質問はございますか？';
+                },
+
+                scrollToBottom() {
+                    this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+                },
+
+                getTimestamp() {
+                    const now = new Date();
+                    return now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+                }
+            }
+        }
+    </script>
+    
+    <!-- Maintenance Button - Fixed Top Right -->
+    <div class="fixed top-4 right-4 z-50">
+        <button onclick="window.location.href='/admin.html'" 
+                class="bg-white text-gray-400 p-2 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-600 transition-all duration-300 opacity-70 hover:opacity-100 border border-gray-200" 
+                title="メンテナンス">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+</body>
+</html>
