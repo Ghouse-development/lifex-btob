@@ -93,9 +93,11 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランコード</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">階数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">坪数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間取り</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">価格<span class="text-red-500 ml-1">(税込)</span></th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">特徴</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新日</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
@@ -105,9 +107,19 @@
                             <template x-for="plan in filteredPlans" :key="plan.id">
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.id"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <span x-text="plan.floors == 1 ? '平屋' : plan.floors == 2 ? '2階建て' : '3階建て'"></span>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`${plan.size}坪`"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.layout"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`¥${plan.price.toLocaleString()}万円(税込)`"></td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="tag in (plan.featureTags || [])" :key="tag">
+                                                <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full" x-text="tag"></span>
+                                            </template>
+                                        </div>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span x-show="plan.status === 'active'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             公開中
@@ -294,11 +306,11 @@
         function adminPlans() {
             return {
                 plans: [
-                    { id: 'LX-030A', size: 30, layout: '3LDK', price: 1800, status: 'active', updated: '2024-01-15' },
-                    { id: 'LX-030B', size: 30, layout: '4LDK', price: 2000, status: 'active', updated: '2024-01-14' },
-                    { id: 'LX-033A', size: 33, layout: '4LDK', price: 2200, status: 'active', updated: '2024-01-13' },
-                    { id: 'LX-033B', size: 33, layout: '4LDK+S', price: 2400, status: 'draft', updated: '2024-01-12' },
-                    { id: 'LX-035A', size: 35, layout: '5LDK', price: 2600, status: 'active', updated: '2024-01-11' },
+                    { id: 'LX-030A', floors: 2, size: 30, layout: '3LDK', price: 1800, featureTags: ['吹抜', 'パントリー'], status: 'active', updated: '2024-01-15' },
+                    { id: 'LX-030B', floors: 2, size: 30, layout: '4LDK', price: 2000, featureTags: ['書斎', '畳スペース'], status: 'active', updated: '2024-01-14' },
+                    { id: 'LX-033A', floors: 2, size: 33, layout: '4LDK', price: 2200, featureTags: ['フリースペース'], status: 'active', updated: '2024-01-13' },
+                    { id: 'LX-033B', floors: 1, size: 33, layout: '4LDK+S', price: 2400, featureTags: ['ロフト', '土間収納'], status: 'draft', updated: '2024-01-12' },
+                    { id: 'LX-035A', floors: 2, size: 35, layout: '5LDK', price: 2600, featureTags: ['吹抜', 'ウォークインクローゼット'], status: 'active', updated: '2024-01-11' },
                 ],
                 filteredPlans: [],
                 searchQuery: '',

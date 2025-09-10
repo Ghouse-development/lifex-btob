@@ -7,7 +7,15 @@
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/utils/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        .sortable-ghost {
+            opacity: 0.4;
+        }
+        .sortable-drag {
+            opacity: 0.8;
+        }
+    </style>
 </head>
 <body class="h-full bg-gray-50">
     <!-- Header -->
@@ -34,235 +42,174 @@
             <div class="flex justify-between items-center mb-8">
                 <div>
                     <h1 class="text-3xl font-bold text-gray-900">ダウンロード管理</h1>
-                    <p class="text-gray-600 mt-2">資料・ドキュメントの追加・編集・削除を管理</p>
+                    <p class="text-gray-600 mt-2">カテゴリごとにファイルを管理</p>
                 </div>
-                <button @click="openAddModal()" class="btn-primary">
+                <button @click="openCategoryModal()" class="btn-secondary">
                     <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                     </svg>
-                    新規ファイル追加
+                    カテゴリ管理
                 </button>
             </div>
 
-            <!-- Statistics -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <div class="card">
-                    <div class="text-sm text-gray-600">総ファイル数</div>
-                    <div class="text-2xl font-bold text-gray-900" x-text="stats.totalFiles"></div>
-                </div>
-                <div class="card">
-                    <div class="text-sm text-gray-600">今月のダウンロード数</div>
-                    <div class="text-2xl font-bold text-blue-600" x-text="stats.monthlyDownloads"></div>
-                </div>
-                <div class="card">
-                    <div class="text-sm text-gray-600">総容量</div>
-                    <div class="text-2xl font-bold text-gray-900" x-text="stats.totalSize"></div>
-                </div>
-                <div class="card">
-                    <div class="text-sm text-gray-600">最も人気のファイル</div>
-                    <div class="text-sm font-medium text-gray-900 truncate" x-text="stats.popularFile"></div>
-                </div>
-            </div>
+            <!-- Categories -->
+            <div class="space-y-6">
+                <template x-for="category in categories" :key="category.id">
+                    <div class="card">
+                        <!-- Category Header -->
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-t-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="handle cursor-move">
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900" x-text="category.name"></h3>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full" x-text="`${category.files.length}件`"></span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button @click="toggleCategory(category.id)" class="text-gray-500 hover:text-gray-700">
+                                    <svg x-show="!category.expanded" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                    <svg x-show="category.expanded" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                </button>
+                                <button @click="addFileToCategory(category.id)" class="text-blue-600 hover:text-blue-800">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                                <button @click="editCategory(category)" class="text-gray-600 hover:text-gray-800">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </button>
+                                <button @click="deleteCategory(category.id)" class="text-red-600 hover:text-red-800">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
 
-            <!-- Filter & Search -->
-            <div class="card mb-6">
-                <div class="flex flex-col md:flex-row gap-4">
-                    <input type="text" 
-                           x-model="searchQuery"
-                           @input="filterFiles()"
-                           placeholder="ファイル名で検索..." 
-                           class="form-input flex-1">
-                    <select x-model="filterCategory" @change="filterFiles()" class="form-input">
-                        <option value="">全てのカテゴリ</option>
-                        <option value="契約書類">契約書類</option>
-                        <option value="施工マニュアル">施工マニュアル</option>
-                        <option value="営業資料">営業資料</option>
-                        <option value="技術資料">技術資料</option>
-                        <option value="研修資料">研修資料</option>
-                        <option value="販促ツール">販促ツール</option>
-                        <option value="申請書類">申請書類</option>
-                        <option value="その他">その他</option>
-                    </select>
-                    <select x-model="filterType" @change="filterFiles()" class="form-input">
-                        <option value="">全てのファイル形式</option>
-                        <option value="pdf">PDF</option>
-                        <option value="xlsx">Excel</option>
-                        <option value="docx">Word</option>
-                        <option value="pptx">PowerPoint</option>
-                        <option value="zip">ZIP</option>
-                        <option value="image">画像</option>
-                    </select>
-                    <select x-model="sortBy" @change="sortFiles()" class="form-input">
-                        <option value="name">名前順</option>
-                        <option value="date">更新日順</option>
-                        <option value="size">サイズ順</option>
-                        <option value="downloads">ダウンロード数順</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Files Table -->
-            <div class="card">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ファイル名</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">カテゴリ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">形式</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">サイズ</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">バージョン</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DL数</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新日</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <template x-for="file in filteredFiles" :key="file.id">
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10">
-                                                <div class="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                                                    <svg x-show="file.type === 'pdf'" class="h-6 w-6 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" />
-                                                    </svg>
-                                                    <svg x-show="file.type === 'xlsx'" class="h-6 w-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" />
-                                                    </svg>
-                                                    <svg x-show="file.type === 'docx'" class="h-6 w-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" />
-                                                    </svg>
-                                                    <svg x-show="!['pdf', 'xlsx', 'docx'].includes(file.type)" class="h-6 w-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-5L9 2H4z" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                            <div class="ml-4">
-                                                <div class="text-sm font-medium text-gray-900" x-text="file.name"></div>
-                                                <div class="text-sm text-gray-500" x-text="file.description"></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800" x-text="file.category"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        <span class="uppercase" x-text="file.type"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="file.size"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`v${file.version}`"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        <div class="flex items-center">
-                                            <span x-text="file.downloads"></span>
-                                            <svg class="ml-1 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span x-show="file.status === 'active'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">公開中</span>
-                                        <span x-show="file.status === 'restricted'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">制限付き</span>
-                                        <span x-show="file.status === 'inactive'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">非公開</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="file.updated"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button @click="downloadFile(file)" class="text-green-600 hover:text-green-900 mr-3">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                            </svg>
-                                        </button>
-                                        <button @click="editFile(file)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
-                                        <button @click="deleteFile(file)" class="text-red-600 hover:text-red-900">削除</button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
+                        <!-- Category Files -->
+                        <div x-show="category.expanded" class="p-4">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">並び替え</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ファイル名</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">形式</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">サイズ</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DL数</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新日</th>
+                                            <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200 sortable-files" :data-category-id="category.id">
+                                        <template x-for="file in category.files" :key="file.id">
+                                            <tr class="hover:bg-gray-50" :data-file-id="file.id">
+                                                <td class="px-4 py-2">
+                                                    <div class="handle cursor-move">
+                                                        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16" />
+                                                        </svg>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-2 text-sm font-medium text-gray-900" x-text="file.name"></td>
+                                                <td class="px-4 py-2">
+                                                    <span class="px-2 py-1 text-xs rounded-full"
+                                                          :class="getFileTypeClass(file.type)"
+                                                          x-text="file.type.toUpperCase()"></span>
+                                                </td>
+                                                <td class="px-4 py-2 text-sm text-gray-500" x-text="formatFileSize(file.size)"></td>
+                                                <td class="px-4 py-2 text-sm text-gray-500" x-text="file.downloads"></td>
+                                                <td class="px-4 py-2 text-sm text-gray-500" x-text="file.updated"></td>
+                                                <td class="px-4 py-2 text-right text-sm font-medium">
+                                                    <button @click="editFile(file)" class="text-blue-600 hover:text-blue-900 mr-2">編集</button>
+                                                    <button @click="deleteFile(category.id, file.id)" class="text-red-600 hover:text-red-900">削除</button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                                <div x-show="category.files.length === 0" class="text-center py-8 text-gray-500">
+                                    このカテゴリにはファイルがありません
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
 
-        <!-- Add/Edit Modal -->
-        <div x-show="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white">
+        <!-- Add/Edit File Modal -->
+        <div x-show="showFileModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
                 <div class="mt-3">
                     <h3 class="text-lg font-medium text-gray-900 mb-4" x-text="editingFile ? 'ファイル編集' : '新規ファイル追加'"></h3>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">ファイル名</label>
-                            <input type="text" x-model="formData.name" class="form-input w-full" placeholder="契約書テンプレート.pdf">
+                            <input type="text" x-model="fileFormData.name" class="form-input w-full" placeholder="契約書テンプレート.pdf">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
-                            <select x-model="formData.category" class="form-input w-full">
-                                <option value="契約書類">契約書類</option>
-                                <option value="施工マニュアル">施工マニュアル</option>
-                                <option value="営業資料">営業資料</option>
-                                <option value="技術資料">技術資料</option>
-                                <option value="研修資料">研修資料</option>
-                                <option value="販促ツール">販促ツール</option>
-                                <option value="申請書類">申請書類</option>
-                                <option value="その他">その他</option>
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイル</label>
+                            <input type="file" @change="handleFileUpload" class="form-input w-full">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイル形式</label>
-                            <select x-model="formData.type" class="form-input w-full">
-                                <option value="pdf">PDF</option>
-                                <option value="xlsx">Excel</option>
-                                <option value="docx">Word</option>
-                                <option value="pptx">PowerPoint</option>
-                                <option value="zip">ZIP</option>
-                                <option value="image">画像</option>
-                                <option value="other">その他</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">バージョン</label>
-                            <input type="text" x-model="formData.version" class="form-input w-full" placeholder="1.0">
-                        </div>
-                        <div class="col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
-                            <textarea x-model="formData.description" rows="3" class="form-input w-full" placeholder="ファイルの説明を入力"></textarea>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイルURL</label>
-                            <input type="text" x-model="formData.url" class="form-input w-full" placeholder="https://example.com/file.pdf">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">アクセス権限</label>
-                            <select x-model="formData.accessLevel" class="form-input w-full">
-                                <option value="all">全加盟店</option>
-                                <option value="premium">プレミアム加盟店のみ</option>
-                                <option value="specific">特定加盟店のみ</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
-                            <select x-model="formData.status" class="form-input w-full">
-                                <option value="active">公開中</option>
-                                <option value="restricted">制限付き</option>
-                                <option value="inactive">非公開</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">タグ（カンマ区切り）</label>
-                            <input type="text" x-model="formData.tags" class="form-input w-full" placeholder="契約, テンプレート, 2024年版">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" x-model="formData.requiresApproval" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
-                                <span class="ml-2 text-sm text-gray-700">ダウンロード時に承認が必要</span>
-                            </label>
+                            <textarea x-model="fileFormData.description" rows="3" class="form-input w-full" placeholder="ファイルの説明を入力"></textarea>
                         </div>
                     </div>
 
                     <div class="mt-6 flex justify-end space-x-3">
-                        <button @click="closeModal()" class="btn-secondary">キャンセル</button>
+                        <button @click="closeFileModal()" class="btn-secondary">キャンセル</button>
                         <button @click="saveFile()" class="btn-primary">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Management Modal -->
+        <div x-show="showCategoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">カテゴリ管理</h3>
+                    
+                    <div class="mb-4">
+                        <div class="flex space-x-2">
+                            <input type="text" x-model="newCategoryName" placeholder="新しいカテゴリ名" class="form-input flex-1">
+                            <button @click="addCategory()" class="btn-primary">追加</button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <template x-for="category in categories" :key="category.id">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded">
+                                <span x-text="category.name"></span>
+                                <div class="flex space-x-2">
+                                    <button @click="editCategoryName(category)" class="text-blue-600 hover:text-blue-800">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button @click="deleteCategory(category.id)" class="text-red-600 hover:text-red-800">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button @click="closeCategoryModal()" class="btn-primary">閉じる</button>
                     </div>
                 </div>
             </div>
@@ -277,260 +224,216 @@
 
         function adminDownloads() {
             return {
-                files: [
-                    { 
-                        id: 1, 
-                        name: '契約書テンプレート_2024年版.pdf',
-                        description: 'LIFE X標準契約書のテンプレート',
-                        category: '契約書類', 
-                        type: 'pdf',
-                        size: '2.5MB',
-                        version: '2.0',
-                        downloads: 245,
-                        status: 'active', 
-                        updated: '2024-01-15' 
+                categories: [
+                    {
+                        id: 1,
+                        name: '契約書類',
+                        expanded: true,
+                        files: [
+                            { id: 1, name: '工事請負契約書', type: 'pdf', size: 1024000, downloads: 156, updated: '2024-01-15' },
+                            { id: 2, name: '重要事項説明書', type: 'pdf', size: 512000, downloads: 142, updated: '2024-01-14' }
+                        ]
                     },
-                    { 
-                        id: 2, 
-                        name: '施工マニュアル_基礎工事編.pdf',
-                        description: '基礎工事の詳細な施工手順書',
-                        category: '施工マニュアル', 
-                        type: 'pdf',
-                        size: '15.3MB',
-                        version: '3.1',
-                        downloads: 189,
-                        status: 'active', 
-                        updated: '2024-01-14' 
+                    {
+                        id: 2,
+                        name: '施工マニュアル',
+                        expanded: true,
+                        files: [
+                            { id: 3, name: '基礎工事マニュアル', type: 'pdf', size: 3072000, downloads: 89, updated: '2024-01-13' },
+                            { id: 4, name: '配管工事ガイド', type: 'pdf', size: 2048000, downloads: 76, updated: '2024-01-12' }
+                        ]
                     },
-                    { 
-                        id: 3, 
-                        name: '営業提案書_テンプレート.pptx',
-                        description: '顧客向け提案書のテンプレート',
-                        category: '営業資料', 
-                        type: 'pptx',
-                        size: '8.7MB',
-                        version: '1.5',
-                        downloads: 312,
-                        status: 'active', 
-                        updated: '2024-01-13' 
-                    },
-                    { 
-                        id: 4, 
-                        name: '見積書作成ツール.xlsx',
-                        description: '自動計算機能付き見積書',
-                        category: '営業資料', 
-                        type: 'xlsx',
-                        size: '1.2MB',
-                        version: '4.0',
-                        downloads: 456,
-                        status: 'active', 
-                        updated: '2024-01-12' 
-                    },
-                    { 
-                        id: 5, 
-                        name: '品質チェックリスト.xlsx',
-                        description: '施工品質管理用チェックリスト',
-                        category: '技術資料', 
-                        type: 'xlsx',
-                        size: '856KB',
-                        version: '2.2',
-                        downloads: 167,
-                        status: 'active', 
-                        updated: '2024-01-11' 
-                    },
-                    { 
-                        id: 6, 
-                        name: '新人研修プログラム.pdf',
-                        description: '加盟店スタッフ向け研修資料',
-                        category: '研修資料', 
-                        type: 'pdf',
-                        size: '5.4MB',
-                        version: '1.0',
-                        downloads: 89,
-                        status: 'restricted', 
-                        updated: '2024-01-10' 
-                    },
-                    { 
-                        id: 7, 
-                        name: 'チラシデザインテンプレート集.zip',
-                        description: '販促用チラシのデザインテンプレート',
-                        category: '販促ツール', 
-                        type: 'zip',
-                        size: '45.6MB',
-                        version: '2.0',
-                        downloads: 234,
-                        status: 'active', 
-                        updated: '2024-01-09' 
-                    },
-                    { 
-                        id: 8, 
-                        name: '建築確認申請書類一式.zip',
-                        description: '建築確認申請に必要な書類セット',
-                        category: '申請書類', 
-                        type: 'zip',
-                        size: '12.3MB',
-                        version: '1.8',
-                        downloads: 198,
-                        status: 'active', 
-                        updated: '2024-01-08' 
+                    {
+                        id: 3,
+                        name: '営業資料',
+                        expanded: true,
+                        files: [
+                            { id: 5, name: '商品カタログ2024', type: 'pdf', size: 5120000, downloads: 234, updated: '2024-01-11' },
+                            { id: 6, name: 'プレゼンテンプレート', type: 'pptx', size: 10240000, downloads: 167, updated: '2024-01-10' }
+                        ]
                     }
                 ],
-                filteredFiles: [],
-                searchQuery: '',
-                filterCategory: '',
-                filterType: '',
-                sortBy: 'name',
-                showModal: false,
+                
+                showFileModal: false,
+                showCategoryModal: false,
                 editingFile: null,
-                formData: {
+                editingCategory: null,
+                newCategoryName: '',
+                selectedCategoryId: null,
+                
+                fileFormData: {
                     name: '',
-                    description: '',
-                    category: '契約書類',
-                    type: 'pdf',
-                    version: '1.0',
-                    url: '',
-                    accessLevel: 'all',
-                    status: 'active',
-                    tags: '',
-                    requiresApproval: false
-                },
-                stats: {
-                    totalFiles: 0,
-                    monthlyDownloads: 0,
-                    totalSize: '0MB',
-                    popularFile: ''
+                    type: '',
+                    size: 0,
+                    description: ''
                 },
 
                 init() {
-                    this.calculateStats();
-                    this.filterFiles();
-                },
-
-                calculateStats() {
-                    this.stats.totalFiles = this.files.length;
-                    this.stats.monthlyDownloads = this.files.reduce((sum, file) => sum + file.downloads, 0);
-                    this.stats.totalSize = '98.4MB';
-                    const mostDownloaded = this.files.reduce((max, file) => file.downloads > max.downloads ? file : max);
-                    this.stats.popularFile = mostDownloaded.name;
-                },
-
-                filterFiles() {
-                    let filtered = [...this.files];
-                    
-                    if (this.searchQuery) {
-                        filtered = filtered.filter(file => 
-                            file.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                            file.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-                        );
-                    }
-                    
-                    if (this.filterCategory) {
-                        filtered = filtered.filter(file => file.category === this.filterCategory);
-                    }
-                    
-                    if (this.filterType) {
-                        filtered = filtered.filter(file => file.type === this.filterType);
-                    }
-                    
-                    this.filteredFiles = filtered;
-                    this.sortFiles();
-                },
-
-                sortFiles() {
-                    this.filteredFiles.sort((a, b) => {
-                        switch(this.sortBy) {
-                            case 'name':
-                                return a.name.localeCompare(b.name);
-                            case 'date':
-                                return new Date(b.updated) - new Date(a.updated);
-                            case 'size':
-                                return this.parseSize(b.size) - this.parseSize(a.size);
-                            case 'downloads':
-                                return b.downloads - a.downloads;
-                            default:
-                                return 0;
-                        }
+                    this.$nextTick(() => {
+                        this.initSortable();
                     });
                 },
 
-                parseSize(sizeStr) {
-                    const match = sizeStr.match(/(\d+\.?\d*)([KMG]B)/);
-                    if (!match) return 0;
-                    const value = parseFloat(match[1]);
-                    const unit = match[2];
-                    const multipliers = { 'KB': 1, 'MB': 1024, 'GB': 1048576 };
-                    return value * (multipliers[unit] || 1);
+                initSortable() {
+                    // カテゴリの並び替え
+                    const categoryContainer = document.querySelector('.space-y-6');
+                    if (categoryContainer) {
+                        new Sortable(categoryContainer, {
+                            handle: '.handle',
+                            animation: 150,
+                            onEnd: (evt) => {
+                                this.reorderCategories(evt.oldIndex, evt.newIndex);
+                            }
+                        });
+                    }
+
+                    // ファイルの並び替え
+                    document.querySelectorAll('.sortable-files').forEach(tbody => {
+                        new Sortable(tbody, {
+                            handle: '.handle',
+                            animation: 150,
+                            onEnd: (evt) => {
+                                const categoryId = parseInt(tbody.dataset.categoryId);
+                                this.reorderFiles(categoryId, evt.oldIndex, evt.newIndex);
+                            }
+                        });
+                    });
                 },
 
-                downloadFile(file) {
-                    file.downloads++;
-                    lifeXAPI.showToast(`「${file.name}」のダウンロードを開始しました`, 'success');
+                toggleCategory(categoryId) {
+                    const category = this.categories.find(c => c.id === categoryId);
+                    if (category) {
+                        category.expanded = !category.expanded;
+                    }
                 },
 
-                openAddModal() {
+                addCategory() {
+                    if (this.newCategoryName.trim()) {
+                        const newId = Math.max(...this.categories.map(c => c.id)) + 1;
+                        this.categories.push({
+                            id: newId,
+                            name: this.newCategoryName,
+                            expanded: true,
+                            files: []
+                        });
+                        this.newCategoryName = '';
+                        this.$nextTick(() => {
+                            this.initSortable();
+                        });
+                    }
+                },
+
+                editCategoryName(category) {
+                    const newName = prompt('カテゴリ名を入力してください', category.name);
+                    if (newName && newName.trim()) {
+                        category.name = newName.trim();
+                    }
+                },
+
+                deleteCategory(categoryId) {
+                    if (confirm('このカテゴリを削除しますか？')) {
+                        this.categories = this.categories.filter(c => c.id !== categoryId);
+                    }
+                },
+
+                addFileToCategory(categoryId) {
+                    this.selectedCategoryId = categoryId;
                     this.editingFile = null;
-                    this.formData = {
+                    this.fileFormData = {
                         name: '',
-                        description: '',
-                        category: '契約書類',
-                        type: 'pdf',
-                        version: '1.0',
-                        url: '',
-                        accessLevel: 'all',
-                        status: 'active',
-                        tags: '',
-                        requiresApproval: false
+                        type: '',
+                        size: 0,
+                        description: ''
                     };
-                    this.showModal = true;
+                    this.showFileModal = true;
                 },
 
                 editFile(file) {
                     this.editingFile = file;
-                    this.formData = { ...file };
-                    this.showModal = true;
+                    this.fileFormData = { ...file };
+                    this.showFileModal = true;
                 },
 
-                deleteFile(file) {
-                    if (confirm(`ファイル「${file.name}」を削除しますか？`)) {
-                        this.files = this.files.filter(f => f.id !== file.id);
-                        this.calculateStats();
-                        this.filterFiles();
-                        lifeXAPI.showToast('ファイルを削除しました', 'success');
+                deleteFile(categoryId, fileId) {
+                    if (confirm('このファイルを削除しますか？')) {
+                        const category = this.categories.find(c => c.id === categoryId);
+                        if (category) {
+                            category.files = category.files.filter(f => f.id !== fileId);
+                        }
                     }
                 },
 
                 saveFile() {
                     if (this.editingFile) {
-                        const index = this.files.findIndex(f => f.id === this.editingFile.id);
-                        if (index !== -1) {
-                            this.files[index] = { 
-                                ...this.formData, 
-                                id: this.editingFile.id,
-                                size: this.editingFile.size,
-                                downloads: this.editingFile.downloads,
-                                updated: new Date().toISOString().split('T')[0] 
-                            };
+                        Object.assign(this.editingFile, this.fileFormData);
+                    } else if (this.selectedCategoryId) {
+                        const category = this.categories.find(c => c.id === this.selectedCategoryId);
+                        if (category) {
+                            const newId = Math.max(0, ...category.files.map(f => f.id)) + 1;
+                            category.files.push({
+                                id: newId,
+                                ...this.fileFormData,
+                                downloads: 0,
+                                updated: new Date().toISOString().split('T')[0]
+                            });
                         }
-                        lifeXAPI.showToast('ファイルを更新しました', 'success');
-                    } else {
-                        const newId = Math.max(...this.files.map(f => f.id)) + 1;
-                        this.files.push({ 
-                            ...this.formData, 
-                            id: newId,
-                            size: '0KB',
-                            downloads: 0,
-                            updated: new Date().toISOString().split('T')[0] 
-                        });
-                        lifeXAPI.showToast('ファイルを追加しました', 'success');
                     }
-                    this.calculateStats();
-                    this.filterFiles();
-                    this.closeModal();
+                    this.closeFileModal();
                 },
 
-                closeModal() {
-                    this.showModal = false;
+                closeFileModal() {
+                    this.showFileModal = false;
                     this.editingFile = null;
+                    this.selectedCategoryId = null;
+                },
+
+                openCategoryModal() {
+                    this.showCategoryModal = true;
+                },
+
+                closeCategoryModal() {
+                    this.showCategoryModal = false;
+                },
+
+                handleFileUpload(event) {
+                    const file = event.target.files[0];
+                    if (file) {
+                        this.fileFormData.type = file.name.split('.').pop().toLowerCase();
+                        this.fileFormData.size = file.size;
+                        if (!this.fileFormData.name) {
+                            this.fileFormData.name = file.name;
+                        }
+                    }
+                },
+
+                formatFileSize(bytes) {
+                    if (bytes < 1024) return bytes + ' B';
+                    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+                    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+                },
+
+                getFileTypeClass(type) {
+                    const classes = {
+                        'pdf': 'bg-red-100 text-red-800',
+                        'xlsx': 'bg-green-100 text-green-800',
+                        'docx': 'bg-blue-100 text-blue-800',
+                        'pptx': 'bg-orange-100 text-orange-800',
+                        'zip': 'bg-purple-100 text-purple-800'
+                    };
+                    return classes[type] || 'bg-gray-100 text-gray-800';
+                },
+
+                reorderCategories(oldIndex, newIndex) {
+                    const item = this.categories.splice(oldIndex, 1)[0];
+                    this.categories.splice(newIndex, 0, item);
+                },
+
+                reorderFiles(categoryId, oldIndex, newIndex) {
+                    const category = this.categories.find(c => c.id === categoryId);
+                    if (category) {
+                        const item = category.files.splice(oldIndex, 1)[0];
+                        category.files.splice(newIndex, 0, item);
+                    }
                 }
             }
         }
