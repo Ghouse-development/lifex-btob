@@ -170,7 +170,7 @@
                                 <div class="text-sm text-gray-500">ダウンロード資料数</div>
                             </div>
                             <div class="bg-white p-4 border border-gray-200 rounded-lg">
-                                <div class="text-2xl font-light text-gray-900" x-text="stats.lastUpdate"></div>
+                                <div class="text-2xl font-light text-gray-900" x-text="formatDate(stats.lastUpdate)"></div>
                                 <div class="text-sm text-gray-500">最終更新</div>
                             </div>
                         </div>
@@ -208,24 +208,34 @@
                 async loadStats() {
                     try {
                         const plansData = await lifeXAPI.getPlansIndex();
-                        this.stats.totalPlans = plansData.plans.filter(plan => plan.status === 'published').length;
+                        this.stats.totalPlans = (plansData.plans || []).filter(plan => plan.status === 'published').length;
                         
-                        // ダウンロード資料数は管理画面のダウンロード管理から取得
-                        try {
-                            const response = await fetch('/api/downloads/count');
-                            const downloadData = await response.json();
-                            this.stats.totalDownloads = downloadData.totalFiles || 0;
-                        } catch (error) {
-                            // 管理画面が空の場合は0
+                        // ダウンロード資料数をlocalStorageから取得
+                        const downloadsData = localStorage.getItem('downloads_data');
+                        if (downloadsData) {
+                            const downloads = JSON.parse(downloadsData);
+                            let totalFiles = 0;
+                            if (downloads.categories && typeof downloads.categories === 'object') {
+                                Object.values(downloads.categories).forEach(cat => {
+                                    if (cat.items && Array.isArray(cat.items)) {
+                                        totalFiles += cat.items.length;
+                                    }
+                                });
+                            }
+                            this.stats.totalDownloads = totalFiles;
+                        } else {
                             this.stats.totalDownloads = 0;
                         }
                         
                         // 最新更新日を取得
-                        const latestPlan = plansData.plans
+                        const allPlans = plansData.plans || [];
+                        const latestPlan = allPlans
                             .filter(plan => plan.updatedAt)
                             .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))[0];
                         if (latestPlan) {
                             this.stats.lastUpdate = latestPlan.updatedAt;
+                        } else {
+                            this.stats.lastUpdate = new Date().toISOString();
                         }
                         
                         // 統計情報更新完了
@@ -243,8 +253,12 @@
                 },
                 
                 formatDate(dateStr) {
+                    if (!dateStr) return '-';
                     const date = new Date(dateStr);
-                    return date.toLocaleDateString('ja-JP');
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1;
+                    const day = date.getDate();
+                    return `${year}年${month}月${day}日`;
                 }
             }
         }
