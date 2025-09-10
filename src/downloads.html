@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ダウンロード | LIFE X 加盟店専用サイト</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
@@ -14,17 +14,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="nav-link">ホーム</a>
-                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
-                    <a href="/design.html" class="nav-link">デザインから探す</a>
-                    <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/rules.html" class="nav-link">ルール</a>
-                    <a href="/downloads.html" class="nav-link active">ダウンロード</a>
-                    <a href="/faq.html" class="nav-link">よくある質問</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
+                    <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
+                    <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
+                    <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
+                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
+                    <a href="/downloads.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">ダウンロード</a>
+                    <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
                 </nav>
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
                     <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
@@ -39,7 +39,7 @@
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
                         <a href="/design.html" class="nav-link block">デザインから探す</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                        <a href="/rules.html" class="nav-link block">ルール</a>
+                        <a href="/rules.html" class="nav-link block">ルール・ガイドライン</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
                         <a href="/faq.html" class="nav-link block">よくある質問</a>
                     </div>
@@ -48,7 +48,7 @@
         </div>
     </header>
 
-    <div x-data="downloadsPage()" x-init="init()">
+    <div x-data="downloadsExpandedPage()" x-init="init()">
         <!-- Breadcrumb -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <nav class="breadcrumb">
@@ -65,601 +65,569 @@
                 <p class="text-lg text-gray-600">パンフレット、ロゴ、資金計画書雛形、営業カタログ等の資料</p>
             </div>
 
-            <!-- Loading State -->
-            <div x-show="loading" class="flex justify-center py-12">
-                <div class="loading-spinner"></div>
-            </div>
-
-            <!-- Icon Grid View - Elegant Design -->
-            <div x-show="!loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                <!-- パンフレット・カタログ -->
-                <div @click="openDetail('catalog')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">パンフレット</h3>
-                        <p class="text-sm text-gray-500 mt-1">8 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- 資金計画書 -->
-                <div @click="openDetail('financial')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">資金計画書</h3>
-                        <p class="text-sm text-gray-500 mt-1">5 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- 標準仕様書 -->
-                <div @click="openDetail('specifications')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9,22H17V20H9V22M12,2A1,1 0 0,0 11,3V6H10A2,2 0 0,0 8,8V18H16V8A2,2 0 0,0 14,6H13V3A1,1 0 0,0 12,2M10,8H14V16H10V8Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">標準仕様書</h3>
-                        <p class="text-sm text-gray-500 mt-1">6 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- 矩計図 -->
-                <div @click="openDetail('drawings')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M20.5,11H19V7C19,5.89 18.1,5 17,5H13V3.5A2.5,2.5 0 0,0 10.5,1A2.5,2.5 0 0,0 8,3.5V5H4A2,2 0 0,0 2,7V10.8H3.5C5,10.8 6.2,12 6.2,13.5C6.2,15 5,16.2 3.5,16.2H2V20A2,2 0 0,0 4,22H7.8V20.5C7.8,19 9,17.8 10.5,17.8C12,17.8 13.2,19 13.2,20.5V22H17A2,2 0 0,0 19,20V16H20.5A2.5,2.5 0 0,0 23,13.5A2.5,2.5 0 0,0 20.5,11Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">矩計図</h3>
-                        <p class="text-sm text-gray-500 mt-1">4 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- ロゴデータ -->
-                <div @click="openDetail('logo')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M5,3C3.89,3 3,3.89 3,5V19C3,20.11 3.89,21 5,21H19C20.11,21 21,20.11 21,19V5C21,3.89 20.11,3 19,3H5M5,5H19V19H5V5M7,7V17H9V7H7M11,7V17H13V7H11M15,7V17H17V7H15Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">ロゴデータ</h3>
-                        <p class="text-sm text-gray-500 mt-1">12 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- 営業カタログ -->
-                <div @click="openDetail('sales')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9,2V8H11V11H5C3.89,11 3,11.89 3,13V16H1V22H7V16H5V13H11V16H9V22H15V16H13V13H19V16H17V22H23V16H21V13C21,11.89 20.11,11 19,11H13V8H15V2H9Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">営業カタログ</h3>
-                        <p class="text-sm text-gray-500 mt-1">7 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- 契約書雛形 -->
-                <div @click="openDetail('contracts')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M6,2A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6M6,4H13V9H18V20H6V4M8,12V14H16V12H8M8,16V18H13V16H8Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">契約書雛形</h3>
-                        <p class="text-sm text-gray-500 mt-1">9 ファイル</p>
-                    </div>
-                </div>
-
-                <!-- マニュアル・ガイド -->
-                <div @click="openDetail('manuals')" 
-                     class="bg-white border border-gray-200 rounded-xl p-8 hover:shadow-lg hover:border-blue-300 transition-all duration-300 cursor-pointer group">
-                    <div class="flex flex-col items-center">
-                        <div class="w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:from-blue-100 group-hover:to-blue-200 transition-colors">
-                            <svg class="w-10 h-10 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,7V9H13V7H11M11,11V17H13V11H11Z"/>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-800 text-center">マニュアル</h3>
-                        <p class="text-sm text-gray-500 mt-1">11 ファイル</p>
+            <!-- Search and Filter -->
+            <div class="max-w-2xl mx-auto mb-8">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        x-model="searchQuery" 
+                        @input="filterItems()"
+                        placeholder="ファイル名で検索..." 
+                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Detail Modal -->
-        <div x-show="showDetailModal" 
-             class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" 
-             @click="closeDetail()"
-             style="display: none;">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white" @click.stop>
-                <div class="mt-3">
-                    <!-- Modal Header -->
-                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
-                        <h3 x-text="selectedCategory?.title" class="text-2xl font-bold text-gray-900"></h3>
-                        <button @click="closeDetail()" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    
-                    <!-- Selection Controls -->
-                    <div class="flex items-center justify-between py-3 px-2 bg-gray-50 rounded-lg mt-4">
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" @change="toggleSelectAll($event)" 
-                                   :checked="selectedItems.length === selectedCategory?.items.length"
-                                   class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                            <label class="text-sm text-gray-700">すべて選択</label>
-                        </div>
-                        <div x-show="selectedItems.length > 0" class="text-sm text-gray-600">
-                            <span x-text="selectedItems.length"></span>件選択中
+            <!-- Categories with All Items Visible -->
+            <div class="space-y-12">
+                
+                <!-- パンフレット -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-blue-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                                パンフレット
+                            </h2>
+                            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">8 ファイル</span>
                         </div>
                     </div>
-                    
-                    <!-- Modal Content -->
-                    <div class="mt-4 max-h-96 overflow-y-auto">
-                        <div class="grid grid-cols-1 gap-3">
-                            <template x-for="item in selectedCategory?.items || []" :key="item.id">
-                                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-start space-x-4">
-                                        <!-- Checkbox -->
-                                        <input type="checkbox" 
-                                               :value="item.id"
-                                               @change="toggleItemSelection(item)"
-                                               :checked="selectedItems.includes(item.id)"
-                                               class="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                                        
-                                        <!-- Thumbnail -->
-                                        <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                                            <template x-if="item.thumbnail">
-                                                <img :src="item.thumbnail" :alt="item.title" class="w-full h-full object-cover rounded">
-                                            </template>
-                                            <template x-if="!item.thumbnail">
-                                                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                                                </svg>
-                                            </template>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.catalog.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
                                         </div>
-                                        
-                                        <!-- Content -->
-                                        <div class="flex-1">
-                                            <h4 x-text="item.title" class="font-semibold text-gray-900"></h4>
-                                            <p x-text="item.description" class="text-sm text-gray-600 mt-1"></p>
-                                            <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                                                <span x-text="`サイズ: ${item.size}`"></span>
-                                                <span x-text="`形式: ${item.format}`"></span>
-                                                <span x-text="`更新: ${item.updated}`"></span>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Individual Download Button -->
-                                        <button @click="downloadFile(item)" 
-                                                class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 text-sm">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                            </svg>
-                                            <span>DL</span>
-                                        </button>
                                     </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
                                 </div>
                             </template>
                         </div>
                     </div>
-                    
-                    <!-- Modal Footer -->
-                    <div class="mt-6 pt-4 border-t border-gray-200 space-y-3">
-                        <button @click="downloadSelected()" 
-                                x-show="selectedItems.length > 0"
-                                class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center justify-center space-x-2">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span x-text="`選択した${selectedItems.length}件をダウンロード`"></span>
-                        </button>
-                        <button @click="downloadAllInCategory()" 
-                                class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all flex items-center justify-center space-x-2">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                            </svg>
-                            <span x-text="`全ての${selectedCategory?.title}をダウンロード`"></span>
-                        </button>
+                </div>
+
+                <!-- 資金計画書 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-50 to-green-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-green-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M7,15H9C9,16.08 10.37,17 12,17C13.63,17 15,16.08 15,15C15,13.9 13.96,13.5 11.76,12.97C9.64,12.44 7,11.78 7,9C7,7.21 8.47,5.69 10.5,5.18V3H13.5V5.18C15.53,5.69 17,7.21 17,9H15C15,7.92 13.63,7 12,7C10.37,7 9,7.92 9,9C9,10.1 10.04,10.5 12.24,11.03C14.36,11.56 17,12.22 17,15C17,16.79 15.53,18.31 13.5,18.82V21H10.5V18.82C8.47,18.31 7,16.79 7,15Z"/>
+                                </svg>
+                                資金計画書
+                            </h2>
+                            <span class="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-medium">5 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.financial.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
                     </div>
                 </div>
+
+                <!-- 標準仕様書 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-purple-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                                標準仕様書
+                            </h2>
+                            <span class="bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium">6 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.specifications.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 矩計図 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-orange-50 to-orange-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-orange-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-orange-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z"/>
+                                </svg>
+                                矩計図
+                            </h2>
+                            <span class="bg-orange-600 text-white px-3 py-1 rounded-full text-sm font-medium">4 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.drawings.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ロゴデータ -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-red-50 to-red-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-red-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4Z"/>
+                                </svg>
+                                ロゴデータ
+                            </h2>
+                            <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">12 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.logo.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 営業カタログ -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-indigo-50 to-indigo-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-indigo-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M15.5,14H20.5L22,10H12L13.5,14M6.5,14H11.5L10,10H1.5L3,14M12,19.5C12.83,19.5 13.5,18.83 13.5,18C13.5,17.17 12.83,16.5 12,16.5C11.17,16.5 10.5,17.17 10.5,18C10.5,18.83 11.17,19.5 12,19.5M5,9.5L3,5H7.1L8.6,9L5,9.5M2.5,1H9.5L11,5H18L13,16H11L7,6L6,5H2.5V1M21.5,5H16L14.5,9L18.5,9.5L21.5,5Z"/>
+                                </svg>
+                                営業カタログ
+                            </h2>
+                            <span class="bg-indigo-600 text-white px-3 py-1 rounded-full text-sm font-medium">7 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.sales.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 契約書雛形 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-teal-50 to-teal-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-teal-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-teal-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                                契約書雛形
+                            </h2>
+                            <span class="bg-teal-600 text-white px-3 py-1 rounded-full text-sm font-medium">9 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.contracts.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- マニュアル -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                                <svg class="w-8 h-8 mr-3 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19,3H5C3.9,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.9 20.1,3 19,3M19,19H5V5H19V19Z"/>
+                                </svg>
+                                マニュアル
+                            </h2>
+                            <span class="bg-gray-600 text-white px-3 py-1 rounded-full text-sm font-medium">11 ファイル</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <template x-for="item in categories.manuals.items" :key="item.id">
+                                <div x-show="!searchQuery || item.title.toLowerCase().includes(searchQuery.toLowerCase())" 
+                                     class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex-1">
+                                        <h3 class="font-semibold text-gray-900" x-text="item.title"></h3>
+                                        <p class="text-sm text-gray-600" x-text="item.description"></p>
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span x-text="item.format"></span>
+                                            <span x-text="item.size"></span>
+                                            <span x-text="'更新: ' + item.updated"></span>
+                                        </div>
+                                    </div>
+                                    <button @click="downloadFile(item)" 
+                                            class="ml-4 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                                        <svg class="w-4 h-4 mr-1 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        DL
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-        </div>
-        
-        <!-- Maintenance Button - Fixed Top Right -->
-        <div class="fixed top-4 right-4 z-50">
-            <button onclick="window.location.href='/admin.html#downloads'" 
-                    class="bg-white text-gray-400 p-2 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-600 transition-all duration-300 opacity-70 hover:opacity-100 border border-gray-200" 
-                    title="ダウンロード管理">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-                </svg>
-            </button>
         </div>
     </div>
 
     <script>
-        function downloadsPage() {
+        function downloadsExpandedPage() {
             return {
-                loading: false,
-                showDetailModal: false,
-                selectedCategory: null,
-                selectedItems: [],
-                categories: {
-                    catalog: {
-                        title: 'パンフレット・カタログ',
-                        items: [
-                            { id: 1, title: 'LIFE X 総合カタログ 2024年版', description: '全プラン掲載の総合カタログ', size: '45MB', format: 'PDF', updated: '2024-01-15' },
-                            { id: 2, title: 'LIFE X 30坪プラン集', description: '30坪プランに特化したカタログ', size: '28MB', format: 'PDF', updated: '2024-01-10' },
-                            { id: 3, title: 'LIFE X 33坪プラン集', description: '33坪プランに特化したカタログ', size: '32MB', format: 'PDF', updated: '2024-01-10' },
-                            { id: 4, title: 'LIFE X 35坪プラン集', description: '35坪プランに特化したカタログ', size: '35MB', format: 'PDF', updated: '2024-01-10' },
-                            { id: 5, title: 'LIFE X 平屋プラン集', description: '平屋専用プランカタログ', size: '22MB', format: 'PDF', updated: '2024-01-08' },
-                            { id: 6, title: 'LIFE X 施工事例集', description: '実際の施工事例写真集', size: '68MB', format: 'PDF', updated: '2024-01-05' },
-                            { id: 7, title: 'LIFE X 設備・仕様カタログ', description: '標準設備と仕様の詳細', size: '18MB', format: 'PDF', updated: '2024-01-03' },
-                            { id: 8, title: 'LIFE X オプションカタログ', description: '選択可能なオプション一覧', size: '15MB', format: 'PDF', updated: '2024-01-03' }
-                        ]
-                    },
-                    financial: {
-                        title: '資金計画書',
-                        items: [
-                            { id: 1, title: '資金計画書テンプレート（Excel）', description: '自動計算機能付きExcelテンプレート', size: '2.5MB', format: 'XLSX', updated: '2024-01-12' },
-                            { id: 2, title: '資金計画書テンプレート（PDF）', description: '印刷用PDFフォーマット', size: '450KB', format: 'PDF', updated: '2024-01-12' },
-                            { id: 3, title: '住宅ローンシミュレーター', description: 'ローン計算用Excelファイル', size: '1.8MB', format: 'XLSX', updated: '2024-01-10' },
-                            { id: 4, title: '諸費用計算書', description: '諸費用見積もりテンプレート', size: '850KB', format: 'XLSX', updated: '2024-01-08' },
-                            { id: 5, title: '資金計画説明資料', description: 'お客様説明用プレゼン資料', size: '5.2MB', format: 'PPTX', updated: '2024-01-05' }
-                        ]
-                    },
-                    specifications: {
-                        title: '標準仕様書',
-                        items: [
-                            { id: 1, title: '構造仕様書', description: '構造体の標準仕様詳細', size: '8.5MB', format: 'PDF', updated: '2024-01-14' },
-                            { id: 2, title: '外装仕様書', description: '外壁・屋根の標準仕様', size: '6.2MB', format: 'PDF', updated: '2024-01-14' },
-                            { id: 3, title: '内装仕様書', description: '内装材の標準仕様詳細', size: '7.8MB', format: 'PDF', updated: '2024-01-14' },
-                            { id: 4, title: '設備仕様書', description: 'キッチン・バス等の標準仕様', size: '9.3MB', format: 'PDF', updated: '2024-01-12' },
-                            { id: 5, title: '電気設備仕様書', description: '電気配線・照明の標準仕様', size: '4.5MB', format: 'PDF', updated: '2024-01-10' },
-                            { id: 6, title: '断熱・省エネ仕様書', description: '断熱材・省エネ設備の仕様', size: '5.1MB', format: 'PDF', updated: '2024-01-08' }
-                        ]
-                    },
-                    drawings: {
-                        title: '矩計図',
-                        items: [
-                            { id: 1, title: '基礎詳細図', description: '基礎構造の詳細図面', size: '3.2MB', format: 'DWG', updated: '2024-01-13' },
-                            { id: 2, title: '外壁断面詳細図', description: '外壁構造の断面詳細', size: '2.8MB', format: 'DWG', updated: '2024-01-13' },
-                            { id: 3, title: '屋根断面詳細図', description: '屋根構造の断面詳細', size: '2.5MB', format: 'DWG', updated: '2024-01-13' },
-                            { id: 4, title: '開口部詳細図', description: '窓・ドア廻りの詳細', size: '3.6MB', format: 'DWG', updated: '2024-01-11' }
-                        ]
-                    },
-                    logo: {
-                        title: 'ロゴデータ',
-                        items: [
-                            { id: 1, title: 'LIFE X ロゴ（横型）', description: '横型配置用ロゴデータ', size: '2.1MB', format: 'AI', updated: '2024-01-15' },
-                            { id: 2, title: 'LIFE X ロゴ（縦型）', description: '縦型配置用ロゴデータ', size: '2.0MB', format: 'AI', updated: '2024-01-15' },
-                            { id: 3, title: 'LIFE X ロゴ（モノクロ）', description: 'モノクロ印刷用ロゴ', size: '1.8MB', format: 'AI', updated: '2024-01-15' },
-                            { id: 4, title: 'LIFE X ロゴ（PNG - 大）', description: 'Web用高解像度PNG', size: '850KB', format: 'PNG', updated: '2024-01-15' },
-                            { id: 5, title: 'LIFE X ロゴ（PNG - 中）', description: 'Web用中解像度PNG', size: '420KB', format: 'PNG', updated: '2024-01-15' },
-                            { id: 6, title: 'LIFE X ロゴ（PNG - 小）', description: 'Web用低解像度PNG', size: '180KB', format: 'PNG', updated: '2024-01-15' },
-                            { id: 7, title: 'LIFE X ロゴ（JPG - 大）', description: '印刷用高解像度JPG', size: '1.2MB', format: 'JPG', updated: '2024-01-15' },
-                            { id: 8, title: 'LIFE X ロゴ（SVG）', description: 'ベクター形式ロゴ', size: '45KB', format: 'SVG', updated: '2024-01-15' },
-                            { id: 9, title: 'LIFE X アイコン', description: 'アプリ用アイコンセット', size: '3.5MB', format: 'ZIP', updated: '2024-01-12' },
-                            { id: 10, title: 'LIFE X サブロゴ', description: 'サブブランド用ロゴ', size: '1.6MB', format: 'AI', updated: '2024-01-10' },
-                            { id: 11, title: 'ブランドガイドライン', description: 'ロゴ使用ガイドライン', size: '4.8MB', format: 'PDF', updated: '2024-01-08' },
-                            { id: 12, title: 'カラーパレット', description: 'ブランドカラー定義書', size: '250KB', format: 'PDF', updated: '2024-01-05' }
-                        ]
-                    },
-                    sales: {
-                        title: '営業カタログ',
-                        items: [
-                            { id: 1, title: '営業提案書テンプレート', description: 'カスタマイズ可能な提案書', size: '8.5MB', format: 'PPTX', updated: '2024-01-14' },
-                            { id: 2, title: '比較表（他社比較）', description: '競合他社との比較資料', size: '1.2MB', format: 'PDF', updated: '2024-01-12' },
-                            { id: 3, title: '価格表（2024年版）', description: '最新の価格一覧表', size: '650KB', format: 'PDF', updated: '2024-01-10' },
-                            { id: 4, title: '営業トークスクリプト', description: '標準的な営業トーク集', size: '320KB', format: 'DOCX', updated: '2024-01-08' },
-                            { id: 5, title: 'お客様アンケート', description: 'ヒアリング用アンケート', size: '180KB', format: 'DOCX', updated: '2024-01-06' },
-                            { id: 6, title: '成約事例集', description: '成功事例のケーススタディ', size: '5.6MB', format: 'PDF', updated: '2024-01-04' },
-                            { id: 7, title: 'よくある質問集', description: 'FAQ対応マニュアル', size: '420KB', format: 'PDF', updated: '2024-01-02' }
-                        ]
-                    },
-                    contracts: {
-                        title: '契約書雛形',
-                        items: [
-                            { id: 1, title: '工事請負契約書', description: '標準工事請負契約書雛形', size: '280KB', format: 'DOCX', updated: '2024-01-15' },
-                            { id: 2, title: '工事請負契約約款', description: '契約約款の詳細', size: '320KB', format: 'PDF', updated: '2024-01-15' },
-                            { id: 3, title: '設計契約書', description: '設計業務委託契約書', size: '240KB', format: 'DOCX', updated: '2024-01-13' },
-                            { id: 4, title: '変更契約書', description: '工事内容変更時の契約書', size: '180KB', format: 'DOCX', updated: '2024-01-11' },
-                            { id: 5, title: '覚書テンプレート', description: '各種覚書のテンプレート', size: '150KB', format: 'DOCX', updated: '2024-01-09' },
-                            { id: 6, title: '重要事項説明書', description: '契約前の重要事項説明書', size: '380KB', format: 'PDF', updated: '2024-01-07' },
-                            { id: 7, title: '個人情報同意書', description: '個人情報取扱い同意書', size: '120KB', format: 'DOCX', updated: '2024-01-05' },
-                            { id: 8, title: '支払い条件確認書', description: '支払いスケジュール確認書', size: '160KB', format: 'DOCX', updated: '2024-01-03' },
-                            { id: 9, title: '完了確認書', description: '工事完了時の確認書', size: '140KB', format: 'DOCX', updated: '2024-01-01' }
-                        ]
-                    },
-                    manuals: {
-                        title: 'マニュアル・ガイド',
-                        items: [
-                            { id: 1, title: '営業マニュアル', description: '営業活動の基本マニュアル', size: '12.5MB', format: 'PDF', updated: '2024-01-14' },
-                            { id: 2, title: '施工管理マニュアル', description: '工事管理の手順書', size: '15.8MB', format: 'PDF', updated: '2024-01-12' },
-                            { id: 3, title: '品質管理マニュアル', description: '品質管理基準と手順', size: '8.6MB', format: 'PDF', updated: '2024-01-10' },
-                            { id: 4, title: 'アフターサービスマニュアル', description: 'アフターサービス対応手順', size: '6.2MB', format: 'PDF', updated: '2024-01-08' },
-                            { id: 5, title: 'クレーム対応マニュアル', description: 'クレーム処理の手順書', size: '4.8MB', format: 'PDF', updated: '2024-01-06' },
-                            { id: 6, title: 'CAD操作マニュアル', description: 'CADソフトの操作ガイド', size: '18.5MB', format: 'PDF', updated: '2024-01-04' },
-                            { id: 7, title: '見積作成ガイド', description: '見積書作成の詳細ガイド', size: '3.2MB', format: 'PDF', updated: '2024-01-02' },
-                            { id: 8, title: '新人研修マニュアル', description: '新入社員向け研修資料', size: '22.4MB', format: 'PDF', updated: '2023-12-28' },
-                            { id: 9, title: 'ブランドガイドライン', description: 'LIFE Xブランド使用規定', size: '7.8MB', format: 'PDF', updated: '2023-12-25' },
-                            { id: 10, title: '安全管理マニュアル', description: '現場安全管理の手順書', size: '9.4MB', format: 'PDF', updated: '2023-12-20' },
-                            { id: 11, title: 'システム操作ガイド', description: '業務システムの操作説明', size: '5.6MB', format: 'PDF', updated: '2023-12-15' }
-                        ]
-                    }
-                },
+                searchQuery: '',
+                categories: {},
 
                 init() {
                     // 初期化処理
                 },
 
-                openDetail(categoryKey) {
-                    this.selectedCategory = this.categories[categoryKey];
-                    this.showDetailModal = true;
-                },
-
-                closeDetail() {
-                    this.showDetailModal = false;
-                    this.selectedCategory = null;
-                    this.selectedItems = [];
-                },
-
-                toggleSelectAll(event) {
-                    if (event.target.checked) {
-                        this.selectedItems = this.selectedCategory.items.map(item => item.id);
-                    } else {
-                        this.selectedItems = [];
-                    }
-                },
-
-                toggleItemSelection(item) {
-                    const index = this.selectedItems.indexOf(item.id);
-                    if (index > -1) {
-                        this.selectedItems.splice(index, 1);
-                    } else {
-                        this.selectedItems.push(item.id);
-                    }
-                },
-
-                downloadSelected() {
-                    const selectedFiles = this.selectedCategory.items.filter(item => 
-                        this.selectedItems.includes(item.id)
-                    );
-                    console.log('Downloading selected:', selectedFiles);
-                    lifeXAPI.showToast(`${this.selectedItems.length}件のファイルをダウンロード中...`, 'info');
-                    // 実際のダウンロード処理
-                    selectedFiles.forEach(file => {
-                        this.downloadFile(file);
-                    });
+                filterItems() {
+                    // フィルタリング処理は x-show ディレクティブで行っているため、ここでは何もしない
                 },
 
                 downloadFile(item) {
                     // ダウンロード処理のシミュレーション
                     console.log('Downloading:', item.title);
                     lifeXAPI.showToast(`${item.title}のダウンロードを開始しました`, 'success');
-                },
-
-                downloadAllInCategory() {
-                    if (this.selectedCategory) {
-                        console.log('Downloading all in category:', this.selectedCategory.title);
-                        lifeXAPI.showToast(`${this.selectedCategory.title}の全ファイルをダウンロード中...`, 'info');
-                    }
+                    
+                    // 実際のダウンロード処理をここに実装
+                    const link = document.createElement('a');
+                    link.href = `/downloads/${item.format.toLowerCase()}/${item.title.replace(/[^a-zA-Z0-9]/g, '_')}.${item.format.toLowerCase()}`;
+                    link.download = item.title;
+                    link.click();
                 }
             }
         }
     </script>
 
-<!-- AI Bot Component -->
-<div x-data="aibotComponent()" x-init="init()" class="aibot-container">
-    <!-- AI Bot Floating Button -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <button @click="toggleChat()" 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group" 
-                title="AIサポート">
-            <svg x-show="!chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-            </svg>
-            <svg x-show="chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-        </button>
-    </div>
-
-    <!-- AI Chat Window -->
-    <div x-show="chatOpen" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4"
-         x-transition:enter-end="opacity-100 transform translate-y-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 transform translate-y-0"
-         x-transition:leave-end="opacity-0 transform translate-y-4"
-         class="fixed bottom-24 right-6 w-96 max-w-full bg-white rounded-xl shadow-2xl z-50"
-         style="display: none;">
-        
-        <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-t-xl">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <span class="text-lg">🤖</span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold">LIFE X AIサポート</h3>
-                        <p class="text-xs text-white/80">ご質問をどうぞ</p>
-                    </div>
-                </div>
-            </div>
+    <!-- AI Bot Component -->
+    <div x-data="aibotComponent()" x-init="init()" class="aibot-container">
+        <!-- AI Bot Floating Button -->
+        <div class="fixed bottom-6 right-6 z-50">
+            <button @click="toggleChat()" 
+                    class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group" 
+                    title="AIサポート">
+                <svg x-show="!chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                    <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                </svg>
+                <svg x-show="chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
         </div>
 
-        <!-- Chat Messages -->
-        <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="aibotChatArea">
-            <!-- Welcome Message -->
-            <div class="mb-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm">AI</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-                        <p class="text-gray-700 text-sm">こんにちは！LIFE Xについて何でもお気軽にご質問ください。</p>
+        <!-- AI Chat Window -->
+        <div x-show="chatOpen" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform translate-y-4"
+             x-transition:enter-end="opacity-100 transform translate-y-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform translate-y-0"
+             x-transition:leave-end="opacity-0 transform translate-y-4"
+             class="fixed bottom-24 right-6 w-96 max-w-full bg-white rounded-xl shadow-2xl z-50"
+             style="display: none;">
+            
+            <!-- Chat Header -->
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-t-xl">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                            <span class="text-lg">🤖</span>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-semibold">LIFE X AIサポート</h3>
+                            <p class="text-xs text-white/80">ご質問をどうぞ</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Dynamic Messages -->
-            <template x-for="message in messages" :key="message.id">
+            <!-- Chat Messages -->
+            <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="aibotChatArea">
+                <!-- Welcome Message -->
                 <div class="mb-4">
-                    <div class="flex items-start space-x-3" :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
-                             :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'">
-                            <span class="text-white text-sm" x-text="message.type === 'user' ? 'You' : 'AI'"></span>
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-sm">AI</span>
                         </div>
-                        <div class="p-3 rounded-lg shadow-sm max-w-xs" 
-                             :class="message.type === 'user' ? 'bg-blue-100' : 'bg-white'">
-                            <p class="text-gray-700 text-sm" x-html="message.content"></p>
-                            <p class="text-xs text-gray-500 mt-1" x-text="message.timestamp"></p>
+                        <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                            <p class="text-gray-700 text-sm">こんにちは！LIFE Xについて何でもお気軽にご質問ください。</p>
                         </div>
                     </div>
                 </div>
-            </template>
 
-            <!-- Typing Indicator -->
-            <div x-show="isTyping" class="mb-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm">AI</span>
+                <!-- Dynamic Messages -->
+                <template x-for="message in messages" :key="message.id">
+                    <div class="mb-4">
+                        <div class="flex items-start space-x-3" :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                                 :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'">
+                                <span class="text-white text-sm" x-text="message.type === 'user' ? 'You' : 'AI'"></span>
+                            </div>
+                            <div class="p-3 rounded-lg shadow-sm max-w-xs" 
+                                 :class="message.type === 'user' ? 'bg-blue-100' : 'bg-white'">
+                                <p class="text-gray-700 text-sm" x-html="message.content"></p>
+                                <p class="text-xs text-gray-500 mt-1" x-text="message.timestamp"></p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm">
-                        <div class="flex space-x-1">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                </template>
+
+                <!-- Typing Indicator -->
+                <div x-show="isTyping" class="mb-4">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-sm">AI</span>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Input Area -->
-        <div class="p-4 border-t border-gray-200">
-            <div class="flex space-x-2">
-                <input type="text" 
-                       x-model="currentMessage" 
-                       @keydown.enter="sendMessage()"
-                       placeholder="メッセージを入力..."
-                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
-                <button @click="sendMessage()" 
-                        :disabled="!currentMessage.trim() || isTyping"
-                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
-                    送信
-                </button>
+            <!-- Input Area -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex space-x-2">
+                    <input type="text" 
+                           x-model="currentMessage" 
+                           @keydown.enter="sendMessage()"
+                           placeholder="メッセージを入力..."
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                    <button @click="sendMessage()" 
+                            :disabled="!currentMessage.trim() || isTyping"
+                            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
+                        送信
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-function aibotComponent() {
-    return {
-        chatOpen: false,
-        messages: [],
-        currentMessage: '',
-        isTyping: false,
+    <script>
+    function aibotComponent() {
+        return {
+            chatOpen: false,
+            messages: [],
+            currentMessage: '',
+            isTyping: false,
 
-        init() {
-            // 初期化処理
-        },
+            init() {
+                // 初期化処理
+            },
 
-        toggleChat() {
-            this.chatOpen = !this.chatOpen;
-            if (this.chatOpen) {
+            toggleChat() {
+                this.chatOpen = !this.chatOpen;
+                if (this.chatOpen) {
+                    setTimeout(() => {
+                        const chatArea = document.getElementById('aibotChatArea');
+                        if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+                    }, 100);
+                }
+            },
+
+            async sendMessage() {
+                if (!this.currentMessage.trim() || this.isTyping) return;
+
+                const message = this.currentMessage.trim();
+                const userMessage = {
+                    id: Date.now(),
+                    type: 'user',
+                    content: message,
+                    timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+                };
+
+                this.messages.push(userMessage);
+                this.currentMessage = '';
+                this.isTyping = true;
+
+                // Scroll to bottom
+                setTimeout(() => {
+                    const chatArea = document.getElementById('aibotChatArea');
+                    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+                }, 100);
+
+                // Generate AI response
+                await this.generateResponse(message);
+            },
+
+            async generateResponse(question) {
+                // AI応答のシミュレーション
+                let response = '';
+                const lowerQuestion = question.toLowerCase();
+                
+                if (lowerQuestion.includes('ダウンロード')) {
+                    response = 'このページでは全ての資料が一覧で表示されています。各カテゴリの資料をご確認いただき、必要なファイルをダウンロードしてください。検索機能もご活用ください。';
+                } else if (lowerQuestion.includes('検索')) {
+                    response = '上部の検索ボックスでファイル名を検索できます。パンフレット、資金計画書、標準仕様書など、必要な資料をすばやく見つけられます。';
+                } else {
+                    response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
+                }
+
+                // タイピング遅延のシミュレーション
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const aiMessage = {
+                    id: Date.now(),
+                    type: 'ai',
+                    content: response,
+                    timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
+                };
+
+                this.isTyping = false;
+                this.messages.push(aiMessage);
+
+                // Scroll to bottom
                 setTimeout(() => {
                     const chatArea = document.getElementById('aibotChatArea');
                     if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
                 }, 100);
             }
-        },
-
-        async sendMessage() {
-            if (!this.currentMessage.trim() || this.isTyping) return;
-
-            const message = this.currentMessage.trim();
-            const userMessage = {
-                id: Date.now(),
-                type: 'user',
-                content: message,
-                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            this.messages.push(userMessage);
-            this.currentMessage = '';
-            this.isTyping = true;
-
-            // Scroll to bottom
-            setTimeout(() => {
-                const chatArea = document.getElementById('aibotChatArea');
-                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-            }, 100);
-
-            // Generate AI response
-            await this.generateResponse(message);
-        },
-
-        async generateResponse(question) {
-            // AI応答のシミュレーション
-            let response = '';
-            const lowerQuestion = question.toLowerCase();
-            
-            if (lowerQuestion.includes('ダウンロード')) {
-                response = 'ダウンロードページでは、パンフレット、資金計画書、標準仕様書、ロゴデータなど様々な資料をダウンロードできます。各カテゴリのアイコンをクリックして詳細をご確認ください。';
-            } else {
-                response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
-            }
-
-            // タイピング遅延のシミュレーション
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            const aiMessage = {
-                id: Date.now(),
-                type: 'ai',
-                content: response,
-                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            this.isTyping = false;
-            this.messages.push(aiMessage);
-
-            // Scroll to bottom
-            setTimeout(() => {
-                const chatArea = document.getElementById('aibotChatArea');
-                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-            }, 100);
         }
     }
-}
-</script>
+    </script>
 </body>
 </html>

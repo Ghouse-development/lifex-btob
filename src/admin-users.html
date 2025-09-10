@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理者権限管理 | LIFE X</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script src="/utils/google-auth.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -15,16 +15,19 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X 管理画面</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/admin.html" class="nav-link">管理メニュー</a>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="/admin.html" class="nav-link">管理ホーム</a>
                     <a href="/admin-plans.html" class="nav-link">プラン管理</a>
-                    <a href="/admin-rules.html" class="nav-link">ルール管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール・ガイドライン管理</a>
                     <a href="/admin-downloads.html" class="nav-link">ダウンロード管理</a>
-                    <a href="/admin-users.html" class="nav-link active">権限管理</a>
+                    <a href="/admin-faq.html" class="nav-link">よくある質問管理</a>
+                    <a href="/admin-system.html" class="nav-link">システム管理</a>
+                    <a href="/admin-report.html" class="nav-link">レポート</a>
                     <a href="/" class="nav-link">サイトに戻る</a>
+                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
                 <div id="userInfo" class="text-sm"></div>
             </div>
@@ -71,6 +74,7 @@
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">名前</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">メールアドレス</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">権限</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">追加日</th>
                                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                             </tr>
@@ -81,8 +85,11 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="admin.name"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="admin.email"></td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            管理者
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" x-text="admin.role || 'スーパー管理者'">
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800" x-text="admin.status || '有効'">
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="admin.addedDate || '初期設定'"></td>
@@ -159,8 +166,7 @@
             return {
                 currentUser: null,
                 admins: [
-                    { name: '西野秀樹', email: 'hn@ghouse.jp', addedDate: '初期設定' },
-                    { name: '米山真史', email: 'yoneyama-m@g-house.osaka.jp', addedDate: '初期設定' }
+                    { name: '西野秀樹', email: 'hn@ghouse.jp', role: 'スーパー管理者', status: '有効', addedDate: '初期設定' }
                 ],
                 updateHistory: [],
                 showAddModal: false,
@@ -285,6 +291,10 @@
                         hour: '2-digit',
                         minute: '2-digit'
                     });
+                },
+
+                logout() {
+                    authManager.logout();
                 }
             };
         }

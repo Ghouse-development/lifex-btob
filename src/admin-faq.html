@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ管理 | LIFE X 管理画面</title>
+    <title>よくある質問管理 | LIFE X 管理画面</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -15,18 +15,21 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X 管理画面</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/admin.html" class="nav-link">管理メニュー</a>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="/admin.html" class="nav-link">管理ホーム</a>
                     <a href="/admin-plans.html" class="nav-link">プラン管理</a>
-                    <a href="/admin-rules.html" class="nav-link">ルール管理</a>
-                    <a href="/admin-faq.html" class="nav-link active">FAQ管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール・ガイドライン管理</a>
                     <a href="/admin-downloads.html" class="nav-link">ダウンロード管理</a>
-                    <a href="/admin-users.html" class="nav-link">権限管理</a>
+                    <a href="/admin-faq.html" class="nav-link active">よくある質問管理</a>
+                    <a href="/admin-system.html" class="nav-link">システム管理</a>
+                    <a href="/admin-report.html" class="nav-link">レポート</a>
                     <a href="/" class="nav-link">サイトに戻る</a>
+                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
+                <div id="userInfo" class="text-sm"></div>
             </div>
         </div>
     </header>
@@ -221,53 +224,7 @@
 
                 async loadFAQs() {
                     // 実際にはAPIから取得
-                    this.faqs = [
-                        {
-                            id: 1,
-                            order: 1,
-                            category: 'プラン変更',
-                            question: 'LIFE Xの標準プランを変更できますか？',
-                            answer: 'LIFE Xの標準プランは、基本的な構造や間取りは維持したまま、一定の範囲内でカスタマイズが可能です。<br><br>変更可能な項目：<ul class="mt-2 ml-4 list-disc"><li>内装カラーバリエーション</li><li>設備のグレードアップ</li><li>オプションの追加</li></ul>',
-                            status: 'active',
-                            updated: new Date().toISOString()
-                        },
-                        {
-                            id: 2,
-                            order: 2,
-                            category: '費用',
-                            question: '耐震等級3の確保に必要な追加費用はありますか？',
-                            answer: 'LIFE Xの標準仕様では、耐震等級3が基本仕様に含まれているため、追加費用は発生しません。ただし、地盤調査の結果によっては、地盤改良工事などが必要になる場合があります。',
-                            status: 'active',
-                            updated: new Date().toISOString()
-                        },
-                        {
-                            id: 3,
-                            order: 3,
-                            category: '営業',
-                            question: '営業エリアに制限はありますか？',
-                            answer: '加盟店様の営業エリアは、加盟契約時に定められた地域内での活動が基本となります。ただし、隣接エリアでの営業を希望される場合は、事前にご相談ください。',
-                            status: 'active',
-                            updated: new Date().toISOString()
-                        },
-                        {
-                            id: 4,
-                            order: 4,
-                            category: 'アフターサービス',
-                            question: '引渡し後のアフターサービス体制は？',
-                            answer: 'LIFE Xでは、引渡し後のアフターサービスも重要視しています。<br><br>保証内容：<ul class="mt-2 ml-4 list-disc"><li>構造躯体：10年保証</li><li>防水：10年保証</li><li>設備機器：メーカー保証に準ずる</li></ul><br>定期点検：<ul class="mt-2 ml-4 list-disc"><li>1年点検</li><li>2年点検</li><li>5年点検</li><li>10年点検</li></ul>',
-                            status: 'active',
-                            updated: new Date().toISOString()
-                        },
-                        {
-                            id: 5,
-                            order: 5,
-                            category: '工事',
-                            question: '工事期間の目安はどのくらいですか？',
-                            answer: 'LIFE Xの標準的な工事期間は、着工から引渡しまで約4～5ヶ月です。<br><br>工程の目安：<ul class="mt-2 ml-4 list-disc"><li>基礎工事：約1ヶ月</li><li>躯体工事：約1ヶ月</li><li>内外装工事：約1.5ヶ月</li><li>設備工事・完了検査：約0.5ヶ月</li></ul>',
-                            status: 'active',
-                            updated: new Date().toISOString()
-                        }
-                    ];
+                    this.faqs = [];
                 },
 
                 initSortable() {

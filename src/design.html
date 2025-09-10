@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>デザインから探す | LIFE X 加盟店専用サイト</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
@@ -14,17 +14,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="nav-link">ホーム</a>
-                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
-                    <a href="/design.html" class="nav-link active">デザインから探す</a>
-                    <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/rules.html" class="nav-link">ルール</a>
-                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
-                    <a href="/faq.html" class="nav-link">よくある質問</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
+                    <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
+                    <a href="/design.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">デザインから探す</a>
+                    <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
+                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
+                    <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
+                    <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
                 </nav>
             </div>
         </div>
@@ -160,38 +160,7 @@
                     } catch (error) {
                         console.error('Failed to load plans:', error);
                         // サンプルデータ
-                        this.plans = [
-                            { 
-                                id: 'LX-030A', 
-                                name: 'LIFE X 30A', 
-                                tsubo: 30.2, 
-                                width: 8.19,
-                                depth: 7.28,
-                                prices: { sell: 23800000 },
-                                tags: ['平屋', '南入り', '1階LDK'],
-                                exteriorImage: '/assets/images/plans/LX-030A/exterior.jpg'
-                            },
-                            { 
-                                id: 'LX-025B', 
-                                name: 'LIFE X 25B', 
-                                tsubo: 25.4,
-                                width: 7.28,
-                                depth: 6.37,
-                                prices: { sell: 21200000 },
-                                tags: ['平屋', '西入り', '1階LDK'],
-                                exteriorImage: '/assets/images/plans/LX-025B/exterior.jpg'
-                            },
-                            { 
-                                id: 'LX-035C', 
-                                name: 'LIFE X 35C', 
-                                tsubo: 35.8,
-                                width: 9.1,
-                                depth: 8.19,
-                                prices: { sell: 26500000 },
-                                tags: ['2階建', '東入り', '1階LDK'],
-                                exteriorImage: '/assets/images/plans/LX-035C/exterior.jpg'
-                            }
-                        ];
+                        this.plans = [];
                     }
                     this.loading = false;
                 },

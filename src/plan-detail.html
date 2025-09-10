@@ -13,14 +13,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
                     <a href="/" class="nav-link">ホーム</a>
                     <a href="/matrix.html" class="nav-link">間取マトリックス</a>
                     <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/docs/rules.html" class="nav-link">ルール</a>
+                    <a href="/docs/rules.html" class="nav-link">ルール・ガイドライン</a>
                     <a href="/downloads.html" class="nav-link">ダウンロード</a>
                 </nav>
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
@@ -35,7 +35,7 @@
                         <a href="/" class="nav-link block">ホーム</a>
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                        <a href="/docs/rules.html" class="nav-link block">ルール</a>
+                        <a href="/docs/rules.html" class="nav-link block">ルール・ガイドライン</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
                     </div>
                 </div>
@@ -127,15 +127,15 @@
                             <!-- Prices -->
                             <div class="grid grid-cols-3 gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
                                 <div>
-                                    <div class="text-gray-500 text-sm mb-1">売価</div>
+                                    <div class="text-gray-500 text-sm mb-1">想定売価</div>
                                     <div x-text="lifeXAPI.formatPrice(plan?.prices?.sell)" class="text-xl font-bold text-primary-600"></div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-500 text-sm mb-1">原価</div>
+                                    <div class="text-gray-500 text-sm mb-1">想定原価</div>
                                     <div x-text="lifeXAPI.formatPrice(plan?.prices?.cost)" class="text-xl font-semibold text-gray-900"></div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-500 text-sm mb-1">粗利</div>
+                                    <div class="text-gray-500 text-sm mb-1">想定粗利</div>
                                     <div x-text="lifeXAPI.formatPrice(plan?.prices?.gross)" class="text-xl font-bold text-green-600"></div>
                                 </div>
                             </div>
@@ -478,20 +478,22 @@
 
                 getCategoryName(category) {
                     const categoryNames = {
-                        execution: '実施図',
-                        kitchen: 'キッチン',
-                        washstand: '洗面化粧台',
-                        bath: 'システムバス',
-                        toilet: 'トイレ',
+                        execution: 'PDF・DXF',
+                        kitchen: '見積書・プレゼン・図面',
+                        washstand: '見積書・プレゼン・図面',
+                        bath: '見積書・プレゼン・図面',
+                        toilet: '見積書・プレゼン・図面',
                         lighting: '照明',
                         ventilation: '換気システム',
                         evoltz: 'evoltz',
                         solar: '太陽光',
-                        application: '申請図',
-                        structure: '構造図',
-                        precuts: 'プレカット図',
+                        application: 'PDF・DXF',
+                        structure: 'PDF・DXF',
+                        precuts: 'PDF・DXF',
                         interior: '内装プレゼン',
-                        specsExterior: '仕様書・外装'
+                        specsExterior: '仕様書・外装',
+                        doorPresentation: 'PDF',
+                        windowDrawing: 'PDF'
                     };
                     return categoryNames[category] || category;
                 }

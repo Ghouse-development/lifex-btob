@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>間取マトリックス | LIFE X 加盟店専用サイト</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         .matrix-cell {
@@ -29,17 +29,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="nav-link">ホーム</a>
-                    <a href="/matrix.html" class="nav-link active">間取マトリックス</a>
-                    <a href="/design.html" class="nav-link">デザインから探す</a>
-                    <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/rules.html" class="nav-link">ルール</a>
-                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
-                    <a href="/faq.html" class="nav-link">よくある質問</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
+                    <a href="/matrix.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">間取マトリックス</a>
+                    <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
+                    <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
+                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
+                    <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
+                    <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
                 </nav>
             </div>
         </div>
@@ -268,13 +268,8 @@
                         this.depthOptions = Array.from(depthSet).sort((a, b) => a - b);
                     } catch (error) {
                         console.error('Error loading plans:', error);
-                        // ダミーデータ
-                        this.plans = [
-                            { id: 'LX-030A', width: 5460, depth: 9100, tsubo: 30, layout: '3LDK', exteriorImage: '/images/plans/LX-030A-exterior.jpg' },
-                            { id: 'LX-030B', width: 5460, depth: 9100, tsubo: 30, layout: '4LDK', exteriorImage: '/images/plans/LX-030B-exterior.jpg' },
-                            { id: 'LX-033A', width: 6370, depth: 9100, tsubo: 33, layout: '4LDK', exteriorImage: '/images/plans/LX-033A-exterior.jpg' },
-                            { id: 'LX-035A', width: 6825, depth: 9100, tsubo: 35, layout: '5LDK', exteriorImage: '/images/plans/LX-035A-exterior.jpg' }
-                        ];
+                        // 管理画面からプランが追加されるまで空
+                        this.plans = [];
                         
                         // デフォルトのオプション
                         this.widthOptions = [4095, 4550, 5005, 5460, 5915, 6370, 6825, 7280, 7735];

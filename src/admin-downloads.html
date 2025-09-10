@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ダウンロード管理 | LIFE X 管理画面</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
@@ -23,15 +23,21 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X 管理画面</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="/admin.html" class="nav-link">管理ホーム</a>
                     <a href="/admin-plans.html" class="nav-link">プラン管理</a>
-                    <a href="/admin-rules.html" class="nav-link">ルール管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール・ガイドライン管理</a>
                     <a href="/admin-downloads.html" class="nav-link active">ダウンロード管理</a>
+                    <a href="/admin-faq.html" class="nav-link">よくある質問管理</a>
+                    <a href="/admin-system.html" class="nav-link">システム管理</a>
+                    <a href="/admin-report.html" class="nav-link">レポート</a>
                     <a href="/" class="nav-link">サイトに戻る</a>
+                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
+                <div id="userInfo" class="text-sm"></div>
             </div>
         </div>
     </header>
@@ -224,35 +230,7 @@
 
         function adminDownloads() {
             return {
-                categories: [
-                    {
-                        id: 1,
-                        name: '契約書類',
-                        expanded: true,
-                        files: [
-                            { id: 1, name: '工事請負契約書', type: 'pdf', size: 1024000, downloads: 156, updated: '2024-01-15' },
-                            { id: 2, name: '重要事項説明書', type: 'pdf', size: 512000, downloads: 142, updated: '2024-01-14' }
-                        ]
-                    },
-                    {
-                        id: 2,
-                        name: '施工マニュアル',
-                        expanded: true,
-                        files: [
-                            { id: 3, name: '基礎工事マニュアル', type: 'pdf', size: 3072000, downloads: 89, updated: '2024-01-13' },
-                            { id: 4, name: '配管工事ガイド', type: 'pdf', size: 2048000, downloads: 76, updated: '2024-01-12' }
-                        ]
-                    },
-                    {
-                        id: 3,
-                        name: '営業資料',
-                        expanded: true,
-                        files: [
-                            { id: 5, name: '商品カタログ2024', type: 'pdf', size: 5120000, downloads: 234, updated: '2024-01-11' },
-                            { id: 6, name: 'プレゼンテンプレート', type: 'pptx', size: 10240000, downloads: 167, updated: '2024-01-10' }
-                        ]
-                    }
-                ],
+                categories: [],
                 
                 showFileModal: false,
                 showCategoryModal: false,
@@ -418,7 +396,11 @@
                         'xlsx': 'bg-green-100 text-green-800',
                         'docx': 'bg-blue-100 text-blue-800',
                         'pptx': 'bg-orange-100 text-orange-800',
-                        'zip': 'bg-purple-100 text-purple-800'
+                        'zip': 'bg-purple-100 text-purple-800',
+                        'ai': 'bg-pink-100 text-pink-800',
+                        'png': 'bg-indigo-100 text-indigo-800',
+                        'jpg': 'bg-indigo-100 text-indigo-800',
+                        'jpeg': 'bg-indigo-100 text-indigo-800'
                     };
                     return classes[type] || 'bg-gray-100 text-gray-800';
                 },

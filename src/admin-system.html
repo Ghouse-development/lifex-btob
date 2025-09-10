@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>システム管理 | LIFE X 管理者画面</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
@@ -14,22 +14,22 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
-                    <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者</span>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
+                    <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/admin.html" class="nav-link">ダッシュボード</a>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="/admin.html" class="nav-link">管理ホーム</a>
                     <a href="/admin-plans.html" class="nav-link">プラン管理</a>
-                    <a href="/admin-rules.html" class="nav-link">ルール管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール・ガイドライン管理</a>
                     <a href="/admin-downloads.html" class="nav-link">ダウンロード管理</a>
-                    <a href="/admin-faq.html" class="nav-link">FAQ管理</a>
+                    <a href="/admin-faq.html" class="nav-link">よくある質問管理</a>
                     <a href="/admin-system.html" class="nav-link active">システム管理</a>
+                    <a href="/admin-report.html" class="nav-link">レポート</a>
+                    <a href="/" class="nav-link">サイトに戻る</a>
+                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm text-gray-600">管理者</span>
-                    <button onclick="window.location.href='/admin-login.html'" class="text-sm text-red-600 hover:text-red-800">
-                        ログアウト
-                    </button>
                 </div>
             </div>
         </div>
@@ -72,6 +72,7 @@
                         バックアップ
                     </button>
                 </nav>
+                <div id="userInfo" class="text-sm"></div>
             </div>
         </div>
 
@@ -321,9 +322,7 @@
                 activeTab: 'users',
                 showAddUserModal: false,
                 users: [
-                    { id: 1, name: '山田太郎', email: 'yamada@example.com', role: 'スーパー管理者', status: '有効', lastLogin: '2024-01-15 10:30' },
-                    { id: 2, name: '佐藤花子', email: 'sato@example.com', role: '管理者', status: '有効', lastLogin: '2024-01-14 15:45' },
-                    { id: 3, name: '鈴木一郎', email: 'suzuki@example.com', role: '管理者', status: '無効', lastLogin: '2024-01-10 09:00' }
+                    { id: 1, name: '西野秀樹', email: 'hn@ghouse.jp', role: 'スーパー管理者', status: '有効', lastLogin: '初期設定' }
                 ],
                 newUser: {
                     name: '',
@@ -343,16 +342,8 @@
                     smtpServer: 'smtp.example.com',
                     fromEmail: 'noreply@lifex.com'
                 },
-                logs: [
-                    { id: 1, datetime: '2024-01-15 10:30:00', user: '山田太郎', action: 'ログイン', target: '-', ip: '192.168.1.1' },
-                    { id: 2, datetime: '2024-01-15 10:25:00', user: '佐藤花子', action: 'プラン更新', target: 'LX-030A', ip: '192.168.1.2' },
-                    { id: 3, datetime: '2024-01-15 09:15:00', user: '山田太郎', action: 'ユーザー追加', target: '鈴木一郎', ip: '192.168.1.1' }
-                ],
-                backups: [
-                    { id: 1, filename: 'backup_20240115_1030.zip', created: '2024-01-15 10:30', size: '125MB' },
-                    { id: 2, filename: 'backup_20240114_1000.zip', created: '2024-01-14 10:00', size: '123MB' },
-                    { id: 3, filename: 'backup_20240113_1000.zip', created: '2024-01-13 10:00', size: '122MB' }
-                ],
+                logs: [],
+                backups: [],
 
                 init() {
                     // 初期化処理

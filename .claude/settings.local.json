@@ -28,7 +28,12 @@
       "Bash(if ! grep -q \"common.js\" \"$file\")",
       "Bash(then)",
       "Bash(fi)",
-      "Bash(if ! grep -q \"alpinejs\" \"$file\")"
+      "Bash(if ! grep -q \"alpinejs\" \"$file\")",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then echo \"Processing $file...\")",
+      "Bash(npx vite:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プラン一覧 | LIFE X 加盟店専用サイト</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/utils/common.js"></script>
+    <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
@@ -14,17 +14,17 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
                 <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="nav-link">ホーム</a>
-                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
-                    <a href="/design.html" class="nav-link">デザインから探す</a>
-                    <a href="/plans.html" class="nav-link active">プラン一覧</a>
-                    <a href="/rules.html" class="nav-link">ルール</a>
-                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
-                    <a href="/faq.html" class="nav-link">よくある質問</a>
+                    <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
+                    <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
+                    <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
+                    <a href="/plans.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">プラン一覧</a>
+                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
+                    <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
+                    <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
                 </nav>
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
                     <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
@@ -39,7 +39,7 @@
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
                         <a href="/design.html" class="nav-link block">デザインから探す</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                        <a href="/rules.html" class="nav-link block">ルール</a>
+                        <a href="/rules.html" class="nav-link block">ルール・ガイドライン</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
                         <a href="/faq.html" class="nav-link block">よくある質問</a>
                     </div>
@@ -316,7 +316,7 @@
         <!-- Plans Display (Hidden) -->
         <div x-show="false" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <!-- Cards View -->
-            <div x-show="viewMode === 'cards'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div x-show="false" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <template x-for="plan in displayPlans" :key="plan.id">
                     <div class="plan-card">
                         <!-- Thumbnail -->
@@ -397,7 +397,7 @@
             </div>
 
             <!-- Enhanced Table View with Images -->
-            <div x-show="viewMode === 'table'" class="space-y-4">
+            <div x-show="false" class="space-y-4">
                 <template x-for="plan in displayPlans" :key="plan.id">
                     <div class="card hover:shadow-lg transition-shadow">
                         <div class="flex">
@@ -578,7 +578,7 @@
                                                 <span class="text-2xl mr-3">📋</span>
                                                 <div class="text-left">
                                                     <div class="font-medium text-gray-900">実施図</div>
-                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                    <div class="text-sm text-gray-500">PDF・DXF</div>
                                                 </div>
                                             </div>
                                             <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -700,7 +700,7 @@
                                                 <span class="text-2xl mr-3">🚪</span>
                                                 <div class="text-left">
                                                     <div class="font-medium text-gray-900">建具プレゼン</div>
-                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
                                                 </div>
                                             </div>
                                             <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -711,8 +711,8 @@
                                             <div class="flex items-center">
                                                 <span class="text-2xl mr-3">🪟</span>
                                                 <div class="text-left">
-                                                    <div class="font-medium text-gray-900">サッシプレゼン</div>
-                                                    <div class="text-sm text-gray-500">Excel</div>
+                                                    <div class="font-medium text-gray-900">サッシ図面</div>
+                                                    <div class="text-sm text-gray-500">PDF</div>
                                                 </div>
                                             </div>
                                             <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -738,7 +738,7 @@
                                                 <span class="text-2xl mr-3">📄</span>
                                                 <div class="text-left">
                                                     <div class="font-medium text-gray-900">申請図</div>
-                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                    <div class="text-sm text-gray-500">PDF・DXF</div>
                                                 </div>
                                             </div>
                                             <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -750,7 +750,7 @@
                                                 <span class="text-2xl mr-3">🏗️</span>
                                                 <div class="text-left">
                                                     <div class="font-medium text-gray-900">構造図</div>
-                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                    <div class="text-sm text-gray-500">PDF・DXF</div>
                                                 </div>
                                             </div>
                                             <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -762,7 +762,7 @@
                                                 <span class="text-2xl mr-3">🔧</span>
                                                 <div class="text-left">
                                                     <div class="font-medium text-gray-900">プレカット図</div>
-                                                    <div class="text-sm text-gray-500">PDF・DWG</div>
+                                                    <div class="text-sm text-gray-500">PDF・DXF</div>
                                                 </div>
                                             </div>
                                             <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1118,16 +1118,6 @@
         }
     </script>
     
-    <!-- Maintenance Button - Fixed Top Right -->
-    <div class="fixed top-4 right-4 z-50">
-        <button onclick="window.location.href='/admin.html'" 
-                class="bg-white text-gray-400 p-2 rounded-lg shadow-sm hover:bg-gray-50 hover:text-gray-600 transition-all duration-300 opacity-70 hover:opacity-100 border border-gray-200" 
-                title="メンテナンス">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
-            </svg>
-        </button>
-    </div>
 
 <!-- AI Bot Component -->
 <div x-data="aibotComponent()" x-init="init()" class="aibot-container">
