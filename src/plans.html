@@ -927,6 +927,7 @@
                         
                         // 初期表示で全プランを表示
                         this.filteredPlans = [...this.allPlans];
+                        this.displayPlans = [...this.allPlans];
                         this.applySorting();
                         
                         // URLパラメータがある場合のみフィルタを適用
@@ -938,6 +939,8 @@
                         if (hasURLFilters) {
                             this.applyFilters();
                         }
+                        
+                        console.log('Init complete - Total plans:', this.totalPlans, 'Filtered:', this.filteredPlans.length);
                     } catch (error) {
                         console.error('Error loading plans:', error);
                         lifeXAPI.showToast('プランデータの読み込みに失敗しました', 'error');
@@ -948,8 +951,13 @@
 
                 async loadPlans() {
                     const plansData = await lifeXAPI.getPlansIndex();
-                    this.allPlans = plansData.plans.filter(plan => plan.status === 'published');
+                    console.log('Loading plans data:', plansData);
+                    // statusがpublished、active、または未設定のプランを表示
+                    this.allPlans = (plansData.plans || []).filter(plan => 
+                        !plan.status || plan.status === 'published' || plan.status === 'active'
+                    );
                     this.totalPlans = this.allPlans.length;
+                    console.log('Filtered plans:', this.allPlans.length, 'plans');
                     
                     // Extract available tags with custom order
                     const tagOrder = [
