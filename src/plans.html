@@ -17,15 +17,28 @@
                     <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
-                    <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
-                    <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
-                    <a href="/plans.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">プラン一覧</a>
-                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
-                    <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
-                    <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
-                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Mode Toggle Button - Repositioned to left of Home -->
+                    <button 
+                        onclick="window.modeManager.toggleMode()" 
+                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:scale-105"
+                        title="モードを切り替え">
+                        <span class="mode-icon text-lg">🤝</span>
+                        <span class="mode-text">商談モード</span>
+                    </button>
+                    
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
+                        <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
+                        <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
+                        <a href="/plans.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">プラン一覧</a>
+                        <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
+                        <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
+                        <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
+                    </nav>
+                </div>
+                
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
                     <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,7 +79,7 @@
                     <p class="text-gray-600">全プランの詳細資料を確認できます</p>
                 </div>
                 <div class="flex items-center space-x-3 mt-4 md:mt-0">
-                    <span x-text="`${filteredPlans.length}件 / ${totalPlans}件`" class="text-sm text-gray-500"></span>
+                    <span x-text="`${displayPlans.length}件 / ${totalPlans}件`" class="text-sm text-gray-500"></span>
                 </div>
             </div>
         </div>
@@ -154,9 +167,9 @@
                         </div>
                     </div>
 
-                    <!-- 売価フィルタ -->
+                    <!-- 想定販売価格フィルタ -->
                     <div>
-                        <label class="form-label">売価</label>
+                        <label class="form-label">想定販売価格</label>
                         <div class="flex space-x-2">
                             <input type="number" x-model="filters.price.min" @input="applyFilters()" placeholder="万円" class="form-input flex-1">
                             <span class="flex items-center text-gray-500">~</span>
@@ -189,9 +202,9 @@
                             <option value="updated">更新日</option>
                             <option value="name">プラン名</option>
                             <option value="tsubo">坪数</option>
-                            <option value="sell">売価</option>
-                            <option value="cost">原価</option>
-                            <option value="gross">粗利</option>
+                            <option value="sell">想定販売価格</option>
+                            <option value="cost">想定原価</option>
+                            <option value="gross">想定粗利</option>
                         </select>
                         <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; applySorting()" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
                             <svg :class="sortOrder === 'desc' ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -210,8 +223,8 @@
         <div x-show="!loading" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
             <h2 class="text-2xl font-bold text-gray-900 mb-6">全プラン一覧</h2>
             <div class="grid grid-cols-1 gap-4">
-                <template x-for="plan in filteredPlans" :key="plan.id">
-                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer flex" @click="showPlanDetail(plan)">
+                <template x-for="plan in displayPlans" :key="plan.id">
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow flex">
                         <!-- Images Section (Left) -->
                         <div class="w-72 flex-shrink-0 p-4 border-r border-gray-200">
                             <div class="grid grid-cols-3 gap-2">
@@ -266,12 +279,30 @@
                         <div class="flex-1 p-4">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 class="text-lg font-bold text-gray-900" x-text="plan.name || plan.id"></h3>
-                                    <p class="text-sm text-gray-500" x-text="'ID: ' + plan.id"></p>
+                                    <h3 class="text-xl font-bold text-primary-600 mb-1" x-text="plan.id"></h3>
+                                    <template x-if="plan.name && plan.name !== plan.id">
+                                        <p class="text-sm text-gray-500" x-text="plan.name"></p>
+                                    </template>
                                 </div>
-                                <button class="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700">
+                                <button @click="showPlanDetail(plan)" class="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700">
                                     詳細を見る
                                 </button>
+                            </div>
+                            
+                            <!-- Floor Information -->
+                            <div class="grid grid-cols-3 gap-4 text-sm mb-3">
+                                <div>
+                                    <p class="text-gray-600">建物階数</p>
+                                    <p class="font-semibold" x-text="plan.floors ? plan.floors + '階建て' : '-'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">LDK階数</p>
+                                    <p class="font-semibold" x-text="plan.ldkFloor ? plan.ldkFloor + '階' : '-'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-600">水廻り階数</p>
+                                    <p class="font-semibold" x-text="plan.bathFloor ? plan.bathFloor + '階' : '-'"></p>
+                                </div>
                             </div>
                             
                             <div class="grid grid-cols-5 gap-4 text-sm">
@@ -281,18 +312,18 @@
                                 </div>
                                 <div>
                                     <p class="text-gray-600">奥行</p>
-                                    <p class="font-semibold" x-text="(plan.depth || '-') + 'm'"></p>
+                                    <p class="font-semibold" x-text="(plan.depth || '-') + 'mm'"></p>
                                 </div>
                                 <div>
                                     <p class="text-gray-600">間口</p>
-                                    <p class="font-semibold" x-text="(plan.width || '-') + 'm'"></p>
+                                    <p class="font-semibold" x-text="(plan.width || '-') + 'mm'"></p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-600">売価<span class="text-red-500 text-xs ml-1">(税込)</span></p>
+                                    <p class="text-gray-600">想定販売価格<span class="text-red-500 text-xs ml-1">(税込)</span></p>
                                     <p class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-600">粗利<span class="text-blue-500 text-xs ml-1">(税別)</span></p>
+                                    <p class="text-gray-600">想定粗利<span class="text-blue-500 text-xs ml-1">(税別)</span></p>
                                     <p class="font-semibold text-green-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'"></p>
                                 </div>
                             </div>
@@ -342,6 +373,22 @@
                                 <span x-text="plan.id" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded"></span>
                             </div>
                             
+                            <!-- Floor Information -->
+                            <div class="grid grid-cols-3 gap-4 mb-3 text-sm">
+                                <div>
+                                    <div class="text-gray-500">建物階数</div>
+                                    <div x-text="plan.floors ? plan.floors + '階建て' : '-'" class="font-semibold"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500">LDK階数</div>
+                                    <div x-text="plan.ldkFloor ? plan.ldkFloor + '階' : '-'" class="font-semibold"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500">水廻り階数</div>
+                                    <div x-text="plan.bathFloor ? plan.bathFloor + '階' : '-'" class="font-semibold"></div>
+                                </div>
+                            </div>
+                            
                             <!-- Specs -->
                             <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
                                 <div>
@@ -350,26 +397,26 @@
                                 </div>
                                 <div>
                                     <div class="text-gray-500">奥行</div>
-                                    <div x-text="plan.depth + 'm'" class="font-semibold"></div>
+                                    <div x-text="plan.depth + 'mm'" class="font-semibold"></div>
                                 </div>
                                 <div>
                                     <div class="text-gray-500">間口</div>
-                                    <div x-text="plan.width + 'm'" class="font-semibold"></div>
+                                    <div x-text="plan.width + 'mm'" class="font-semibold"></div>
                                 </div>
                             </div>
                             
                             <!-- Prices -->
                             <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
                                 <div>
-                                    <div class="text-gray-500">売価<span class="text-red-500 text-xs">(税込)</span></div>
+                                    <div class="text-gray-500">想定販売価格<span class="text-red-500 text-xs">(税込)</span></div>
                                     <div x-text="lifeXAPI.formatPrice(plan.prices.sell)" class="price-display text-sm"></div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-500">原価<span class="text-blue-500 text-xs">(税別)</span></div>
+                                    <div class="text-gray-500">想定原価<span class="text-blue-500 text-xs">(税別)</span></div>
                                     <div x-text="lifeXAPI.formatPrice(plan.prices.cost)" class="font-semibold text-sm"></div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-500">粗利<span class="text-blue-500 text-xs">(税別)</span></div>
+                                    <div class="text-gray-500">想定粗利<span class="text-blue-500 text-xs">(税別)</span></div>
                                     <div x-text="lifeXAPI.formatPrice(plan.prices.gross)" class="font-semibold text-green-600 text-sm"></div>
                                 </div>
                             </div>
@@ -447,6 +494,22 @@
                                     </button>
                                 </div>
                                 
+                                <!-- Floor Information -->
+                                <div class="grid grid-cols-3 gap-4 mb-3">
+                                    <div>
+                                        <div class="text-xs text-gray-600">建物階数</div>
+                                        <div class="text-sm font-semibold" x-text="plan.floors ? plan.floors + '階建て' : '-'"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">LDK階数</div>
+                                        <div class="text-sm font-semibold" x-text="plan.ldkFloor ? plan.ldkFloor + '階' : '-'"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-xs text-gray-600">水廻り階数</div>
+                                        <div class="text-sm font-semibold" x-text="plan.bathFloor ? plan.bathFloor + '階' : '-'"></div>
+                                    </div>
+                                </div>
+                                
                                 <div class="grid grid-cols-5 gap-4 mb-4">
                                     <div>
                                         <div class="text-xs text-gray-600">坪数</div>
@@ -454,18 +517,18 @@
                                     </div>
                                     <div>
                                         <div class="text-xs text-gray-600">奥行</div>
-                                        <div class="text-lg font-semibold" x-text="plan.depth + 'm'"></div>
+                                        <div class="text-lg font-semibold" x-text="plan.depth + 'mm'"></div>
                                     </div>
                                     <div>
                                         <div class="text-xs text-gray-600">間口</div>
-                                        <div class="text-lg font-semibold" x-text="plan.width + 'm'"></div>
+                                        <div class="text-lg font-semibold" x-text="plan.width + 'mm'"></div>
                                     </div>
                                     <div>
-                                        <div class="text-xs text-gray-600">売価<span class="text-red-500 ml-1">(税込)</span></div>
+                                        <div class="text-xs text-gray-600">想定販売価格<span class="text-red-500 ml-1">(税込)</span></div>
                                         <div class="text-lg font-semibold text-primary-600" x-text="lifeXAPI.formatPrice(plan.prices.sell)"></div>
                                     </div>
                                     <div>
-                                        <div class="text-xs text-gray-600">粗利<span class="text-blue-500 ml-1">(税別)</span></div>
+                                        <div class="text-xs text-gray-600">想定粗利<span class="text-blue-500 ml-1">(税別)</span></div>
                                         <div class="text-lg font-semibold text-green-600" x-text="lifeXAPI.formatPrice(plan.prices.gross)"></div>
                                     </div>
                                 </div>
@@ -482,7 +545,7 @@
             </div>
 
             <!-- No Results -->
-            <div x-show="!loading && filteredPlans.length === 0" class="card text-center py-12">
+            <div x-show="!loading && displayPlans.length === 0" class="card text-center py-12">
                 <div class="text-gray-400 mb-4">
                     <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -518,20 +581,20 @@
                                 <div class="text-gray-600 text-sm">坪数</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.depth + 'm'"></div>
+                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.depth + 'mm'"></div>
                                 <div class="text-gray-600 text-sm">奥行</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.width + 'm'"></div>
+                                <div class="text-2xl font-bold text-primary-600" x-text="selectedPlan?.width + 'mm'"></div>
                                 <div class="text-gray-600 text-sm">間口</div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-green-600" x-text="lifeXAPI.formatPrice(selectedPlan?.prices.sell)"></div>
-                                <div class="text-gray-600 text-sm">売価<span class="text-red-500 ml-1">(税込)</span></div>
+                                <div class="text-gray-600 text-sm">想定販売価格<span class="text-red-500 ml-1">(税込)</span></div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-green-600" x-text="lifeXAPI.formatPrice(selectedPlan?.prices.gross)"></div>
-                                <div class="text-gray-600 text-sm">粗利<span class="text-blue-500 ml-1">(税別)</span></div>
+                                <div class="text-gray-600 text-sm">想定粗利<span class="text-blue-500 ml-1">(税別)</span></div>
                             </div>
                         </div>
 
@@ -956,6 +1019,49 @@
                     this.allPlans = (plansData.plans || []).filter(plan => 
                         !plan.status || plan.status === 'published' || plan.status === 'active'
                     );
+                    
+                    // 画像パスの設定（管理画面との互換性のため）
+                    this.allPlans = this.allPlans.map((plan) => {
+                        // デバッグログ
+                        console.log('Plans - mapping plan:', plan.id, {
+                            exteriorImage: plan.exteriorImage ? 'Has direct' : 'No direct',
+                            imagesExterior: plan.images?.exterior ? 'Has images' : 'No images',
+                            filesExterior: plan.files?.images?.exterior?.data ? 'Has files' : 'No files'
+                        });
+                        
+                        // 優先順位に基づいて有効な画像を取得
+                        const exteriorSources = [
+                            plan.exteriorImage,
+                            plan.images?.exterior,
+                            plan.files?.images?.exterior?.data
+                        ].filter(source => source && source.trim() !== '');
+                        
+                        const interiorSources = [
+                            plan.interiorImage,
+                            plan.images?.interior,
+                            plan.files?.images?.interior?.data
+                        ].filter(source => source && source.trim() !== '');
+                        
+                        const floorPlan1FSources = [
+                            plan.floorPlans?.[0],
+                            plan.floorPlanImage,
+                            plan.files?.floorPlans?.[1]?.data
+                        ].filter(source => source && source.trim() !== '');
+                        
+                        const floorPlan2FSources = [
+                            plan.floorPlans?.[1],
+                            plan.files?.floorPlans?.[2]?.data
+                        ].filter(source => source && source.trim() !== '');
+                        
+                        return {
+                            ...plan,
+                            exteriorImage: exteriorSources[0] || '',
+                            interiorImage: interiorSources[0] || '',
+                            floorPlan1F: floorPlan1FSources[0] || '',
+                            floorPlan2F: floorPlan2FSources[0] || ''
+                        };
+                    });
+                    
                     this.totalPlans = this.allPlans.length;
                     console.log('Filtered plans:', this.allPlans.length, 'plans');
                     
@@ -1089,9 +1195,8 @@
 
 
                 showPlanDetail(plan) {
-                    this.selectedPlan = plan;
-                    this.showDetailModal = true;
-                    document.body.style.overflow = 'hidden';
+                    // Navigate to plan detail page with plan ID
+                    window.location.href = `/plan-detail.html?id=${encodeURIComponent(plan.id)}`;
                 },
 
                 closeDetailModal() {

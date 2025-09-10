@@ -29,7 +29,31 @@
                     <a href="/" class="nav-link">サイトに戻る</a>
                     <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
-                <div id="userInfo" class="text-sm"></div>
+                
+                <!-- Mobile Menu -->
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border border-gray-200 p-4 z-50 min-w-48">
+                        <a href="/admin.html" class="block py-2 text-sm text-gray-900 font-medium">管理ホーム</a>
+                        <a href="/admin-plans.html" class="block py-2 text-sm text-gray-600">プラン管理</a>
+                        <a href="/admin-rules.html" class="block py-2 text-sm text-gray-600">ルール・ガイドライン管理</a>
+                        <a href="/admin-downloads.html" class="block py-2 text-sm text-gray-600">ダウンロード管理</a>
+                        <a href="/admin-faq.html" class="block py-2 text-sm text-gray-600">よくある質問管理</a>
+                        <a href="/admin-system.html" class="block py-2 text-sm text-gray-600">システム管理</a>
+                        <a href="/admin-report.html" class="block py-2 text-sm text-gray-600">レポート</a>
+                        <div class="border-t border-gray-200 mt-3 pt-3">
+                            <a href="/" class="block py-2 text-sm text-gray-600">サイトに戻る</a>
+                            <button @click="logout()" class="block py-2 text-sm text-red-600 hover:text-red-800 text-left w-full">ログアウト</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="userInfo" class="hidden md:block text-sm"></div>
             </div>
         </div>
     </header>
@@ -421,18 +445,27 @@
                         } else {
                             this.stats.admins = 0;
                         }
+                        
+                        // バックアップ統計
+                        const backupData = localStorage.getItem('system_backup_info');
+                        if (backupData) {
+                            const backup = JSON.parse(backupData);
+                            this.stats.lastBackup = backup.lastBackup || '-';
+                        } else {
+                            this.stats.lastBackup = '-';
+                        }
                     } catch (error) {
                         console.error('Failed to load stats:', error);
                     }
                 },
 
-                quickAction(action) {
+                async quickAction(action) {
                     switch(action) {
                         case 'backup':
-                            lifeXAPI.showToast('バックアップを開始しました', 'success');
+                            await this.performBackup();
                             break;
                         case 'export':
-                            lifeXAPI.showToast('データのエクスポートを準備中です', 'info');
+                            await this.exportData();
                             break;
                         case 'report':
                             lifeXAPI.showToast('月次レポートを生成中です', 'info');
@@ -440,6 +473,93 @@
                         case 'settings':
                             lifeXAPI.showToast('システム設定を開きます', 'info');
                             break;
+                    }
+                },
+                
+                async performBackup() {
+                    try {
+                        lifeXAPI.showToast('バックアップを開始しました', 'info');
+                        
+                        // 全てのLocalStorageデータを収集
+                        const backupData = {
+                            timestamp: new Date().toISOString(),
+                            plans: localStorage.getItem('plans_data'),
+                            downloads: localStorage.getItem('downloads_data'),
+                            rules: localStorage.getItem('rules_categories_data'),
+                            faqs: localStorage.getItem('faq_data'),
+                            admins: localStorage.getItem('admin_users_data')
+                        };
+                        
+                        // バックアップファイルを生成してダウンロード
+                        const dataStr = JSON.stringify(backupData, null, 2);
+                        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                        const url = URL.createObjectURL(dataBlob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `lifex-backup-${new Date().toISOString().split('T')[0]}.json`;
+                        link.click();
+                        URL.revokeObjectURL(url);
+                        
+                        // バックアップ情報を更新
+                        const backupInfo = {
+                            lastBackup: new Date().toLocaleString('ja-JP'),
+                            totalSize: dataStr.length
+                        };
+                        localStorage.setItem('system_backup_info', JSON.stringify(backupInfo));
+                        
+                        // 統計を更新
+                        this.stats.lastBackup = backupInfo.lastBackup;
+                        
+                        lifeXAPI.showToast('バックアップが完了しました', 'success');
+                    } catch (error) {
+                        console.error('Backup failed:', error);
+                        lifeXAPI.showToast('バックアップに失敗しました', 'error');
+                    }
+                },
+                
+                async exportData() {
+                    try {
+                        lifeXAPI.showToast('データエクスポートを開始しました', 'info');
+                        
+                        // CSVエクスポート用のプランデータを取得
+                        const plansData = await lifeXAPI.getPlansIndex();
+                        const plans = plansData.plans || [];
+                        
+                        if (plans.length === 0) {
+                            lifeXAPI.showToast('エクスポートするプランがありません', 'warning');
+                            return;
+                        }
+                        
+                        // CSV形式に変換
+                        const headers = ['プランID', '階数', '坪数', '間取り', '想定販売価格', '想定原価', '想定粗利', 'ステータス', '更新日'];
+                        const csvData = [
+                            headers.join(','),
+                            ...plans.map(plan => [
+                                plan.id || '',
+                                plan.floors == 1 ? '平屋' : plan.floors == 2 ? '2階建て' : '3階建て',
+                                plan.tsubo || '',
+                                plan.layout || '',
+                                plan.prices?.sell ? Math.round(plan.prices.sell / 10000) + '万円' : '',
+                                plan.prices?.cost ? Math.round(plan.prices.cost / 10000) + '万円' : '',
+                                plan.prices?.gross ? Math.round(plan.prices.gross / 10000) + '万円' : '',
+                                plan.status === 'published' ? '公開中' : '下書き',
+                                plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString('ja-JP') : ''
+                            ].join(','))
+                        ].join('\n');
+                        
+                        // CSVファイルをダウンロード
+                        const csvBlob = new Blob(['\uFEFF' + csvData], {type: 'text/csv;charset=utf-8'});
+                        const csvUrl = URL.createObjectURL(csvBlob);
+                        const link = document.createElement('a');
+                        link.href = csvUrl;
+                        link.download = `lifex-plans-${new Date().toISOString().split('T')[0]}.csv`;
+                        link.click();
+                        URL.revokeObjectURL(csvUrl);
+                        
+                        lifeXAPI.showToast('データエクスポートが完了しました', 'success');
+                    } catch (error) {
+                        console.error('Export failed:', error);
+                        lifeXAPI.showToast('データエクスポートに失敗しました', 'error');
                     }
                 }
             }

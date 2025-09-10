@@ -21,6 +21,38 @@
             writing-mode: vertical-rl;
             text-orientation: mixed;
         }
+        
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .matrix-cell {
+                min-width: 90px;
+                min-height: 90px;
+            }
+            .plan-thumbnail {
+                width: 60px;
+                height: 60px;
+            }
+            .matrix-container {
+                font-size: 12px;
+            }
+            .axis-label {
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .matrix-cell {
+                min-width: 70px;
+                min-height: 70px;
+            }
+            .plan-thumbnail {
+                width: 45px;
+                height: 45px;
+            }
+            .matrix-container {
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body class="h-full bg-gray-50">
@@ -32,15 +64,64 @@
                     <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
                     <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
-                    <a href="/matrix.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">間取マトリックス</a>
-                    <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
-                    <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
-                    <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
-                    <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
-                    <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
-                </nav>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Mode Toggle Button - Repositioned to left of Home -->
+                    <button 
+                        onclick="window.modeManager.toggleMode()" 
+                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:scale-105"
+                        title="モードを切り替え">
+                        <span class="mode-icon text-lg">🤝</span>
+                        <span class="mode-text">商談モード</span>
+                    </button>
+                    
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="/" class="text-gray-600 hover:text-gray-900 text-sm">ホーム</a>
+                        <a href="/matrix.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">間取マトリックス</a>
+                        <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
+                        <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
+                        <a href="/rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール・ガイドライン</a>
+                        <a href="/downloads.html" class="text-gray-600 hover:text-gray-900 text-sm">ダウンロード</a>
+                        <a href="/faq.html" class="text-gray-600 hover:text-gray-900 text-sm">よくある質問</a>
+                    </nav>
+                    
+                    <a href="/admin.html" class="hidden md:flex text-gray-300 hover:text-gray-500 opacity-60 hover:opacity-80 transition-all" title="管理者画面">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </a>
+                </div>
+                
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Mobile Menu -->
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border border-gray-200 p-4 z-50 min-w-48">
+                        <a href="/" class="block py-2 text-sm text-gray-600">ホーム</a>
+                        <a href="/matrix.html" class="block py-2 text-sm text-gray-900 font-medium">間取マトリックス</a>
+                        <a href="/design.html" class="block py-2 text-sm text-gray-600">デザインから探す</a>
+                        <a href="/plans.html" class="block py-2 text-sm text-gray-600">プラン一覧</a>
+                        <a href="/rules.html" class="block py-2 text-sm text-gray-600">ルール・ガイドライン</a>
+                        <a href="/downloads.html" class="block py-2 text-sm text-gray-600">ダウンロード</a>
+                        <a href="/faq.html" class="block py-2 text-sm text-gray-600">よくある質問</a>
+                        
+                        <!-- Mobile Mode Toggle -->
+                        <div class="border-t border-gray-200 mt-3 pt-3">
+                            <button 
+                                onclick="window.modeManager.toggleMode()" 
+                                class="mode-toggle-button w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md"
+                                title="モードを切り替え">
+                                <span class="mode-icon text-lg">🤝</span>
+                                <span class="mode-text">商談モード</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -68,7 +149,7 @@
             </div>
 
             <!-- Matrix Container -->
-            <div x-show="!loading" class="card overflow-x-auto">
+            <div x-show="!loading" class="card overflow-x-auto matrix-container">
                 <div class="flex">
                     <!-- 縦軸ラベル（建物奥行） -->
                     <div class="flex items-center justify-center pr-4">
@@ -229,6 +310,11 @@
                 selectedDepth: null,
                 planMatrix: {},
 
+                // 455単位で繰り上げる関数
+                roundUpTo455(value) {
+                    return Math.ceil(value / 455) * 455;
+                },
+
                 async init() {
                     try {
                         // プランデータの読み込み
@@ -245,15 +331,42 @@
                     try {
                         const data = await lifeXAPI.getPlansIndex();
                         this.plans = data.plans || [];
+                        
+                        // デバッグログ
+                        console.log('Matrix - Loaded plans:', this.plans);
+                        if (this.plans.length > 0) {
+                            console.log('Matrix - First plan data:', this.plans[0]);
+                            console.log('Matrix - First plan images before mapping:', {
+                                exteriorImage: this.plans[0].exteriorImage,
+                                images: this.plans[0].images,
+                                imagesExterior: this.plans[0].images?.exterior,
+                                hasExterior: !!this.plans[0].exteriorImage || !!this.plans[0].images?.exterior,
+                                imagesExteriorLength: this.plans[0].images?.exterior ? this.plans[0].images.exterior.length : 0
+                            });
+                        }
+                        
+                        // 画像パスの設定（管理画面との互換性のため）
+                        this.plans = this.plans.map((plan) => ({
+                            ...plan,
+                            exteriorImage: plan.exteriorImage || plan.images?.exterior || plan.files?.images?.exterior?.data || '',
+                            interiorImage: plan.interiorImage || plan.images?.interior || plan.files?.images?.interior?.data || '',
+                            floorPlanImage: plan.floorPlanImage || plan.floorPlans?.[0] || ''
+                        }));
+                        
+                        // マッピング後のデバッグログ
+                        if (this.plans.length > 0) {
+                            console.log('Matrix - After mapping, first plan exterior:', this.plans[0].exteriorImage ? 'Has image' : 'No image');
+                        }
+                        
                         this.totalPlans = this.plans.length;
                         
-                        // 登録されているプランから間口と奥行のオプションを自動生成
+                        // 登録されているプランから間口と奥行のオプションを自動生成（455単位で繰り上げ）
                         const widthSet = new Set();
                         const depthSet = new Set();
                         
                         this.plans.forEach(plan => {
-                            if (plan.width) widthSet.add(plan.width);
-                            if (plan.depth) depthSet.add(plan.depth);
+                            if (plan.width) widthSet.add(this.roundUpTo455(plan.width));
+                            if (plan.depth) depthSet.add(this.roundUpTo455(plan.depth));
                         });
                         
                         // デフォルトの範囲も含める（4.5P～8.5P、7.5P～15P）
@@ -277,19 +390,26 @@
                     }
                 },
 
+
                 buildMatrix() {
                     // マトリックスデータを構築
                     this.planMatrix = {};
                     
                     this.plans.forEach(plan => {
                         if (plan.width && plan.depth) {
-                            const key = `${plan.width}-${plan.depth}`;
+                            // 455単位で繰り上げてマトリックスに配置
+                            const roundedWidth = this.roundUpTo455(plan.width);
+                            const roundedDepth = this.roundUpTo455(plan.depth);
+                            const key = `${roundedWidth}-${roundedDepth}`;
+                            
                             if (!this.planMatrix[key]) {
                                 this.planMatrix[key] = [];
                             }
                             this.planMatrix[key].push(plan);
                         }
                     });
+                    
+                    console.log('Matrix built with rounded dimensions:', this.planMatrix);
                 },
 
                 getCellPlans(width, depth) {
