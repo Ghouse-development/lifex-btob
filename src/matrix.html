@@ -108,9 +108,8 @@
                                                 
                                                 <template x-if="getCellData(depth, width).hasPlans">
                                                     <div class="text-center">
-                                                        <div class="text-xs text-gray-600 mb-1">画像予定</div>
-                                                        <div class="w-8 h-8 bg-primary-300 rounded mx-auto mb-1"></div>
-                                                        <div class="text-xs font-medium text-primary-700">クリック</div>
+                                                        <div class="text-sm font-bold text-primary-700" x-text="getCellData(depth, width).planName"></div>
+                                                        <div class="text-xs text-gray-600 mt-1">クリック</div>
                                                     </div>
                                                 </template>
                                                 
@@ -216,12 +215,61 @@
                 },
 
                 getCellData(depth, width) {
-                    // この組み合わせでプランがあるかチェック（現在はダミーデータ）
-                    // 実際のプランデータに間口・奥行の情報があれば、ここでマッチング処理を行う
-                    const hasPlans = Math.random() > 0.7; // ダミーデータ：30%の確率でプランあり
+                    // 26パターンのプランデータ定義（プラン名付き）
+                    const planPatterns = [
+                        // 間口4.5P (4095mm)
+                        { depth: '7280', width: '4095', planName: 'LX-20A' },
+                        { depth: '8190', width: '4095', planName: 'LX-22A' },
+                        { depth: '9100', width: '4095', planName: 'LX-25A' },
+                        
+                        // 間口5P (4550mm)
+                        { depth: '7735', width: '4550', planName: 'LX-22B' },
+                        { depth: '8645', width: '4550', planName: 'LX-24B' },
+                        { depth: '9555', width: '4550', planName: 'LX-27B' },
+                        { depth: '10465', width: '4550', planName: 'LX-29B' },
+                        
+                        // 間口5.5P (5005mm)
+                        { depth: '8190', width: '5005', planName: 'LX-25C' },
+                        { depth: '9100', width: '5005', planName: 'LX-28C' },
+                        { depth: '10010', width: '5005', planName: 'LX-30C' },
+                        { depth: '10920', width: '5005', planName: 'LX-33C' },
+                        
+                        // 間口6P (5460mm)
+                        { depth: '8645', width: '5460', planName: 'LX-28D' },
+                        { depth: '9555', width: '5460', planName: 'LX-31D' },
+                        { depth: '10465', width: '5460', planName: 'LX-34D' },
+                        { depth: '11375', width: '5460', planName: 'LX-37D' },
+                        
+                        // 間口6.5P (5915mm)
+                        { depth: '9100', width: '5915', planName: 'LX-32E' },
+                        { depth: '10010', width: '5915', planName: 'LX-35E' },
+                        { depth: '10920', width: '5915', planName: 'LX-38E' },
+                        
+                        // 間口7P (6370mm)
+                        { depth: '9555', width: '6370', planName: 'LX-36F' },
+                        { depth: '10465', width: '6370', planName: 'LX-39F' },
+                        { depth: '11375', width: '6370', planName: 'LX-42F' },
+                        
+                        // 間口7.5P (6825mm)
+                        { depth: '10010', width: '6825', planName: 'LX-40G' },
+                        { depth: '10920', width: '6825', planName: 'LX-44G' },
+                        
+                        // 間口8P (7280mm)
+                        { depth: '10465', width: '7280', planName: 'LX-45H' },
+                        { depth: '11375', width: '7280', planName: 'LX-49H' },
+                        
+                        // 間口8.5P (7735mm)
+                        { depth: '10920', width: '7735', planName: 'LX-50I' }
+                    ];
+                    
+                    // 指定された間口と奥行の組み合わせがプランパターンに存在するかチェック
+                    const matchedPlan = planPatterns.find(pattern => 
+                        pattern.depth === depth.mm && pattern.width === width.mm
+                    );
                     
                     return {
-                        hasPlans,
+                        hasPlans: !!matchedPlan,
+                        planName: matchedPlan?.planName || null,
                         depth: depth.mm,
                         width: width.mm
                     };
@@ -243,11 +291,15 @@
                     if (cellData.hasPlans) {
                         // プラン詳細またはプラン一覧ページに遷移
                         if (window.lifeXAPI && window.lifeXAPI.showToast) {
-                            window.lifeXAPI.showToast(`間口${width.mm}mm × 奥行${depth.mm}mmのプラン詳細を表示`, 'info');
+                            const tsubo = Math.round((parseFloat(width.mm) * parseFloat(depth.mm)) / 3.3 / 1000000 * 10) / 10;
+                            window.lifeXAPI.showToast(
+                                `プラン: ${cellData.planName}\n間口${width.p}P(${width.mm}mm) × 奥行${depth.p}P(${depth.mm}mm)\n約${tsubo}坪`, 
+                                'info'
+                            );
                         }
                         
                         // 実際の実装では以下のようにプランページにリダイレクト
-                        // window.location.href = `/plans.html?width=${width.mm}&depth=${depth.mm}`;
+                        // window.location.href = `/plans.html?plan=${cellData.planName}`;
                     } else {
                         if (window.lifeXAPI && window.lifeXAPI.showToast) {
                             window.lifeXAPI.showToast('この組み合わせのプランはありません', 'info');
