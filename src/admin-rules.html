@@ -279,8 +279,14 @@
                 },
 
                 async loadCategories() {
-                    // 実際にはAPIから取得
-                    this.categories = [];
+                    // LocalStorageから取得を試みる
+                    const localData = localStorage.getItem('rules_categories_data');
+                    if (localData) {
+                        this.categories = JSON.parse(localData).categories || [];
+                    } else {
+                        // 実際にはAPIから取得
+                        this.categories = [];
+                    }
                 },
 
                 initSortable() {
@@ -322,6 +328,7 @@
                         cat.order = index + 1;
                     });
                     
+                    this.saveToLocalStorage();
                     lifeXAPI.showToast('カテゴリの順番を更新しました', 'success');
                 },
 
@@ -338,6 +345,7 @@
                             rule.order = index + 1;
                         });
                         
+                        this.saveToLocalStorage();
                         lifeXAPI.showToast('ルールの順番を更新しました', 'success');
                     }
                 },
@@ -383,6 +391,7 @@
                     }
                     
                     this.closeCategoryModal();
+                    this.saveToLocalStorage();
                     this.$nextTick(() => this.initSortable());
                 },
 
@@ -394,6 +403,7 @@
                     
                     if (confirm(`カテゴリ「${category.name}」を削除しますか？`)) {
                         this.categories = this.categories.filter(c => c.id !== category.id);
+                        this.saveToLocalStorage();
                         lifeXAPI.showToast('カテゴリを削除しました', 'success');
                     }
                 },
@@ -435,7 +445,7 @@
                         return;
                     }
 
-                    const category = this.categories.find(c => c.id === this.ruleFormData.categoryId);
+                    const category = this.categories.find(c => c.id == this.ruleFormData.categoryId);
                     if (!category) {
                         lifeXAPI.showToast('カテゴリを選択してください', 'error');
                         return;
@@ -462,11 +472,13 @@
                     }
                     
                     this.closeRuleModal();
+                    this.saveToLocalStorage();
                 },
 
                 deleteRule(rule, category) {
                     if (confirm(`ルール「${rule.title}」を削除しますか？`)) {
                         category.rules = category.rules.filter(r => r.id !== rule.id);
+                        this.saveToLocalStorage();
                         lifeXAPI.showToast('ルールを削除しました', 'success');
                     }
                 },
@@ -475,6 +487,11 @@
                     this.showRuleModal = false;
                     this.editingRule = null;
                     this.selectedCategory = null;
+                },
+                
+                saveToLocalStorage() {
+                    localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
+                    console.log('Saved rules to localStorage', this.categories);
                 }
             };
         }
