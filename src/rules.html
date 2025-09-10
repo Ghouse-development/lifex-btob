@@ -82,41 +82,41 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">💰 価格・見積りルール</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('標準価格の適用範囲')" class="cursor-pointer">• 標準価格の適用範囲</li>
-                                <li @click="showDetail('オプション価格設定基準')" class="cursor-pointer">• オプション価格設定基準</li>
-                                <li @click="showDetail('値引き・割引の制限事項')" class="cursor-pointer">• 値引き・割引の制限事項</li>
-                                <li @click="showDetail('見積書作成の標準フォーマット')" class="cursor-pointer">• 見積書作成の標準フォーマット</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('標準価格の適用範囲')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 標準価格の適用範囲</li>
+                                <li @click="showDetail('オプション価格設定基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• オプション価格設定基準</li>
+                                <li @click="showDetail('値引き・割引の制限事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 値引き・割引の制限事項</li>
+                                <li @click="showDetail('見積書作成の標準フォーマット')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 見積書作成の標準フォーマット</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📞 お客様対応基準</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('初回面談時の説明事項')" class="cursor-pointer">• 初回面談時の説明事項</li>
-                                <li @click="showDetail('契約前の重要事項説明')" class="cursor-pointer">• 契約前の重要事項説明</li>
-                                <li @click="showDetail('アフターサービス対応')" class="cursor-pointer">• アフターサービス対応</li>
-                                <li @click="showDetail('クレーム対応フロー')" class="cursor-pointer">• クレーム対応フロー</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('初回面談時の説明事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 初回面談時の説明事項</li>
+                                <li @click="showDetail('契約前の重要事項説明')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 契約前の重要事項説明</li>
+                                <li @click="showDetail('アフターサービス対応')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• アフターサービス対応</li>
+                                <li @click="showDetail('クレーム対応フロー')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• クレーム対応フロー</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📢 広告・宣伝ルール</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('LIFE Xブランドガイドライン')" class="cursor-pointer">• LIFE Xブランドガイドライン</li>
-                                <li @click="showDetail('広告表現の制限事項')" class="cursor-pointer">• 広告表現の制限事項</li>
-                                <li @click="showDetail('SNS・Web広告の運用基準')" class="cursor-pointer">• SNS・Web広告の運用基準</li>
-                                <li @click="showDetail('チラシ・パンフレットの作成基準')" class="cursor-pointer">• チラシ・パンフレットの作成基準</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('LIFE Xブランドガイドライン')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• LIFE Xブランドガイドライン</li>
+                                <li @click="showDetail('広告表現の制限事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 広告表現の制限事項</li>
+                                <li @click="showDetail('SNS・Web広告の運用基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• SNS・Web広告の運用基準</li>
+                                <li @click="showDetail('チラシ・パンフレットの作成基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• チラシ・パンフレットの作成基準</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📝 契約・手続きルール</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('契約書類の作成・管理')" class="cursor-pointer">• 契約書類の作成・管理</li>
-                                <li @click="showDetail('工事請負契約の締結手順')" class="cursor-pointer">• 工事請負契約の締結手順</li>
-                                <li @click="showDetail('変更契約の取り扱い')" class="cursor-pointer">• 変更契約の取り扱い</li>
-                                <li @click="showDetail('支払い条件・タイミング')" class="cursor-pointer">• 支払い条件・タイミング</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('契約書類の作成・管理')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 契約書類の作成・管理</li>
+                                <li @click="showDetail('工事請負契約の締結手順')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 工事請負契約の締結手順</li>
+                                <li @click="showDetail('変更契約の取り扱い')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 変更契約の取り扱い</li>
+                                <li @click="showDetail('支払い条件・タイミング')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 支払い条件・タイミング</li>
                             </ul>
                         </div>
                     </div>
@@ -142,11 +142,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('建築基準法に準拠した構造計算')" class="cursor-pointer">• 建築基準法に準拠した構造計算</li>
-                                <li @click="showDetail('耐震等級3の確保')" class="cursor-pointer">• 耐震等級3の確保</li>
-                                <li @click="showDetail('基礎設計の標準仕様遵守')" class="cursor-pointer">• 基礎設計の標準仕様遵守</li>
-                                <li @click="showDetail('構造材の品質管理基準')" class="cursor-pointer">• 構造材の品質管理基準</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('建築基準法に準拠した構造計算')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 建築基準法に準拠した構造計算</li>
+                                <li @click="showDetail('耐震等級3の確保')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 耐震等級3の確保</li>
+                                <li @click="showDetail('基礎設計の標準仕様遵守')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 基礎設計の標準仕様遵守</li>
+                                <li @click="showDetail('構造材の品質管理基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 構造材の品質管理基準</li>
                             </ul>
                         </div>
                         
@@ -157,11 +157,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('LIFE Xデザインガイドライン準拠')" class="cursor-pointer">• LIFE Xデザインガイドライン準拠</li>
-                                <li @click="showDetail('標準プランからの変更制限事項')" class="cursor-pointer">• 標準プランからの変更制限事項</li>
-                                <li @click="showDetail('外観・内装の品質基準')" class="cursor-pointer">• 外観・内装の品質基準</li>
-                                <li @click="showDetail('カラーバリエーションの適用ルール')" class="cursor-pointer">• カラーバリエーションの適用ルール</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('LIFE Xデザインガイドライン準拠')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• LIFE Xデザインガイドライン準拠</li>
+                                <li @click="showDetail('標準プランからの変更制限事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 標準プランからの変更制限事項</li>
+                                <li @click="showDetail('外観・内装の品質基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 外観・内装の品質基準</li>
+                                <li @click="showDetail('カラーバリエーションの適用ルール')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• カラーバリエーションの適用ルール</li>
                             </ul>
                         </div>
                         
@@ -172,11 +172,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('電気設備の標準仕様')" class="cursor-pointer">• 電気設備の標準仕様</li>
-                                <li @click="showDetail('給排水設備の配置基準')" class="cursor-pointer">• 給排水設備の配置基準</li>
-                                <li @click="showDetail('空調・換気システムの設計基準')" class="cursor-pointer">• 空調・換気システムの設計基準</li>
-                                <li @click="showDetail('省エネ性能の確保')" class="cursor-pointer">• 省エネ性能の確保</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('電気設備の標準仕様')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 電気設備の標準仕様</li>
+                                <li @click="showDetail('給排水設備の配置基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 給排水設備の配置基準</li>
+                                <li @click="showDetail('空調・換気システムの設計基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 空調・換気システムの設計基準</li>
+                                <li @click="showDetail('省エネ性能の確保')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 省エネ性能の確保</li>
                             </ul>
                         </div>
                         
@@ -187,11 +187,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                 </svg>
                             </h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('建築確認申請の手順')" class="cursor-pointer">• 建築確認申請の手順</li>
-                                <li @click="showDetail('長期優良住宅認定申請')" class="cursor-pointer">• 長期優良住宅認定申請</li>
-                                <li @click="showDetail('住宅性能評価申請')" class="cursor-pointer">• 住宅性能評価申請</li>
-                                <li @click="showDetail('各種検査・完了検査対応')" class="cursor-pointer">• 各種検査・完了検査対応</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('建築確認申請の手順')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 建築確認申請の手順</li>
+                                <li @click="showDetail('長期優良住宅認定申請')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 長期優良住宅認定申請</li>
+                                <li @click="showDetail('住宅性能評価申請')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 住宅性能評価申請</li>
+                                <li @click="showDetail('各種検査・完了検査対応')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 各種検査・完了検査対応</li>
                             </ul>
                         </div>
                     </div>
@@ -212,41 +212,41 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">⚒️ 施工品質基準</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('標準価格の適用範囲')" class="cursor-pointer">• 標準価格の適用範囲</li>
-                                <li @click="showDetail('オプション価格設定基準')" class="cursor-pointer">• オプション価格設定基準</li>
-                                <li @click="showDetail('値引き・割引の制限事項')" class="cursor-pointer">• 値引き・割引の制限事項</li>
-                                <li @click="showDetail('見積書作成の標準フォーマット')" class="cursor-pointer">• 見積書作成の標準フォーマット</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('標準価格の適用範囲')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 標準価格の適用範囲</li>
+                                <li @click="showDetail('オプション価格設定基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• オプション価格設定基準</li>
+                                <li @click="showDetail('値引き・割引の制限事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 値引き・割引の制限事項</li>
+                                <li @click="showDetail('見積書作成の標準フォーマット')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 見積書作成の標準フォーマット</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📞 お客様対応基準</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('初回面談時の説明事項')" class="cursor-pointer">• 初回面談時の説明事項</li>
-                                <li @click="showDetail('契約前の重要事項説明')" class="cursor-pointer">• 契約前の重要事項説明</li>
-                                <li @click="showDetail('アフターサービス対応')" class="cursor-pointer">• アフターサービス対応</li>
-                                <li @click="showDetail('クレーム対応フロー')" class="cursor-pointer">• クレーム対応フロー</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('初回面談時の説明事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 初回面談時の説明事項</li>
+                                <li @click="showDetail('契約前の重要事項説明')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 契約前の重要事項説明</li>
+                                <li @click="showDetail('アフターサービス対応')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• アフターサービス対応</li>
+                                <li @click="showDetail('クレーム対応フロー')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• クレーム対応フロー</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📢 広告・宣伝ルール</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('LIFE Xブランドガイドライン')" class="cursor-pointer">• LIFE Xブランドガイドライン</li>
-                                <li @click="showDetail('広告表現の制限事項')" class="cursor-pointer">• 広告表現の制限事項</li>
-                                <li @click="showDetail('SNS・Web広告の運用基準')" class="cursor-pointer">• SNS・Web広告の運用基準</li>
-                                <li @click="showDetail('チラシ・パンフレットの作成基準')" class="cursor-pointer">• チラシ・パンフレットの作成基準</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('LIFE Xブランドガイドライン')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• LIFE Xブランドガイドライン</li>
+                                <li @click="showDetail('広告表現の制限事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 広告表現の制限事項</li>
+                                <li @click="showDetail('SNS・Web広告の運用基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• SNS・Web広告の運用基準</li>
+                                <li @click="showDetail('チラシ・パンフレットの作成基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• チラシ・パンフレットの作成基準</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📝 契約・手続きルール</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('契約書類の作成・管理')" class="cursor-pointer">• 契約書類の作成・管理</li>
-                                <li @click="showDetail('工事請負契約の締結手順')" class="cursor-pointer">• 工事請負契約の締結手順</li>
-                                <li @click="showDetail('変更契約の取り扱い')" class="cursor-pointer">• 変更契約の取り扱い</li>
-                                <li @click="showDetail('支払い条件・タイミング')" class="cursor-pointer">• 支払い条件・タイミング</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('契約書類の作成・管理')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 契約書類の作成・管理</li>
+                                <li @click="showDetail('工事請負契約の締結手順')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 工事請負契約の締結手順</li>
+                                <li @click="showDetail('変更契約の取り扱い')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 変更契約の取り扱い</li>
+                                <li @click="showDetail('支払い条件・タイミング')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 支払い条件・タイミング</li>
                             </ul>
                         </div>
                     </div>
@@ -267,41 +267,41 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">⚒️ 施工品質基準</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('各工程の品質チェックポイント')" class="cursor-pointer">• 各工程の品質チェックポイント</li>
-                                <li @click="showDetail('使用材料の品質管理')" class="cursor-pointer">• 使用材料の品質管理</li>
-                                <li @click="showDetail('施工精度の許容範囲')" class="cursor-pointer">• 施工精度の許容範囲</li>
-                                <li @click="showDetail('完了検査前の自主検査')" class="cursor-pointer">• 完了検査前の自主検査</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('各工程の品質チェックポイント')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 各工程の品質チェックポイント</li>
+                                <li @click="showDetail('使用材料の品質管理')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 使用材料の品質管理</li>
+                                <li @click="showDetail('施工精度の許容範囲')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 施工精度の許容範囲</li>
+                                <li @click="showDetail('完了検査前の自主検査')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 完了検査前の自主検査</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📅 工程管理基準</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('標準工程表の遵守')" class="cursor-pointer">• 標準工程表の遵守</li>
-                                <li @click="showDetail('工程遅延時の対応手順')" class="cursor-pointer">• 工程遅延時の対応手順</li>
-                                <li @click="showDetail('雨天・悪天候時の作業基準')" class="cursor-pointer">• 雨天・悪天候時の作業基準</li>
-                                <li @click="showDetail('近隣への配慮事項')" class="cursor-pointer">• 近隣への配慮事項</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('標準工程表の遵守')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 標準工程表の遵守</li>
+                                <li @click="showDetail('工程遅延時の対応手順')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 工程遅延時の対応手順</li>
+                                <li @click="showDetail('雨天・悪天候時の作業基準')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 雨天・悪天候時の作業基準</li>
+                                <li @click="showDetail('近隣への配慮事項')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 近隣への配慮事項</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">🏠 現場管理基準</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('現場の整理整頓・5S活動')" class="cursor-pointer">• 現場の整理整頓・5S活動</li>
-                                <li @click="showDetail('安全管理・事故防止対策')" class="cursor-pointer">• 安全管理・事故防止対策</li>
-                                <li @click="showDetail('廃棄物処理・環境対策')" class="cursor-pointer">• 廃棄物処理・環境対策</li>
-                                <li @click="showDetail('職人・作業員の管理')" class="cursor-pointer">• 職人・作業員の管理</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('現場の整理整頓・5S活動')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 現場の整理整頓・5S活動</li>
+                                <li @click="showDetail('安全管理・事故防止対策')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 安全管理・事故防止対策</li>
+                                <li @click="showDetail('廃棄物処理・環境対策')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 廃棄物処理・環境対策</li>
+                                <li @click="showDetail('職人・作業員の管理')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 職人・作業員の管理</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">📋 検査・記録</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('各種検査の実施・記録')" class="cursor-pointer">• 各種検査の実施・記録</li>
-                                <li @click="showDetail('施工写真の撮影・管理')" class="cursor-pointer">• 施工写真の撮影・管理</li>
-                                <li @click="showDetail('品質管理書類の作成')" class="cursor-pointer">• 品質管理書類の作成</li>
-                                <li @click="showDetail('お客様への工程報告')" class="cursor-pointer">• お客様への工程報告</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('各種検査の実施・記録')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 各種検査の実施・記録</li>
+                                <li @click="showDetail('施工写真の撮影・管理')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 施工写真の撮影・管理</li>
+                                <li @click="showDetail('品質管理書類の作成')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 品質管理書類の作成</li>
+                                <li @click="showDetail('お客様への工程報告')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• お客様への工程報告</li>
                             </ul>
                         </div>
                     </div>
@@ -322,21 +322,21 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">🔍 品質管理体制</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('第三者検査機関の活用')" class="cursor-pointer">• 第三者検査機関の活用</li>
-                                <li @click="showDetail('内部監査の実施')" class="cursor-pointer">• 内部監査の実施</li>
-                                <li @click="showDetail('品質向上のための改善活動')" class="cursor-pointer">• 品質向上のための改善活動</li>
-                                <li @click="showDetail('不具合発生時の対応体制')" class="cursor-pointer">• 不具合発生時の対応体制</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('第三者検査機関の活用')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 第三者検査機関の活用</li>
+                                <li @click="showDetail('内部監査の実施')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 内部監査の実施</li>
+                                <li @click="showDetail('品質向上のための改善活動')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 品質向上のための改善活動</li>
+                                <li @click="showDetail('不具合発生時の対応体制')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 不具合発生時の対応体制</li>
                             </ul>
                         </div>
                         
                         <div class="bg-gray-50 rounded-xl p-6 hover:bg-gray-100 transition-colors">
                             <h3 class="font-semibold text-gray-900 mb-3">🔧 アフターサービス</h3>
-                            <ul class="text-sm text-gray-700 space-y-2">
-                                <li @click="showDetail('引渡し後の定期点検')" class="cursor-pointer">• 引渡し後の定期点検</li>
-                                <li @click="showDetail('保証対応・メンテナンス')" class="cursor-pointer">• 保証対応・メンテナンス</li>
-                                <li @click="showDetail('お客様相談窓口の運営')" class="cursor-pointer">• お客様相談窓口の運営</li>
-                                <li @click="showDetail('緊急時対応体制')" class="cursor-pointer">• 緊急時対応体制</li>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li @click="showDetail('引渡し後の定期点検')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 引渡し後の定期点検</li>
+                                <li @click="showDetail('保証対応・メンテナンス')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 保証対応・メンテナンス</li>
+                                <li @click="showDetail('お客様相談窓口の運営')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• お客様相談窓口の運営</li>
+                                <li @click="showDetail('緊急時対応体制')" class="cursor-pointer hover:bg-white hover:text-primary-600 px-2 py-1 -mx-2 rounded transition-colors">• 緊急時対応体制</li>
                             </ul>
                         </div>
                     </div>

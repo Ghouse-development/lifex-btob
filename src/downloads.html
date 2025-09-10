@@ -201,34 +201,79 @@
                         </button>
                     </div>
                     
+                    <!-- Selection Controls -->
+                    <div class="flex items-center justify-between py-3 px-2 bg-gray-50 rounded-lg mt-4">
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" @change="toggleSelectAll($event)" 
+                                   :checked="selectedItems.length === selectedCategory?.items.length"
+                                   class="rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                            <label class="text-sm text-gray-700">すべて選択</label>
+                        </div>
+                        <div x-show="selectedItems.length > 0" class="text-sm text-gray-600">
+                            <span x-text="selectedItems.length"></span>件選択中
+                        </div>
+                    </div>
+                    
                     <!-- Modal Content -->
-                    <div class="mt-6 max-h-96 overflow-y-auto">
-                        <template x-for="item in selectedCategory?.items || []" :key="item.id">
-                            <div class="border-b border-gray-100 py-4 hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex-1">
-                                        <h4 x-text="item.title" class="font-semibold text-gray-900"></h4>
-                                        <p x-text="item.description" class="text-sm text-gray-600 mt-1"></p>
-                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                                            <span x-text="`サイズ: ${item.size}`"></span>
-                                            <span x-text="`形式: ${item.format}`"></span>
-                                            <span x-text="`更新: ${item.updated}`"></span>
+                    <div class="mt-4 max-h-96 overflow-y-auto">
+                        <div class="grid grid-cols-1 gap-3">
+                            <template x-for="item in selectedCategory?.items || []" :key="item.id">
+                                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-start space-x-4">
+                                        <!-- Checkbox -->
+                                        <input type="checkbox" 
+                                               :value="item.id"
+                                               @change="toggleItemSelection(item)"
+                                               :checked="selectedItems.includes(item.id)"
+                                               class="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+                                        
+                                        <!-- Thumbnail -->
+                                        <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
+                                            <template x-if="item.thumbnail">
+                                                <img :src="item.thumbnail" :alt="item.title" class="w-full h-full object-cover rounded">
+                                            </template>
+                                            <template x-if="!item.thumbnail">
+                                                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                                </svg>
+                                            </template>
                                         </div>
+                                        
+                                        <!-- Content -->
+                                        <div class="flex-1">
+                                            <h4 x-text="item.title" class="font-semibold text-gray-900"></h4>
+                                            <p x-text="item.description" class="text-sm text-gray-600 mt-1"></p>
+                                            <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                                <span x-text="`サイズ: ${item.size}`"></span>
+                                                <span x-text="`形式: ${item.format}`"></span>
+                                                <span x-text="`更新: ${item.updated}`"></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Individual Download Button -->
+                                        <button @click="downloadFile(item)" 
+                                                class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-1 text-sm">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                                            </svg>
+                                            <span>DL</span>
+                                        </button>
                                     </div>
-                                    <button @click="downloadFile(item)" 
-                                            class="ml-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                                        </svg>
-                                        <span>ダウンロード</span>
-                                    </button>
                                 </div>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                     </div>
                     
                     <!-- Modal Footer -->
-                    <div class="mt-6 pt-4 border-t border-gray-200">
+                    <div class="mt-6 pt-4 border-t border-gray-200 space-y-3">
+                        <button @click="downloadSelected()" 
+                                x-show="selectedItems.length > 0"
+                                class="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg hover:from-green-700 hover:to-green-800 transition-all flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span x-text="`選択した${selectedItems.length}件をダウンロード`"></span>
+                        </button>
                         <button @click="downloadAllInCategory()" 
                                 class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all flex items-center justify-center space-x-2">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -259,6 +304,7 @@
                 loading: false,
                 showDetailModal: false,
                 selectedCategory: null,
+                selectedItems: [],
                 categories: {
                     catalog: {
                         title: 'パンフレット・カタログ',
@@ -376,6 +422,36 @@
                 closeDetail() {
                     this.showDetailModal = false;
                     this.selectedCategory = null;
+                    this.selectedItems = [];
+                },
+
+                toggleSelectAll(event) {
+                    if (event.target.checked) {
+                        this.selectedItems = this.selectedCategory.items.map(item => item.id);
+                    } else {
+                        this.selectedItems = [];
+                    }
+                },
+
+                toggleItemSelection(item) {
+                    const index = this.selectedItems.indexOf(item.id);
+                    if (index > -1) {
+                        this.selectedItems.splice(index, 1);
+                    } else {
+                        this.selectedItems.push(item.id);
+                    }
+                },
+
+                downloadSelected() {
+                    const selectedFiles = this.selectedCategory.items.filter(item => 
+                        this.selectedItems.includes(item.id)
+                    );
+                    console.log('Downloading selected:', selectedFiles);
+                    lifeXAPI.showToast(`${this.selectedItems.length}件のファイルをダウンロード中...`, 'info');
+                    // 実際のダウンロード処理
+                    selectedFiles.forEach(file => {
+                        this.downloadFile(file);
+                    });
                 },
 
                 downloadFile(item) {

@@ -65,9 +65,6 @@
                 </div>
                 <div class="flex items-center space-x-3 mt-4 md:mt-0">
                     <span x-text="`${filteredPlans.length}件 / ${totalPlans}件`" class="text-sm text-gray-500"></span>
-                    <button @click="exportCSV()" class="btn-secondary">
-                        📄 CSV出力
-                    </button>
                 </div>
             </div>
         </div>
@@ -82,7 +79,7 @@
                         <input 
                             type="text" 
                             x-model="searchQuery" 
-                            @input="debounceSearch()"
+                            @input="applyFilters()"
                             placeholder="プラン名、ID、タグで検索..." 
                             class="form-input pl-10">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -184,17 +181,6 @@
 
                 <!-- Controls -->
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between pt-6 border-t border-gray-200">
-                    <div class="flex items-center space-x-4 mb-4 md:mb-0">
-                        <label class="form-label">表示形式:</label>
-                        <div class="flex items-center space-x-2">
-                            <button @click="viewMode = 'cards'" :class="viewMode === 'cards' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700'" class="px-3 py-2 rounded-lg text-sm">
-                                カード
-                            </button>
-                            <button @click="viewMode = 'table'" :class="viewMode === 'table' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700'" class="px-3 py-2 rounded-lg text-sm">
-                                テーブル
-                            </button>
-                        </div>
-                    </div>
                     <div class="flex items-center space-x-4">
                         <label class="form-label">並び順:</label>
                         <select x-model="sortBy" @change="applySorting()" class="form-input">
@@ -872,7 +858,6 @@
                 
                 // Search & Filter
                 searchQuery: '',
-                searchTimeout: null,
                 selectedTags: [],
                 availableTags: [],
                 filters: {
@@ -884,7 +869,6 @@
                 },
                 
                 // Display
-                viewMode: 'table', // デフォルトをtableに変更
                 sortBy: 'updated',
                 sortOrder: 'desc',
                 
@@ -998,12 +982,6 @@
                     if (params.get('width_max')) this.filters.width.max = params.get('width_max');
                 },
 
-                debounceSearch() {
-                    clearTimeout(this.searchTimeout);
-                    this.searchTimeout = setTimeout(() => {
-                        this.applyFilters();
-                    }, 300);
-                },
 
                 toggleTag(tag) {
                     const index = this.selectedTags.indexOf(tag);
@@ -1088,34 +1066,6 @@
                     this.applyFilters();
                 },
 
-                exportCSV() {
-                    const headers = ['プランID', 'プラン名', '坪数', '奥行', '間口', '売価', '原価', '粗利', 'タグ', '更新日'];
-                    const rows = [headers];
-
-                    this.filteredPlans.forEach(plan => {
-                        rows.push([
-                            plan.id,
-                            plan.name,
-                            plan.tsubo,
-                            plan.depth,
-                            plan.width,
-                            plan.prices.sell,
-                            plan.prices.cost,
-                            plan.prices.gross,
-                            plan.tags.join(', '),
-                            lifeXAPI.formatDate(plan.updatedAt)
-                        ]);
-                    });
-
-                    const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-                    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `LIFEX_プラン一覧_${new Date().toISOString().split('T')[0]}.csv`;
-                    link.click();
-
-                    lifeXAPI.showToast('CSVファイルをダウンロードしました', 'success');
-                },
 
                 showPlanDetail(plan) {
                     this.selectedPlan = plan;
