@@ -216,18 +216,25 @@
                         console.log('Total plans count:', this.stats.totalPlans);
                         
                         // ダウンロード資料数をlocalStorageから取得
+                        // 注意: 実際に管理画面で登録されたデータのみカウント
+                        // デモデータや初期データは含めない
                         const downloadsData = localStorage.getItem('downloads_data');
-                        if (downloadsData) {
+                        if (downloadsData && downloadsData !== '{"categories":{}}') {
                             const downloads = JSON.parse(downloadsData);
                             let totalFiles = 0;
                             if (downloads.categories && typeof downloads.categories === 'object') {
-                                Object.values(downloads.categories).forEach(cat => {
-                                    if (cat.items && Array.isArray(cat.items)) {
-                                        totalFiles += cat.items.length;
-                                    }
-                                });
+                                // 空のカテゴリオブジェクトの場合は0
+                                const categoryKeys = Object.keys(downloads.categories);
+                                if (categoryKeys.length > 0) {
+                                    Object.values(downloads.categories).forEach(cat => {
+                                        if (cat.items && Array.isArray(cat.items)) {
+                                            totalFiles += cat.items.length;
+                                        }
+                                    });
+                                }
                             }
                             this.stats.totalDownloads = totalFiles;
+                            console.log('Downloads count:', totalFiles);
                         } else {
                             this.stats.totalDownloads = 0;
                         }
@@ -263,6 +270,20 @@
                         };
                         localStorage.setItem('plans_data', JSON.stringify(initialPlan));
                         console.log('Initial plan data set');
+                    }
+                    
+                    // ダウンロードデータのデモデータをクリア（管理画面で登録されていない場合）
+                    const downloadsData = localStorage.getItem('downloads_data');
+                    if (downloadsData) {
+                        const downloads = JSON.parse(downloadsData);
+                        // デモデータの特徴: pamphletカテゴリに「LIFE X総合カタログ.pdf」がある
+                        if (downloads.categories && downloads.categories.pamphlet && 
+                            downloads.categories.pamphlet.items && 
+                            downloads.categories.pamphlet.items.some(item => item.name === 'LIFE X総合カタログ.pdf')) {
+                            // デモデータをクリア
+                            localStorage.removeItem('downloads_data');
+                            console.log('Demo download data cleared');
+                        }
                     }
                     
                     // リアルタイム統計情報を取得
