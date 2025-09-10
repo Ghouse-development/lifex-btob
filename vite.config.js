@@ -22,8 +22,10 @@ export default defineConfig({
         'admin-downloads': resolve(__dirname, 'src/admin-downloads.html'),
         'admin-login-google': resolve(__dirname, 'src/admin-login-google.html'),
         'admin-users': resolve(__dirname, 'src/admin-users.html'),
+        'admin-system': resolve(__dirname, 'src/admin-system.html'),
         ai: resolve(__dirname, 'src/ai.html'),
-        design: resolve(__dirname, 'src/design.html')
+        design: resolve(__dirname, 'src/design.html'),
+        faq: resolve(__dirname, 'src/faq.html')
       }
     }
   },

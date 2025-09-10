@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>よくある質問 | LIFE X 加盟店専用サイト</title>
+    <link href="./styles/main.css" rel="stylesheet">
+    <script src="/utils/common.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
+                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">加盟店専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="nav-link">ホーム</a>
+                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
+                    <a href="/design.html" class="nav-link">デザインから探す</a>
+                    <a href="/plans.html" class="nav-link">プラン一覧</a>
+                    <a href="/rules.html" class="nav-link">ルール</a>
+                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                    <a href="/faq.html" class="nav-link active">よくある質問</a>
+                </nav>
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Mobile Menu -->
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border p-4 z-50 min-w-48">
+                        <a href="/" class="nav-link block">ホーム</a>
+                        <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
+                        <a href="/design.html" class="nav-link block">デザインから探す</a>
+                        <a href="/plans.html" class="nav-link block">プラン一覧</a>
+                        <a href="/rules.html" class="nav-link block">ルール</a>
+                        <a href="/downloads.html" class="nav-link block">ダウンロード</a>
+                        <a href="/faq.html" class="nav-link block">よくある質問</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="faqPage()" x-init="init()">
+        <!-- Breadcrumb -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <nav class="breadcrumb">
+                <a href="/">ホーム</a>
+                <span class="breadcrumb-separator">></span>
+                <span class="text-gray-900">よくある質問</span>
+            </nav>
+        </div>
+
+        <!-- Page Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <div class="text-center">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">よくある質問</h1>
+                <p class="text-lg text-gray-600">お客様からよくいただく質問と回答</p>
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-6">
+            <div class="flex flex-wrap justify-center gap-2 mb-8">
+                <template x-for="category in categories" :key="category">
+                    <button @click="selectedCategory = category" 
+                            :class="selectedCategory === category ? 'bg-primary-600 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+                            class="px-4 py-2 rounded-lg transition-colors">
+                        <span x-text="category"></span>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <!-- FAQ Content -->
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+            <div class="space-y-4">
+                <template x-for="faq in filteredFAQs" :key="faq.id">
+                    <div class="card">
+                        <div @click="toggleFAQ(faq.id)" class="cursor-pointer">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 flex items-start">
+                                        <span class="text-primary-600 mr-2 flex-shrink-0">Q.</span>
+                                        <span x-text="faq.question"></span>
+                                    </h3>
+                                </div>
+                                <svg :class="expandedFAQs.includes(faq.id) ? 'rotate-180' : ''" 
+                                     class="w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ml-4" 
+                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div x-show="expandedFAQs.includes(faq.id)" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 transform -translate-y-2"
+                             x-transition:enter-end="opacity-100 transform translate-y-0"
+                             class="mt-4 pt-4 border-t border-gray-200">
+                            <div class="flex items-start">
+                                <span class="text-green-600 font-bold mr-2 flex-shrink-0">A.</span>
+                                <div class="text-gray-700" x-html="faq.answer"></div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- No Results -->
+            <div x-show="filteredFAQs.length === 0" class="text-center py-12">
+                <p class="text-gray-500">このカテゴリーに該当する質問はまだありません。</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function faqPage() {
+            return {
+                categories: ['すべて', 'プラン変更', '費用', '営業', 'アフターサービス', '工事', '契約', '仕様'],
+                selectedCategory: 'すべて',
+                expandedFAQs: [],
+                faqs: [],
+                
+                get filteredFAQs() {
+                    if (this.selectedCategory === 'すべて') {
+                        return this.faqs;
+                    }
+                    return this.faqs.filter(faq => faq.category === this.selectedCategory);
+                },
+                
+                async init() {
+                    await this.loadFAQs();
+                },
+                
+                async loadFAQs() {
+                    try {
+                        const response = await fetch('/public/data/resources/faq.json');
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.faqs = data.faqs || [];
+                        }
+                    } catch (error) {
+                        console.log('Loading default FAQs');
+                        this.faqs = this.getDefaultFAQs();
+                    }
+                },
+                
+                toggleFAQ(id) {
+                    const index = this.expandedFAQs.indexOf(id);
+                    if (index > -1) {
+                        this.expandedFAQs.splice(index, 1);
+                    } else {
+                        this.expandedFAQs.push(id);
+                    }
+                },
+                
+                getDefaultFAQs() {
+                    return [
+                        {
+                            id: 1,
+                            category: 'プラン変更',
+                            question: 'プランの変更はいつまで可能ですか？',
+                            answer: '契約後でも着工前であればプラン変更は可能です。ただし、変更内容によっては追加費用が発生する場合があります。詳細は担当者にご相談ください。'
+                        },
+                        {
+                            id: 2,
+                            category: '費用',
+                            question: '見積もり以外に追加費用は発生しますか？',
+                            answer: '基本的に見積もり金額から変更はありません。ただし、お客様のご要望による仕様変更や、地盤調査の結果による地盤改良工事が必要な場合は追加費用が発生します。'
+                        },
+                        {
+                            id: 3,
+                            category: '営業',
+                            question: 'モデルハウスの見学は予約が必要ですか？',
+                            answer: 'ご予約なしでもご見学いただけますが、事前にご予約いただければ、専門スタッフが詳しくご案内いたします。週末は混雑する場合がございますので、ご予約をおすすめします。'
+                        },
+                        {
+                            id: 4,
+                            category: 'アフターサービス',
+                            question: '保証期間はどのくらいですか？',
+                            answer: '構造躯体は10年保証、防水は10年保証となっております。また、定期点検は6ヶ月、1年、2年、5年、10年で実施いたします。'
+                        },
+                        {
+                            id: 5,
+                            category: '工事',
+                            question: '工事期間はどのくらいかかりますか？',
+                            answer: '着工から完成まで約4〜5ヶ月が標準的な工期です。ただし、天候や仕様変更により前後する場合があります。'
+                        },
+                        {
+                            id: 6,
+                            category: '契約',
+                            question: '契約時に必要な書類は何ですか？',
+                            answer: '印鑑証明書、住民票、収入証明書（源泉徴収票など）、本人確認書類が必要です。住宅ローンをご利用の場合は、金融機関指定の書類も必要となります。'
+                        },
+                        {
+                            id: 7,
+                            category: '仕様',
+                            question: '標準仕様から変更できる項目は何ですか？',
+                            answer: 'キッチン、バスルーム、トイレ、洗面台などの設備機器、フローリングや壁紙などの内装材、外壁材や屋根材などの外装材が変更可能です。'
+                        }
+                    ];
+                }
+            }
+        }
+    </script>
+</body>
+</html>
