@@ -165,7 +165,23 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">ファイル</label>
-                            <input type="file" @change="handleFileUpload" class="form-input w-full">
+                            <div 
+                                @drop.prevent="handleDrop"
+                                @dragover.prevent="dragOver = true"
+                                @dragleave.prevent="dragOver = false"
+                                :class="dragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'"
+                                class="border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer"
+                                @click="$refs.fileInput.click()"
+                            >
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="mt-2 text-sm text-gray-600">
+                                    <span class="font-semibold">クリックしてファイルを選択</span> または ドラッグ&ドロップ
+                                </p>
+                                <p x-show="uploadedFileName" class="mt-2 text-sm text-green-600" x-text="'選択済み: ' + uploadedFileName"></p>
+                                <input type="file" x-ref="fileInput" @change="handleFileUpload" class="hidden" multiple>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
@@ -238,6 +254,8 @@
                 editingCategory: null,
                 newCategoryName: '',
                 selectedCategoryId: null,
+                dragOver: false,
+                uploadedFileName: '',
                 
                 fileFormData: {
                     name: '',
@@ -247,6 +265,14 @@
                 },
 
                 init() {
+                    // ローカルストレージからデータを読み込み
+                    this.loadFromLocalStorage();
+                    
+                    // カテゴリが空の場合はデフォルトカテゴリを設定
+                    if (this.categories.length === 0) {
+                        this.categories = [];
+                    }
+                    
                     this.$nextTick(() => {
                         this.initSortable();
                     });
@@ -287,14 +313,22 @@
 
                 addCategory() {
                     if (this.newCategoryName.trim()) {
-                        const newId = Math.max(...this.categories.map(c => c.id)) + 1;
+                        // カテゴリが空の場合は1から開始、そうでなければ最大ID+1
+                        const newId = this.categories.length === 0 
+                            ? 1 
+                            : Math.max(...this.categories.map(c => c.id || 0)) + 1;
+                        
                         this.categories.push({
                             id: newId,
-                            name: this.newCategoryName,
+                            name: this.newCategoryName.trim(),
                             expanded: true,
                             files: []
                         });
                         this.newCategoryName = '';
+                        
+                        // データを保存
+                        this.saveToLocalStorage();
+                        
                         this.$nextTick(() => {
                             this.initSortable();
                         });
@@ -311,6 +345,7 @@
                 deleteCategory(categoryId) {
                     if (confirm('このカテゴリを削除しますか？')) {
                         this.categories = this.categories.filter(c => c.id !== categoryId);
+                        this.saveToLocalStorage();
                     }
                 },
 
@@ -337,6 +372,7 @@
                         const category = this.categories.find(c => c.id === categoryId);
                         if (category) {
                             category.files = category.files.filter(f => f.id !== fileId);
+                            this.saveToLocalStorage();
                         }
                     }
                 },
@@ -356,6 +392,7 @@
                             });
                         }
                     }
+                    this.saveToLocalStorage();
                     this.closeFileModal();
                 },
 
@@ -363,6 +400,8 @@
                     this.showFileModal = false;
                     this.editingFile = null;
                     this.selectedCategoryId = null;
+                    this.uploadedFileName = '';
+                    this.dragOver = false;
                 },
 
                 openCategoryModal() {
@@ -374,12 +413,31 @@
                 },
 
                 handleFileUpload(event) {
-                    const file = event.target.files[0];
+                    const files = event.target.files;
+                    if (files && files.length > 0) {
+                        this.processFile(files[0]);
+                    }
+                },
+                
+                handleDrop(event) {
+                    this.dragOver = false;
+                    const files = event.dataTransfer.files;
+                    if (files && files.length > 0) {
+                        this.processFile(files[0]);
+                    }
+                },
+                
+                processFile(file) {
                     if (file) {
                         this.fileFormData.type = file.name.split('.').pop().toLowerCase();
                         this.fileFormData.size = file.size;
+                        this.uploadedFileName = file.name;
                         if (!this.fileFormData.name) {
                             this.fileFormData.name = file.name;
+                        }
+                        // トースト通知
+                        if (window.lifeXAPI && window.lifeXAPI.showToast) {
+                            window.lifeXAPI.showToast(`ファイル「${file.name}」を選択しました`, 'success');
                         }
                     }
                 },
@@ -408,6 +466,42 @@
                 reorderCategories(oldIndex, newIndex) {
                     const item = this.categories.splice(oldIndex, 1)[0];
                     this.categories.splice(newIndex, 0, item);
+                    this.saveToLocalStorage();
+                },
+                
+                saveToLocalStorage() {
+                    // カテゴリーデータをローカルストレージに保存
+                    const data = {
+                        categories: this.categories.reduce((acc, cat) => {
+                            acc[cat.name.toLowerCase().replace(/\s+/g, '_')] = {
+                                name: cat.name,
+                                items: cat.files || []
+                            };
+                            return acc;
+                        }, {})
+                    };
+                    localStorage.setItem('downloads_data', JSON.stringify(data));
+                },
+                
+                loadFromLocalStorage() {
+                    // ローカルストレージからデータを読み込み
+                    try {
+                        const data = localStorage.getItem('downloads_data');
+                        if (data) {
+                            const parsed = JSON.parse(data);
+                            if (parsed.categories) {
+                                // カテゴリーを復元
+                                this.categories = Object.entries(parsed.categories).map(([key, value], index) => ({
+                                    id: index + 1,
+                                    name: value.name || key,
+                                    expanded: true,
+                                    files: value.items || []
+                                }));
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading data from localStorage:', error);
+                    }
                 },
 
                 reorderFiles(categoryId, oldIndex, newIndex) {

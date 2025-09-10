@@ -223,8 +223,14 @@
                 },
 
                 async loadFAQs() {
-                    // 実際にはAPIから取得
-                    this.faqs = [];
+                    // LocalStorageから取得を試みる
+                    const localData = localStorage.getItem('faq_data');
+                    if (localData) {
+                        this.faqs = JSON.parse(localData).faqs || [];
+                    } else {
+                        // 実際にはAPIから取得
+                        this.faqs = [];
+                    }
                 },
 
                 initSortable() {
@@ -386,13 +392,15 @@
                 },
 
                 async saveToAPI() {
-                    // 実際のAPI呼び出しをここに実装
-                    console.log('Saving FAQs to API...', this.faqs);
+                    // LocalStorageに保存
+                    localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
+                    console.log('Saved FAQs to localStorage', this.faqs);
                 },
 
                 async saveFAQOrder() {
-                    // 順番の変更をAPIに保存
-                    console.log('Saving FAQ order to API...', this.faqs.map(f => ({ id: f.id, order: f.order })));
+                    // LocalStorageに保存
+                    localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
+                    console.log('Saved FAQ order to localStorage');
                     lifeXAPI.showToast('表示順を更新しました', 'success');
                 }
             };
