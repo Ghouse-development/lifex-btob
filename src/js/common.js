@@ -274,14 +274,24 @@ window.lifeXAPI = {
     // プラン作成
     async createPlan(planData) {
         try {
-            const response = await fetch('/api/plans', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(planData)
-            });
-            return await response.json();
+            // LocalStorageから既存のプランを取得
+            const localData = localStorage.getItem('plans_data');
+            let plansData = localData ? JSON.parse(localData) : { plans: [] };
+            
+            // 新しいプランを追加
+            const newPlan = {
+                ...planData,
+                id: planData.id || `LX-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+                status: planData.status || 'published'
+            };
+            
+            plansData.plans.push(newPlan);
+            
+            // LocalStorageに保存
+            localStorage.setItem('plans_data', JSON.stringify(plansData));
+            
+            return newPlan;
         } catch (error) {
             console.error('Error creating plan:', error);
             throw error;
@@ -291,14 +301,24 @@ window.lifeXAPI = {
     // プラン更新
     async updatePlan(planId, planData) {
         try {
-            const response = await fetch(`/api/plans/${planId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(planData)
-            });
-            return await response.json();
+            // LocalStorageから既存のプランを取得
+            const localData = localStorage.getItem('plans_data');
+            let plansData = localData ? JSON.parse(localData) : { plans: [] };
+            
+            // プランを更新
+            const index = plansData.plans.findIndex(p => p.id === planId);
+            if (index !== -1) {
+                plansData.plans[index] = {
+                    ...plansData.plans[index],
+                    ...planData,
+                    updatedAt: new Date().toISOString()
+                };
+            }
+            
+            // LocalStorageに保存
+            localStorage.setItem('plans_data', JSON.stringify(plansData));
+            
+            return plansData.plans[index];
         } catch (error) {
             console.error('Error updating plan:', error);
             throw error;

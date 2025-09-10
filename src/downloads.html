@@ -431,17 +431,47 @@
                 
                 async loadDownloads() {
                     try {
-                        const data = await lifeXAPI.getDownloads();
-                        if (data && data.categories) {
-                            // 各カテゴリーが存在しない場合は空配列で初期化
-                            Object.keys(this.categories).forEach(key => {
-                                this.categories[key] = data.categories[key] || { items: [] };
-                            });
+                        // 管理画面で保存されたダウンロードデータを取得
+                        const localData = localStorage.getItem('downloads_data');
+                        if (localData) {
+                            const data = JSON.parse(localData);
+                            // カテゴリーの配列を適切な形式に変換
+                            if (Array.isArray(data.categories)) {
+                                // 配列形式のデータを処理
+                                data.categories.forEach(cat => {
+                                    const key = this.getCategoryKey(cat.name);
+                                    if (key && this.categories[key]) {
+                                        this.categories[key] = {
+                                            items: cat.files || []
+                                        };
+                                    }
+                                });
+                            } else if (data.categories) {
+                                // オブジェクト形式のデータを処理
+                                Object.keys(this.categories).forEach(key => {
+                                    this.categories[key] = data.categories[key] || { items: [] };
+                                });
+                            }
                         }
                     } catch (error) {
                         console.error('Error loading downloads:', error);
                         // エラー時は空の状態を維持
                     }
+                },
+                
+                getCategoryKey(name) {
+                    // カテゴリー名からキーを生成
+                    const mapping = {
+                        'パンフレット': 'catalog',
+                        '資金計画書': 'financial',
+                        '標準仕様書': 'specifications',
+                        '図面': 'drawings',
+                        'ロゴ': 'logo',
+                        '営業': 'sales',
+                        '契約': 'contracts',
+                        'マニュアル': 'manuals'
+                    };
+                    return mapping[name] || name.toLowerCase();
                 },
 
                 filterItems() {

@@ -124,7 +124,7 @@
     <script>
         function faqPage() {
             return {
-                categories: ['すべて', 'プラン変更', '費用', '営業', 'アフターサービス', '工事', '契約', '仕様'],
+                categories: ['すべて'],
                 selectedCategory: 'すべて',
                 expandedFAQs: [],
                 faqs: [],
@@ -142,14 +142,24 @@
                 
                 async loadFAQs() {
                     try {
-                        const response = await fetch('/public/data/resources/faq.json');
-                        if (response.ok) {
-                            const data = await response.json();
-                            this.faqs = data.faqs || [];
-                        }
+                        // 管理画面で保存されたデータを読み込み
+                        const data = await lifeXAPI.getFAQ();
+                        this.faqs = data.faqs || [];
+                        
+                        // カテゴリーを動的に取得
+                        const uniqueCategories = new Set(['すべて']);
+                        this.faqs.forEach(faq => {
+                            if (faq.category && faq.status === 'active') {
+                                uniqueCategories.add(faq.category);
+                            }
+                        });
+                        this.categories = Array.from(uniqueCategories);
+                        
+                        // アクティブなもののみ表示
+                        this.faqs = this.faqs.filter(faq => faq.status === 'active');
                     } catch (error) {
-                        console.log('Loading default FAQs');
-                        this.faqs = this.getDefaultFAQs();
+                        console.error('Error loading FAQs:', error);
+                        this.faqs = [];
                     }
                 },
                 
