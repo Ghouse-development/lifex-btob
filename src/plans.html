@@ -270,11 +270,11 @@
                                     <p class="font-semibold" x-text="(plan.width || '-') + 'm'"></p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-600">売価</p>
+                                    <p class="text-gray-600">売価<span class="text-red-500 text-xs ml-1">(税込)</span></p>
                                     <p class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-600">粗利</p>
+                                    <p class="text-gray-600">粗利<span class="text-blue-500 text-xs ml-1">(税別)</span></p>
                                     <p class="font-semibold text-green-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'"></p>
                                 </div>
                             </div>
@@ -343,15 +343,15 @@
                             <!-- Prices -->
                             <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
                                 <div>
-                                    <div class="text-gray-500">売価</div>
+                                    <div class="text-gray-500">売価<span class="text-red-500 text-xs">(税込)</span></div>
                                     <div x-text="lifeXAPI.formatPrice(plan.prices.sell)" class="price-display text-sm"></div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-500">原価</div>
+                                    <div class="text-gray-500">原価<span class="text-blue-500 text-xs">(税別)</span></div>
                                     <div x-text="lifeXAPI.formatPrice(plan.prices.cost)" class="font-semibold text-sm"></div>
                                 </div>
                                 <div>
-                                    <div class="text-gray-500">粗利</div>
+                                    <div class="text-gray-500">粗利<span class="text-blue-500 text-xs">(税別)</span></div>
                                     <div x-text="lifeXAPI.formatPrice(plan.prices.gross)" class="font-semibold text-green-600 text-sm"></div>
                                 </div>
                             </div>
@@ -443,11 +443,11 @@
                                         <div class="text-lg font-semibold" x-text="plan.width + 'm'"></div>
                                     </div>
                                     <div>
-                                        <div class="text-xs text-gray-600">売価</div>
+                                        <div class="text-xs text-gray-600">売価<span class="text-red-500 ml-1">(税込)</span></div>
                                         <div class="text-lg font-semibold text-primary-600" x-text="lifeXAPI.formatPrice(plan.prices.sell)"></div>
                                     </div>
                                     <div>
-                                        <div class="text-xs text-gray-600">粗利</div>
+                                        <div class="text-xs text-gray-600">粗利<span class="text-blue-500 ml-1">(税別)</span></div>
                                         <div class="text-lg font-semibold text-green-600" x-text="lifeXAPI.formatPrice(plan.prices.gross)"></div>
                                     </div>
                                 </div>
@@ -509,11 +509,11 @@
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-green-600" x-text="lifeXAPI.formatPrice(selectedPlan?.prices.sell)"></div>
-                                <div class="text-gray-600 text-sm">売価</div>
+                                <div class="text-gray-600 text-sm">売価<span class="text-red-500 ml-1">(税込)</span></div>
                             </div>
                             <div class="text-center">
                                 <div class="text-2xl font-bold text-green-600" x-text="lifeXAPI.formatPrice(selectedPlan?.prices.gross)"></div>
-                                <div class="text-gray-600 text-sm">粗利</div>
+                                <div class="text-gray-600 text-sm">粗利<span class="text-blue-500 ml-1">(税別)</span></div>
                             </div>
                         </div>
 
@@ -893,12 +893,34 @@
                     this.allPlans = plansData.plans.filter(plan => plan.status === 'published');
                     this.totalPlans = this.allPlans.length;
                     
-                    // Extract available tags
+                    // Extract available tags with custom order
+                    const tagOrder = [
+                        '北入り', '南入り', '東入り', '西入り',
+                        '平屋', '2階建て',
+                        '1階LDK', '2階LDK',
+                        '1階水廻り', '2階水廻り'
+                    ];
+                    
                     const tagSet = new Set();
                     this.allPlans.forEach(plan => {
                         plan.tags.forEach(tag => tagSet.add(tag));
                     });
-                    this.availableTags = Array.from(tagSet).sort();
+                    
+                    // Sort tags according to specified order
+                    this.availableTags = Array.from(tagSet).sort((a, b) => {
+                        const indexA = tagOrder.indexOf(a);
+                        const indexB = tagOrder.indexOf(b);
+                        
+                        // If both are in the order list, sort by that order
+                        if (indexA !== -1 && indexB !== -1) {
+                            return indexA - indexB;
+                        }
+                        // If only one is in the order list, it comes first
+                        if (indexA !== -1) return -1;
+                        if (indexB !== -1) return 1;
+                        // Otherwise, sort alphabetically
+                        return a.localeCompare(b);
+                    });
                 },
 
                 parseURLParams() {

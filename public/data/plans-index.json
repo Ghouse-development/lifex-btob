@@ -1,11 +1,11 @@
 {
   "plans": [
     {
-      "id": "LX-030A",
-      "name": "LIFE X 30A",
-      "tsubo": 30.2,
-      "depth": 7.28,
-      "width": 8.19,
+      "id": "LX-030O",
+      "name": "LIFE X 30O",
+      "tsubo": 30.0,
+      "depth": 9.1,
+      "width": 5.46,
       "prices": {
         "sell": 23800000,
         "cost": 17800000,
@@ -20,18 +20,18 @@
       "status": "published",
       "version": "1.2",
       "updatedAt": "2025-09-01T10:00:00+09:00",
-      "thumbnail": "/assets/images/plans/LX-030A/thumbnail.svg",
-      "floorPlan": "/assets/images/plans/LX-030A/floor-plan.svg",
-      "exteriorImage": "/assets/images/plans/LX-030A/exterior.svg",
-      "floorPlan1F": "/assets/images/plans/LX-030A/floor-1f.svg",
-      "floorPlan2F": "/assets/images/plans/LX-030A/floor-2f.svg"
+      "thumbnail": "/assets/images/plans/LX-030O/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-030O/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-030O/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-030O/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-030O/floor-2f.svg"
     },
     {
-      "id": "LX-025B",
-      "name": "LIFE X 25B",
-      "tsubo": 25.4,
-      "depth": 6.37,
-      "width": 7.28,
+      "id": "LX-025P",
+      "name": "LIFE X 25P",
+      "tsubo": 24.7,
+      "depth": 10.01,
+      "width": 4.095,
       "prices": {
         "sell": 21200000,
         "cost": 16100000,
@@ -46,18 +46,18 @@
       "status": "published",
       "version": "1.0",
       "updatedAt": "2025-08-15T14:30:00+09:00",
-      "thumbnail": "/assets/images/plans/LX-025B/thumbnail.svg",
-      "floorPlan": "/assets/images/plans/LX-025B/floor-plan.svg",
-      "exteriorImage": "/assets/images/plans/LX-025B/exterior.svg",
-      "floorPlan1F": "/assets/images/plans/LX-025B/floor-1f.svg",
-      "floorPlan2F": "/assets/images/plans/LX-025B/floor-2f.svg"
+      "thumbnail": "/assets/images/plans/LX-025P/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-025P/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-025P/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-025P/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-025P/floor-2f.svg"
     },
     {
-      "id": "LX-035C",
-      "name": "LIFE X 35C",
-      "tsubo": 35.8,
-      "depth": 8.19,
-      "width": 9.1,
+      "id": "LX-035K",
+      "name": "LIFE X 35K",
+      "tsubo": 34.4,
+      "depth": 11.375,
+      "width": 5.005,
       "prices": {
         "sell": 26500000,
         "cost": 19200000,
@@ -72,59 +72,245 @@
       "status": "published",
       "version": "1.1",
       "updatedAt": "2025-08-28T09:15:00+09:00",
-      "thumbnail": "/assets/images/plans/LX-035C/thumbnail.svg",
-      "floorPlan": "/assets/images/plans/LX-035C/floor-plan.svg",
-      "exteriorImage": "/assets/images/plans/LX-035C/exterior.svg",
-      "floorPlan1F": "/assets/images/plans/LX-035C/floor-1f.svg",
-      "floorPlan2F": "/assets/images/plans/LX-035C/floor-2f.svg"
+      "thumbnail": "/assets/images/plans/LX-035K/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-035K/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-035K/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-035K/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-035K/floor-2f.svg"
+    },
+    {
+      "id": "LX-030C",
+      "name": "LIFE X 30C",
+      "tsubo": 29.9,
+      "depth": 7.735,
+      "width": 6.37,
+      "prices": {
+        "sell": 24200000,
+        "cost": 18100000,
+        "gross": 6100000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": false,
+        "ventilationType": "Type1"
+      },
+      "tags": ["2階建", "北入り", "1階LDK", "2階水廻り"],
+      "status": "published",
+      "version": "1.3",
+      "updatedAt": "2025-09-05T11:20:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-030C/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-030C/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-030C/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-030C/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-030C/floor-2f.svg"
+    },
+    {
+      "id": "LX-038E",
+      "name": "LIFE X 38E",
+      "tsubo": 38.0,
+      "depth": 8.645,
+      "width": 7.28,
+      "prices": {
+        "sell": 27800000,
+        "cost": 20300000,
+        "gross": 7500000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": true,
+        "ventilationType": "Type2"
+      },
+      "tags": ["2階建", "南入り", "2階LDK", "1階水廻り"],
+      "status": "published",
+      "version": "1.0",
+      "updatedAt": "2025-08-20T15:45:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-038E/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-038E/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-038E/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-038E/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-038E/floor-2f.svg"
+    },
+    {
+      "id": "LX-046H",
+      "name": "LIFE X 46H",
+      "tsubo": 46.8,
+      "depth": 10.01,
+      "width": 7.735,
+      "prices": {
+        "sell": 32500000,
+        "cost": 23500000,
+        "gross": 9000000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": true,
+        "ventilationType": "Type1"
+      },
+      "tags": ["2階建", "東入り", "2階LDK", "2階水廻り"],
+      "status": "published",
+      "version": "2.0",
+      "updatedAt": "2025-09-08T09:00:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-046H/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-046H/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-046H/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-046H/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-046H/floor-2f.svg"
+    },
+    {
+      "id": "LX-022A",
+      "name": "LIFE X 22A",
+      "tsubo": 22.6,
+      "depth": 6.825,
+      "width": 5.46,
+      "prices": {
+        "sell": 19800000,
+        "cost": 14800000,
+        "gross": 5000000
+      },
+      "options": {
+        "solar": false,
+        "evoltz": false,
+        "ventilationType": "Type2"
+      },
+      "tags": ["平屋", "西入り", "1階LDK", "1階水廻り"],
+      "status": "published",
+      "version": "1.1",
+      "updatedAt": "2025-08-10T14:00:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-022A/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-022A/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-022A/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-022A/floor-1f.svg",
+      "floorPlan2F": null
+    },
+    {
+      "id": "LX-031M",
+      "name": "LIFE X 31M",
+      "tsubo": 30.1,
+      "depth": 7.28,
+      "width": 6.825,
+      "prices": {
+        "sell": 24500000,
+        "cost": 18200000,
+        "gross": 6300000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": false,
+        "ventilationType": "Type1"
+      },
+      "tags": ["2階建", "北入り", "1階LDK", "1階水廻り"],
+      "status": "published",
+      "version": "1.4",
+      "updatedAt": "2025-09-03T10:30:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-031M/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-031M/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-031M/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-031M/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-031M/floor-2f.svg"
+    },
+    {
+      "id": "LX-042J",
+      "name": "LIFE X 42J",
+      "tsubo": 42.0,
+      "depth": 10.92,
+      "width": 6.37,
+      "prices": {
+        "sell": 29800000,
+        "cost": 21800000,
+        "gross": 8000000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": true,
+        "ventilationType": "Type2"
+      },
+      "tags": ["2階建", "南入り", "1階LDK", "2階水廻り"],
+      "status": "published",
+      "version": "1.5",
+      "updatedAt": "2025-09-07T13:15:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-042J/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-042J/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-042J/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-042J/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-042J/floor-2f.svg"
+    },
+    {
+      "id": "LX-048L",
+      "name": "LIFE X 48L",
+      "tsubo": 48.8,
+      "depth": 11.83,
+      "width": 6.825,
+      "prices": {
+        "sell": 33800000,
+        "cost": 24500000,
+        "gross": 9300000
+      },
+      "options": {
+        "solar": true,
+        "evoltz": true,
+        "ventilationType": "Type1"
+      },
+      "tags": ["2階建", "東入り", "2階LDK", "1階水廻り"],
+      "status": "published",
+      "version": "2.1",
+      "updatedAt": "2025-09-09T08:45:00+09:00",
+      "thumbnail": "/assets/images/plans/LX-048L/thumbnail.svg",
+      "floorPlan": "/assets/images/plans/LX-048L/floor-plan.svg",
+      "exteriorImage": "/assets/images/plans/LX-048L/exterior.svg",
+      "floorPlan1F": "/assets/images/plans/LX-048L/floor-1f.svg",
+      "floorPlan2F": "/assets/images/plans/LX-048L/floor-2f.svg"
     }
   ],
   "filters": {
     "tsubo": {
-      "min": 25.4,
-      "max": 35.8,
+      "min": 22.6,
+      "max": 48.8,
       "ranges": [
         { "label": "25坪未満", "min": 0, "max": 25 },
         { "label": "25-30坪", "min": 25, "max": 30 },
         { "label": "30-35坪", "min": 30, "max": 35 },
-        { "label": "35坪以上", "min": 35, "max": 999 }
+        { "label": "35-40坪", "min": 35, "max": 40 },
+        { "label": "40-45坪", "min": 40, "max": 45 },
+        { "label": "45坪以上", "min": 45, "max": 999 }
       ]
     },
     "depth": {
-      "min": 6.37,
-      "max": 8.19,
-      "ranges": [
-        { "label": "6m未満", "min": 0, "max": 6 },
-        { "label": "6-7m", "min": 6, "max": 7 },
-        { "label": "7-8m", "min": 7, "max": 8 },
-        { "label": "8m以上", "min": 8, "max": 999 }
-      ]
-    },
-    "width": {
-      "min": 7.28,
-      "max": 9.1,
+      "min": 6.825,
+      "max": 11.83,
       "ranges": [
         { "label": "7m未満", "min": 0, "max": 7 },
         { "label": "7-8m", "min": 7, "max": 8 },
         { "label": "8-9m", "min": 8, "max": 9 },
-        { "label": "9m以上", "min": 9, "max": 999 }
+        { "label": "9-10m", "min": 9, "max": 10 },
+        { "label": "10-11m", "min": 10, "max": 11 },
+        { "label": "11m以上", "min": 11, "max": 999 }
+      ]
+    },
+    "width": {
+      "min": 4.095,
+      "max": 7.735,
+      "ranges": [
+        { "label": "5m未満", "min": 0, "max": 5 },
+        { "label": "5-6m", "min": 5, "max": 6 },
+        { "label": "6-7m", "min": 6, "max": 7 },
+        { "label": "7m以上", "min": 7, "max": 999 }
       ]
     },
     "prices": {
       "sell": {
-        "min": 21200000,
-        "max": 26500000
+        "min": 19800000,
+        "max": 33800000
       },
       "cost": {
-        "min": 16100000,
-        "max": 19200000
+        "min": 14800000,
+        "max": 24500000
       },
       "gross": {
-        "min": 5100000,
-        "max": 7300000
+        "min": 5000000,
+        "max": 9300000
       }
     },
-    "tags": ["平屋", "2階建", "南入り", "北入り", "東入り", "西入り", "1階LDK", "2階LDK", "1階水廻り", "2階水廻り"],
+    "tags": ["北入り", "南入り", "東入り", "西入り", "平屋", "2階建て", "1階LDK", "2階LDK", "1階水廻り", "2階水廻り"],
     "options": {
       "solar": [true, false],
       "evoltz": [true, false],

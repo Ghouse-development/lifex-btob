@@ -15,6 +15,10 @@
       "destination": "/admin.html"
     },
     {
+      "source": "/admin-login",
+      "destination": "/admin-login.html"
+    },
+    {
       "source": "/admin-plans",
       "destination": "/admin-plans.html"
     },

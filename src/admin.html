@@ -3,657 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理設定 | LIFE X 加盟店専用サイト</title>
+    <title>管理メニュー | LIFE X 管理画面</title>
     <link href="./styles/main.css" rel="stylesheet">
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="./utils/api.js"></script>
+    <script src="./utils/auth.js"></script>
 </head>
-<body class="h-full bg-gray-50">
+<body class="h-full bg-gradient-to-br from-gray-50 to-gray-100">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-900">LIFE X</h1>
-                    <span class="ml-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs rounded-full">管理設定</span>
+                    <h1 class="text-xl font-bold text-gray-900">LIFE X 管理画面</h1>
+                    <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
                 </div>
-                <nav class="hidden md:flex space-x-8">
-                    <a href="/" class="nav-link">ホーム</a>
-                    <a href="/matrix.html" class="nav-link">間取マトリックス</a>
-                    <a href="/design.html" class="nav-link">デザインから探す</a>
-                    <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/rules.html" class="nav-link">ルール</a>
-                    <a href="/downloads.html" class="nav-link">ダウンロード</a>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <button @click="showPasswordModal = true" class="nav-link">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                        </svg>
+                        パスワード変更
+                    </button>
+                    <a href="/" class="nav-link">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                        </svg>
+                        サイトに戻る
+                    </a>
+                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">
+                        <svg class="w-5 h-5 mr-2 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        ログアウト
+                    </button>
                 </nav>
             </div>
         </div>
     </header>
 
-    <div x-data="adminPage()" x-init="init()">
-        <!-- Breadcrumb -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <nav class="breadcrumb">
-                <a href="/">ホーム</a>
-                <span class="breadcrumb-separator">></span>
-                <span class="text-gray-900">管理設定</span>
-            </nav>
+    <div x-data="adminMenu()" x-init="init()">
+        <!-- Page Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4">システム管理設定</h1>
+                <p class="text-lg text-gray-600">管理したい項目を選択してください</p>
+            </div>
+
+            <!-- Admin Menu Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- プラン管理 -->
+                <a href="/admin-plans.html" 
+                   class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="p-8">
+                        <!-- Icon -->
+                        <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        
+                        <!-- Title & Description -->
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">プラン管理</h3>
+                        <p class="text-gray-600 text-sm text-center mb-4">住宅プランの追加・編集・削除</p>
+                        
+                        <!-- Stats -->
+                        <div class="flex justify-center space-x-6 pt-4 border-t border-gray-100">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600" x-text="stats.plans"></div>
+                                <div class="text-xs text-gray-500">登録プラン</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-gray-900" x-text="stats.plansUpdated"></div>
+                                <div class="text-xs text-gray-500">今月更新</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <div class="absolute bottom-4 right-4 text-gray-400 group-hover:text-blue-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- ルール管理 -->
+                <a href="/admin-rules.html" 
+                   class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="p-8">
+                        <!-- Icon -->
+                        <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        
+                        <!-- Title & Description -->
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">ルール管理</h3>
+                        <p class="text-gray-600 text-sm text-center mb-4">加盟店ルールの設定・更新</p>
+                        
+                        <!-- Stats -->
+                        <div class="flex justify-center space-x-6 pt-4 border-t border-gray-100">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-emerald-600" x-text="stats.rules"></div>
+                                <div class="text-xs text-gray-500">有効ルール</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-gray-900" x-text="stats.rulesRequired"></div>
+                                <div class="text-xs text-gray-500">必須項目</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <div class="absolute bottom-4 right-4 text-gray-400 group-hover:text-emerald-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- ダウンロード管理 -->
+                <a href="/admin-downloads.html" 
+                   class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="p-8">
+                        <!-- Icon -->
+                        <div class="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                            </svg>
+                        </div>
+                        
+                        <!-- Title & Description -->
+                        <h3 class="text-xl font-bold text-gray-900 mb-3 text-center">ダウンロード管理</h3>
+                        <p class="text-gray-600 text-sm text-center mb-4">資料・ドキュメントの管理</p>
+                        
+                        <!-- Stats -->
+                        <div class="flex justify-center space-x-6 pt-4 border-t border-gray-100">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600" x-text="stats.downloads"></div>
+                                <div class="text-xs text-gray-500">総ファイル</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-gray-900" x-text="stats.downloadsMonth"></div>
+                                <div class="text-xs text-gray-500">今月DL数</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <div class="absolute bottom-4 right-4 text-gray-400 group-hover:text-purple-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="mt-12 max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <button @click="quickAction('backup')" class="flex items-center justify-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V2" />
+                            </svg>
+                            <span class="text-sm text-gray-700">バックアップ</span>
+                        </button>
+                        <button @click="quickAction('export')" class="flex items-center justify-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span class="text-sm text-gray-700">データ出力</span>
+                        </button>
+                        <button @click="quickAction('report')" class="flex items-center justify-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            <span class="text-sm text-gray-700">月次レポート</span>
+                        </button>
+                        <button @click="quickAction('settings')" class="flex items-center justify-center p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span class="text-sm text-gray-700">システム設定</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="mt-8 max-w-5xl mx-auto">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">最近のアクティビティ</h3>
+                    <div class="space-y-3">
+                        <template x-for="activity in recentActivities" :key="activity.id">
+                            <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                                <div class="flex items-center">
+                                    <div class="w-2 h-2 rounded-full mr-3" 
+                                         :class="{
+                                             'bg-blue-500': activity.type === 'plan',
+                                             'bg-emerald-500': activity.type === 'rule',
+                                             'bg-purple-500': activity.type === 'download'
+                                         }"></div>
+                                    <div>
+                                        <p class="text-sm text-gray-900" x-text="activity.message"></p>
+                                        <p class="text-xs text-gray-500" x-text="activity.time"></p>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded-full" 
+                                      :class="{
+                                          'bg-blue-100 text-blue-700': activity.type === 'plan',
+                                          'bg-emerald-100 text-emerald-700': activity.type === 'rule',
+                                          'bg-purple-100 text-purple-700': activity.type === 'download'
+                                      }"
+                                      x-text="activity.label"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Password Protection -->
-        <div x-show="!authenticated" class="max-w-md mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="card">
-                <div class="text-center mb-6">
-                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-gray-900 mb-2">管理者認証が必要です</h2>
-                    <p class="text-gray-600 text-sm">管理設定にアクセスするには、パスワードを入力してください。</p>
-                </div>
-                <div class="space-y-4">
-                    <input 
-                        type="password" 
-                        x-model="password"
-                        @keyup.enter="authenticate()"
-                        placeholder="パスワードを入力" 
-                        class="form-input w-full">
-                    <button @click="authenticate()" class="btn-primary w-full">
-                        認証する
-                    </button>
-                    <div x-show="authError" class="text-red-600 text-sm text-center">
-                        パスワードが正しくありません
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Admin Content -->
-        <div x-show="authenticated" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-            <!-- Page Header -->
-            <div class="mb-8">
-                <h1 class="text-2xl font-bold text-gray-900 mb-2">システム管理設定</h1>
-                <p class="text-gray-600">プラン管理やシステム設定を行えます</p>
-            </div>
-
-            <!-- Plan Management Section -->
-            <div class="card mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">プラン管理</h2>
-                    <button @click="showAddPlanModal = true" class="btn-primary">
-                        + 新規プラン追加
-                    </button>
-                </div>
-
-                <!-- Plans List -->
-                <div class="overflow-x-auto">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>プランID</th>
-                                <th>プラン名</th>
-                                <th>坪数</th>
-                                <th>売価</th>
-                                <th>原価</th>
-                                <th>粗利</th>
-                                <th>状態</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="plan in plans" :key="plan.id">
-                                <tr>
-                                    <td x-text="plan.id" class="font-mono text-sm"></td>
-                                    <td x-text="plan.name"></td>
-                                    <td x-text="plan.tsubo + '坪'"></td>
-                                    <td x-text="formatPrice(plan.prices.sell)"></td>
-                                    <td x-text="formatPrice(plan.prices.cost)"></td>
-                                    <td x-text="formatPrice(plan.prices.gross)" class="text-green-600 font-semibold"></td>
-                                    <td>
-                                        <span :class="plan.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'" 
-                                              class="px-2 py-1 text-xs rounded-full">
-                                            <span x-text="plan.active ? '公開' : '非公開'"></span>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <div class="flex space-x-2">
-                                            <button @click="editPlan(plan)" class="text-primary-600 hover:text-primary-800">
-                                                編集
-                                            </button>
-                                            <button @click="togglePlanStatus(plan)" class="text-gray-600 hover:text-gray-800">
-                                                <span x-text="plan.active ? '非公開' : '公開'"></span>
-                                            </button>
-                                            <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-800">
-                                                削除
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Rules Management Section -->
-            <div id="rules" class="card mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">ルール管理</h2>
-                    <button @click="showAddRuleModal = true" class="btn-primary">
-                        + 新規ルール追加
-                    </button>
-                </div>
-
-                <!-- Rules Categories -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="border rounded-lg p-4">
-                        <h3 class="font-semibold text-gray-900 mb-3">営業ルール</h3>
-                        <ul class="space-y-2">
-                            <template x-for="rule in salesRules" :key="rule.id">
-                                <li class="flex justify-between items-center">
-                                    <span x-text="rule.title" class="text-sm"></span>
-                                    <div class="space-x-1">
-                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
-                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-                    <div class="border rounded-lg p-4">
-                        <h3 class="font-semibold text-gray-900 mb-3">設計ルール</h3>
-                        <ul class="space-y-2">
-                            <template x-for="rule in designRules" :key="rule.id">
-                                <li class="flex justify-between items-center">
-                                    <span x-text="rule.title" class="text-sm"></span>
-                                    <div class="space-x-1">
-                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
-                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-                    <div class="border rounded-lg p-4">
-                        <h3 class="font-semibold text-gray-900 mb-3">施工ルール</h3>
-                        <ul class="space-y-2">
-                            <template x-for="rule in constructionRules" :key="rule.id">
-                                <li class="flex justify-between items-center">
-                                    <span x-text="rule.title" class="text-sm"></span>
-                                    <div class="space-x-1">
-                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
-                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-                    <div class="border rounded-lg p-4">
-                        <h3 class="font-semibold text-gray-900 mb-3">品質管理</h3>
-                        <ul class="space-y-2">
-                            <template x-for="rule in qualityRules" :key="rule.id">
-                                <li class="flex justify-between items-center">
-                                    <span x-text="rule.title" class="text-sm"></span>
-                                    <div class="space-x-1">
-                                        <button @click="editRule(rule)" class="text-blue-600 hover:text-blue-800">編集</button>
-                                        <button @click="deleteRule(rule)" class="text-red-600 hover:text-red-800">削除</button>
-                                    </div>
-                                </li>
-                            </template>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Downloads Management Section -->
-            <div id="downloads" class="card mb-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-gray-900">ダウンロード管理</h2>
-                    <button @click="showAddDownloadModal = true" class="btn-primary">
-                        + 新規ファイル追加
-                    </button>
-                </div>
-
-                <!-- Downloads List -->
-                <div class="overflow-x-auto">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>ファイル名</th>
-                                <th>カテゴリ</th>
-                                <th>サイズ</th>
-                                <th>更新日</th>
-                                <th>ダウンロード数</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <template x-for="download in downloads" :key="download.id">
-                                <tr>
-                                    <td x-text="download.name"></td>
-                                    <td>
-                                        <span x-text="download.category" class="badge badge-blue"></span>
-                                    </td>
-                                    <td x-text="download.size"></td>
-                                    <td x-text="download.updatedAt"></td>
-                                    <td x-text="download.downloadCount"></td>
-                                    <td>
-                                        <div class="flex space-x-2">
-                                            <button @click="editDownload(download)" class="text-blue-600 hover:text-blue-800">編集</button>
-                                            <button @click="deleteDownload(download)" class="text-red-600 hover:text-red-800">削除</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- System Settings -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- Data Management -->
-                <div class="card">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">データ管理</h3>
+        <!-- Password Change Modal -->
+        <div x-show="showPasswordModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-md shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">パスワード変更</h3>
+                    
                     <div class="space-y-4">
-                        <button @click="exportData()" class="btn-secondary w-full">
-                            📥 データエクスポート
-                        </button>
-                        <button @click="importData()" class="btn-secondary w-full">
-                            📤 データインポート
-                        </button>
-                        <button @click="backupData()" class="btn-secondary w-full">
-                            💾 バックアップ作成
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Cache Management -->
-                <div class="card">
-                    <h3 class="text-lg font-bold text-gray-900 mb-4">キャッシュ管理</h3>
-                    <div class="space-y-4">
-                        <button @click="clearCache()" class="btn-secondary w-full">
-                            🔄 キャッシュクリア
-                        </button>
-                        <button @click="rebuildIndex()" class="btn-secondary w-full">
-                            🔨 インデックス再構築
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add/Edit Plan Modal -->
-        <div x-show="showAddPlanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showAddPlanModal = false">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
-                <div class="mt-3">
-                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
-                        <h3 class="text-xl font-bold text-gray-900">
-                            <span x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></span>
-                        </h3>
-                        <button @click="showAddPlanModal = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="py-6 space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">プランID</label>
-                                <input type="text" x-model="formData.id" class="form-input" placeholder="例: A-001">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">プラン名</label>
-                                <input type="text" x-model="formData.name" class="form-input" placeholder="例: スタンダードプラン">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">坪数</label>
-                                <input type="number" x-model="formData.tsubo" class="form-input" placeholder="30">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">奥行 (m)</label>
-                                <input type="number" x-model="formData.depth" class="form-input" placeholder="10">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">間口 (m)</label>
-                                <input type="number" x-model="formData.width" class="form-input" placeholder="8">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">売価 (万円)</label>
-                                <input type="number" x-model="formData.sell" class="form-input" placeholder="2000">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">原価 (万円)</label>
-                                <input type="number" x-model="formData.cost" class="form-input" placeholder="1500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">粗利 (万円)</label>
-                                <input type="number" :value="formData.sell - formData.cost" class="form-input bg-gray-100" disabled>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">外観パース画像 URL</label>
-                                <input type="text" x-model="formData.exteriorImage" class="form-input" placeholder="https://example.com/exterior.jpg">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">間取り図画像 URL</label>
-                                <input type="text" x-model="formData.floorPlanImage" class="form-input" placeholder="https://example.com/floorplan.jpg">
-                            </div>
-                        </div>
-
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">タグ (カンマ区切り)</label>
-                            <input type="text" x-model="formData.tags" class="form-input" placeholder="人気, 新築, 太陽光対応">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">現在のパスワード</label>
+                            <input type="password" x-model="currentPassword" class="form-input w-full" placeholder="現在のパスワード">
                         </div>
-
-                        <!-- ダウンロード項目 -->
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold text-gray-900 mb-3">ダウンロード項目 (URLを入力)</h4>
-                            
-                            <div class="space-y-3">
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">プレゼン（パワポ）</label>
-                                        <input type="text" x-model="formData.downloads.presentation" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">実施図</label>
-                                        <input type="text" x-model="formData.downloads.implementationDrawing" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">キッチン図面</label>
-                                        <input type="text" x-model="formData.downloads.kitchen" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">洗面化粧台図面</label>
-                                        <input type="text" x-model="formData.downloads.washstand" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">システムバス図面</label>
-                                        <input type="text" x-model="formData.downloads.systembath" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">トイレ図面</label>
-                                        <input type="text" x-model="formData.downloads.toilet" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">照明図面</label>
-                                        <input type="text" x-model="formData.downloads.lighting" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">換気システム図面</label>
-                                        <input type="text" x-model="formData.downloads.ventilation" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">内装プレゼン（Excel）</label>
-                                        <input type="text" x-model="formData.downloads.interiorPresentation" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">仕様書・外装プレゼン（Excel）</label>
-                                        <input type="text" x-model="formData.downloads.exteriorPresentation" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">建具プレゼン</label>
-                                        <input type="text" x-model="formData.downloads.fittings" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">サッシプレゼン</label>
-                                        <input type="text" x-model="formData.downloads.sash" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">申請図</label>
-                                        <input type="text" x-model="formData.downloads.applicationDrawing" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">構造図</label>
-                                        <input type="text" x-model="formData.downloads.structuralDrawing" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">プレカット図</label>
-                                        <input type="text" x-model="formData.downloads.precutDrawing" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">資金計画書</label>
-                                        <input type="text" x-model="formData.downloads.financialPlan" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">実行予算</label>
-                                        <input type="text" x-model="formData.downloads.executionBudget" class="form-input" placeholder="URL">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Walk in Homeデータ</label>
-                                        <input type="text" x-model="formData.downloads.walkinHome" class="form-input" placeholder="URL">
-                                    </div>
-                                </div>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">新しいパスワード</label>
+                            <input type="password" x-model="newPassword" class="form-input w-full" placeholder="6文字以上">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">新しいパスワード（確認）</label>
+                            <input type="password" x-model="confirmPassword" class="form-input w-full" placeholder="もう一度入力">
                         </div>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                        <button @click="showAddPlanModal = false" class="btn-secondary">
-                            キャンセル
-                        </button>
-                        <button @click="savePlan()" class="btn-primary">
-                            <span x-text="editingPlan ? '更新する' : '追加する'"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add/Edit Rule Modal -->
-        <div x-show="showAddRuleModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showAddRuleModal = false">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
-                <div class="mt-3">
-                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
-                        <h3 class="text-xl font-bold text-gray-900">
-                            <span x-text="editingRule ? 'ルール編集' : '新規ルール追加'"></span>
-                        </h3>
-                        <button @click="showAddRuleModal = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
+                    <!-- Error Message -->
+                    <div x-show="passwordError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                        <p class="text-sm text-red-800" x-text="passwordError"></p>
                     </div>
 
-                    <div class="py-6 space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
-                            <select x-model="ruleFormData.category" class="form-input w-full">
-                                <option value="">選択してください</option>
-                                <option value="sales">営業ルール</option>
-                                <option value="design">設計ルール</option>
-                                <option value="construction">施工ルール</option>
-                                <option value="quality">品質管理</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ルールタイトル</label>
-                            <input type="text" x-model="ruleFormData.title" class="form-input w-full" placeholder="例：標準価格の適用範囲">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ルール内容</label>
-                            <textarea x-model="ruleFormData.content" rows="6" class="form-input w-full" 
-                                placeholder="ルールの詳細内容を記入してください"></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">重要度</label>
-                            <select x-model="ruleFormData.priority" class="form-input w-full">
-                                <option value="high">高（必須事項）</option>
-                                <option value="medium">中（推奨事項）</option>
-                                <option value="low">低（参考事項）</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">適用対象</label>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" x-model="ruleFormData.targets.fc" class="mr-2">
-                                    <span>FC加盟店</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" x-model="ruleFormData.targets.builder" class="mr-2">
-                                    <span>ビルダー</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" x-model="ruleFormData.targets.supplier" class="mr-2">
-                                    <span>サプライヤー</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">関連資料URL</label>
-                            <input type="text" x-model="ruleFormData.documentUrl" class="form-input w-full" placeholder="https://example.com/document.pdf">
-                        </div>
+                    <!-- Success Message -->
+                    <div x-show="passwordSuccess" class="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                        <p class="text-sm text-green-800" x-text="passwordSuccess"></p>
                     </div>
 
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                        <button @click="showAddRuleModal = false" class="btn-secondary">
-                            キャンセル
-                        </button>
-                        <button @click="saveRule()" class="btn-primary">
-                            <span x-text="editingRule ? '更新する' : '追加する'"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add/Edit Download Modal -->
-        <div x-show="showAddDownloadModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showAddDownloadModal = false">
-            <div class="relative top-20 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white" @click.stop>
-                <div class="mt-3">
-                    <div class="flex items-center justify-between pb-4 border-b border-gray-200">
-                        <h3 class="text-xl font-bold text-gray-900">
-                            <span x-text="editingDownload ? 'ファイル編集' : '新規ファイル追加'"></span>
-                        </h3>
-                        <button @click="showAddDownloadModal = false" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="py-6 space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイル名</label>
-                            <input type="text" x-model="downloadFormData.name" class="form-input w-full" placeholder="例：LIFE X パンフレット.pdf">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
-                            <select x-model="downloadFormData.category" class="form-input w-full">
-                                <option value="">選択してください</option>
-                                <option value="営業資料">営業資料</option>
-                                <option value="技術資料">技術資料</option>
-                                <option value="施工マニュアル">施工マニュアル</option>
-                                <option value="テンプレート">テンプレート</option>
-                                <option value="教育資料">教育資料</option>
-                                <option value="その他">その他</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
-                            <textarea x-model="downloadFormData.description" rows="3" class="form-input w-full" 
-                                placeholder="ファイルの内容説明を記入してください"></textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ファイルアップロード</label>
-                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                                </svg>
-                                <p class="mt-2 text-sm text-gray-600">
-                                    <button type="button" class="font-medium text-primary-600 hover:text-primary-500">
-                                        ファイルを選択
-                                    </button>
-                                    またはドラッグ＆ドロップ
-                                </p>
-                                <p class="text-xs text-gray-500 mt-1">PDF, DOC, XLS, PPT up to 10MB</p>
-                                <input type="file" class="hidden" @change="handleFileUpload($event)">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">ファイルサイズ</label>
-                                <input type="text" x-model="downloadFormData.size" class="form-input" placeholder="例：5.2MB" readonly>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">ファイル形式</label>
-                                <input type="text" x-model="downloadFormData.format" class="form-input" placeholder="例：PDF" readonly>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">アクセス権限</label>
-                            <div class="space-y-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" x-model="downloadFormData.permissions.all" class="mr-2">
-                                    <span>全ユーザー</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" x-model="downloadFormData.permissions.fc" class="mr-2">
-                                    <span>FC加盟店のみ</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" x-model="downloadFormData.permissions.premium" class="mr-2">
-                                    <span>プレミアム会員のみ</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ダウンロードURL（既存ファイルの場合）</label>
-                            <input type="text" x-model="downloadFormData.url" class="form-input w-full" placeholder="https://example.com/files/document.pdf">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-                        <button @click="showAddDownloadModal = false" class="btn-secondary">
-                            キャンセル
-                        </button>
-                        <button @click="saveDownload()" class="btn-primary">
-                            <span x-text="editingDownload ? '更新する' : '追加する'"></span>
-                        </button>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button @click="showPasswordModal = false; currentPassword = ''; newPassword = ''; confirmPassword = ''; passwordError = ''; passwordSuccess = ''" class="btn-secondary">キャンセル</button>
+                        <button @click="changePassword()" class="btn-primary">変更</button>
                     </div>
                 </div>
             </div>
@@ -661,713 +269,106 @@
     </div>
 
     <script>
-        function adminPage() {
+        // 認証チェック
+        if (!window.authManager.requireAuth()) {
+            // requireAuth内でリダイレクトされる
+        }
+
+        function adminMenu() {
             return {
-                authenticated: false,
-                password: '',
-                authError: false,
-                plans: [],
-                showAddPlanModal: false,
-                editingPlan: null,
-                // ルール管理
-                showAddRuleModal: false,
-                editingRule: null,
-                salesRules: [],
-                designRules: [],
-                constructionRules: [],
-                qualityRules: [],
-                // ダウンロード管理
-                showAddDownloadModal: false,
-                editingDownload: null,
-                downloads: [],
-                // ルール用フォームデータ
-                ruleFormData: {
-                    category: '',
-                    title: '',
-                    content: '',
-                    priority: 'medium',
-                    targets: {
-                        fc: true,
-                        builder: false,
-                        supplier: false
-                    },
-                    documentUrl: ''
+                showPasswordModal: false,
+                currentPassword: '',
+                newPassword: '',
+                confirmPassword: '',
+                passwordError: '',
+                passwordSuccess: '',
+                stats: {
+                    plans: 10,
+                    plansUpdated: 3,
+                    rules: 6,
+                    rulesRequired: 4,
+                    downloads: 8,
+                    downloadsMonth: 456
                 },
-                // ダウンロード用フォームデータ
-                downloadFormData: {
-                    name: '',
-                    category: '',
-                    description: '',
-                    size: '',
-                    format: '',
-                    url: '',
-                    permissions: {
-                        all: true,
-                        fc: false,
-                        premium: false
-                    }
-                },
-                formData: {
-                    id: '',
-                    name: '',
-                    tsubo: '',
-                    depth: '',
-                    width: '',
-                    sell: '',
-                    cost: '',
-                    tags: '',
-                    exteriorImage: '',
-                    floorPlanImage: '',
-                    downloads: {
-                        presentation: '',
-                        implementationDrawing: '',
-                        kitchen: '',
-                        washstand: '',
-                        systembath: '',
-                        toilet: '',
-                        lighting: '',
-                        ventilation: '',
-                        interiorPresentation: '',
-                        exteriorPresentation: '',
-                        fittings: '',
-                        sash: '',
-                        applicationDrawing: '',
-                        structuralDrawing: '',
-                        precutDrawing: '',
-                        financialPlan: '',
-                        executionBudget: '',
-                        walkinHome: ''
-                    }
-                },
+                recentActivities: [
+                    { id: 1, type: 'plan', message: 'プラン「LX-046H」が更新されました', time: '10分前', label: 'プラン' },
+                    { id: 2, type: 'download', message: '契約書テンプレートがダウンロードされました', time: '30分前', label: 'ダウンロード' },
+                    { id: 3, type: 'rule', message: '販売価格の設定ルールが更新されました', time: '1時間前', label: 'ルール' },
+                    { id: 4, type: 'plan', message: '新規プラン「LX-048L」が追加されました', time: '2時間前', label: 'プラン' },
+                    { id: 5, type: 'download', message: '施工マニュアルが更新されました', time: '3時間前', label: 'ダウンロード' }
+                ],
 
                 init() {
-                    // Check if already authenticated via session
-                    const authToken = sessionStorage.getItem('admin_auth');
-                    if (authToken === 'authenticated') {
-                        this.authenticated = true;
-                        this.loadPlans();
-                        this.loadRules();
-                        this.loadDownloads();
+                    // Load stats from API or localStorage
+                    this.loadStats();
+                },
+
+                logout() {
+                    if (confirm('ログアウトしますか？')) {
+                        window.authManager.logout();
                     }
-                    // ハッシュナビゲーション対応
-                    if (window.location.hash) {
+                },
+
+                changePassword() {
+                    this.passwordError = '';
+                    this.passwordSuccess = '';
+
+                    // 現在のパスワードチェック
+                    if (!window.authManager.login(this.currentPassword)) {
+                        this.passwordError = '現在のパスワードが正しくありません';
+                        return;
+                    }
+
+                    // 新しいパスワードの検証
+                    if (this.newPassword.length < 6) {
+                        this.passwordError = 'パスワードは6文字以上である必要があります';
+                        return;
+                    }
+
+                    if (this.newPassword !== this.confirmPassword) {
+                        this.passwordError = '新しいパスワードが一致しません';
+                        return;
+                    }
+
+                    // パスワード変更
+                    try {
+                        window.authManager.changePassword(this.newPassword);
+                        this.passwordSuccess = 'パスワードを変更しました';
                         setTimeout(() => {
-                            const element = document.querySelector(window.location.hash);
-                            if (element) {
-                                element.scrollIntoView({ behavior: 'smooth' });
-                            }
-                        }, 100);
+                            this.showPasswordModal = false;
+                            this.currentPassword = '';
+                            this.newPassword = '';
+                            this.confirmPassword = '';
+                            this.passwordSuccess = '';
+                        }, 2000);
+                    } catch (error) {
+                        this.passwordError = error.message;
                     }
                 },
 
-                authenticate() {
-                    // Simple password check (in production, this should be server-side)
-                    if (this.password === 'admin2024') {
-                        this.authenticated = true;
-                        this.authError = false;
-                        sessionStorage.setItem('admin_auth', 'authenticated');
-                        this.loadPlans();
-                        this.loadRules();
-                        this.loadDownloads();
-                    } else {
-                        this.authError = true;
-                    }
+                loadStats() {
+                    // Simulate loading stats
+                    // In real implementation, this would fetch from API
                 },
 
-                loadPlans() {
-                    // Load plans from localStorage or API
-                    const storedPlans = localStorage.getItem('lifex_plans');
-                    if (storedPlans) {
-                        this.plans = JSON.parse(storedPlans);
-                    } else {
-                        // Sample data
-                        this.plans = [
-                            { id: 'A-001', name: 'スタンダードプラン', tsubo: 30, prices: { sell: 2000, cost: 1500, gross: 500 }, active: true },
-                            { id: 'A-002', name: 'コンパクトプラン', tsubo: 25, prices: { sell: 1800, cost: 1350, gross: 450 }, active: true },
-                            { id: 'B-001', name: 'ファミリープラン', tsubo: 35, prices: { sell: 2400, cost: 1800, gross: 600 }, active: true },
-                        ];
-                    }
-                },
-
-                editPlan(plan) {
-                    this.editingPlan = plan;
-                    this.formData = {
-                        id: plan.id,
-                        name: plan.name,
-                        tsubo: plan.tsubo,
-                        depth: plan.depth || 10,
-                        width: plan.width || 8,
-                        sell: plan.prices.sell,
-                        cost: plan.prices.cost,
-                        tags: plan.tags ? plan.tags.join(', ') : '',
-                        exteriorImage: plan.exteriorImage || '',
-                        floorPlanImage: plan.floorPlanImage || '',
-                        downloads: plan.downloads || {
-                            presentation: '',
-                            implementationDrawing: '',
-                            kitchen: '',
-                            washstand: '',
-                            systembath: '',
-                            toilet: '',
-                            lighting: '',
-                            ventilation: '',
-                            interiorPresentation: '',
-                            exteriorPresentation: '',
-                            fittings: '',
-                            sash: '',
-                            applicationDrawing: '',
-                            structuralDrawing: '',
-                            precutDrawing: '',
-                            financialPlan: '',
-                            executionBudget: '',
-                            walkinHome: ''
-                        }
-                    };
-                    this.showAddPlanModal = true;
-                },
-
-                savePlan() {
-                    const planData = {
-                        id: this.formData.id,
-                        name: this.formData.name,
-                        tsubo: parseInt(this.formData.tsubo),
-                        depth: parseFloat(this.formData.depth),
-                        width: parseFloat(this.formData.width),
-                        prices: {
-                            sell: parseInt(this.formData.sell),
-                            cost: parseInt(this.formData.cost),
-                            gross: parseInt(this.formData.sell) - parseInt(this.formData.cost)
-                        },
-                        tags: this.formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
-                        exteriorImage: this.formData.exteriorImage,
-                        floorPlanImage: this.formData.floorPlanImage,
-                        downloads: this.formData.downloads,
-                        active: true,
-                        updatedAt: new Date().toISOString()
-                    };
-
-                    if (this.editingPlan) {
-                        // Update existing plan
-                        const index = this.plans.findIndex(p => p.id === this.editingPlan.id);
-                        if (index !== -1) {
-                            this.plans[index] = { ...this.plans[index], ...planData };
-                        }
-                    } else {
-                        // Add new plan
-                        this.plans.push(planData);
-                    }
-
-                    // Save to localStorage
-                    localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
-                    
-                    this.showAddPlanModal = false;
-                    this.resetForm();
-                    alert(this.editingPlan ? 'プランを更新しました' : 'プランを追加しました');
-                },
-
-                togglePlanStatus(plan) {
-                    plan.active = !plan.active;
-                    localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
-                },
-
-                deletePlan(plan) {
-                    if (confirm(`プラン「${plan.name}」を削除してもよろしいですか？`)) {
-                        this.plans = this.plans.filter(p => p.id !== plan.id);
-                        localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
-                    }
-                },
-
-                resetForm() {
-                    this.formData = {
-                        id: '',
-                        name: '',
-                        tsubo: '',
-                        depth: '',
-                        width: '',
-                        sell: '',
-                        cost: '',
-                        tags: '',
-                        exteriorImage: '',
-                        floorPlanImage: ''
-                    };
-                    this.editingPlan = null;
-                },
-
-                formatPrice(price) {
-                    return price ? price.toLocaleString() + '万円' : '-';
-                },
-
-                exportData() {
-                    const data = JSON.stringify(this.plans, null, 2);
-                    const blob = new Blob([data], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'lifex_plans_' + new Date().toISOString().split('T')[0] + '.json';
-                    a.click();
-                },
-
-                importData() {
-                    const input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'application/json';
-                    input.onchange = (e) => {
-                        const file = e.target.files[0];
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            try {
-                                const data = JSON.parse(event.target.result);
-                                this.plans = data;
-                                localStorage.setItem('lifex_plans', JSON.stringify(this.plans));
-                                alert('データをインポートしました');
-                            } catch (error) {
-                                alert('データのインポートに失敗しました');
-                            }
-                        };
-                        reader.readAsText(file);
-                    };
-                    input.click();
-                },
-
-                backupData() {
-                    const backup = {
-                        plans: this.plans,
-                        timestamp: new Date().toISOString()
-                    };
-                    localStorage.setItem('lifex_backup_' + Date.now(), JSON.stringify(backup));
-                    alert('バックアップを作成しました');
-                },
-
-                clearCache() {
-                    if (confirm('キャッシュをクリアしてもよろしいですか？')) {
-                        sessionStorage.clear();
-                        alert('キャッシュをクリアしました');
-                    }
-                },
-
-                rebuildIndex() {
-                    alert('インデックスの再構築を開始しました');
-                    setTimeout(() => {
-                        alert('インデックスの再構築が完了しました');
-                    }, 2000);
-                },
-
-                // ルール管理メソッド
-                loadRules() {
-                    // サンプルデータ
-                    this.salesRules = [
-                        { id: 1, title: '標準価格の適用範囲', category: 'sales' },
-                        { id: 2, title: 'オプション価格設定基準', category: 'sales' }
-                    ];
-                    this.designRules = [
-                        { id: 3, title: '耐震等級3の確保', category: 'design' },
-                        { id: 4, title: '基礎設計の標準仕様', category: 'design' }
-                    ];
-                    this.constructionRules = [
-                        { id: 5, title: '各工程の品質チェックポイント', category: 'construction' },
-                        { id: 6, title: '施工精度の許容範囲', category: 'construction' }
-                    ];
-                    this.qualityRules = [
-                        { id: 7, title: '第三者検査機関の活用', category: 'quality' },
-                        { id: 8, title: '品質向上のための改善活動', category: 'quality' }
-                    ];
-                },
-
-                editRule(rule) {
-                    this.editingRule = rule;
-                    this.ruleFormData = {
-                        category: rule.category,
-                        title: rule.title,
-                        content: rule.content || '',
-                        priority: rule.priority || 'medium',
-                        targets: rule.targets || { fc: true, builder: false, supplier: false },
-                        documentUrl: rule.documentUrl || ''
-                    };
-                    this.showAddRuleModal = true;
-                },
-
-                saveRule() {
-                    if (!this.ruleFormData.category || !this.ruleFormData.title) {
-                        alert('カテゴリとタイトルは必須です');
-                        return;
-                    }
-
-                    const newRule = {
-                        id: this.editingRule ? this.editingRule.id : Date.now(),
-                        ...this.ruleFormData
-                    };
-
-                    if (this.editingRule) {
-                        // 編集モード
-                        switch(this.ruleFormData.category) {
-                            case 'sales':
-                                const salesIndex = this.salesRules.findIndex(r => r.id === this.editingRule.id);
-                                if (salesIndex !== -1) this.salesRules[salesIndex] = newRule;
-                                break;
-                            case 'design':
-                                const designIndex = this.designRules.findIndex(r => r.id === this.editingRule.id);
-                                if (designIndex !== -1) this.designRules[designIndex] = newRule;
-                                break;
-                            case 'construction':
-                                const constructionIndex = this.constructionRules.findIndex(r => r.id === this.editingRule.id);
-                                if (constructionIndex !== -1) this.constructionRules[constructionIndex] = newRule;
-                                break;
-                            case 'quality':
-                                const qualityIndex = this.qualityRules.findIndex(r => r.id === this.editingRule.id);
-                                if (qualityIndex !== -1) this.qualityRules[qualityIndex] = newRule;
-                                break;
-                        }
-                        alert('ルールを更新しました');
-                    } else {
-                        // 新規追加モード
-                        switch(this.ruleFormData.category) {
-                            case 'sales':
-                                this.salesRules.push(newRule);
-                                break;
-                            case 'design':
-                                this.designRules.push(newRule);
-                                break;
-                            case 'construction':
-                                this.constructionRules.push(newRule);
-                                break;
-                            case 'quality':
-                                this.qualityRules.push(newRule);
-                                break;
-                        }
-                        alert('ルールを追加しました');
-                    }
-
-                    this.showAddRuleModal = false;
-                    this.editingRule = null;
-                    this.resetRuleForm();
-                },
-
-                resetRuleForm() {
-                    this.ruleFormData = {
-                        category: '',
-                        title: '',
-                        content: '',
-                        priority: 'medium',
-                        targets: { fc: true, builder: false, supplier: false },
-                        documentUrl: ''
-                    };
-                },
-
-                deleteRule(rule) {
-                    if (confirm(`ルール「${rule.title}」を削除してもよろしいですか？`)) {
-                        switch(rule.category) {
-                            case 'sales':
-                                this.salesRules = this.salesRules.filter(r => r.id !== rule.id);
-                                break;
-                            case 'design':
-                                this.designRules = this.designRules.filter(r => r.id !== rule.id);
-                                break;
-                            case 'construction':
-                                this.constructionRules = this.constructionRules.filter(r => r.id !== rule.id);
-                                break;
-                            case 'quality':
-                                this.qualityRules = this.qualityRules.filter(r => r.id !== rule.id);
-                                break;
-                        }
-                        alert('ルールを削除しました');
-                    }
-                },
-
-                // ダウンロード管理メソッド
-                loadDownloads() {
-                    // サンプルデータ
-                    this.downloads = [
-                        { id: 1, name: 'LIFE X パンフレット.pdf', category: '営業資料', size: '5.2MB', updatedAt: '2025-09-01', downloadCount: 142 },
-                        { id: 2, name: '標準仕様書.xlsx', category: '技術資料', size: '2.8MB', updatedAt: '2025-08-28', downloadCount: 89 },
-                        { id: 3, name: '資金計画書テンプレート.xlsx', category: 'テンプレート', size: '1.5MB', updatedAt: '2025-08-15', downloadCount: 234 }
-                    ];
-                },
-
-                editDownload(download) {
-                    this.editingDownload = download;
-                    this.downloadFormData = {
-                        name: download.name,
-                        category: download.category,
-                        description: download.description || '',
-                        size: download.size,
-                        format: download.format || '',
-                        url: download.url || '',
-                        permissions: download.permissions || { all: true, fc: false, premium: false }
-                    };
-                    this.showAddDownloadModal = true;
-                },
-
-                saveDownload() {
-                    if (!this.downloadFormData.name || !this.downloadFormData.category) {
-                        alert('ファイル名とカテゴリは必須です');
-                        return;
-                    }
-
-                    const newDownload = {
-                        id: this.editingDownload ? this.editingDownload.id : Date.now(),
-                        ...this.downloadFormData,
-                        updatedAt: new Date().toLocaleDateString('ja-JP'),
-                        downloadCount: this.editingDownload ? this.editingDownload.downloadCount : 0
-                    };
-
-                    if (this.editingDownload) {
-                        // 編集モード
-                        const index = this.downloads.findIndex(d => d.id === this.editingDownload.id);
-                        if (index !== -1) {
-                            this.downloads[index] = newDownload;
-                        }
-                        alert('ファイル情報を更新しました');
-                    } else {
-                        // 新規追加モード
-                        this.downloads.push(newDownload);
-                        alert('ファイルを追加しました');
-                    }
-
-                    this.showAddDownloadModal = false;
-                    this.editingDownload = null;
-                    this.resetDownloadForm();
-                },
-
-                resetDownloadForm() {
-                    this.downloadFormData = {
-                        name: '',
-                        category: '',
-                        description: '',
-                        size: '',
-                        format: '',
-                        url: '',
-                        permissions: { all: true, fc: false, premium: false }
-                    };
-                },
-
-                handleFileUpload(event) {
-                    const file = event.target.files[0];
-                    if (file) {
-                        // ファイルサイズをMB単位で計算
-                        const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-                        this.downloadFormData.size = sizeMB + 'MB';
-                        
-                        // ファイル形式を取得
-                        const extension = file.name.split('.').pop().toUpperCase();
-                        this.downloadFormData.format = extension;
-                        
-                        // ファイル名を自動入力
-                        if (!this.downloadFormData.name) {
-                            this.downloadFormData.name = file.name;
-                        }
-                    }
-                },
-
-                deleteDownload(download) {
-                    if (confirm(`ファイル「${download.name}」を削除してもよろしいですか？`)) {
-                        this.downloads = this.downloads.filter(d => d.id !== download.id);
-                        alert('ファイルを削除しました');
+                quickAction(action) {
+                    switch(action) {
+                        case 'backup':
+                            lifeXAPI.showToast('バックアップを開始しました', 'success');
+                            break;
+                        case 'export':
+                            lifeXAPI.showToast('データのエクスポートを準備中です', 'info');
+                            break;
+                        case 'report':
+                            lifeXAPI.showToast('月次レポートを生成中です', 'info');
+                            break;
+                        case 'settings':
+                            lifeXAPI.showToast('システム設定を開きます', 'info');
+                            break;
                     }
                 }
             }
         }
     </script>
-
-<!-- AI Bot Component -->
-<div x-data="aibotComponent()" x-init="init()" class="aibot-container">
-    <!-- AI Bot Floating Button -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <button @click="toggleChat()" 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group" 
-                title="AIサポート">
-            <svg x-show="!chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-            </svg>
-            <svg x-show="chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-        </button>
-    </div>
-
-    <!-- AI Chat Window -->
-    <div x-show="chatOpen" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4"
-         x-transition:enter-end="opacity-100 transform translate-y-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 transform translate-y-0"
-         x-transition:leave-end="opacity-0 transform translate-y-4"
-         class="fixed bottom-24 right-6 w-96 max-w-full bg-white rounded-xl shadow-2xl z-50"
-         style="display: none;">
-        
-        <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-t-xl">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <span class="text-lg">🤖</span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold">LIFE X AIサポート</h3>
-                        <p class="text-xs text-white/80">ご質問をどうぞ</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Messages -->
-        <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="aibotChatArea">
-            <!-- Welcome Message -->
-            <div class="mb-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm">AI</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-                        <p class="text-gray-700 text-sm">こんにちは！LIFE Xについて何でもお気軽にご質問ください。</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dynamic Messages -->
-            <template x-for="message in messages" :key="message.id">
-                <div class="mb-4">
-                    <div class="flex items-start space-x-3" :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
-                             :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'">
-                            <span class="text-white text-sm" x-text="message.type === 'user' ? 'You' : 'AI'"></span>
-                        </div>
-                        <div class="p-3 rounded-lg shadow-sm max-w-xs" 
-                             :class="message.type === 'user' ? 'bg-blue-100' : 'bg-white'">
-                            <p class="text-gray-700 text-sm" x-html="message.content"></p>
-                            <p class="text-xs text-gray-500 mt-1" x-text="message.timestamp"></p>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Typing Indicator -->
-            <div x-show="isTyping" class="mb-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm">AI</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm">
-                        <div class="flex space-x-1">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-4 border-t border-gray-200">
-            <div class="flex space-x-2">
-                <input type="text" 
-                       x-model="currentMessage" 
-                       @keydown.enter="sendMessage()"
-                       placeholder="メッセージを入力..."
-                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
-                <button @click="sendMessage()" 
-                        :disabled="!currentMessage.trim() || isTyping"
-                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
-                    送信
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function aibotComponent() {
-    return {
-        chatOpen: false,
-        messages: [],
-        currentMessage: '',
-        isTyping: false,
-
-        init() {
-            // 初期化処理
-        },
-
-        toggleChat() {
-            this.chatOpen = !this.chatOpen;
-            if (this.chatOpen) {
-                setTimeout(() => {
-                    const chatArea = document.getElementById('aibotChatArea');
-                    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-                }, 100);
-            }
-        },
-
-        async sendMessage() {
-            if (!this.currentMessage.trim() || this.isTyping) return;
-
-            const message = this.currentMessage.trim();
-            const userMessage = {
-                id: Date.now(),
-                type: 'user',
-                content: message,
-                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            this.messages.push(userMessage);
-            this.currentMessage = '';
-            this.isTyping = true;
-
-            // Scroll to bottom
-            setTimeout(() => {
-                const chatArea = document.getElementById('aibotChatArea');
-                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-            }, 100);
-
-            // Generate AI response
-            await this.generateResponse(message);
-        },
-
-        async generateResponse(question) {
-            // AI応答のシミュレーション
-            let response = '';
-            const lowerQuestion = question.toLowerCase();
-            
-            if (lowerQuestion.includes('価格') || lowerQuestion.includes('料金') || lowerQuestion.includes('費用')) {
-                response = 'LIFE Xの価格については、標準価格表に基づいて見積もりを作成いたします。詳細は営業担当者にお問い合わせください。';
-            } else if (lowerQuestion.includes('プラン')) {
-                response = 'LIFE Xでは30坪から35坪まで様々なプランをご用意しています。プラン一覧ページでご確認いただけます。';
-            } else if (lowerQuestion.includes('耐震') || lowerQuestion.includes('地震')) {
-                response = 'LIFE Xでは耐震等級3を標準仕様としています。建築基準法の1.5倍の地震力に耐える構造です。';
-            } else if (lowerQuestion.includes('工期') || lowerQuestion.includes('期間')) {
-                response = '標準的な工事期間は約4〜5ヶ月です。詳細な工程表は契約時にご説明いたします。';
-            } else if (lowerQuestion.includes('保証')) {
-                response = '構造躯体・防水は10年保証、設備機器はメーカー保証に準じます。定期点検も実施いたします。';
-            } else if (lowerQuestion.includes('ダウンロード')) {
-                response = 'ダウンロードページから各種資料をダウンロードいただけます。パンフレット、資金計画書、標準仕様書などがございます。';
-            } else if (lowerQuestion.includes('間取') || lowerQuestion.includes('マトリックス')) {
-                response = '間取マトリックスページでは、建物間口と奥行の組み合わせから最適なプランを検索できます。';
-            } else {
-                response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
-            }
-
-            // タイピング遅延のシミュレーション
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            const aiMessage = {
-                id: Date.now(),
-                type: 'ai',
-                content: response,
-                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            this.isTyping = false;
-            this.messages.push(aiMessage);
-
-            // Scroll to bottom
-            setTimeout(() => {
-                const chatArea = document.getElementById('aibotChatArea');
-                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-            }, 100);
-        }
-    }
-}
-</script>
 </body>
 </html>

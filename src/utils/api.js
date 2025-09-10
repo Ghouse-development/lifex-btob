@@ -48,12 +48,17 @@ class LifeXAPI {
     return this.fetchJSON('/data/news.json');
   }
 
-  formatPrice(price) {
-    return new Intl.NumberFormat('ja-JP', {
+  formatPrice(price, showTax = false, isTaxIncluded = true) {
+    const formatted = new Intl.NumberFormat('ja-JP', {
       style: 'currency',
       currency: 'JPY',
       minimumFractionDigits: 0
     }).format(price);
+    
+    if (showTax) {
+      return formatted + (isTaxIncluded ? '(税込)' : '(税別)');
+    }
+    return formatted;
   }
 
   formatDate(dateString) {
