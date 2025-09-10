@@ -395,12 +395,16 @@
                     // LocalStorageに保存
                     localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
                     console.log('Saved FAQs to localStorage', this.faqs);
+                    // 統計更新イベントを発火
+                    window.dispatchEvent(new CustomEvent('stats-updated'));
                 },
 
                 async saveFAQOrder() {
                     // LocalStorageに保存
                     localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
                     console.log('Saved FAQ order to localStorage');
+                    // 統計更新イベントを発火
+                    window.dispatchEvent(new CustomEvent('stats-updated'));
                     lifeXAPI.showToast('表示順を更新しました', 'success');
                 }
             };

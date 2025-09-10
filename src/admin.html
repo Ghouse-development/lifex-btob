@@ -329,6 +329,11 @@
                     window.addEventListener('plans-updated', () => {
                         this.loadStats();
                     });
+                    
+                    // 統計更新イベントをリッスン
+                    window.addEventListener('stats-updated', () => {
+                        this.loadStats();
+                    });
                 },
 
                 logout() {
@@ -362,6 +367,9 @@
                             });
                             this.stats.rules = totalRules;
                             this.stats.rulesRequired = requiredRules;
+                        } else {
+                            this.stats.rules = 0;
+                            this.stats.rulesRequired = 0;
                         }
                         
                         // ダウンロード統計
@@ -369,26 +377,49 @@
                         if (downloadsData) {
                             const downloads = JSON.parse(downloadsData);
                             let totalFiles = 0;
-                            (downloads.categories || []).forEach(cat => {
-                                totalFiles += (cat.files || []).length;
-                            });
+                            // categoriesがオブジェクト形式の場合
+                            if (downloads.categories && typeof downloads.categories === 'object') {
+                                Object.values(downloads.categories).forEach(cat => {
+                                    if (cat.items && Array.isArray(cat.items)) {
+                                        totalFiles += cat.items.length;
+                                    }
+                                });
+                            } else if (downloads.categories && Array.isArray(downloads.categories)) {
+                                // 配列形式の場合
+                                downloads.categories.forEach(cat => {
+                                    if (cat.files && Array.isArray(cat.files)) {
+                                        totalFiles += cat.files.length;
+                                    }
+                                });
+                            }
                             this.stats.downloads = totalFiles;
+                            console.log('Downloads data:', downloads, 'Total files:', totalFiles);
+                        } else {
+                            this.stats.downloads = 0;
                         }
                         
                         // FAQ統計
                         const faqData = localStorage.getItem('faq_data');
                         if (faqData) {
                             const faqs = JSON.parse(faqData);
-                            this.stats.faqs = (faqs.faqs || []).length;
-                            const uniqueCategories = new Set((faqs.faqs || []).map(f => f.category));
+                            this.stats.faqs = (faqs.faqs || faqs || []).length;
+                            const faqArray = faqs.faqs || faqs || [];
+                            const uniqueCategories = new Set(faqArray.map(f => f.category).filter(c => c));
                             this.stats.faqCategories = uniqueCategories.size;
+                            console.log('FAQ data:', faqs, 'Total FAQs:', this.stats.faqs);
+                        } else {
+                            this.stats.faqs = 0;
+                            this.stats.faqCategories = 0;
                         }
                         
                         // 管理者統計
                         const adminData = localStorage.getItem('admin_users_data');
                         if (adminData) {
                             const admins = JSON.parse(adminData);
-                            this.stats.admins = (admins.users || []).length;
+                            this.stats.admins = (admins.users || admins || []).length;
+                            console.log('Admin data:', admins, 'Total admins:', this.stats.admins);
+                        } else {
+                            this.stats.admins = 0;
                         }
                     } catch (error) {
                         console.error('Failed to load stats:', error);

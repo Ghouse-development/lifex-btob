@@ -492,6 +492,8 @@
                 saveToLocalStorage() {
                     localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
                     console.log('Saved rules to localStorage', this.categories);
+                    // 統計更新イベントを発火
+                    window.dispatchEvent(new CustomEvent('stats-updated'));
                 }
             };
         }

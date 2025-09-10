@@ -514,6 +514,8 @@
                 
                 saveToLocalStorage() {
                     localStorage.setItem('admin_users_data', JSON.stringify({ users: this.users }));
+                    // 統計更新イベントを発火
+                    window.dispatchEvent(new CustomEvent('stats-updated'));
                 },
                 
                 loadLogs() {

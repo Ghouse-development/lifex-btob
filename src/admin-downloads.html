@@ -481,6 +481,8 @@
                         }, {})
                     };
                     localStorage.setItem('downloads_data', JSON.stringify(data));
+                    // 統計更新イベントを発火
+                    window.dispatchEvent(new CustomEvent('stats-updated'));
                 },
                 
                 loadFromLocalStorage() {
