@@ -21,7 +21,9 @@
       "Bash(do)",
       "Bash(done)",
       "Bash(npx html-validate:*)",
-      "Bash(for file in src/admin.html src/downloads.html src/index.html src/plans.html src/rules.html)"
+      "Bash(for file in src/admin.html src/downloads.html src/index.html src/plans.html src/rules.html)",
+      "Bash(find:*)",
+      "Bash(for:*)"
     ],
     "deny": [],
     "ask": []
