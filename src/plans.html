@@ -8,7 +8,7 @@
     <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="h-full bg-gray-50">
+<body class="min-h-screen flex flex-col bg-gray-50">
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -849,6 +849,15 @@
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="mt-auto bg-gray-100 border-t border-gray-200 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center text-gray-600 text-sm">
+                <p>お問い合わせ | 株式会社Gハウス | 〒535-0022 大阪府大阪市旭区新森2-23-12 | TEL: 06-6954-0648 (商品企画部) | Email: LIFE-X@ghouse.jp</p>
+            </div>
+        </div>
+    </footer>
+
     <script>
         function plansPage() {
             return {
@@ -952,7 +961,9 @@
                     
                     const tagSet = new Set();
                     this.allPlans.forEach(plan => {
-                        plan.tags.forEach(tag => tagSet.add(tag));
+                        if (plan.tags && Array.isArray(plan.tags)) {
+                            plan.tags.forEach(tag => tagSet.add(tag));
+                        }
                     });
                     
                     // Sort tags according to specified order
