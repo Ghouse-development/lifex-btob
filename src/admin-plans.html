@@ -169,7 +169,7 @@
 
                 <div class="p-6 flex-grow overflow-y-auto">
                     <!-- All Content in Single View -->
-                    <div class="space-y-6">
+                    <form @submit.prevent="savePlan()" class="space-y-6">
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <h4 class="text-lg font-semibold text-gray-900 mb-4">基本情報</h4>
                                 <div class="grid grid-cols-2 gap-4">
@@ -744,8 +744,7 @@
                                 </button>
 
                                 <!-- 保存ボタン -->
-                                <button @click="savePlan()"
-                                        type="button"
+                                <button type="submit"
                                         :disabled="!isFormValid() || saving"
                                         :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
                                         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
@@ -765,7 +764,7 @@
                                 </button>
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -1168,19 +1167,33 @@
                 },
 
                 async savePlan() {
-                    console.log('savePlan called');
-                    console.log('FormData:', this.formData);
-                    console.log('Is form valid?', this.isFormValid());
-                    
+                    console.log('[SavePlan] 保存処理開始');
+                    console.log('[SavePlan] FormData:', this.formData);
+                    console.log('[SavePlan] Is form valid?', this.isFormValid());
+
                     // バリデーションチェック
                     if (!this.isFormValid()) {
-                        console.log('Form validation failed');
-                        console.log('Form errors:', this.formErrors);
-                        lifeXAPI.showToast('必須項目を入力してください', 'error');
+                        console.error('[SavePlan] バリデーションエラー');
+                        console.error('[SavePlan] Form errors:', this.formErrors);
+
+                        // 具体的なエラー内容を表示
+                        const errorMessages = [];
+                        if (!this.formData.id) errorMessages.push('プランコード');
+                        if (!this.formData.tsubo) errorMessages.push('坪数');
+                        if (!this.formData.layout) errorMessages.push('間取り');
+                        if (!this.getActualSellPrice()) errorMessages.push('販売価格');
+                        if (!this.formData.cost) errorMessages.push('原価');
+
+                        const message = errorMessages.length > 0
+                            ? `以下の必須項目を入力してください: ${errorMessages.join('、')}`
+                            : '必須項目を入力してください';
+
+                        lifeXAPI.showToast(message, 'error');
                         return;
                     }
-                    
+
                     this.saving = true;
+                    console.log('[SavePlan] バリデーション成功、保存処理を開始');
                     
                     try {
                         // カスタムタグを処理
@@ -1225,25 +1238,45 @@
                         delete planData.featureTags;
                         delete planData.customTags;
                         
-                        console.log('Saving plan data:', planData);
-                        
-                        if (this.editingPlan) {
-                            await lifeXAPI.updatePlan(this.editingPlan.id, planData);
-                            lifeXAPI.showToast('プランを更新しました', 'success');
-                        } else {
-                            await lifeXAPI.createPlan(planData);
-                            lifeXAPI.showToast('プランを追加しました', 'success');
+                        console.log('[SavePlan] 送信データ:', planData);
+
+                        try {
+                            if (this.editingPlan) {
+                                console.log('[SavePlan] 既存プランを更新:', this.editingPlan.id);
+                                await lifeXAPI.updatePlan(this.editingPlan.id, planData);
+                                console.log('[SavePlan] プラン更新成功');
+                                lifeXAPI.showToast('プランを更新しました', 'success');
+                            } else {
+                                console.log('[SavePlan] 新規プランを作成');
+                                const result = await lifeXAPI.createPlan(planData);
+                                console.log('[SavePlan] プラン作成成功:', result);
+                                lifeXAPI.showToast('プランを追加しました', 'success');
+                            }
+
+                            console.log('[SavePlan] プラン一覧を再読み込み');
+                            await this.loadPlans();
+                            this.filterPlans();
+                            this.updateStats();
+                            this.closeModal();
+                            console.log('[SavePlan] 保存処理完了');
+                        } catch (apiError) {
+                            console.error('[SavePlan] API呼び出しエラー:', apiError);
+                            console.error('[SavePlan] エラー詳細:', {
+                                message: apiError.message,
+                                stack: apiError.stack,
+                                response: apiError.response
+                            });
+                            throw apiError;
                         }
-                        
-                        await this.loadPlans();
-                        this.filterPlans();
-                        this.updateStats();
-                        this.closeModal();
                     } catch (error) {
-                        console.error('プランの保存に失敗しました:', error);
-                        lifeXAPI.showToast(`プランの保存に失敗しました: ${error.message}`, 'error');
+                        console.error('[SavePlan] 保存エラー:', error);
+                        const errorMessage = error.response?.data?.message
+                            || error.message
+                            || 'プランの保存に失敗しました';
+                        lifeXAPI.showToast(errorMessage, 'error');
                     } finally {
                         this.saving = false;
+                        console.log('[SavePlan] 保存処理終了');
                     }
                 },
 

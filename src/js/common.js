@@ -823,7 +823,13 @@ window.lifeXAPI = {
     // プラン作成
     async createPlan(planData) {
         try {
-            console.log('===== CREATE PLAN WITH INDEXEDDB =====');
+            console.log('===== CREATE PLAN API CALL =====');
+            console.log('[API] createPlan called with:', planData);
+            console.log('[API] Environment:', {
+                hostname: window.location.hostname,
+                pathname: window.location.pathname,
+                protocol: window.location.protocol
+            });
             
             // LocalStorageから既存のプランを取得
             const localData = localStorage.getItem('plans_data');
