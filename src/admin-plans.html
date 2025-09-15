@@ -152,8 +152,8 @@
 
         <!-- Add/Edit Modal -->
         <div x-show="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
-            <div class="relative top-5 mx-auto p-0 border w-11/12 max-w-6xl shadow-2xl rounded-xl bg-white mb-10" style="max-height: 95vh; overflow-y: auto;">
-                <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-xl">
+            <div class="relative top-10 mx-auto p-0 border w-11/12 max-w-6xl shadow-2xl rounded-xl bg-white mb-10 flex flex-col" style="max-height: calc(100vh - 6rem);">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-xl flex-shrink-0">
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-xl font-bold text-white" x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></h3>
@@ -166,8 +166,8 @@
                         </button>
                     </div>
                 </div>
-                
-                <div class="p-6" style="max-height: calc(95vh - 120px); overflow-y: auto;">
+
+                <div class="p-6 flex-grow overflow-y-auto">
                     <!-- All Content in Single View -->
                     <div class="space-y-6">
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -250,7 +250,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <h4 class="text-lg font-semibold text-gray-900 mb-4">価格情報</h4>
                                 <div class="grid grid-cols-2 gap-4">
@@ -729,38 +729,41 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="mt-8 flex justify-between items-center">
-                        <div class="flex space-x-3">
-                            <button @click="prevTab()" 
-                                    x-show="currentTab !== 'basic'"
-                                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                                前へ
-                            </button>
-                            <button @click="nextTab()" 
-                                    x-show="currentTab !== 'confirm'"
-                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                次へ
-                            </button>
-                        </div>
-                        
-                        <div class="flex space-x-3">
-                            <button @click="closeModal()" class="btn-secondary">キャンセル</button>
-                            <button @click="console.log('Save button clicked'); savePlan()" 
-                                    :disabled="!isFormValid()"
-                                    :class="isFormValid() ? 'btn-primary' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
-                                    class="px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-                                <span x-show="!saving">保存</span>
-                                <span x-show="saving" class="flex items-center">
-                                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+                        <!-- アクションボタン（コンテンツエリア内の最下部） -->
+                        <div class="mt-8 p-6 bg-gray-50 rounded-lg">
+                            <div class="flex justify-end space-x-3">
+                                <!-- キャンセルボタン -->
+                                <button @click="closeModal()"
+                                        type="button"
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                                    <svg class="w-4 h-4 mr-2 -ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    キャンセル
+                                </button>
+
+                                <!-- 保存ボタン -->
+                                <button @click="savePlan()"
+                                        type="button"
+                                        :disabled="!isFormValid() || saving"
+                                        :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+
+                                    <!-- 保存中のローディング -->
+                                    <svg x-show="saving" class="animate-spin -ml-0.5 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    保存中...
-                                </span>
-                            </button>
+
+                                    <!-- 通常時のアイコン -->
+                                    <svg x-show="!saving" class="w-4 h-4 mr-2 -ml-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+
+                                    <span x-text="saving ? '保存中...' : '保存'"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

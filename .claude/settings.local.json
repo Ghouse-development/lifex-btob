@@ -34,7 +34,9 @@
       "Bash(npx vite:*)",
       "Bash(do echo \"=== $file ===\")",
       "Bash(grep:*)",
-      "Bash(npm run lint)"
+      "Bash(npm run lint)",
+      "Bash(cat:*)",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []
