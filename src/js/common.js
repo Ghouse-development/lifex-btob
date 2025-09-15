@@ -176,7 +176,7 @@ class ModeManager {
         this.initEventListeners();
     }
 
-    // モード取得（デフォルトは商談モード）
+    // モード取得（デフォルトは打合せモード）
     getMode() {
         return localStorage.getItem('display_mode') || 'business';
     }
@@ -200,7 +200,7 @@ class ModeManager {
         return this.currentMode === 'internal';
     }
 
-    // 商談モードかどうか
+    // 打合せモードかどうか
     isBusinessMode() {
         return this.currentMode === 'business';
     }
@@ -219,10 +219,10 @@ class ModeManager {
                 if (icon) icon.textContent = '🏢';
                 if (text) text.textContent = '社内モード';
             } else {
-                button.classList.add('bg-gray-600', 'text-white');
-                button.classList.remove('bg-red-600', 'text-white');
+                button.classList.add('bg-gray-300', 'text-gray-600', 'border', 'border-gray-300');
+                button.classList.remove('bg-red-600', 'text-white', 'bg-gray-600');
                 if (icon) icon.textContent = '🤝';
-                if (text) text.textContent = '商談モード';
+                if (text) text.textContent = '打合せモード';
             }
         });
 
@@ -279,10 +279,10 @@ class ModeManager {
         return `
             <button 
                 onclick="window.modeManager.toggleMode()" 
-                class="mode-toggle-button flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isInternal ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}"
+                class="mode-toggle-button flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${isInternal ? 'bg-red-600 text-white' : 'bg-gray-300 text-gray-600 border border-gray-300'}"
                 title="モードを切り替え">
                 <span class="mode-icon">${isInternal ? '🏢' : '🤝'}</span>
-                <span class="mode-text">${isInternal ? '社内モード' : '商談モード'}</span>
+                <span class="mode-text">${isInternal ? '社内モード' : '打合せモード'}</span>
             </button>
         `;
     }
@@ -677,6 +677,11 @@ window.lifeXAPI = {
             console.error('Error loading plan with images:', error);
             return null;
         }
+    },
+    
+    // プランを取得（getPlanのエイリアス）
+    async getPlan(planId) {
+        return await this.getPlanWithImages(planId);
     },
 
     // 価格フォーマット

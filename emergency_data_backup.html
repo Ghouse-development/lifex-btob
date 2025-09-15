@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>緊急データバックアップ - LIFE X</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-red-600 mb-8">緊急データバックアップシステム</h1>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">データ状態確認</h2>
+            <div id="dataStatus" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">バックアップ操作</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="createFullBackup()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                    完全バックアップ作成
+                </button>
+                <button onclick="recoverAllData()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+                    データ復元実行
+                </button>
+                <button onclick="exportToJSON()" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700">
+                    JSONエクスポート
+                </button>
+                <button onclick="showAllData()" class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700">
+                    全データ表示
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">データ詳細</h2>
+            <pre id="dataDetails" class="bg-gray-100 p-4 rounded overflow-auto max-h-96 text-xs"></pre>
+        </div>
+    </div>
+
+    <script>
+        // データ状態チェック
+        function checkDataStatus() {
+            const status = [];
+            
+            // LocalStorage内のすべてのキーをチェック
+            const keys = Object.keys(localStorage);
+            const dataKeys = {
+                plans: ['lifex_plans', 'plans_data', 'plans'],
+                faqs: ['lifex_faqs', 'faq_data'],
+                downloads: ['lifex_downloads', 'download_data'],
+                rules: ['lifex_rules', 'rules_data'],
+                backup: keys.filter(k => k.includes('backup'))
+            };
+            
+            for (const [type, keyList] of Object.entries(dataKeys)) {
+                for (const key of keyList) {
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        try {
+                            const parsed = JSON.parse(data);
+                            const count = Array.isArray(parsed) ? parsed.length : 
+                                         (parsed.plans ? parsed.plans.length : 
+                                          parsed.faqs ? parsed.faqs.length : 
+                                          parsed.downloads ? parsed.downloads.length : 
+                                          parsed.rules ? parsed.rules.length : 0);
+                            status.push({
+                                type,
+                                key,
+                                count,
+                                size: (data.length / 1024).toFixed(2) + ' KB'
+                            });
+                        } catch (e) {
+                            status.push({
+                                type,
+                                key,
+                                error: 'パース失敗',
+                                size: (data.length / 1024).toFixed(2) + ' KB'
+                            });
+                        }
+                    }
+                }
+            }
+            
+            // IndexedDB チェック
+            if (window.indexedDB) {
+                indexedDB.databases().then(databases => {
+                    const dbInfo = databases.map(db => `${db.name} (v${db.version})`).join(', ');
+                    status.push({
+                        type: 'IndexedDB',
+                        key: 'Databases',
+                        count: databases.length,
+                        info: dbInfo
+                    });
+                    updateStatusDisplay(status);
+                });
+            } else {
+                updateStatusDisplay(status);
+            }
+            
+            return status;
+        }
+        
+        function updateStatusDisplay(status) {
+            const statusDiv = document.getElementById('dataStatus');
+            statusDiv.innerHTML = status.map(s => `
+                <div class="flex justify-between p-2 bg-gray-50 rounded">
+                    <span class="font-medium">${s.type} - ${s.key}</span>
+                    <span>${s.error || `${s.count || 0}件 (${s.size || s.info || ''})`}</span>
+                </div>
+            `).join('');
+        }
+        
+        // 完全バックアップ作成
+        async function createFullBackup() {
+            const backup = {
+                timestamp: new Date().toISOString(),
+                localStorage: {},
+                indexedDB: {},
+                metadata: {
+                    url: window.location.href,
+                    userAgent: navigator.userAgent,
+                    screenSize: `${screen.width}x${screen.height}`
+                }
+            };
+            
+            // LocalStorageをすべてバックアップ
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                backup.localStorage[key] = localStorage.getItem(key);
+            }
+            
+            // IndexedDBをバックアップ
+            try {
+                const databases = await indexedDB.databases();
+                for (const dbInfo of databases) {
+                    const db = await openDatabase(dbInfo.name, dbInfo.version);
+                    backup.indexedDB[dbInfo.name] = await exportDatabase(db);
+                    db.close();
+                }
+            } catch (e) {
+                console.error('IndexedDB backup failed:', e);
+            }
+            
+            // ファイルとしてダウンロード
+            const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lifex_emergency_backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert('完全バックアップを作成しました。ファイルがダウンロードされます。');
+            checkDataStatus();
+        }
+        
+        // データ復元
+        async function recoverAllData() {
+            const recovered = {
+                plans: [],
+                faqs: [],
+                downloads: [],
+                rules: []
+            };
+            
+            // すべてのLocalStorageキーから復元を試みる
+            const keys = Object.keys(localStorage);
+            for (const key of keys) {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        if (key.includes('plan') && !key.includes('backup')) {
+                            if (Array.isArray(parsed)) {
+                                recovered.plans = [...recovered.plans, ...parsed];
+                            } else if (parsed.plans) {
+                                recovered.plans = [...recovered.plans, ...parsed.plans];
+                            }
+                        }
+                        if (key.includes('faq') && !key.includes('backup')) {
+                            if (Array.isArray(parsed)) {
+                                recovered.faqs = [...recovered.faqs, ...parsed];
+                            } else if (parsed.faqs) {
+                                recovered.faqs = [...recovered.faqs, ...parsed.faqs];
+                            }
+                        }
+                        if (key.includes('download') && !key.includes('backup')) {
+                            if (Array.isArray(parsed)) {
+                                recovered.downloads = [...recovered.downloads, ...parsed];
+                            } else if (parsed.downloads) {
+                                recovered.downloads = [...recovered.downloads, ...parsed.downloads];
+                            }
+                        }
+                        if (key.includes('rule') && !key.includes('backup')) {
+                            if (Array.isArray(parsed)) {
+                                recovered.rules = [...recovered.rules, ...parsed];
+                            } else if (parsed.rules) {
+                                recovered.rules = [...recovered.rules, ...parsed.rules];
+                            }
+                        }
+                    } catch (e) {}
+                }
+            }
+            
+            // 重複を削除
+            recovered.plans = [...new Map(recovered.plans.map(p => [p.id, p])).values()];
+            recovered.faqs = [...new Map(recovered.faqs.map(f => [f.id, f])).values()];
+            recovered.downloads = [...new Map(recovered.downloads.map(d => [d.id, d])).values()];
+            recovered.rules = [...new Map(recovered.rules.map(r => [r.id, r])).values()];
+            
+            // 新しいキーに保存
+            if (recovered.plans.length > 0) {
+                localStorage.setItem('lifex_plans', JSON.stringify(recovered.plans));
+                localStorage.setItem('plans_data', JSON.stringify({ plans: recovered.plans }));
+            }
+            if (recovered.faqs.length > 0) {
+                localStorage.setItem('lifex_faqs', JSON.stringify(recovered.faqs));
+            }
+            if (recovered.downloads.length > 0) {
+                localStorage.setItem('lifex_downloads', JSON.stringify(recovered.downloads));
+            }
+            if (recovered.rules.length > 0) {
+                localStorage.setItem('lifex_rules', JSON.stringify(recovered.rules));
+            }
+            
+            // バックアップも作成
+            const backupKey = `lifex_recovery_backup_${Date.now()}`;
+            localStorage.setItem(backupKey, JSON.stringify(recovered));
+            
+            alert(`データ復元完了:\n- プラン: ${recovered.plans.length}件\n- FAQ: ${recovered.faqs.length}件\n- ダウンロード: ${recovered.downloads.length}件\n- ルール: ${recovered.rules.length}件`);
+            
+            checkDataStatus();
+            showAllData();
+        }
+        
+        // JSONエクスポート
+        function exportToJSON() {
+            const allData = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                allData[key] = localStorage.getItem(key);
+            }
+            
+            const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `lifex_localStorage_export_${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            alert('LocalStorageデータをエクスポートしました。');
+        }
+        
+        // 全データ表示
+        function showAllData() {
+            const details = {};
+            
+            // 主要データを収集
+            const mainKeys = ['lifex_plans', 'plans_data', 'lifex_faqs', 'lifex_downloads', 'lifex_rules'];
+            for (const key of mainKeys) {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        details[key] = JSON.parse(data);
+                    } catch (e) {
+                        details[key] = data;
+                    }
+                }
+            }
+            
+            document.getElementById('dataDetails').textContent = JSON.stringify(details, null, 2);
+        }
+        
+        // IndexedDB ヘルパー関数
+        async function openDatabase(name, version) {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(name, version);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+        
+        async function exportDatabase(db) {
+            const data = {};
+            const objectStoreNames = db.objectStoreNames;
+            
+            for (let i = 0; i < objectStoreNames.length; i++) {
+                const storeName = objectStoreNames[i];
+                try {
+                    const transaction = db.transaction(storeName, 'readonly');
+                    const store = transaction.objectStore(storeName);
+                    const getAllRequest = store.getAll();
+                    
+                    data[storeName] = await new Promise((resolve, reject) => {
+                        getAllRequest.onsuccess = () => resolve(getAllRequest.result);
+                        getAllRequest.onerror = () => reject(getAllRequest.error);
+                    });
+                } catch (e) {
+                    console.error(`Failed to export store ${storeName}:`, e);
+                }
+            }
+            
+            return data;
+        }
+        
+        // 初期化
+        window.onload = () => {
+            checkDataStatus();
+            showAllData();
+        };
+    </script>
+</body>
+</html>

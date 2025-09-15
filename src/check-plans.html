@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プラン数チェック</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .plan-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 3px;
+        }
+        .stat {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .stat strong {
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>プラン数チェックツール</h1>
+    
+    <div class="section">
+        <h2>統計情報</h2>
+        <div id="stats"></div>
+    </div>
+    
+    <div class="section">
+        <h2>プラン詳細</h2>
+        <div id="plans"></div>
+    </div>
+
+    <script src="/js/common.js"></script>
+    <script>
+        async function checkPlans() {
+            const statsDiv = document.getElementById('stats');
+            const plansDiv = document.getElementById('plans');
+            
+            // プランデータを取得
+            const plansData = await lifeXAPI.getPlansIndex();
+            const allPlans = plansData.plans || [];
+            const publishedPlans = allPlans.filter(plan => 
+                !plan.status || plan.status === 'published' || plan.status === 'active'
+            );
+            
+            // 統計情報を表示
+            statsDiv.innerHTML = `
+                <div class="stat">全プラン数（下書き含む）: <strong>${allPlans.length}</strong></div>
+                <div class="stat">公開中のプラン数: <strong>${publishedPlans.length}</strong></div>
+            `;
+            
+            // プラン詳細を表示
+            if (allPlans.length === 0) {
+                plansDiv.innerHTML = '<p>プランが登録されていません。</p>';
+            } else {
+                plansDiv.innerHTML = allPlans.map((plan, index) => `
+                    <div class="plan-item">
+                        <strong>${index + 1}. ${plan.name || 'プラン名なし'}</strong><br>
+                        ID: ${plan.id}<br>
+                        ステータス: ${plan.status || '未設定'}<br>
+                        階数: ${plan.floors || '-'}<br>
+                        広さ: ${plan.size || '-'}㎡<br>
+                        更新日: ${plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString('ja-JP') : '-'}
+                    </div>
+                `).join('');
+            }
+            
+            // LocalStorageの生データも確認
+            const rawData = localStorage.getItem('plans_data');
+            console.log('LocalStorage raw data:', rawData);
+            if (rawData) {
+                try {
+                    const parsed = JSON.parse(rawData);
+                    console.log('Parsed plans data:', parsed);
+                } catch (e) {
+                    console.error('Error parsing plans data:', e);
+                }
+            }
+        }
+        
+        // ページ読み込み時に実行
+        checkPlans();
+    </script>
+</body>
+</html>

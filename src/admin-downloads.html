@@ -470,19 +470,18 @@
                 },
                 
                 saveToLocalStorage() {
-                    // カテゴリーデータをローカルストレージに保存
+                    // カテゴリーデータをローカルストレージに保存（新形式）
                     const data = {
-                        categories: this.categories.reduce((acc, cat) => {
-                            acc[cat.name.toLowerCase().replace(/\s+/g, '_')] = {
-                                name: cat.name,
-                                items: cat.files || []
-                            };
-                            return acc;
-                        }, {})
+                        categories: this.categories.map(cat => ({
+                            id: cat.id,
+                            name: cat.name,
+                            files: cat.files || []
+                        }))
                     };
                     localStorage.setItem('downloads_data', JSON.stringify(data));
                     // 統計更新イベントを発火
                     window.dispatchEvent(new CustomEvent('stats-updated'));
+                    console.log('Saved downloads data:', data);
                 },
                 
                 loadFromLocalStorage() {
@@ -491,13 +490,23 @@
                         const data = localStorage.getItem('downloads_data');
                         if (data) {
                             const parsed = JSON.parse(data);
-                            if (parsed.categories) {
-                                // カテゴリーを復元
+                            console.log('Loading downloads data:', parsed);
+                            
+                            // 新形式（配列）のチェック
+                            if (parsed.categories && Array.isArray(parsed.categories)) {
+                                this.categories = parsed.categories.map(cat => ({
+                                    ...cat,
+                                    expanded: true,
+                                    files: cat.files || []
+                                }));
+                            }
+                            // 古い形式（オブジェクト）のチェック（互換性のため）
+                            else if (parsed.categories && typeof parsed.categories === 'object') {
                                 this.categories = Object.entries(parsed.categories).map(([key, value], index) => ({
                                     id: index + 1,
                                     name: value.name || key,
                                     expanded: true,
-                                    files: value.items || []
+                                    files: value.files || value.items || []
                                 }));
                             }
                         }

@@ -69,10 +69,12 @@
                     <!-- Mode Toggle Button - Repositioned to left of Home -->
                     <button 
                         onclick="window.modeManager.toggleMode()" 
-                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:scale-105"
+                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm hover:shadow-md"
                         title="モードを切り替え">
-                        <span class="mode-icon text-lg">🤝</span>
-                        <span class="mode-text">商談モード</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        <span class="mode-text">打合せモード</span>
                     </button>
                     
                     <nav class="hidden md:flex space-x-8">
@@ -117,7 +119,7 @@
                                 class="mode-toggle-button w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md"
                                 title="モードを切り替え">
                                 <span class="mode-icon text-lg">🤝</span>
-                                <span class="mode-text">商談モード</span>
+                                <span class="mode-text">打合せモード</span>
                             </button>
                         </div>
                     </div>
@@ -217,6 +219,12 @@
                                                             </template>
                                                             <!-- プランID表示 -->
                                                             <div class="text-xs font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].id"></div>
+                                                            <!-- 階数情報表示 -->
+                                                            <div class="text-xs text-gray-600 mt-1 flex flex-col">
+                                                                <div x-text="`建物${getCellPlans(width, depth)[0].floors?.building || 2}階`"></div>
+                                                                <div x-text="`LDK${getCellPlans(width, depth)[0].floors?.ldk || 1}階`"></div>
+                                                                <div x-text="`水廻り${getCellPlans(width, depth)[0].floors?.bathroom || 1}階`"></div>
+                                                            </div>
                                                             <!-- 複数プラン表示 -->
                                                             <template x-if="getCellPlans(width, depth).length > 1">
                                                                 <div class="text-xs text-gray-600 mt-1">
@@ -429,15 +437,20 @@
                 },
 
                 handleCellClick(width, depth) {
+                    console.log(`Cell clicked: width=${width}, depth=${depth}`);
                     const plans = this.getCellPlans(width, depth);
+                    console.log('Plans in cell:', plans);
                     
                     if (plans.length === 0) {
+                        console.log('No plans in this cell');
                         return; // プランがない場合は何もしない
                     } else if (plans.length === 1) {
                         // 1つのプランの場合は直接詳細へ
+                        console.log('Single plan, navigating to detail');
                         this.viewPlanDetail(plans[0]);
                     } else {
                         // 複数プランの場合はモーダル表示
+                        console.log('Multiple plans, showing modal');
                         this.selectedWidth = width;
                         this.selectedDepth = depth;
                         this.modalPlans = plans;
@@ -446,7 +459,14 @@
                 },
 
                 viewPlanDetail(plan) {
+                    console.log('viewPlanDetail called with plan:', plan);
+                    if (!plan || !plan.id) {
+                        console.error('Invalid plan data:', plan);
+                        lifeXAPI.showToast('プランデータが不正です', 'error');
+                        return;
+                    }
                     // プラン詳細ページへ遷移
+                    console.log('Navigating to:', `/plan-detail.html?id=${plan.id}`);
                     window.location.href = `/plan-detail.html?id=${plan.id}`;
                 },
 

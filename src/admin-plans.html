@@ -92,7 +92,7 @@
                         <option value="updated">更新日順</option>
                         <option value="id">プランコード順</option>
                         <option value="tsubo">坪数順</option>
-                        <option value="sellPrice">売価順</option>
+                        <option value="sellPrice">販売価格順</option>
                     </select>
                 </div>
             </div>
@@ -103,23 +103,26 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランコード</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">階数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">坪数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間口×奥行</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間取り</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">売価<span class="text-red-500 ml-1">(税込)</span></th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">販売価格<span class="text-red-500 ml-1">(税込)</span></th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">原価<span class="text-blue-500 ml-1">(税別)</span></th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">粗利益<span class="text-blue-500 ml-1">(税別)</span></th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">特徴</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ステータス</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">更新日</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             <template x-for="plan in filteredPlans" :key="plan.id">
                                 <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
+                                        <button @click="editPlan(plan)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
+                                        <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-900">削除</button>
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.id"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <span x-text="plan.floors == 1 ? '平屋' : plan.floors == 2 ? '2階建て' : '3階建て'"></span>
@@ -130,13 +133,6 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`¥${((plan.prices?.sell || plan.sellPrice || plan.price || 0) / 10000).toLocaleString()}万円`"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="(plan.prices?.cost || plan.cost) ? `¥${((plan.prices?.cost || plan.cost) / 10000).toLocaleString()}万円` : '-'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="(plan.prices?.gross || plan.grossProfit) ? `¥${((plan.prices?.gross || plan.grossProfit) / 10000).toLocaleString()}万円` : '-'"></td>
-                                    <td class="px-6 py-4 text-sm text-gray-500">
-                                        <div class="flex flex-wrap gap-1">
-                                            <template x-for="tag in (plan.tags || []).concat(plan.featureTags || [])" :key="tag">
-                                                <span class="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full" x-text="tag"></span>
-                                            </template>
-                                        </div>
-                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <span x-show="plan.status === 'published' || plan.status === 'active'" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             公開中
@@ -146,10 +142,6 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="plan.updated || plan.updatedAt || '-'"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button @click="editPlan(plan)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
-                                        <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-900">削除</button>
-                                    </td>
                                 </tr>
                             </template>
                         </tbody>
@@ -160,146 +152,366 @@
 
         <!-- Add/Edit Modal -->
         <div x-show="showModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
-            <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-4xl shadow-lg rounded-md bg-white mb-10" style="max-height: 90vh; overflow-y: auto;">
-                <div class="mt-3">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4" x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></h3>
-                    
-                    <div class="grid grid-cols-2 gap-4">
+            <div class="relative top-5 mx-auto p-0 border w-11/12 max-w-6xl shadow-2xl rounded-xl bg-white mb-10" style="max-height: 95vh; overflow-y: auto;">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 p-6 rounded-t-xl">
+                    <div class="flex items-center justify-between">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">プランコード</label>
-                            <input type="text" x-model="formData.id" class="form-input w-full" placeholder="LX-001">
+                            <h3 class="text-xl font-bold text-white" x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></h3>
+                            <p class="text-blue-100 text-sm mt-1">プラン情報を入力してください</p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">階数</label>
-                            <select x-model="formData.floors" @change="updateFloorPlans()" class="form-input w-full">
-                                <option value="1">平屋</option>
-                                <option value="2">2階建て</option>
-                                <option value="3">3階建て</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">坪数</label>
-                            <input type="number" x-model="formData.tsubo" class="form-input w-full" placeholder="30">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">間口（mm）</label>
-                            <input type="number" x-model="formData.width" class="form-input w-full" placeholder="5460">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">奥行（mm）</label>
-                            <input type="number" x-model="formData.depth" class="form-input w-full" placeholder="9100">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">間取り</label>
-                            <input type="text" x-model="formData.layout" class="form-input w-full" placeholder="4LDK">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">想定売価（万円）<span class="text-red-500 ml-1">税込</span></label>
-                            <select x-model="formData.sellPrice" class="form-input w-full">
-                                <option value="">選択してください</option>
-                                <option value="2500">2500万円</option>
-                                <option value="2610">2610万円</option>
-                                <option value="2720">2720万円</option>
-                                <option value="2830">2830万円</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">想定原価（万円）<span class="text-blue-500 ml-1">税別</span></label>
-                            <input type="number" x-model="formData.cost" class="form-input w-full" placeholder="1500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">想定粗利益（万円）<span class="text-blue-500 ml-1">税別</span></label>
-                            <input type="number" x-model="calculatedGrossProfit" class="form-input w-full bg-gray-50" :placeholder="calculatedGrossProfit || '自動計算'" readonly>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
-                            <select x-model="formData.status" class="form-input w-full">
-                                <option value="published">公開中</option>
-                                <option value="draft">下書き</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
-                            <textarea x-model="formData.description" rows="3" class="form-input w-full" placeholder="プランの説明を入力"></textarea>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">特徴タグ</label>
-                            <div class="flex flex-wrap gap-2 mb-2">
-                                <template x-for="tag in ['吹抜', 'フリースペース', '書斎', '畳スペース', 'パントリー', 'ウォークインクローゼット', 'ロフト', 'シューズクローク', 'ファミリークローク', 'リビング収納', '小屋裏収納', 'バルコニー', 'ヌック']" :key="tag">
-                                    <button type="button"
-                                            @click="toggleFeatureTag(tag)"
-                                            :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700'"
-                                            class="px-3 py-1 rounded-full text-sm transition-colors duration-200">
-                                        <span x-text="tag"></span>
-                                    </button>
-                                </template>
+                        <button @click="closeModal()" class="text-white hover:text-blue-200 transition-colors">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-6" style="max-height: calc(95vh - 120px); overflow-y: auto;">
+                    <!-- All Content in Single View -->
+                    <div class="space-y-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">基本情報</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">プランコード <span class="text-red-500">*</span></label>
+                                        <input type="text" x-model="formData.id" 
+                                               @input="validateField('id')"
+                                               :class="getFieldValidationClass('id')"
+                                               class="form-input w-full" placeholder="28-40-N-12-001">
+                                        <div x-show="formErrors.id" class="text-red-500 text-xs mt-1" x-text="formErrors.id"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">階数 <span class="text-red-500">*</span></label>
+                                        <select x-model="formData.floors" @change="updateFloorPlans(); validateField('floors')" 
+                                                :class="getFieldValidationClass('floors')"
+                                                class="form-input w-full">
+                                            <option value="1">平屋</option>
+                                            <option value="2">2階建て</option>
+                                            <option value="3">3階建て</option>
+                                        </select>
+                                        <div x-show="formErrors.floors" class="text-red-500 text-xs mt-1" x-text="formErrors.floors"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">LDK階数</label>
+                                        <select x-model="formData.ldkFloor" class="form-input w-full">
+                                            <option value="1階">1階</option>
+                                            <option value="2階">2階</option>
+                                            <option value="3階">3階</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">水廻り階数</label>
+                                        <select x-model="formData.bathroomFloor" class="form-input w-full">
+                                            <option value="1階">1階</option>
+                                            <option value="2階">2階</option>
+                                            <option value="3階">3階</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">坪数 <span class="text-red-500">*</span></label>
+                                        <input type="number" x-model="formData.tsubo" 
+                                               @input="validateField('tsubo')"
+                                               :class="getFieldValidationClass('tsubo')"
+                                               class="form-input w-full" placeholder="30" min="10" max="100">
+                                        <div x-show="formErrors.tsubo" class="text-red-500 text-xs mt-1" x-text="formErrors.tsubo"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">間口（mm） <span class="text-red-500">*</span></label>
+                                        <input type="number" x-model="formData.width" 
+                                               @input="calculateTsubo(); validateField('width')"
+                                               :class="getFieldValidationClass('width')"
+                                               class="form-input w-full" placeholder="5460" min="3000" max="15000">
+                                        <div x-show="formErrors.width" class="text-red-500 text-xs mt-1" x-text="formErrors.width"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">奥行（mm） <span class="text-red-500">*</span></label>
+                                        <input type="number" x-model="formData.depth" 
+                                               @input="calculateTsubo(); validateField('depth')"
+                                               :class="getFieldValidationClass('depth')"
+                                               class="form-input w-full" placeholder="9100" min="3000" max="20000">
+                                        <div x-show="formErrors.depth" class="text-red-500 text-xs mt-1" x-text="formErrors.depth"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">間取り <span class="text-red-500">*</span></label>
+                                        <select x-model="formData.layout" 
+                                                @change="validateField('layout')"
+                                                :class="getFieldValidationClass('layout')"
+                                                class="form-input w-full">
+                                            <option value="">選択してください</option>
+                                            <option value="1LDK">1LDK</option>
+                                            <option value="2LDK">2LDK</option>
+                                            <option value="3LDK">3LDK</option>
+                                            <option value="4LDK">4LDK</option>
+                                            <option value="5LDK">5LDK</option>
+                                            <option value="その他">その他</option>
+                                        </select>
+                                        <div x-show="formErrors.layout" class="text-red-500 text-xs mt-1" x-text="formErrors.layout"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <input type="text" x-model="formData.customTags" class="form-input w-full" placeholder="その他のタグ（カンマ区切り）">
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">価格情報</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">想定販売価格（万円）<span class="text-red-500 ml-1">税込 *</span></label>
+                                        <select x-model="formData.sellPrice" 
+                                                @change="calculateProfits(); validateField('sellPrice')"
+                                                :class="getFieldValidationClass('sellPrice')"
+                                                class="form-input w-full">
+                                            <option value="">選択してください</option>
+                                            <option value="2200">2200万円</option>
+                                            <option value="2400">2400万円</option>
+                                            <option value="2500">2500万円</option>
+                                            <option value="2610">2610万円</option>
+                                            <option value="2720">2720万円</option>
+                                            <option value="2830">2830万円</option>
+                                            <option value="3000">3000万円</option>
+                                            <option value="その他">その他（直接入力）</option>
+                                        </select>
+                                        <div x-show="formData.sellPrice === 'その他'" class="mt-2">
+                                            <input type="number" x-model="formData.customSellPrice" 
+                                                   @input="calculateProfits()"
+                                                   class="form-input w-full" placeholder="価格を入力" min="1000" max="10000">
+                                        </div>
+                                        <div x-show="formErrors.sellPrice" class="text-red-500 text-xs mt-1" x-text="formErrors.sellPrice"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">想定原価（万円）<span class="text-blue-500 ml-1">税別 *</span></label>
+                                        <input type="number" x-model="formData.cost" 
+                                               @input="calculateProfits(); validateField('cost')"
+                                               :class="getFieldValidationClass('cost')"
+                                               class="form-input w-full" placeholder="1500" min="500" max="5000">
+                                        <div x-show="formErrors.cost" class="text-red-500 text-xs mt-1" x-text="formErrors.cost"></div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">想定粗利益（万円）<span class="text-blue-500 ml-1">税別</span></label>
+                                        <div class="relative">
+                                            <input type="number" x-model="calculatedGrossProfit" 
+                                                   class="form-input w-full bg-green-50 border-green-200" readonly>
+                                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        <div class="text-xs text-green-600 mt-1">自動計算されます</div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">利益率</label>
+                                        <div :class="{
+                                            'text-red-600': profitMargin < 20,
+                                            'text-yellow-600': profitMargin >= 20 && profitMargin < 30,
+                                            'text-green-600': profitMargin >= 30
+                                        }" class="text-lg font-bold" x-text="profitMargin + '%'"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">性能情報</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">UA値（W/㎡K）</label>
+                                        <input type="number" x-model="formData.uaValue" 
+                                               class="form-input w-full" 
+                                               placeholder="0.87" 
+                                               step="0.01"
+                                               min="0" 
+                                               max="2">
+                                        <div class="text-xs text-gray-500 mt-1">外皮平均熱貫流率</div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">一次エネルギー削減率（再エネなし）%</label>
+                                        <input type="number" x-model="formData.energyReduction" 
+                                               class="form-input w-full" 
+                                               placeholder="20" 
+                                               min="0" 
+                                               max="100">
+                                        <div class="text-xs text-gray-500 mt-1">BEI値から算出</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">ステータスと説明</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
+                                        <select x-model="formData.status" class="form-input w-full">
+                                            <option value="draft">下書き（非公開）</option>
+                                            <option value="published">公開中</option>
+                                        </select>
+                                        <div class="text-xs text-gray-500 mt-1">下書きで保存後、内容を確認してから公開してください</div>
+                                    </div>
+                                    <div class="col-span-1">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">設計担当者</label>
+                                        <input type="text" x-model="formData.designer" class="form-input w-full" placeholder="設計者名">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
+                                    <textarea x-model="formData.description" rows="3" class="form-input w-full" 
+                                              placeholder="プランの特徴やポイントを入力してください"></textarea>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">画像</label>
-                            <div class="space-y-3">
-                                <!-- 外観パース -->
-                                <div>
-                                    <label class="text-xs text-gray-600 mb-1 block">外観パース</label>
-                                    <div class="file-upload-item">
-                                        <input type="file" @change="handleFileSelect($event, 'image', 'exterior')" accept="image/*" class="hidden" id="file-exterior">
-                                        <div 
-                                            @drop="handleDrop($event, 'image', 'exterior')" 
-                                            @dragover.prevent 
-                                            @dragenter.prevent
-                                            @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
-                                            @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
-                                            @click="document.getElementById('file-exterior').click()"
-                                            class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[60px] flex flex-col items-center justify-center">
-                                            <div class="flex items-center justify-center mb-1">
-                                                <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                <span class="font-medium">外観パース</span>
-                                            </div>
-                                            <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                            <template x-if="formData.files && formData.files.images && formData.files.images.exterior && formData.files.images.exterior.name">
-                                                <div class="text-green-600 mt-1 text-xs">
-                                                    <div class="truncate" x-text="`✓ ${formData.files.images.exterior.name}`"></div>
-                                                </div>
+                        
+                        <!-- 特徴タグ Tab -->
+                        <div x-show="currentTab === 'features'" class="space-y-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">特徴タグ</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">住空間特徴</label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="tag in ['吹抜', 'フリースペース', '書斎', '畳スペース', 'ヌック', 'ロフト']" :key="tag">
+                                                <button type="button"
+                                                        @click="toggleFeatureTag(tag)"
+                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'"
+                                                        class="px-4 py-2 border rounded-lg text-sm transition-colors duration-200 flex items-center space-x-2">
+                                                    <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
+                                                    <span x-text="tag"></span>
+                                                </button>
                                             </template>
                                         </div>
                                     </div>
-                                </div>
-                                
-                                <!-- 内観パース -->
-                                <div>
-                                    <label class="text-xs text-gray-600 mb-1 block">内観パース</label>
-                                    <div class="file-upload-item">
-                                        <input type="file" @change="handleFileSelect($event, 'image', 'interior')" accept="image/*" class="hidden" id="file-interior">
-                                        <div 
-                                            @drop="handleDrop($event, 'image', 'interior')" 
-                                            @dragover.prevent 
-                                            @dragenter.prevent
-                                            @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
-                                            @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
-                                            @click="document.getElementById('file-interior').click()"
-                                            class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[60px] flex flex-col items-center justify-center">
-                                            <div class="flex items-center justify-center mb-1">
-                                                <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                <span class="font-medium">内観パース</span>
-                                            </div>
-                                            <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                            <template x-if="formData.files && formData.files.images && formData.files.images.interior && formData.files.images.interior.name">
-                                                <div class="text-green-600 mt-1 text-xs">
-                                                    <div class="truncate" x-text="`✓ ${formData.files.images.interior.name}`"></div>
-                                                </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">収納設備</label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="tag in ['パントリー', 'ウォークインクローゼット', 'シューズクローク', 'ファミリークローク', 'リビング収納', '小屋裏収納']" :key="tag">
+                                                <button type="button"
+                                                        @click="toggleFeatureTag(tag)"
+                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'"
+                                                        class="px-4 py-2 border rounded-lg text-sm transition-colors duration-200 flex items-center space-x-2">
+                                                    <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
+                                                    <span x-text="tag"></span>
+                                                </button>
                                             </template>
                                         </div>
                                     </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">外部設備</label>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="tag in ['バルコニー', 'ウッドデッキ', 'ガレージ', 'カーポート', '庫裏']" :key="tag">
+                                                <button type="button"
+                                                        @click="toggleFeatureTag(tag)"
+                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50'"
+                                                        class="px-4 py-2 border rounded-lg text-sm transition-colors duration-200 flex items-center space-x-2">
+                                                    <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
+                                                    <span x-text="tag"></span>
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">カスタムタグ</label>
+                                        <input type="text" x-model="formData.customTags" 
+                                               class="form-input w-full" 
+                                               placeholder="独自の特徴をカンマ区切りで入力（例: 太陽光発電, 床暖房, IHクッキングヒーター）">
+                                        <div class="text-xs text-gray-500 mt-1">カスタムタグは自由に追加できます</div>
+                                    </div>
+                                    
+                                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                                        <h5 class="font-medium text-blue-900 mb-2">選択されたタグ</h5>
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="tag in getAllSelectedTags()" :key="tag">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs" x-text="tag"></span>
+                                            </template>
+                                            <span x-show="getAllSelectedTags().length === 0" class="text-blue-600 text-sm">タグが選択されていません</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                
-                                <!-- 間取り図 -->
+                            </div>
+                        </div>
+                        
+                        <!-- 画像・ファイル Tab -->
+                        <div x-show="currentTab === 'files'" class="space-y-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">画像アップロード</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <!-- 外観パース -->
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-700 mb-2 block">外観パース <span class="text-red-500">*</span></label>
+                                        <div class="file-upload-item">
+                                            <input type="file" @change="handleFileSelect($event, 'image', 'exterior')" accept="image/*" class="hidden" id="file-exterior">
+                                            <div 
+                                                @drop="handleDrop($event, 'image', 'exterior')" 
+                                                @dragover.prevent 
+                                                @dragenter.prevent
+                                                @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
+                                                @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
+                                                @click="document.getElementById('file-exterior').click()"
+                                                :class="formData.files?.images?.exterior ? 'border-green-300 bg-green-50' : 'border-gray-300'"
+                                                class="border-2 border-dashed rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[100px] flex flex-col items-center justify-center">
+                                                <div class="flex items-center justify-center mb-2">
+                                                    <svg class="h-8 w-8 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    <span class="font-medium text-gray-700">外観パース</span>
+                                                </div>
+                                                <span class="text-gray-500 text-sm">ドラッグ&ドロップまたはクリック</span>
+                                                <span class="text-gray-400 text-xs mt-1">JPG, PNG, WebP (5MB以下)</span>
+                                                <template x-if="formData.files && formData.files.images && formData.files.images.exterior && formData.files.images.exterior.name">
+                                                    <div class="text-green-600 mt-2 text-sm font-medium">
+                                                        <div class="flex items-center justify-center">
+                                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                            </svg>
+                                                            <span class="truncate" x-text="formData.files.images.exterior.name"></span>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 内観パース -->
+                                    <div>
+                                        <label class="text-sm font-medium text-gray-700 mb-2 block">内観パース <span class="text-red-500">*</span></label>
+                                        <div class="file-upload-item">
+                                            <input type="file" @change="handleFileSelect($event, 'image', 'interior')" accept="image/*" class="hidden" id="file-interior">
+                                            <div 
+                                                @drop="handleDrop($event, 'image', 'interior')" 
+                                                @dragover.prevent 
+                                                @dragenter.prevent
+                                                @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
+                                                @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
+                                                @click="document.getElementById('file-interior').click()"
+                                                :class="formData.files?.images?.interior ? 'border-green-300 bg-green-50' : 'border-gray-300'"
+                                                class="border-2 border-dashed rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[100px] flex flex-col items-center justify-center">
+                                                <div class="flex items-center justify-center mb-2">
+                                                    <svg class="h-8 w-8 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    <span class="font-medium text-gray-700">内観パース</span>
+                                                </div>
+                                                <span class="text-gray-500 text-sm">ドラッグ&ドロップまたはクリック</span>
+                                                <span class="text-gray-400 text-xs mt-1">JPG, PNG, WebP (5MB以下)</span>
+                                                <template x-if="formData.files && formData.files.images && formData.files.images.interior && formData.files.images.interior.name">
+                                                    <div class="text-green-600 mt-2 text-sm font-medium">
+                                                        <div class="flex items-center justify-center">
+                                                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                            </svg>
+                                                            <span class="truncate" x-text="formData.files.images.interior.name"></span>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">間取り図アップロード</h4>
                                 <div>
-                                    <label class="text-xs text-gray-600 mb-1 block">間取り図（階数分登録）</label>
+                                    <label class="text-sm font-medium text-gray-700 mb-2 block">間取り図（階数分登録） <span class="text-red-500">*</span></label>
                                     <template x-for="floor in Array.from({length: parseInt(formData.floors) || 1}, (_, i) => i + 1)" :key="floor">
                                         <div class="mb-2">
                                             <div class="file-upload-item">
@@ -441,9 +653,115 @@
                         </div>
                     </div>
 
-                    <div class="mt-6 flex justify-end space-x-3">
-                        <button @click="closeModal()" class="btn-secondary">キャンセル</button>
-                        <button @click="savePlan()" class="btn-primary">保存</button>
+                        </div>
+                        
+                        <!-- 確認 Tab -->
+                        <div x-show="currentTab === 'confirm'" class="space-y-6">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="text-lg font-semibold text-gray-900 mb-4">入力内容の確認</h4>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="font-medium text-gray-700">プランコード:</span>
+                                        <span x-text="formData.id || '未入力'" :class="!formData.id ? 'text-red-500' : 'text-gray-900'"></span>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-gray-700">階数:</span>
+                                        <span x-text="formData.floors == 1 ? '平屋' : formData.floors + '階建て'"></span>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-gray-700">坪数:</span>
+                                        <span x-text="formData.tsubo ? formData.tsubo + '坪' : '未入力'" :class="!formData.tsubo ? 'text-red-500' : 'text-gray-900'"></span>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-gray-700">間取り:</span>
+                                        <span x-text="formData.layout || '未入力'" :class="!formData.layout ? 'text-red-500' : 'text-gray-900'"></span>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-gray-700">販売価格:</span>
+                                        <span x-text="getActualSellPrice() ? getActualSellPrice() + '万円' : '未入力'" :class="!getActualSellPrice() ? 'text-red-500' : 'text-gray-900'"></span>
+                                    </div>
+                                    <div>
+                                        <span class="font-medium text-gray-700">原価:</span>
+                                        <span x-text="formData.cost ? formData.cost + '万円' : '未入力'" :class="!formData.cost ? 'text-red-500' : 'text-gray-900'"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <span class="font-medium text-gray-700">選択されたタグ:</span>
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        <template x-for="tag in getAllSelectedTags()" :key="tag">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs" x-text="tag"></span>
+                                        </template>
+                                        <span x-show="getAllSelectedTags().length === 0" class="text-gray-500 text-sm">タグが選択されていません</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4" x-show="!isFormValid()">
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+                                        <div class="flex">
+                                            <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                                            </svg>
+                                            <div>
+                                                <h5 class="text-red-800 font-medium">入力エラー</h5>
+                                                <div class="text-red-700 text-sm mt-1">
+                                                    <template x-for="error in Object.values(formErrors)" :key="error">
+                                                        <div x-text="'・ ' + error"></div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4" x-show="isFormValid()">
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+                                        <div class="flex">
+                                            <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                            </svg>
+                                            <div>
+                                                <h5 class="text-green-800 font-medium">入力完了</h5>
+                                                <p class="text-green-700 text-sm mt-1">すべての必須項目が入力されています。保存できます。</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-8 flex justify-between items-center">
+                        <div class="flex space-x-3">
+                            <button @click="prevTab()" 
+                                    x-show="currentTab !== 'basic'"
+                                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                前へ
+                            </button>
+                            <button @click="nextTab()" 
+                                    x-show="currentTab !== 'confirm'"
+                                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                次へ
+                            </button>
+                        </div>
+                        
+                        <div class="flex space-x-3">
+                            <button @click="closeModal()" class="btn-secondary">キャンセル</button>
+                            <button @click="console.log('Save button clicked'); savePlan()" 
+                                    :disabled="!isFormValid()"
+                                    :class="isFormValid() ? 'btn-primary' : 'bg-gray-300 text-gray-500 cursor-not-allowed'"
+                                    class="px-6 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                <span x-show="!saving">保存</span>
+                                <span x-show="saving" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    保存中...
+                                </span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -474,10 +792,12 @@
                     depth: '',
                     layout: '',
                     sellPrice: '',
+                    customSellPrice: '',
                     cost: '',
                     grossProfit: '',
-                    status: 'published',
+                    status: 'draft',
                     description: '',
+                    designer: '',
                     tags: [],
                     featureTags: [],
                     customTags: '',
@@ -494,15 +814,36 @@
                         floorPlans: {}
                     }
                 },
+                
+                // Enhanced modal functionality
+                currentTab: 'basic',
+                formErrors: {},
+                saving: false,
+                modalTabs: [
+                    { id: 'basic', name: '基本情報', icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>' },
+                    { id: 'features', name: '特徴タグ', icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>' },
+                    { id: 'files', name: '画像・ファイル', icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' },
+                    { id: 'confirm', name: '確認', icon: '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' }
+                ],
 
                 get calculatedGrossProfit() {
-                    const sellPrice = parseFloat(this.formData.sellPrice) || 0;
+                    const sellPrice = this.getActualSellPrice();
                     const cost = parseFloat(this.formData.cost) || 0;
                     if (sellPrice && cost) {
                         const grossProfit = (sellPrice / 1.1) - cost;
                         return Math.round(grossProfit * 10) / 10; // 小数点1位まで
                     }
                     return '';
+                },
+                
+                get profitMargin() {
+                    const sellPrice = this.getActualSellPrice();
+                    const cost = parseFloat(this.formData.cost) || 0;
+                    if (sellPrice && cost) {
+                        const margin = ((sellPrice / 1.1 - cost) / (sellPrice / 1.1)) * 100;
+                        return Math.round(margin * 10) / 10;
+                    }
+                    return 0;
                 },
 
                 async init() {
@@ -570,21 +911,34 @@
 
                 openAddModal() {
                     this.editingPlan = null;
+                    this.currentTab = 'basic';
+                    this.formErrors = {};
+                    this.saving = false;
                     this.formData = {
                         id: '',
                         floors: '2',
-                        size: '',
+                        ldkFloor: '1階',
+                        bathroomFloor: '1階',
+                        tsubo: '',
+                        width: '',
+                        depth: '',
                         layout: '',
-                        price: '',
-                        status: 'active',
+                        sellPrice: '',
+                        customSellPrice: '',
+                        cost: '',
+                        grossProfit: '',
+                        uaValue: '',
+                        energyReduction: '',
+                        status: 'draft',
                         description: '',
+                        designer: '',
                         featureTags: [],
                         customTags: '',
                         images: {
                             exterior: '',
                             interior: ''
                         },
-                        floorPlans: ['', ''],
+                        floorPlans: [],
                         files: {
                             presentation: null,
                             drawings: {},
@@ -595,11 +949,185 @@
                     };
                     this.showModal = true;
                 },
+                
+                // Enhanced tab navigation
+                switchTab(tabId) {
+                    this.currentTab = tabId;
+                },
+                
+                nextTab() {
+                    const currentIndex = this.modalTabs.findIndex(tab => tab.id === this.currentTab);
+                    if (currentIndex < this.modalTabs.length - 1) {
+                        this.currentTab = this.modalTabs[currentIndex + 1].id;
+                    }
+                },
+                
+                prevTab() {
+                    const currentIndex = this.modalTabs.findIndex(tab => tab.id === this.currentTab);
+                    if (currentIndex > 0) {
+                        this.currentTab = this.modalTabs[currentIndex - 1].id;
+                    }
+                },
+                
+                isTabCompleted(tabId) {
+                    switch(tabId) {
+                        case 'basic':
+                            return this.formData.id && this.formData.tsubo && this.formData.layout && this.getActualSellPrice() && this.formData.cost;
+                        case 'features':
+                            return true; // 特徴タグは任意
+                        case 'files':
+                            return true; // 画像も一時的に任意にする
+                        case 'confirm':
+                            return this.isFormValid();
+                        default:
+                            return false;
+                    }
+                },
+                
+                // Form validation
+                validateField(fieldName) {
+                    this.formErrors = {...this.formErrors};
+                    delete this.formErrors[fieldName];
+                    
+                    switch(fieldName) {
+                        case 'id':
+                            if (!this.formData.id) {
+                                this.formErrors.id = 'プランコードは必須です';
+                            }
+                            break;
+                        case 'tsubo':
+                            if (!this.formData.tsubo) {
+                                this.formErrors.tsubo = '坪数は必須です';
+                            } else if (this.formData.tsubo < 10 || this.formData.tsubo > 100) {
+                                this.formErrors.tsubo = '坪数は10-100の範囲で入力してください';
+                            }
+                            break;
+                        case 'layout':
+                            if (!this.formData.layout) {
+                                this.formErrors.layout = '間取りは必須です';
+                            }
+                            break;
+                        case 'sellPrice':
+                            if (!this.getActualSellPrice()) {
+                                this.formErrors.sellPrice = '販売価格は必須です';
+                            }
+                            break;
+                        case 'cost':
+                            if (!this.formData.cost) {
+                                this.formErrors.cost = '原価は必須です';
+                            } else if (this.formData.cost < 500 || this.formData.cost > 5000) {
+                                this.formErrors.cost = '原価は500-5000万円の範囲で入力してください';
+                            }
+                            break;
+                        case 'width':
+                            if (!this.formData.width) {
+                                this.formErrors.width = '間口は必須です';
+                            } else if (this.formData.width < 3000 || this.formData.width > 15000) {
+                                this.formErrors.width = '間口は3000-15000mmの範囲で入力してください';
+                            }
+                            break;
+                        case 'depth':
+                            if (!this.formData.depth) {
+                                this.formErrors.depth = '奥行は必須です';
+                            } else if (this.formData.depth < 3000 || this.formData.depth > 20000) {
+                                this.formErrors.depth = '奥行は3000-20000mmの範囲で入力してください';
+                            }
+                            break;
+                    }
+                },
+                
+                getFieldValidationClass(fieldName) {
+                    if (this.formErrors[fieldName]) {
+                        return 'border-red-300 focus:border-red-500 focus:ring-red-500';
+                    } else if (this.isFieldValid(fieldName)) {
+                        return 'border-green-300 focus:border-green-500 focus:ring-green-500';
+                    }
+                    return '';
+                },
+                
+                isFieldValid(fieldName) {
+                    switch(fieldName) {
+                        case 'id': return !!this.formData.id;
+                        case 'tsubo': return this.formData.tsubo >= 10 && this.formData.tsubo <= 100;
+                        case 'layout': return !!this.formData.layout;
+                        case 'sellPrice': return !!this.getActualSellPrice();
+                        case 'cost': return this.formData.cost >= 500 && this.formData.cost <= 5000;
+                        case 'width': return this.formData.width >= 3000 && this.formData.width <= 15000;
+                        case 'depth': return this.formData.depth >= 3000 && this.formData.depth <= 20000;
+                        default: return false;
+                    }
+                },
+                
+                isFormValid() {
+                    // 基本情報のバリデーションのみチェック（画像は一時的に必須から外す）
+                    const basicValid = this.isFieldValid('id') && 
+                           this.isFieldValid('tsubo') && 
+                           this.isFieldValid('layout') && 
+                           this.isFieldValid('sellPrice') && 
+                           this.isFieldValid('cost');
+                    
+                    console.log('Validation check:', {
+                        id: this.isFieldValid('id'),
+                        tsubo: this.isFieldValid('tsubo'),
+                        layout: this.isFieldValid('layout'),
+                        sellPrice: this.isFieldValid('sellPrice'),
+                        cost: this.isFieldValid('cost'),
+                        basicValid: basicValid
+                    });
+                    
+                    return basicValid;
+                },
+                
+                // Smart calculation functions
+                getActualSellPrice() {
+                    if (this.formData.sellPrice === 'その他') {
+                        return parseFloat(this.formData.customSellPrice) || 0;
+                    }
+                    return parseFloat(this.formData.sellPrice) || 0;
+                },
+                
+                calculateProfits() {
+                    // 自動計算は getter で実装済み
+                },
+                
+                calculateTsubo() {
+                    if (this.formData.width && this.formData.depth) {
+                        const area = (this.formData.width * this.formData.depth) / 1000000; // mm2 to m2
+                        const tsubo = area / 3.3058; // m2 to tsubo
+                        this.formData.tsubo = Math.round(tsubo * 10) / 10;
+                    }
+                },
+                
+                getProfitMarginStatus() {
+                    if (this.profitMargin < 20) return '低い';
+                    if (this.profitMargin < 30) return '标準';
+                    return '良好';
+                },
+                
+                // Auto-generation functions
+                generatePlanCode() {
+                    const timestamp = Date.now().toString().slice(-3);
+                    const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                    this.formData.id = `LX-${timestamp}${randomLetter}`;
+                    this.validateField('id');
+                },
+                
+                getAllSelectedTags() {
+                    const tags = [...(this.formData.featureTags || [])];
+                    if (this.formData.customTags) {
+                        tags.push(...this.formData.customTags.split(',').map(t => t.trim()).filter(t => t));
+                    }
+                    return tags;
+                },
 
                 editPlan(plan) {
                     this.editingPlan = plan;
                     this.formData = {
                         ...plan,
+                        ldkFloor: plan.ldkFloor || '1階',
+                        bathroomFloor: plan.bathroomFloor || '1階',
+                        uaValue: plan.uaValue || '',
+                        energyReduction: plan.energyReduction || '',
                         tsubo: plan.tsubo || plan.size || '',
                         sellPrice: plan.prices?.sell ? plan.prices.sell / 10000 : (plan.sellPrice || plan.price || ''),  // 円→万円に変換
                         cost: plan.prices?.cost ? plan.prices.cost / 10000 : (plan.cost || ''),      // 円→万円に変換
@@ -637,6 +1165,20 @@
                 },
 
                 async savePlan() {
+                    console.log('savePlan called');
+                    console.log('FormData:', this.formData);
+                    console.log('Is form valid?', this.isFormValid());
+                    
+                    // バリデーションチェック
+                    if (!this.isFormValid()) {
+                        console.log('Form validation failed');
+                        console.log('Form errors:', this.formErrors);
+                        lifeXAPI.showToast('必須項目を入力してください', 'error');
+                        return;
+                    }
+                    
+                    this.saving = true;
+                    
                     try {
                         // カスタムタグを処理
                         if (this.formData.customTags) {
@@ -646,25 +1188,41 @@
                             this.formData.tags = this.formData.featureTags || [];
                         }
                         
+                        // 販売価格の処理
+                        const actualSellPrice = this.getActualSellPrice();
+                        const actualCost = parseFloat(this.formData.cost) || 0;
+                        const actualGrossProfit = this.calculatedGrossProfit;
+                        
+                        // プラン名を生成（階数と坪数とレイアウトから）
+                        const floorName = this.formData.floors == 1 ? '平屋' : `${this.formData.floors}階建て`;
+                        const planName = `${floorName} ${this.formData.tsubo}坪 ${this.formData.layout}`;
+                        
                         const planData = {
                             ...this.formData,
+                            name: planName,  // プラン名を追加
+                            size: parseFloat(this.formData.tsubo) || 0,  // sizeフィールドも追加（互換性のため）
                             updatedAt: new Date().toISOString(),
+                            updated: new Date().toISOString(),  // updatedフィールドも追加（互換性のため）
                             tsubo: parseFloat(this.formData.tsubo) || 0,
                             width: parseInt(this.formData.width) || 0,
                             depth: parseInt(this.formData.depth) || 0,
                             prices: {
-                                sell: (parseFloat(this.formData.sellPrice) || 0) * 10000,  // 万円→円に変換
-                                cost: (parseFloat(this.formData.cost) || 0) * 10000,      // 万円→円に変換
-                                gross: (parseFloat(this.formData.grossProfit) || 0) * 10000 // 万円→円に変換
-                            }
+                                sell: actualSellPrice * 10000,  // 万円→円に変換
+                                cost: actualCost * 10000,      // 万円→円に変換
+                                gross: actualGrossProfit * 10000 // 万円→円に変換
+                            },
+                            price: actualSellPrice * 10000,  // priceフィールドも追加（互換性のため）
+                            sellPrice: actualSellPrice * 10000,  // sellPriceフィールドも維持
+                            cost: actualCost * 10000,  // costフィールドも維持
+                            grossProfit: actualGrossProfit * 10000  // grossProfitフィールドも維持
                         };
                         
-                        // 不要なフィールドを削除
-                        delete planData.sellPrice;
-                        delete planData.cost;
-                        delete planData.grossProfit;
+                        // 不要なフィールドを削除（互換性フィールドは残す）
+                        delete planData.customSellPrice;
                         delete planData.featureTags;
                         delete planData.customTags;
+                        
+                        console.log('Saving plan data:', planData);
                         
                         if (this.editingPlan) {
                             await lifeXAPI.updatePlan(this.editingPlan.id, planData);
@@ -680,7 +1238,9 @@
                         this.closeModal();
                     } catch (error) {
                         console.error('プランの保存に失敗しました:', error);
-                        lifeXAPI.showToast('プランの保存に失敗しました', 'error');
+                        lifeXAPI.showToast(`プランの保存に失敗しました: ${error.message}`, 'error');
+                    } finally {
+                        this.saving = false;
                     }
                 },
 

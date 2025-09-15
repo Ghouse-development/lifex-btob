@@ -212,6 +212,7 @@
                     </div>
                 </a>
 
+
                 <!-- システム管理 -->
                 <a href="/admin-system.html" 
                    class="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
@@ -382,6 +383,8 @@
                     downloadsMonth: 0,
                     faqs: 0,
                     faqCategories: 0,
+                    users: 12,
+                    activeUsers: 8,
                     admins: 1,
                     lastBackup: '-',
                     monthlyPV: 0
@@ -413,10 +416,13 @@
 
                 async loadStats() {
                     try {
-                        // プラン統計
+                        // プラン統計（公開中のプランのみカウント - ホームページと一致させる）
                         const plansData = await lifeXAPI.getPlansIndex();
-                        this.stats.plans = (plansData.plans || []).length;
-                        this.stats.plansUpdated = (plansData.plans || []).filter(plan => {
+                        const publishedPlans = (plansData.plans || []).filter(plan => 
+                            !plan.status || plan.status === 'published' || plan.status === 'active'
+                        );
+                        this.stats.plans = publishedPlans.length;
+                        this.stats.plansUpdated = publishedPlans.filter(plan => {
                             if (!plan.updatedAt) return false;
                             const updatedDate = new Date(plan.updatedAt);
                             const thisMonth = new Date();
@@ -441,28 +447,42 @@
                             this.stats.rulesRequired = 0;
                         }
                         
-                        // ダウンロード統計
+                        // ダウンロード統計（ホームページと同じロジックに統一）
                         const downloadsData = localStorage.getItem('downloads_data');
-                        if (downloadsData) {
-                            const downloads = JSON.parse(downloadsData);
-                            let totalFiles = 0;
-                            // categoriesがオブジェクト形式の場合
-                            if (downloads.categories && typeof downloads.categories === 'object') {
-                                Object.values(downloads.categories).forEach(cat => {
-                                    if (cat.items && Array.isArray(cat.items)) {
-                                        totalFiles += cat.items.length;
-                                    }
-                                });
-                            } else if (downloads.categories && Array.isArray(downloads.categories)) {
-                                // 配列形式の場合
-                                downloads.categories.forEach(cat => {
-                                    if (cat.files && Array.isArray(cat.files)) {
-                                        totalFiles += cat.files.length;
-                                    }
-                                });
+                        if (downloadsData && downloadsData !== '{"categories":{}}') {
+                            try {
+                                const downloads = JSON.parse(downloadsData);
+                                let totalFiles = 0;
+                                
+                                // 新しい形式（配列）のチェック
+                                if (downloads.categories && Array.isArray(downloads.categories)) {
+                                    downloads.categories.forEach(category => {
+                                        if (category.files && Array.isArray(category.files)) {
+                                            totalFiles += category.files.length;
+                                        }
+                                    });
+                                }
+                                // 古い形式（オブジェクト）のチェック（互換性のため）
+                                else if (downloads.categories && typeof downloads.categories === 'object') {
+                                    Object.keys(downloads.categories).forEach(categoryKey => {
+                                        const cat = downloads.categories[categoryKey];
+                                        // 新しい形式のfilesフィールド
+                                        if (cat.files && Array.isArray(cat.files)) {
+                                            totalFiles += cat.files.length;
+                                        }
+                                        // 古い形式のitemsフィールド
+                                        else if (cat.items && Array.isArray(cat.items)) {
+                                            totalFiles += cat.items.length;
+                                        }
+                                    });
+                                }
+                                
+                                this.stats.downloads = totalFiles;
+                                console.log('Downloads data:', downloads, 'Total files:', totalFiles);
+                            } catch (e) {
+                                console.error('Error parsing downloads data:', e);
+                                this.stats.downloads = 0;
                             }
-                            this.stats.downloads = totalFiles;
-                            console.log('Downloads data:', downloads, 'Total files:', totalFiles);
                         } else {
                             this.stats.downloads = 0;
                         }

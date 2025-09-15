@@ -21,10 +21,12 @@
                     <!-- Mode Toggle Button - Repositioned to left of Home -->
                     <button 
                         onclick="window.modeManager.toggleMode()" 
-                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:scale-105"
+                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm hover:shadow-md"
                         title="モードを切り替え">
-                        <span class="mode-icon text-lg">🤝</span>
-                        <span class="mode-text">商談モード</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        <span class="mode-text">打合せモード</span>
                     </button>
                     
                     <nav class="hidden md:flex space-x-8">
@@ -65,10 +67,12 @@
                         <div class="border-t border-gray-200 mt-3 pt-3">
                             <button 
                                 onclick="window.modeManager.toggleMode()" 
-                                class="mode-toggle-button w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md"
+                                class="mode-toggle-button w-full flex items-center justify-center space-x-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm"
                                 title="モードを切り替え">
-                                <span class="mode-icon text-lg">🤝</span>
-                                <span class="mode-text">商談モード</span>
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                                <span class="mode-text">打合せモード</span>
                             </button>
                         </div>
                     </div>
@@ -142,7 +146,7 @@
                     </a>
                     
                     <!-- よくある質問 -->
-                    <a href="/rules.html#faq" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/faq.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
                         <div class="mb-3">
                             <span class="text-2xl">❓</span>
                         </div>
@@ -159,7 +163,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Latest Updates -->
                     <div class="lg:col-span-2">
-                        <h2 class="text-lg font-medium text-gray-900 mb-4">最新情報</h2>
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">プラン・ルール・よくある質問が追加されたとき</h2>
                         <div class="space-y-3">
                             <template x-for="update in updates.slice(0, 5)" :key="update.id">
                                 <div class="bg-white p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -192,7 +196,7 @@
                             <!-- 最新情報がない場合の表示 -->
                             <div x-show="updates.length === 0" class="bg-white p-6 border border-gray-200 rounded-lg text-center">
                                 <div class="text-gray-400 mb-2">📋</div>
-                                <p class="text-sm text-gray-500">最新情報はありません</p>
+                                <p class="text-sm text-gray-500">新着情報はありません</p>
                                 <p class="text-xs text-gray-400 mt-1">コンテンツが更新されると、ここに表示されます</p>
                             </div>
                         </div>

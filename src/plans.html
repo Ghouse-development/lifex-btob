@@ -22,10 +22,12 @@
                     <!-- Mode Toggle Button - Repositioned to left of Home -->
                     <button 
                         onclick="window.modeManager.toggleMode()" 
-                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transform hover:scale-105"
+                        class="mode-toggle-button hidden md:flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-300 bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 shadow-sm hover:shadow-md"
                         title="モードを切り替え">
-                        <span class="mode-icon text-lg">🤝</span>
-                        <span class="mode-text">商談モード</span>
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        <span class="mode-text">打合せモード</span>
                     </button>
                     
                     <nav class="hidden md:flex space-x-8">
@@ -109,22 +111,14 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     <!-- 坪数フィルタ -->
                     <div>
-                        <label class="form-label">坪数</label>
-                        <div class="flex space-x-2">
-                            <select x-model="filters.tsubo.min" @change="applyFilters()" class="form-input flex-1">
-                                <option value="">選択</option>
-                                <template x-for="tsubo in Array.from({length: 21}, (_, i) => 25 + i)" :key="tsubo">
-                                    <option :value="tsubo" x-text="`${tsubo}坪`"></option>
-                                </template>
-                            </select>
-                            <span class="flex items-center text-gray-500">~</span>
-                            <select x-model="filters.tsubo.max" @change="applyFilters()" class="form-input flex-1">
-                                <option value="">選択</option>
-                                <template x-for="tsubo in Array.from({length: 21}, (_, i) => 25 + i)" :key="tsubo">
-                                    <option :value="tsubo" x-text="`${tsubo}坪`"></option>
-                                </template>
-                            </select>
-                        </div>
+                        <label class="form-label">坪数選択</label>
+                        <select x-model="filters.tsuboRange" @change="applyTsuboRangeFilter()" class="form-input">
+                            <option value="">全ての坪数</option>
+                            <option value="28-30">28坪以上30坪未満</option>
+                            <option value="30-33">30坪以上33坪未満</option>
+                            <option value="33-35">33坪以上35坪未満</option>
+                            <option value="35+">35坪以上</option>
+                        </select>
                     </div>
 
                     <!-- 間口フィルタ -->
@@ -195,7 +189,7 @@
                 </div>
 
                 <!-- Controls -->
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between pt-6 border-t border-gray-200">
+                <div class="flex flex-row items-center justify-between pt-6 border-t border-gray-200">
                     <div class="flex items-center space-x-4">
                         <label class="form-label">並び順:</label>
                         <select x-model="sortBy" @change="applySorting()" class="form-input">
@@ -211,9 +205,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
                             </svg>
                         </button>
-                        <button @click="clearAllFilters()" class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
-                            フィルタクリア
-                        </button>
+                        <button @click="clearAllFilters()" class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm whitespace-nowrap">フィルタクリア</button>
                     </div>
                 </div>
             </div>
@@ -553,9 +545,7 @@
                 </div>
                 <h3 class="text-lg font-medium text-gray-900 mb-2">該当するプランが見つかりませんでした</h3>
                 <p class="text-gray-600 mb-4">検索条件やフィルタを変更してお試しください</p>
-                <button @click="clearAllFilters()" class="btn-primary">
-                    フィルタをリセット
-                </button>
+                <button @click="clearAllFilters()" class="btn-primary whitespace-nowrap">フィルタをリセット</button>
             </div>
         </div>
 
@@ -935,7 +925,7 @@
                 selectedTags: [],
                 availableTags: [],
                 filters: {
-                    tsubo: { min: '', max: '' },
+                    tsuboRange: '',
                     depth: { min: '', max: '' },
                     width: { min: '', max: '' },
                     price: { min: '', max: '' },
@@ -1015,13 +1005,16 @@
                 async loadPlans() {
                     const plansData = await lifeXAPI.getPlansIndex();
                     console.log('Loading plans data:', plansData);
+                    console.log('Total plans in storage:', plansData.plans?.length || 0);
+                    
                     // statusがpublished、active、または未設定のプランを表示
-                    this.allPlans = (plansData.plans || []).filter(plan => 
+                    const filteredPlans = (plansData.plans || []).filter(plan => 
                         !plan.status || plan.status === 'published' || plan.status === 'active'
                     );
+                    console.log('Plans after status filter:', filteredPlans.length);
                     
                     // 画像パスの設定（管理画面との互換性のため）
-                    this.allPlans = this.allPlans.map((plan) => {
+                    this.allPlans = await Promise.all(filteredPlans.map(async (plan) => {
                         // デバッグログ
                         console.log('Plans - mapping plan:', plan.id, {
                             exteriorImage: plan.exteriorImage ? 'Has direct' : 'No direct',
@@ -1053,14 +1046,31 @@
                             plan.files?.floorPlans?.[2]?.data
                         ].filter(source => source && source.trim() !== '');
                         
+                        // IndexedDBから画像を復元
+                        let restoredImages = {};
+                        if (plan.imageIds && window.imageStorage) {
+                            try {
+                                restoredImages = await window.imageStorage.getPlanImages(plan.id);
+                                console.log(`Restored images for plan ${plan.id}:`, Object.keys(restoredImages));
+                            } catch (err) {
+                                console.error(`Failed to restore images for plan ${plan.id}:`, err);
+                            }
+                        }
+                        
+                        // 画像ソースの優先順位を考慮して設定
+                        const finalExterior = restoredImages.exterior || exteriorSources[0] || '';
+                        const finalInterior = restoredImages.interior || interiorSources[0] || '';
+                        const finalFloorPlan1F = restoredImages.floorPlan_0 || floorPlan1FSources[0] || '';
+                        const finalFloorPlan2F = restoredImages.floorPlan_1 || floorPlan2FSources[0] || '';
+                        
                         return {
                             ...plan,
-                            exteriorImage: exteriorSources[0] || '',
-                            interiorImage: interiorSources[0] || '',
-                            floorPlan1F: floorPlan1FSources[0] || '',
-                            floorPlan2F: floorPlan2FSources[0] || ''
+                            exteriorImage: finalExterior,
+                            interiorImage: finalInterior,
+                            floorPlan1F: finalFloorPlan1F,
+                            floorPlan2F: finalFloorPlan2F
                         };
-                    });
+                    }));
                     
                     this.totalPlans = this.allPlans.length;
                     console.log('Filtered plans:', this.allPlans.length, 'plans');
@@ -1130,11 +1140,11 @@
 
                     // Range filters
                     const filterObj = {};
-                    if (this.filters.tsubo.min || this.filters.tsubo.max) {
-                        filterObj.tsubo = {
-                            min: this.filters.tsubo.min ? parseFloat(this.filters.tsubo.min) : undefined,
-                            max: this.filters.tsubo.max ? parseFloat(this.filters.tsubo.max) : undefined
-                        };
+                    
+                    // 坪数範囲フィルタ
+                    if (this.filters.tsuboRange) {
+                        const [min, max] = this.getTsuboRange(this.filters.tsuboRange);
+                        filterObj.tsubo = { min, max };
                     }
                     if (this.filters.depth.min || this.filters.depth.max) {
                         filterObj.depth = {
@@ -1184,13 +1194,32 @@
                     this.searchQuery = '';
                     this.selectedTags = [];
                     this.filters = {
-                        tsubo: { min: '', max: '' },
+                        tsuboRange: '',
                         depth: { min: '', max: '' },
                         width: { min: '', max: '' },
                         price: { min: '', max: '' },
                         options: {}
                     };
                     this.applyFilters();
+                },
+
+                applyTsuboRangeFilter() {
+                    this.applyFilters();
+                },
+
+                getTsuboRange(rangeValue) {
+                    switch (rangeValue) {
+                        case '28-30':
+                            return [28, 30];
+                        case '30-33':
+                            return [30, 33];
+                        case '33-35':
+                            return [33, 35];
+                        case '35+':
+                            return [35, 999];
+                        default:
+                            return [undefined, undefined];
+                    }
                 },
 
 

@@ -178,8 +178,20 @@
                     </div>
                     
                     <div class="mt-6 flex justify-end space-x-3">
-                        <button @click="closeModal()" class="btn-secondary">キャンセル</button>
-                        <button @click="saveFAQ()" class="btn-primary">保存</button>
+                        <button @click="closeModal()" class="btn-secondary" :disabled="saving">キャンセル</button>
+                        <button @click="saveFAQ()" 
+                                :disabled="saving || !canSave"
+                                :class="saving || !canSave ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'btn-primary'"
+                                class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <span x-show="!saving">保存</span>
+                            <span x-show="saving" class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                保存中...
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -196,12 +208,20 @@
                 showModal: false,
                 editingFAQ: null,
                 newCategory: '',
+                saving: false,
                 formData: {
                     question: '',
                     answer: '',
                     category: '',
                     status: 'active',
                     order: 1
+                },
+                
+                get canSave() {
+                    const hasQuestion = this.formData.question.trim().length > 0;
+                    const hasAnswer = this.formData.answer.trim().length > 0;
+                    const hasValidCategory = this.getValidCategory().length > 0;
+                    return hasQuestion && hasAnswer && hasValidCategory;
                 },
                 sortable: null,
 
@@ -294,56 +314,144 @@
                 },
 
                 async saveFAQ() {
-                    if (!this.formData.question || !this.formData.answer) {
-                        lifeXAPI.showToast('質問と回答を入力してください', 'error');
+                    // 保存中の場合は重複実行を防ぐ
+                    if (this.saving) {
+                        return;
+                    }
+                    
+                    // フォームバリデーション
+                    const validationResult = this.validateForm();
+                    if (!validationResult.isValid) {
+                        lifeXAPI.showToast(validationResult.message, 'error');
                         return;
                     }
 
                     // 新規カテゴリの処理
-                    if (this.formData.category === 'new' && this.newCategory) {
-                        this.formData.category = this.newCategory;
-                        if (!this.categories.includes(this.newCategory)) {
-                            this.categories.push(this.newCategory);
-                        }
-                        this.newCategory = '';
-                    }
-
-                    if (!this.formData.category) {
-                        lifeXAPI.showToast('カテゴリを選択してください', 'error');
+                    const category = this.processCategory();
+                    if (!category) {
+                        lifeXAPI.showToast('有効なカテゴリを入力してください', 'error');
                         return;
                     }
+                    
+                    // FAQデータの処理
+                    const faqData = {
+                        ...this.formData,
+                        category: category,
+                        question: this.formData.question.trim(),
+                        answer: this.formData.answer.trim(),
+                        updated: new Date().toISOString()
+                    };
 
+                    // すぐにモーダルを閉じる
+                    this.closeModal();
+                    
+                    // バックグラウンドで保存処理を実行
+                    this.saving = true;
+                    
                     try {
                         if (this.editingFAQ) {
-                            // 編集
+                            // 編集の場合
                             const index = this.faqs.findIndex(f => f.id === this.editingFAQ.id);
                             if (index > -1) {
+                                // IDを保持
                                 this.faqs[index] = {
-                                    ...this.formData,
-                                    updated: new Date().toISOString()
+                                    ...faqData,
+                                    id: this.editingFAQ.id
                                 };
+                                lifeXAPI.showToast('FAQを更新しました', 'success');
+                            } else {
+                                throw new Error('編集対象のFAQが見つかりません');
                             }
-                            lifeXAPI.showToast('FAQを更新しました', 'success');
                         } else {
-                            // 新規追加
+                            // 新規追加の場合
                             const newFAQ = {
-                                ...this.formData,
-                                id: Date.now(),
-                                updated: new Date().toISOString()
+                                ...faqData,
+                                id: this.generateUniqueId(),
+                                order: this.getNextOrder()
                             };
                             this.faqs.push(newFAQ);
                             lifeXAPI.showToast('FAQを追加しました', 'success');
                         }
                         
-                        this.filterFAQs();
-                        this.closeModal();
-                        
-                        // 実際にはAPIで保存
+                        // APIに保存
                         await this.saveToAPI();
+                        
+                        // UI更新
+                        this.filterFAQs();
+                        
                     } catch (error) {
                         console.error('FAQの保存に失敗しました:', error);
-                        lifeXAPI.showToast('FAQの保存に失敗しました', 'error');
+                        lifeXAPI.showToast(`FAQの保存に失敗しました: ${error.message}`, 'error');
+                    } finally {
+                        this.saving = false;
                     }
+                },
+                
+                validateForm() {
+                    // 質問のバリデーション
+                    if (!this.formData.question || this.formData.question.trim().length === 0) {
+                        return { isValid: false, message: '質問を入力してください' };
+                    }
+                    if (this.formData.question.trim().length > 200) {
+                        return { isValid: false, message: '質問は200文字以内で入力してください' };
+                    }
+                    
+                    // 回答のバリデーション
+                    if (!this.formData.answer || this.formData.answer.trim().length === 0) {
+                        return { isValid: false, message: '回答を入力してください' };
+                    }
+                    if (this.formData.answer.trim().length > 2000) {
+                        return { isValid: false, message: '回答は2000文字以内で入力してください' };
+                    }
+                    
+                    // カテゴリのバリデーション
+                    const category = this.getValidCategory();
+                    if (!category) {
+                        return { isValid: false, message: 'カテゴリを選択または入力してください' };
+                    }
+                    
+                    return { isValid: true, message: '' };
+                },
+                
+                getValidCategory() {
+                    if (this.formData.category === 'new') {
+                        return this.newCategory ? this.newCategory.trim() : '';
+                    }
+                    return this.formData.category;
+                },
+                
+                processCategory() {
+                    if (this.formData.category === 'new' && this.newCategory) {
+                        const trimmedCategory = this.newCategory.trim();
+                        if (trimmedCategory.length === 0) {
+                            return null;
+                        }
+                        
+                        // 新しいカテゴリを追加
+                        if (!this.categories.includes(trimmedCategory)) {
+                            this.categories.push(trimmedCategory);
+                            this.categories.sort(); // アルファベット順にソート
+                        }
+                        
+                        // フォームをリセット
+                        this.newCategory = '';
+                        return trimmedCategory;
+                    }
+                    
+                    return this.formData.category;
+                },
+                
+                generateUniqueId() {
+                    // 数字と現在時刻を組み合わせたユニークIDを生成
+                    const timestamp = Date.now();
+                    const random = Math.floor(Math.random() * 1000);
+                    return `faq_${timestamp}_${random}`;
+                },
+                
+                getNextOrder() {
+                    // 現在の最大順序 + 1を返す
+                    const maxOrder = this.faqs.reduce((max, faq) => Math.max(max, faq.order || 0), 0);
+                    return maxOrder + 1;
                 },
 
                 deleteFAQ(faq) {
@@ -358,9 +466,24 @@
                 },
 
                 closeModal() {
+                    // 保存中の場合はクローズを防ぐ
+                    if (this.saving) {
+                        return;
+                    }
+                    
                     this.showModal = false;
                     this.editingFAQ = null;
                     this.newCategory = '';
+                    this.saving = false;
+                    
+                    // フォームをリセット
+                    this.formData = {
+                        question: '',
+                        answer: '',
+                        category: '',
+                        status: 'active',
+                        order: 1
+                    };
                 },
 
                 insertHTML(type) {

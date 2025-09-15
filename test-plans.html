@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プラン数テスト</title>
+</head>
+<body>
+    <h1>プラン数テスト</h1>
+    <div id="result"></div>
+    
+    <script>
+        // テスト用のプランデータを作成
+        const testPlans = {
+            plans: [
+                {
+                    id: "plan-001",
+                    name: "LX-030A",
+                    status: "published",
+                    floors: "2階",
+                    size: "30",
+                    updatedAt: "2025-09-10T10:00:00Z"
+                },
+                {
+                    id: "plan-002", 
+                    name: "LX-025B",
+                    status: "published",
+                    floors: "1階",
+                    size: "25",
+                    updatedAt: "2025-09-10T11:00:00Z"
+                },
+                {
+                    id: "plan-003",
+                    name: "LX-035C",
+                    status: "published",
+                    floors: "2階",
+                    size: "35",
+                    updatedAt: "2025-09-10T12:00:00Z"
+                }
+            ]
+        };
+        
+        // LocalStorageに保存
+        localStorage.setItem('plans_data', JSON.stringify(testPlans));
+        
+        // 統計情報を計算
+        const allPlans = testPlans.plans;
+        const publishedPlans = allPlans.filter(plan => 
+            !plan.status || plan.status === 'published' || plan.status === 'active'
+        );
+        
+        // 結果を表示
+        document.getElementById('result').innerHTML = `
+            <h2>テストデータを設定しました</h2>
+            <p><strong>全プラン数:</strong> ${allPlans.length}</p>
+            <p><strong>公開中のプラン数:</strong> ${publishedPlans.length}</p>
+            <br>
+            <h3>各プランの詳細:</h3>
+            ${allPlans.map((plan, index) => `
+                <div style="margin: 10px 0; padding: 10px; background: #f0f0f0;">
+                    <strong>${index + 1}. ${plan.name}</strong><br>
+                    ID: ${plan.id}<br>
+                    ステータス: ${plan.status}<br>
+                    階数: ${plan.floors}<br>
+                    広さ: ${plan.size}㎡
+                </div>
+            `).join('')}
+            <br>
+            <p style="color: green;">✓ LocalStorageにプランデータを保存しました。他のページで確認できます。</p>
+        `;
+    </script>
+</body>
+</html>

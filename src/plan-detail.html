@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">プラン詳細 | LIFE X 加盟店専用サイト</title>
     <link href="./styles/main.css" rel="stylesheet">
-    <script type="module" src="./utils/api.js"></script>
+    <script src="/js/common.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
     <!-- Header -->
@@ -20,7 +21,7 @@
                     <a href="/" class="nav-link">ホーム</a>
                     <a href="/matrix.html" class="nav-link">間取マトリックス</a>
                     <a href="/plans.html" class="nav-link">プラン一覧</a>
-                    <a href="/docs/rules.html" class="nav-link">ルール・ガイドライン</a>
+                    <a href="/rules.html" class="nav-link">ルール・ガイドライン</a>
                     <a href="/downloads.html" class="nav-link">ダウンロード</a>
                 </nav>
                 <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
@@ -35,7 +36,7 @@
                         <a href="/" class="nav-link block">ホーム</a>
                         <a href="/matrix.html" class="nav-link block">間取マトリックス</a>
                         <a href="/plans.html" class="nav-link block">プラン一覧</a>
-                        <a href="/docs/rules.html" class="nav-link block">ルール・ガイドライン</a>
+                        <a href="/rules.html" class="nav-link block">ルール・ガイドライン</a>
                         <a href="/downloads.html" class="nav-link block">ダウンロード</a>
                     </div>
                 </div>
@@ -124,10 +125,26 @@
                                 </div>
                             </div>
 
+                            <!-- Floor Information -->
+                            <div class="grid grid-cols-3 gap-6 mb-6">
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">階数</div>
+                                    <div x-text="plan?.floors || '-'" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">LDK階数</div>
+                                    <div x-text="plan?.ldkFloor || '1階'" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                                <div>
+                                    <div class="text-gray-500 text-sm mb-1">水廻り階数</div>
+                                    <div x-text="plan?.bathroomFloor || '1階'" class="text-xl font-semibold text-gray-900"></div>
+                                </div>
+                            </div>
+
                             <!-- Prices -->
                             <div class="grid grid-cols-3 gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
                                 <div>
-                                    <div class="text-gray-500 text-sm mb-1">想定売価</div>
+                                    <div class="text-gray-500 text-sm mb-1">想定販売価格</div>
                                     <div x-text="lifeXAPI.formatPrice(plan?.prices?.sell)" class="text-xl font-bold text-primary-600"></div>
                                 </div>
                                 <div>
@@ -147,25 +164,6 @@
                                     <template x-for="tag in plan?.tags" :key="tag">
                                         <span x-text="tag" class="tag"></span>
                                     </template>
-                                </div>
-                            </div>
-
-                            <!-- Options -->
-                            <div class="mb-6">
-                                <div class="text-gray-500 text-sm mb-2">オプション</div>
-                                <div class="flex flex-wrap gap-4">
-                                    <div class="flex items-center">
-                                        <span class="mr-2">太陽光:</span>
-                                        <span :class="plan?.options?.solar ? 'text-green-600' : 'text-gray-400'" x-text="plan?.options?.solar ? '対応' : '非対応'"></span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <span class="mr-2">evoltz:</span>
-                                        <span :class="plan?.options?.evoltz ? 'text-green-600' : 'text-gray-400'" x-text="plan?.options?.evoltz ? '装備' : '非装備'"></span>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <span class="mr-2">換気:</span>
-                                        <span x-text="plan?.options?.ventilationType" class="text-gray-900"></span>
-                                    </div>
                                 </div>
                             </div>
 
@@ -427,9 +425,11 @@
                 },
 
                 getPlanIdFromURL() {
-                    const path = window.location.pathname;
-                    const matches = path.match(/\/plans\/([^\/]+)\.html/);
-                    return matches ? matches[1] : null;
+                    // URLパラメータからプランIDを取得
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const planId = urlParams.get('id');
+                    console.log('Getting plan ID from URL:', planId);
+                    return planId;
                 },
 
                 async loadPlan(planId) {

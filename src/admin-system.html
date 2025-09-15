@@ -314,6 +314,59 @@
                 </form>
             </div>
         </div>
+
+        <!-- Edit User Modal -->
+        <div x-show="showEditUserModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <h3 class="text-lg font-bold text-gray-900 mb-4">管理者情報編集</h3>
+                <form @submit.prevent="updateUser">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">名前</label>
+                            <input type="text" x-model="editingUser.name" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">メールアドレス</label>
+                            <input type="email" x-model="editingUser.email" required
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">権限</label>
+                            <select x-model="editingUser.role" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option>管理者</option>
+                                <option>スーパー管理者</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">ステータス</label>
+                            <select x-model="editingUser.status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option>有効</option>
+                                <option>無効</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">パスワード変更（空欄の場合は変更なし）</label>
+                            <input type="password" x-model="editingUser.newPassword"
+                                   placeholder="新しいパスワードを入力"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+                        <div x-show="editingUser.newPassword">
+                            <label class="block text-sm font-medium text-gray-700">パスワード確認</label>
+                            <input type="password" x-model="editingUser.confirmPassword"
+                                   placeholder="パスワードを再入力"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" @click="closeEditModal()" class="btn-secondary">
+                            キャンセル
+                        </button>
+                        <button type="submit" class="btn-primary">更新</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -321,12 +374,22 @@
             return {
                 activeTab: 'users',
                 showAddUserModal: false,
+                showEditUserModal: false,
                 users: [],
                 newUser: {
                     name: '',
                     email: '',
                     role: '管理者',
                     password: ''
+                },
+                editingUser: {
+                    id: null,
+                    name: '',
+                    email: '',
+                    role: '',
+                    status: '',
+                    newPassword: '',
+                    confirmPassword: ''
                 },
                 passwordForm: {
                     current: '',
@@ -401,24 +464,66 @@
                 },
 
                 editUser(user) {
-                    // 編集用のモーダルを開く（簡易的にpromptを使用）
-                    const newName = prompt('名前を編集:', user.name);
-                    if (newName && newName.trim()) {
-                        user.name = newName.trim();
+                    // 編集するユーザー情報をコピー
+                    this.editingUser = {
+                        id: user.id,
+                        name: user.name,
+                        email: user.email,
+                        role: user.role,
+                        status: user.status,
+                        newPassword: '',
+                        confirmPassword: ''
+                    };
+                    this.showEditUserModal = true;
+                },
+
+                closeEditModal() {
+                    this.showEditUserModal = false;
+                    this.editingUser = {
+                        id: null,
+                        name: '',
+                        email: '',
+                        role: '',
+                        status: '',
+                        newPassword: '',
+                        confirmPassword: ''
+                    };
+                },
+
+                updateUser() {
+                    // パスワード確認
+                    if (this.editingUser.newPassword) {
+                        if (this.editingUser.newPassword !== this.editingUser.confirmPassword) {
+                            lifeXAPI.showToast('パスワードが一致しません', 'error');
+                            return;
+                        }
+                        if (this.editingUser.newPassword.length < 8) {
+                            lifeXAPI.showToast('パスワードは8文字以上で入力してください', 'error');
+                            return;
+                        }
                     }
-                    
-                    const newRole = prompt('権限を編集 (管理者/スーパー管理者):', user.role);
-                    if (newRole && (newRole === '管理者' || newRole === 'スーパー管理者')) {
-                        user.role = newRole;
+
+                    // ユーザー情報を更新
+                    const userIndex = this.users.findIndex(u => u.id === this.editingUser.id);
+                    if (userIndex !== -1) {
+                        this.users[userIndex] = {
+                            ...this.users[userIndex],
+                            name: this.editingUser.name,
+                            email: this.editingUser.email,
+                            role: this.editingUser.role,
+                            status: this.editingUser.status
+                        };
+                        
+                        // パスワードが変更された場合の処理（実際の実装では暗号化が必要）
+                        if (this.editingUser.newPassword) {
+                            // パスワード変更処理
+                            console.log('Password updated for user:', this.editingUser.id);
+                        }
                     }
-                    
-                    const newStatus = prompt('ステータスを編集 (有効/無効):', user.status);
-                    if (newStatus && (newStatus === '有効' || newStatus === '無効')) {
-                        user.status = newStatus;
-                    }
-                    
+
                     this.saveToLocalStorage();
-                    lifeXAPI.showToast('ユーザー情報を更新しました', 'success');
+                    this.closeEditModal();
+                    lifeXAPI.showToast('管理者情報を更新しました', 'success');
                 },
 
                 deleteUser(user) {

@@ -33,7 +33,8 @@
       "Bash(then echo \"Processing $file...\")",
       "Bash(npx vite:*)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(npm run lint)"
     ],
     "deny": [],
     "ask": []

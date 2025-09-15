@@ -92,14 +92,14 @@
                                 </div>
                                 <div>
                                     <span class="text-gray-600">間口:</span>
-                                    <span class="font-semibold" x-text="(plan.width || '-') + 'm'"></span>
+                                    <span class="font-semibold" x-text="plan.width ? (plan.width / 1000).toFixed(1) + 'm' : '-'"></span>
                                 </div>
                                 <div>
                                     <span class="text-gray-600">奥行:</span>
-                                    <span class="font-semibold" x-text="(plan.depth || '-') + 'm'"></span>
+                                    <span class="font-semibold" x-text="plan.depth ? (plan.depth / 1000).toFixed(1) + 'm' : '-'"></span>
                                 </div>
                                 <div>
-                                    <span class="text-gray-600">売価:</span>
+                                    <span class="text-gray-600">販売価格:</span>
                                     <span class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></span>
                                 </div>
                             </div>
@@ -147,16 +147,41 @@
                     try {
                         // 管理画面で保存されたプランデータを取得
                         const data = await lifeXAPI.getPlansIndex();
+                        console.log('Raw plans data from storage:', data);
+                        
                         this.plans = data.plans || [];
+                        console.log('Total plans loaded:', this.plans.length);
+                        console.log('Plans details:', this.plans);
                         
-                        // 公開されているプランのみ表示
-                        this.plans = this.plans.filter(plan => plan.status === 'published' || plan.status === 'active');
+                        // 公開されているプラン、またはステータスが未設定のプランを表示
+                        const filteredPlans = this.plans.filter(plan => 
+                            !plan.status || plan.status === 'published' || plan.status === 'active'
+                        );
+                        console.log('Plans after status filter:', filteredPlans.length);
                         
-                        // 外観画像のパスを設定
-                        this.plans = this.plans.map((plan) => ({
-                            ...plan,
-                            exteriorImage: plan.exteriorImage || plan.images?.exterior || ''
+                        // 外観画像のパスを設定し、画像の読み込みを試みる
+                        this.plans = await Promise.all(filteredPlans.map(async (plan) => {
+                            // 画像データを復元
+                            if (plan.imageIds && window.imageStorage) {
+                                try {
+                                    const images = await window.imageStorage.getPlanImages(plan.id);
+                                    console.log(`Images loaded for plan ${plan.id}:`, images);
+                                    return {
+                                        ...plan,
+                                        exteriorImage: images.exterior || plan.exteriorImage || plan.images?.exterior || ''
+                                    };
+                                } catch (err) {
+                                    console.error(`Failed to load images for plan ${plan.id}:`, err);
+                                }
+                            }
+                            
+                            return {
+                                ...plan,
+                                exteriorImage: plan.exteriorImage || plan.images?.exterior || ''
+                            };
                         }));
+                        
+                        console.log('Final plans to display:', this.plans);
                     } catch (error) {
                         console.error('Failed to load plans:', error);
                         this.plans = [];
