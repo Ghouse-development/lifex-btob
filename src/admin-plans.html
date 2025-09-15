@@ -167,9 +167,8 @@
                     </div>
                 </div>
 
-                <div class="p-6 flex-grow overflow-y-auto">
-                    <!-- All Content in Single View -->
-                    <form @submit.prevent="savePlan()" class="space-y-6">
+                <form @submit.prevent="savePlan()" class="flex-grow flex flex-col">
+                    <div class="p-6 flex-grow overflow-y-auto space-y-6">
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <h4 class="text-lg font-semibold text-gray-900 mb-4">基本情報</h4>
                                 <div class="grid grid-cols-2 gap-4">
@@ -653,8 +652,6 @@
                         </div>
                     </div>
 
-                        </div>
-                        
                         <!-- 確認 Tab -->
                         <div x-show="currentTab === 'confirm'" class="space-y-6">
                             <div class="bg-gray-50 p-4 rounded-lg">
@@ -764,8 +761,8 @@
                                 </button>
                             </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
