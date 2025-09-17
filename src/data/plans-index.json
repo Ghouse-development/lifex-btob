@@ -1,0 +1,59 @@
+{
+  "plans": [
+    {
+      "id": "LX-030A",
+      "name": "LIFE X 30坪プラン A",
+      "type": "30坪",
+      "floors": 2,
+      "tsubo": 30,
+      "width": 5460,
+      "depth": 9100,
+      "layout": "3LDK",
+      "tags": ["吹抜", "パントリー", "ウォークインクローゼット"],
+      "sellPrice": 25000000,
+      "cost": 18000000,
+      "status": "published",
+      "updated": "2025-01-17"
+    },
+    {
+      "id": "LX-033B",
+      "name": "LIFE X 33坪プラン B",
+      "type": "33坪",
+      "floors": 2,
+      "tsubo": 33,
+      "width": 6370,
+      "depth": 9100,
+      "layout": "4LDK",
+      "tags": ["書斎", "シューズクローク", "バルコニー"],
+      "sellPrice": 27000000,
+      "cost": 19500000,
+      "status": "published",
+      "updated": "2025-01-16"
+    },
+    {
+      "id": "LX-035C",
+      "name": "LIFE X 35坪プラン C",
+      "type": "35坪",
+      "floors": 2,
+      "tsubo": 35,
+      "width": 6825,
+      "depth": 9100,
+      "layout": "4LDK",
+      "tags": ["吹抜", "書斎", "パントリー", "ウッドデッキ"],
+      "sellPrice": 28500000,
+      "cost": 20500000,
+      "status": "published",
+      "updated": "2025-01-15"
+    }
+  ],
+  "summary": {
+    "total": 3,
+    "published": 3,
+    "draft": 0,
+    "categories": {
+      "30坪": 1,
+      "33坪": 1,
+      "35坪": 1
+    }
+  }
+}

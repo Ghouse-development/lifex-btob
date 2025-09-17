@@ -4,6 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LIFE X 加盟店専用サイト</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -101,57 +132,57 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     <!-- 間取マトリックス -->
-                    <a href="/matrix.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/matrix.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
                         <div class="mb-3">
-                            <span class="text-2xl">📊</span>
+                            <span class="text-3xl">📊</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1">間取マトリックス</h3>
-                        <p class="text-lg text-gray-500">間口×奥行で検索</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">間取マトリックス</h3>
+                        <p class="text-sm text-gray-600">間口×奥行で検索</p>
                     </a>
-                    
+
                     <!-- デザインから探す -->
-                    <a href="/design.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/design.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
                         <div class="mb-3">
-                            <span class="text-2xl">🎨</span>
+                            <span class="text-3xl">🎨</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1">デザインから探す</h3>
-                        <p class="text-lg text-gray-500">外観・内観から選ぶ</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">デザインから探す</h3>
+                        <p class="text-sm text-gray-600">外観・内観から選ぶ</p>
                     </a>
-                    
+
                     <!-- プラン一覧 -->
-                    <a href="/plans.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/plans.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
                         <div class="mb-3">
-                            <span class="text-2xl">📝</span>
+                            <span class="text-3xl">📝</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1">プラン一覧</h3>
-                        <p class="text-lg text-gray-500">全プランを一覧表示</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">プラン一覧</h3>
+                        <p class="text-sm text-gray-600">全プランを一覧表示</p>
                     </a>
-                    
+
                     <!-- ルール -->
-                    <a href="/rules.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/rules.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
                         <div class="mb-3">
-                            <span class="text-2xl">📋</span>
+                            <span class="text-3xl">📋</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1">ルール・ガイドライン</h3>
-                        <p class="text-lg text-gray-500">営業・施工ルール</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">ルール・ガイドライン</h3>
+                        <p class="text-sm text-gray-600">営業・施工ルール</p>
                     </a>
-                    
+
                     <!-- ダウンロード -->
-                    <a href="/downloads.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/downloads.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
                         <div class="mb-3">
-                            <span class="text-2xl">📥</span>
+                            <span class="text-3xl">📥</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1">ダウンロード</h3>
-                        <p class="text-lg text-gray-500">営業・設計資料</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">ダウンロード</h3>
+                        <p class="text-sm text-gray-600">営業・設計資料</p>
                     </a>
-                    
+
                     <!-- よくある質問 -->
-                    <a href="/faq.html" class="bg-gray-100 p-6 rounded-lg border border-gray-200 hover:border-gray-400 transition-colors">
+                    <a href="/faq.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
                         <div class="mb-3">
-                            <span class="text-2xl">❓</span>
+                            <span class="text-3xl">❓</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1">よくある質問</h3>
-                        <p class="text-lg text-gray-500">FAQ・お問い合わせ</p>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">よくある質問</h3>
+                        <p class="text-sm text-gray-600">FAQ・お問い合わせ</p>
                     </a>
                 </div>
             </div>
