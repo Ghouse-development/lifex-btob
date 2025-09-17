@@ -23,6 +23,7 @@ export default defineConfig({
         'admin-login-google': resolve(__dirname, 'src/admin-login-google.html'),
         'admin-users': resolve(__dirname, 'src/admin-users.html'),
         'admin-system': resolve(__dirname, 'src/admin-system.html'),
+        'admin/index': resolve(__dirname, 'src/admin/index.html'),
         ai: resolve(__dirname, 'src/ai.html'),
         design: resolve(__dirname, 'src/design.html'),
         faq: resolve(__dirname, 'src/faq.html')
