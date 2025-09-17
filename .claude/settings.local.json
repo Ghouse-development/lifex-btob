@@ -36,7 +36,9 @@
       "Bash(grep:*)",
       "Bash(npm run lint)",
       "Bash(cat:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(npx http-server:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
