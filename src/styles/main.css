@@ -1,6 +1,4 @@
 /* src/styles/main.css */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,7 +6,7 @@
 /* ← ここから下でカスタムレイヤー */
 @layer base {
   html {
-    font-family: 'Inter', 'Noto Sans JP', system-ui, sans-serif;
+    font-family: 'Noto Sans JP', 'Inter', system-ui, sans-serif;
   }
   
   body {
