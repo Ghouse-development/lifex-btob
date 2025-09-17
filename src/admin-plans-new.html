@@ -33,9 +33,15 @@
     <!-- カスタムスタイル -->
     <link href="./styles/main.css" rel="stylesheet">
 
-    <!-- Alpine.js と Collapse プラグイン -->
-    <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine.js と Collapse プラグイン (順序重要: プラグインを先に) -->
+    <script src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        // Alpine.js初期化前にプラグインを登録
+        document.addEventListener('alpine:init', () => {
+            console.log('Alpine.js initialized');
+        });
+    </script>
 
     <style>
         /* スムーズなトランジション */

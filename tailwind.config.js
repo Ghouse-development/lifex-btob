@@ -1,8 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./src/**/*.{html,js}",
-    "./src/**/*.html"
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx,html}",
+    "./public/**/*.html",
   ],
   theme: {
     extend: {
@@ -66,7 +69,5 @@ export default {
       }
     },
   },
-  plugins: [
-    require('@tailwindcss/typography')
-  ],
+  plugins: [],
 }
