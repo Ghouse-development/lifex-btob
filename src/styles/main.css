@@ -19,6 +19,44 @@
 }
 
 @layer components {
+  /* Admin UI Components */
+  .admin-container {
+    @apply max-w-7xl mx-auto px-4 py-6;
+  }
+
+  .admin-card {
+    @apply bg-white rounded-md shadow p-6 mb-6;
+  }
+
+  .admin-table {
+    @apply w-full border border-gray-200 text-sm;
+  }
+
+  .admin-table th {
+    @apply bg-gray-50 font-medium text-gray-700 px-3 py-2 text-left border-b border-gray-200;
+  }
+
+  .admin-table td {
+    @apply border-t border-gray-200 px-3 py-2;
+  }
+
+  .admin-btn {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors;
+  }
+
+  .admin-btn-secondary {
+    @apply inline-flex items-center px-3 py-1 rounded-md text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors;
+  }
+
+  .admin-form-label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .admin-form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+
+  /* Regular Components */
   .btn-primary {
     @apply bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 shadow-soft hover:shadow-hover transform hover:-translate-y-0.5 focus:outline-none focus:ring-4 focus:ring-primary-200;
   }
@@ -233,18 +271,33 @@
     @apply transform transition-all duration-500 hover:-translate-y-2 hover:scale-105 hover:shadow-2xl;
   }
 
+  /* SVG and Image constraints for Admin */
+  .admin-logo svg, .admin-logo img {
+    max-width: 200px;
+    height: auto;
+    display: block;
+  }
+
   /* メディアクエリでレスポンシブ対応 */
   @media (max-width: 768px) {
     .card {
       @apply p-6;
     }
-    
+
     .card-compact {
       @apply p-4;
     }
 
     .btn-primary, .btn-secondary {
       @apply px-4 py-2 text-sm;
+    }
+
+    .admin-container {
+      @apply px-2 py-4;
+    }
+
+    .admin-table {
+      @apply text-xs;
     }
   }
 }

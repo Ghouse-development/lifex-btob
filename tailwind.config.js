@@ -38,7 +38,23 @@ export default {
     // Position
     'relative','absolute','inset-0','z-0','z-10','overflow-hidden',
     // Opacity
-    'opacity-5'
+    'opacity-5',
+
+    // Admin specific classes
+    'table','table-auto','table-fixed','w-full',
+    'border-t','border-collapse',
+    'thead','tbody','tr','th','td',
+    'bg-gray-50','bg-gray-100','bg-gray-200',
+    'text-xs','text-base','text-gray-700','text-gray-800',
+    'px-2','px-3','py-1','py-2','py-4',
+    'rounded','rounded-md','shadow-sm',
+    'gap-2',
+    'items-start','items-end','justify-start','justify-end',
+    'font-medium','text-left','text-right','text-center',
+    'inline-flex','inline-block',
+    'hover:bg-blue-700','bg-blue-600','text-white',
+    'min-w-full','max-w-full','overflow-x-auto',
+    'divide-y','divide-gray-200'
   ],
   theme: {
     extend: {
