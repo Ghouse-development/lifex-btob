@@ -195,11 +195,21 @@
 
                 <!-- フォーム全体 -->
                 <form @submit.prevent="handleFormSubmit()" class="flex-grow flex flex-col overflow-hidden">
-                    <!-- スクロール可能なコンテンツエリア -->
-                    <div class="flex-grow overflow-y-auto px-6 py-4 space-y-4">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h4 class="text-base font-semibold text-gray-900 mb-3">基本情報</h4>
-                                <div class="grid grid-cols-3 gap-3">
+                    <!-- タブナビゲーション -->
+                    <div class="border-b bg-gray-50 px-6 py-2">
+                        <div class="flex space-x-1">
+                            <button type="button" @click="currentTab = 'basic'" :class="currentTab === 'basic' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">基本情報</button>
+                            <button type="button" @click="currentTab = 'price'" :class="currentTab === 'price' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">価格情報</button>
+                            <button type="button" @click="currentTab = 'features'" :class="currentTab === 'features' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">特徴タグ</button>
+                            <button type="button" @click="currentTab = 'files'" :class="currentTab === 'files' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">画像・ファイル</button>
+                        </div>
+                    </div>
+
+                    <!-- タブコンテンツエリア -->
+                    <div class="flex-grow px-6 py-4 overflow-hidden">
+                        <!-- 基本情報タブ -->
+                        <div x-show="currentTab === 'basic'" class="h-full">
+                            <div class="grid grid-cols-4 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">プランコード <span class="text-red-500">*</span></label>
                                         <input type="text" x-model="formData.id" 
@@ -275,12 +285,16 @@
                                         </select>
                                         <div x-show="formErrors.layout" class="text-red-500 text-xs mt-1" x-text="formErrors.layout"></div>
                                     </div>
+                                    <div class="col-span-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
+                                        <textarea x-model="formData.description" rows="2" class="form-input w-full" placeholder="プランの特徴やポイントを入力してください"></textarea>
+                                    </div>
                                 </div>
-                            </div>
+                        </div>
 
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h4 class="text-base font-semibold text-gray-900 mb-3">価格情報</h4>
-                                <div class="grid grid-cols-3 gap-3">
+                        <!-- 価格情報タブ -->
+                        <div x-show="currentTab === 'price'" class="h-full">
+                            <div class="grid grid-cols-3 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">想定販売価格（万円）<span class="text-red-500 ml-1">税込 *</span></label>
                                         <select x-model="formData.sellPrice" 
@@ -333,12 +347,7 @@
                                             'text-green-600': profitMargin >= 30
                                         }" class="text-lg font-bold" x-text="profitMargin + '%'"></div>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h4 class="text-base font-semibold text-gray-900 mb-3">性能情報</h4>
-                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="col-span-3 grid grid-cols-2 gap-4 mt-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">UA値（W/㎡K）</label>
                                         <input type="number" x-model="formData.uaValue" 
@@ -358,12 +367,8 @@
                                                max="100">
                                         <div class="text-xs text-gray-500 mt-1">BEI値から算出</div>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <h4 class="text-base font-semibold text-gray-900 mb-3">ステータスと説明</h4>
-                                <div class="grid grid-cols-3 gap-3">
+                                    </div>
+                                    <div class="col-span-3 grid grid-cols-2 gap-4 mt-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
                                         <select x-model="formData.status" class="form-input w-full">
@@ -376,20 +381,13 @@
                                         <label class="block text-sm font-medium text-gray-700 mb-1">設計担当者</label>
                                         <input type="text" x-model="formData.designer" class="form-input w-full" placeholder="設計者名">
                                     </div>
+                                    </div>
                                 </div>
-                                <div class="mt-3 col-span-3">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
-                                    <textarea x-model="formData.description" rows="2" class="form-input w-full" 
-                                              placeholder="プランの特徴やポイントを入力してください"></textarea>
-                                </div>
-                            </div>
                         </div>
                         
-                        <!-- 特徴タグ Tab -->
-                        <div x-show="currentTab === 'features'" class="space-y-6">
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">特徴タグ</h4>
-                                <div class="space-y-4">
+                        <!-- 特徴タグタブ -->
+                        <div x-show="currentTab === 'features'" class="h-full overflow-y-auto">
+                            <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">住空間特徴</label>
                                         <div class="flex flex-wrap gap-2">
@@ -452,15 +450,12 @@
                                             <span x-show="getAllSelectedTags().length === 0" class="text-blue-600 text-sm">タグが選択されていません</span>
                                         </div>
                                     </div>
-                                </div>
                             </div>
                         </div>
-                        
-                        <!-- 画像・ファイル Tab -->
-                        <div x-show="currentTab === 'files'" class="space-y-6">
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">画像アップロード</h4>
-                                <div class="grid grid-cols-2 gap-4">
+
+                        <!-- 画像・ファイルタブ -->
+                        <div x-show="currentTab === 'files'" class="h-full overflow-y-auto">
+                            <div class="grid grid-cols-2 gap-4">
                                     <!-- 外観パース -->
                                     <div>
                                         <label class="text-sm font-medium text-gray-700 mb-2 block">外観パース <span class="text-red-500">*</span></label>
@@ -1172,6 +1167,7 @@
 
                 editPlan(plan) {
                     this.editingPlan = plan;
+                    this.currentTab = 'basic';
                     this.formData = {
                         ...plan,
                         ldkFloor: plan.ldkFloor || '1階',
@@ -1378,6 +1374,7 @@
                 closeModal() {
                     this.showModal = false;
                     this.editingPlan = null;
+                    this.currentTab = 'basic';
                 },
                 
                 updateStats() {
