@@ -9,6 +9,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            safelist: [
+                'grid','grid-cols-1','md:grid-cols-2','lg:grid-cols-2','xl:grid-cols-3',
+                'gap-4','gap-6','rounded-lg','rounded-2xl','shadow','shadow-md','p-6',
+                'text-gray-600','text-gray-700','text-gray-900','bg-white','bg-gray-50',
+                'hover:shadow-md','hover:shadow-lg','hover:-translate-y-1','transform',
+                'transition-all','duration-300','group','group-hover:text-primary-600',
+                'border','border-gray-200','flex','items-center','justify-between',
+                'max-w-7xl','mx-auto','px-4','sm:px-6','lg:px-8','py-8','h-16'
+            ],
             theme: {
                 extend: {
                     colors: {
@@ -132,56 +141,56 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     <!-- 間取マトリックス -->
-                    <a href="/matrix.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/matrix.html" class="group block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                         <div class="mb-3">
                             <span class="text-3xl">📊</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">間取マトリックス</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">間取マトリックス</h3>
                         <p class="text-sm text-gray-600">間口×奥行で検索</p>
                     </a>
 
                     <!-- デザインから探す -->
-                    <a href="/design.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/design.html" class="group block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                         <div class="mb-3">
                             <span class="text-3xl">🎨</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">デザインから探す</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">デザインから探す</h3>
                         <p class="text-sm text-gray-600">外観・内観から選ぶ</p>
                     </a>
 
                     <!-- プラン一覧 -->
-                    <a href="/plans.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/plans.html" class="group block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                         <div class="mb-3">
                             <span class="text-3xl">📝</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">プラン一覧</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">プラン一覧</h3>
                         <p class="text-sm text-gray-600">全プランを一覧表示</p>
                     </a>
 
                     <!-- ルール -->
-                    <a href="/rules.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/rules.html" class="group block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                         <div class="mb-3">
                             <span class="text-3xl">📋</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">ルール・ガイドライン</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">ルール・ガイドライン</h3>
                         <p class="text-sm text-gray-600">営業・施工ルール</p>
                     </a>
 
                     <!-- ダウンロード -->
-                    <a href="/downloads.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/downloads.html" class="group block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                         <div class="mb-3">
                             <span class="text-3xl">📥</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">ダウンロード</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">ダウンロード</h3>
                         <p class="text-sm text-gray-600">営業・設計資料</p>
                     </a>
 
                     <!-- よくある質問 -->
-                    <a href="/faq.html" class="group bg-white p-6 rounded-lg shadow-card hover:shadow-hover transition-all duration-300 transform hover:-translate-y-1">
+                    <a href="/faq.html" class="group block bg-white p-6 rounded-lg shadow hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                         <div class="mb-3">
                             <span class="text-3xl">❓</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600">よくある質問</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">よくある質問</h3>
                         <p class="text-sm text-gray-600">FAQ・お問い合わせ</p>
                     </a>
                 </div>
