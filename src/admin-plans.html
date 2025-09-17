@@ -221,34 +221,33 @@
 
                 <!-- フォーム全体 -->
                 <form @submit.prevent="handleFormSubmit()" class="flex-grow flex flex-col overflow-hidden">
-                    <!-- タブナビゲーション -->
-                    <div class="border-b bg-gray-50 px-6 py-2">
-                        <div class="flex space-x-1">
-                            <button type="button" @click="currentTab = 'basic'" :class="currentTab === 'basic' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">基本情報</button>
-                            <button type="button" @click="currentTab = 'price'" :class="currentTab === 'price' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">価格情報</button>
-                            <button type="button" @click="currentTab = 'features'" :class="currentTab === 'features' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">特徴タグ</button>
-                            <button type="button" @click="currentTab = 'files'" :class="currentTab === 'files' ? 'bg-white border-b-2 border-blue-500 text-blue-600' : 'text-gray-600 hover:text-gray-800'" class="px-4 py-2 text-sm font-medium transition-colors">画像・ファイル</button>
-                        </div>
-                    </div>
+                    <!-- スクロール可能な本文エリア -->
+                    <div class="flex-grow px-6 py-4 overflow-y-auto space-y-6">
 
-                    <!-- タブコンテンツエリア -->
-                    <div class="flex-grow px-6 py-4 overflow-hidden">
-                        <!-- 基本情報タブ -->
-                        <div x-show="currentTab === 'basic'" class="h-full">
+                        <!-- 基本情報セクション -->
+                        <fieldset class="border border-gray-200 rounded-lg p-4">
+                            <legend class="text-lg font-semibold text-gray-900 px-2">基本情報</legend>
                             <div class="grid grid-cols-4 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">プランコード <span class="text-red-500">*</span></label>
-                                        <input type="text" x-model="formData.id" 
+                                        <input type="text"
+                                               x-model="formData.id"
+                                               name="planCode"
                                                @input="validateField('id')"
                                                :class="getFieldValidationClass('id')"
-                                               class="form-input w-full" placeholder="28-40-N-12-001">
+                                               class="form-input w-full"
+                                               placeholder="28-40-N-12-001"
+                                               required>
                                         <div x-show="formErrors.id" class="text-red-500 text-xs mt-1" x-text="formErrors.id"></div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">階数 <span class="text-red-500">*</span></label>
-                                        <select x-model="formData.floors" @change="updateFloorPlans(); validateField('floors')" 
+                                        <select x-model="formData.floors"
+                                                name="floors"
+                                                @change="updateFloorPlans(); validateField('floors')"
                                                 :class="getFieldValidationClass('floors')"
-                                                class="form-input w-full">
+                                                class="form-input w-full"
+                                                required>
                                             <option value="1">平屋</option>
                                             <option value="2">2階建て</option>
                                             <option value="3">3階建て</option>
@@ -257,7 +256,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">LDK階数</label>
-                                        <select x-model="formData.ldkFloor" class="form-input w-full">
+                                        <select x-model="formData.ldkFloor" name="ldkFloor" class="form-input w-full">
                                             <option value="1階">1階</option>
                                             <option value="2階">2階</option>
                                             <option value="3階">3階</option>
@@ -265,7 +264,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">水廻り階数</label>
-                                        <select x-model="formData.bathroomFloor" class="form-input w-full">
+                                        <select x-model="formData.bathroomFloor" name="bathroomFloor" class="form-input w-full">
                                             <option value="1階">1階</option>
                                             <option value="2階">2階</option>
                                             <option value="3階">3階</option>
@@ -273,34 +272,54 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">坪数 <span class="text-red-500">*</span></label>
-                                        <input type="number" x-model="formData.tsubo" 
+                                        <input type="number"
+                                               x-model="formData.tsubo"
+                                               name="tsubo"
                                                @input="validateField('tsubo')"
                                                :class="getFieldValidationClass('tsubo')"
-                                               class="form-input w-full" placeholder="30" min="10" max="100">
+                                               class="form-input w-full"
+                                               placeholder="30"
+                                               min="10"
+                                               max="100"
+                                               required>
                                         <div x-show="formErrors.tsubo" class="text-red-500 text-xs mt-1" x-text="formErrors.tsubo"></div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">間口（mm） <span class="text-red-500">*</span></label>
-                                        <input type="number" x-model="formData.width" 
+                                        <input type="number"
+                                               x-model="formData.width"
+                                               name="width"
                                                @input="calculateTsubo(); validateField('width')"
                                                :class="getFieldValidationClass('width')"
-                                               class="form-input w-full" placeholder="5460" min="3000" max="15000">
+                                               class="form-input w-full"
+                                               placeholder="5460"
+                                               min="3000"
+                                               max="15000"
+                                               required>
                                         <div x-show="formErrors.width" class="text-red-500 text-xs mt-1" x-text="formErrors.width"></div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">奥行（mm） <span class="text-red-500">*</span></label>
-                                        <input type="number" x-model="formData.depth" 
+                                        <input type="number"
+                                               x-model="formData.depth"
+                                               name="depth"
                                                @input="calculateTsubo(); validateField('depth')"
                                                :class="getFieldValidationClass('depth')"
-                                               class="form-input w-full" placeholder="9100" min="3000" max="20000">
+                                               class="form-input w-full"
+                                               placeholder="9100"
+                                               min="3000"
+                                               max="20000"
+                                               required>
                                         <div x-show="formErrors.depth" class="text-red-500 text-xs mt-1" x-text="formErrors.depth"></div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">間取り <span class="text-red-500">*</span></label>
-                                        <select x-model="formData.layout" 
+                                        <select x-model="formData.layout"
+                                                name="layout"
                                                 @change="validateField('layout')"
                                                 :class="getFieldValidationClass('layout')"
-                                                class="form-input w-full">
+                                                class="form-input w-full"
+                                                required>
                                             <option value="">選択してください</option>
                                             <option value="1LDK">1LDK</option>
                                             <option value="2LDK">2LDK</option>
@@ -313,20 +332,23 @@
                                     </div>
                                     <div class="col-span-4">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">説明</label>
-                                        <textarea x-model="formData.description" rows="2" class="form-input w-full" placeholder="プランの特徴やポイントを入力してください"></textarea>
+                                        <textarea x-model="formData.description" name="description" rows="2" class="form-input w-full" placeholder="プランの特徴やポイントを入力してください"></textarea>
                                     </div>
                                 </div>
-                        </div>
+                        </fieldset>
 
-                        <!-- 価格情報タブ -->
-                        <div x-show="currentTab === 'price'" class="h-full">
+                        <!-- 価格情報セクション -->
+                        <fieldset class="border border-gray-200 rounded-lg p-4">
+                            <legend class="text-lg font-semibold text-gray-900 px-2">価格情報</legend>
                             <div class="grid grid-cols-3 gap-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">想定販売価格（万円）<span class="text-red-500 ml-1">税込 *</span></label>
-                                        <select x-model="formData.sellPrice" 
+                                        <select x-model="formData.sellPrice"
+                                                name="sellPrice"
                                                 @change="calculateProfits(); validateField('sellPrice')"
                                                 :class="getFieldValidationClass('sellPrice')"
-                                                class="form-input w-full">
+                                                class="form-input w-full"
+                                                required>
                                             <option value="">選択してください</option>
                                             <option value="2200">2200万円</option>
                                             <option value="2400">2400万円</option>
@@ -338,18 +360,29 @@
                                             <option value="その他">その他（直接入力）</option>
                                         </select>
                                         <div x-show="formData.sellPrice === 'その他'" class="mt-2">
-                                            <input type="number" x-model="formData.customSellPrice" 
+                                            <input type="number"
+                                                   x-model="formData.customSellPrice"
+                                                   name="customSellPrice"
                                                    @input="calculateProfits()"
-                                                   class="form-input w-full" placeholder="価格を入力" min="1000" max="10000">
+                                                   class="form-input w-full"
+                                                   placeholder="価格を入力"
+                                                   min="1000"
+                                                   max="10000">
                                         </div>
                                         <div x-show="formErrors.sellPrice" class="text-red-500 text-xs mt-1" x-text="formErrors.sellPrice"></div>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">想定原価（万円）<span class="text-blue-500 ml-1">税別 *</span></label>
-                                        <input type="number" x-model="formData.cost" 
+                                        <input type="number"
+                                               x-model="formData.cost"
+                                               name="cost"
                                                @input="calculateProfits(); validateField('cost')"
                                                :class="getFieldValidationClass('cost')"
-                                               class="form-input w-full" placeholder="1500" min="500" max="5000">
+                                               class="form-input w-full"
+                                               placeholder="1500"
+                                               min="500"
+                                               max="5000"
+                                               required>
                                         <div x-show="formErrors.cost" class="text-red-500 text-xs mt-1" x-text="formErrors.cost"></div>
                                     </div>
                                     <div>
@@ -397,7 +430,7 @@
                                     <div class="col-span-3 grid grid-cols-2 gap-4 mt-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
-                                        <select x-model="formData.status" class="form-input w-full">
+                                        <select x-model="formData.status" name="status" class="form-input w-full">
                                             <option value="draft">下書き（非公開）</option>
                                             <option value="published">公開中</option>
                                         </select>
@@ -405,14 +438,15 @@
                                     </div>
                                     <div class="col-span-1">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">設計担当者</label>
-                                        <input type="text" x-model="formData.designer" class="form-input w-full" placeholder="設計者名">
+                                        <input type="text" x-model="formData.designer" name="designer" class="form-input w-full" placeholder="設計者名">
                                     </div>
                                     </div>
                                 </div>
-                        </div>
-                        
-                        <!-- 特徴タグタブ -->
-                        <div x-show="currentTab === 'features'" class="h-full overflow-y-auto">
+                        </fieldset>
+
+                        <!-- 特徴タグセクション -->
+                        <fieldset class="border border-gray-200 rounded-lg p-4">
+                            <legend class="text-lg font-semibold text-gray-900 px-2">特徴タグ</legend>
                             <div class="space-y-4">
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">住空間特徴</label>
@@ -477,10 +511,11 @@
                                         </div>
                                     </div>
                             </div>
-                        </div>
+                        </fieldset>
 
-                        <!-- 画像・ファイルタブ -->
-                        <div x-show="currentTab === 'files'" class="h-full overflow-y-auto">
+                        <!-- 画像・ファイルセクション -->
+                        <fieldset class="border border-gray-200 rounded-lg p-4">
+                            <legend class="text-lg font-semibold text-gray-900 px-2">画像・ファイル</legend>
                             <div class="grid grid-cols-2 gap-4">
                                     <!-- 外観パース -->
                                     <div>
@@ -701,80 +736,7 @@
                         </div>
                     </div>
 
-                        <!-- 確認 Tab -->
-                        <div x-show="currentTab === 'confirm'" class="space-y-6">
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4">入力内容の確認</h4>
-                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <span class="font-medium text-gray-700">プランコード:</span>
-                                        <span x-text="formData.id || '未入力'" :class="!formData.id ? 'text-red-500' : 'text-gray-900'"></span>
-                                    </div>
-                                    <div>
-                                        <span class="font-medium text-gray-700">階数:</span>
-                                        <span x-text="formData.floors == 1 ? '平屋' : formData.floors + '階建て'"></span>
-                                    </div>
-                                    <div>
-                                        <span class="font-medium text-gray-700">坪数:</span>
-                                        <span x-text="formData.tsubo ? formData.tsubo + '坪' : '未入力'" :class="!formData.tsubo ? 'text-red-500' : 'text-gray-900'"></span>
-                                    </div>
-                                    <div>
-                                        <span class="font-medium text-gray-700">間取り:</span>
-                                        <span x-text="formData.layout || '未入力'" :class="!formData.layout ? 'text-red-500' : 'text-gray-900'"></span>
-                                    </div>
-                                    <div>
-                                        <span class="font-medium text-gray-700">販売価格:</span>
-                                        <span x-text="getActualSellPrice() ? getActualSellPrice() + '万円' : '未入力'" :class="!getActualSellPrice() ? 'text-red-500' : 'text-gray-900'"></span>
-                                    </div>
-                                    <div>
-                                        <span class="font-medium text-gray-700">原価:</span>
-                                        <span x-text="formData.cost ? formData.cost + '万円' : '未入力'" :class="!formData.cost ? 'text-red-500' : 'text-gray-900'"></span>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4">
-                                    <span class="font-medium text-gray-700">選択されたタグ:</span>
-                                    <div class="flex flex-wrap gap-1 mt-1">
-                                        <template x-for="tag in getAllSelectedTags()" :key="tag">
-                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs" x-text="tag"></span>
-                                        </template>
-                                        <span x-show="getAllSelectedTags().length === 0" class="text-gray-500 text-sm">タグが選択されていません</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4" x-show="!isFormValid()">
-                                    <div class="bg-red-50 border border-red-200 rounded-lg p-3">
-                                        <div class="flex">
-                                            <svg class="h-5 w-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                                            </svg>
-                                            <div>
-                                                <h5 class="text-red-800 font-medium">入力エラー</h5>
-                                                <div class="text-red-700 text-sm mt-1">
-                                                    <template x-for="error in Object.values(formErrors)" :key="error">
-                                                        <div x-text="'・ ' + error"></div>
-                                                    </template>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4" x-show="isFormValid()">
-                                    <div class="bg-green-50 border border-green-200 rounded-lg p-3">
-                                        <div class="flex">
-                                            <svg class="h-5 w-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                                            </svg>
-                                            <div>
-                                                <h5 class="text-green-800 font-medium">入力完了</h5>
-                                                <p class="text-green-700 text-sm mt-1">すべての必須項目が入力されています。保存できます。</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        </fieldset>
 
                     </div>
 
@@ -865,7 +827,6 @@
                 },
                 
                 // Enhanced modal functionality
-                currentTab: 'basic',
                 formErrors: {},
                 saving: false,
                 modalTabs: [
