@@ -45,6 +45,7 @@
         .modal-content {
             z-index: 50;
             pointer-events: auto;
+            transition: none; /* ドラッグ時のちらつき防止 */
         }
 
         /* クリック阻害を防ぐ */
@@ -55,6 +56,35 @@
         /* グローバル固定ボタンを非表示 */
         .global-fixed-cta {
             display: none !important;
+        }
+
+        /* モーダルヘッダーのドラッグスタイル */
+        .modal-header {
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .modal-header.dragging {
+            cursor: grabbing;
+        }
+
+        /* モーダル本文の単一スクロール */
+        .modal-body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            max-height: calc(90vh - 120px - 80px); /* header + footer + margin */
+        }
+
+        /* 内部セクションのスクロール無効化 */
+        .modal-body section,
+        .modal-body .dropzone,
+        .modal-body .file-upload-area,
+        .modal-body .file-upload-item {
+            overflow: visible !important;
+            max-height: none !important;
         }
 
         /* 入力欄の統一スタイル */
@@ -258,20 +288,25 @@
 
         <!-- Add/Edit Modal -->
         <div x-show="showModal"
+             x-data="modalDraggable()"
              @click.self="closeModal()"
-             class="fixed inset-0 z-50 bg-black/40 grid place-items-center p-4"
+             class="fixed inset-0 z-50 bg-black/40"
              style="display: none;">
 
             <!-- モーダルコンテナ -->
-            <div class="modal-content w-full max-w-6xl bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-hidden flex flex-col">
-                <!-- ヘッダー（固定） -->
-                <div class="px-6 py-4 border-b flex-shrink-0">
+            <div class="modal-content fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
+                 :style="`transform: translate(calc(-50% + ${dragPosition.x}px), calc(-50% + ${dragPosition.y}px)); width: min(calc(100vw - 32px), 1536px);`">
+                <!-- ヘッダー（ドラッグ可能） -->
+                <div class="modal-header px-6 py-4 border-b flex-shrink-0"
+                     @mousedown="startDrag($event)"
+                     @touchstart="startDrag($event)"
+                     :class="{'dragging': isDragging}">
                     <div class="flex items-center justify-between">
                         <div>
                             <h2 class="text-xl font-bold text-gray-900" x-text="editingPlan ? 'プラン編集' : '新規プラン追加'"></h2>
                             <p class="text-sm text-gray-500 mt-1">プラン情報を入力してください</p>
                         </div>
-                        <button type="button" @click="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <button type="button" @click.stop="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -282,7 +317,7 @@
                 <!-- フォーム全体 -->
                 <form @submit.prevent="handleFormSubmit()" class="flex-grow flex flex-col overflow-hidden">
                     <!-- スクロール可能な本文エリア（ここだけスクロール） -->
-                    <div class="flex-grow px-6 py-6 space-y-6 overflow-y-auto">
+                    <div class="modal-body flex-grow px-6 py-6 space-y-6">
 
                         <!-- 基本情報セクション -->
                         <section class="border border-gray-200 rounded-xl p-5">
@@ -1395,6 +1430,10 @@
                     this.showModal = false;
                     this.editingPlan = null;
                     this.currentTab = 'basic';
+                    // モーダル位置をリセット
+                    if (this.$refs.modalDraggable) {
+                        this.$refs.modalDraggable.resetPosition();
+                    }
                 },
                 
                 updateStats() {
@@ -1514,6 +1553,83 @@
                 updateFloorPlans() {
                     const floors = parseInt(this.formData.floors) || 1;
                     this.formData.floorPlans = Array(floors).fill('');
+                }
+            }
+        }
+
+        // モーダルドラッグ機能
+        function modalDraggable() {
+            return {
+                isDragging: false,
+                dragPosition: { x: 0, y: 0 },
+                dragStart: { x: 0, y: 0 },
+                initialPos: { x: 0, y: 0 },
+
+                startDrag(event) {
+                    // モバイルではドラッグ無効
+                    if (window.innerWidth < 768) return;
+
+                    // ボタンや入力要素ではドラッグ開始しない
+                    const target = event.target;
+                    if (target.closest('button, input, select, textarea, [contenteditable="true"]')) {
+                        return;
+                    }
+
+                    this.isDragging = true;
+                    const clientX = event.type === 'touchstart' ? event.touches[0].clientX : event.clientX;
+                    const clientY = event.type === 'touchstart' ? event.touches[0].clientY : event.clientY;
+
+                    this.dragStart = {
+                        x: clientX - this.dragPosition.x,
+                        y: clientY - this.dragPosition.y
+                    };
+
+                    // イベントリスナーを追加
+                    document.addEventListener('mousemove', this.handleDrag.bind(this));
+                    document.addEventListener('mouseup', this.endDrag.bind(this));
+                    document.addEventListener('touchmove', this.handleDrag.bind(this));
+                    document.addEventListener('touchend', this.endDrag.bind(this));
+
+                    event.preventDefault();
+                },
+
+                handleDrag(event) {
+                    if (!this.isDragging) return;
+
+                    const clientX = event.type === 'touchmove' ? event.touches[0].clientX : event.clientX;
+                    const clientY = event.type === 'touchmove' ? event.touches[0].clientY : event.clientY;
+
+                    let newX = clientX - this.dragStart.x;
+                    let newY = clientY - this.dragStart.y;
+
+                    // 画面境界制限（20px余白）
+                    const margin = 20;
+                    const modalWidth = 1536; // max-w-6xl
+                    const modalHeight = window.innerHeight * 0.9; // max-h-[90vh]
+
+                    const maxX = (window.innerWidth - modalWidth) / 2 - margin;
+                    const minX = -(window.innerWidth - modalWidth) / 2 + margin;
+                    const maxY = (window.innerHeight - modalHeight) / 2 - margin;
+                    const minY = -(window.innerHeight - modalHeight) / 2 + margin;
+
+                    newX = Math.max(minX, Math.min(newX, maxX));
+                    newY = Math.max(minY, Math.min(newY, maxY));
+
+                    this.dragPosition = { x: newX, y: newY };
+                },
+
+                endDrag() {
+                    this.isDragging = false;
+
+                    // イベントリスナーを削除
+                    document.removeEventListener('mousemove', this.handleDrag.bind(this));
+                    document.removeEventListener('mouseup', this.endDrag.bind(this));
+                    document.removeEventListener('touchmove', this.handleDrag.bind(this));
+                    document.removeEventListener('touchend', this.endDrag.bind(this));
+                },
+
+                resetPosition() {
+                    this.dragPosition = { x: 0, y: 0 };
                 }
             }
         }
