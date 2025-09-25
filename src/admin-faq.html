@@ -274,7 +274,15 @@
             return {
                 faqs: [],
                 filteredFAQs: [],
-                categories: ['プラン変更', '費用', '営業', 'アフターサービス', '工事', '契約', '仕様'],
+                categories: ['登録・ログイン', 'プラン・価格', '技術・仕様', 'サポート', 'その他'],
+                // カテゴリIDマッピング（テストデータと同期）
+                categoryMap: {
+                    '登録・ログイン': '11111111-1111-1111-1111-111111111111',
+                    'プラン・価格': '22222222-2222-2222-2222-222222222222',
+                    '技術・仕様': '33333333-3333-3333-3333-333333333333',
+                    'サポート': '44444444-4444-4444-4444-444444444444',
+                    'その他': '55555555-5555-5555-5555-555555555555'
+                },
                 activeCategory: 'all',
                 showModal: false,
                 editingFAQ: null,
@@ -655,10 +663,16 @@
                                     console.log('Would update FAQ in Supabase:', faq);
                                 } else {
                                     // 新規FAQ - Supabaseに作成
+                                    // カテゴリ名からcategory_idを取得
+                                    let categoryId = null;
+                                    if (faq.category) {
+                                        categoryId = this.categoryMap[faq.category] || this.categoryMap['その他'];
+                                    }
+
                                     const result = await window.supabaseAPI.faq.create({
                                         question: faq.question,
                                         answer: faq.answer,
-                                        category: faq.category || 'その他',
+                                        category_id: categoryId,
                                         tags: faq.tags || [],
                                         status: faq.status || 'published',
                                         display_order: faq.order || 0
