@@ -281,14 +281,37 @@
 
                 async loadFAQs() {
                     try {
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 10) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
                         // Supabase or LocalStorage
-                        if (window.supabaseAPI) {
+                        if (window.supabaseAPI && window.supabase) {
+                            console.log('Loading FAQs from Supabase...');
                             this.faqs = await window.supabaseAPI.faq.getItems();
                             const categories = await window.supabaseAPI.faq.getCategories();
+
                             // カテゴリ名のリストを更新
                             if (categories && categories.length > 0) {
                                 this.categories = categories.map(cat => cat.name);
                             }
+
+                            // faq_categoriesとの関連付けを処理
+                            if (this.faqs && this.faqs.length > 0) {
+                                this.faqs = this.faqs.map(faq => {
+                                    // カテゴリIDから名前を取得
+                                    const category = categories.find(cat => cat.id === faq.category_id);
+                                    return {
+                                        ...faq,
+                                        category: category ? category.name : faq.category || 'その他',
+                                        order: faq.display_order || faq.order || 0
+                                    };
+                                });
+                            }
+                            console.log('Loaded FAQs from Supabase:', this.faqs.length);
                         } else {
                             // LocalStorageから取得を試みる
                             const localData = localStorage.getItem('faq_data');
@@ -324,9 +347,13 @@
                     } else {
                         this.filteredFAQs = this.faqs.filter(faq => faq.category === this.activeCategory);
                     }
-                    
-                    // 表示順でソート
-                    this.filteredFAQs.sort((a, b) => a.order - b.order);
+
+                    // 表示順でソート（display_orderも考慮）
+                    this.filteredFAQs.sort((a, b) => {
+                        const orderA = a.display_order || a.order || 0;
+                        const orderB = b.display_order || b.order || 0;
+                        return orderA - orderB;
+                    });
                 },
 
                 reorderFAQs(oldIndex, newIndex) {
@@ -506,14 +533,30 @@
                     return maxOrder + 1;
                 },
 
-                deleteFAQ(faq) {
+                async deleteFAQ(faq) {
                     if (confirm(`「${faq.question}」を削除しますか？`)) {
-                        this.faqs = this.faqs.filter(f => f.id !== faq.id);
-                        this.filterFAQs();
-                        lifeXAPI.showToast('FAQを削除しました', 'success');
-                        
-                        // 実際にはAPIで削除
-                        this.saveToAPI();
+                        try {
+                            // Supabaseから削除
+                            if (window.supabaseAPI && faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
+                                const result = await window.supabaseAPI.faq.delete(faq.id);
+                                if (!result.success) {
+                                    throw new Error(result.error || 'Delete failed');
+                                }
+                            }
+
+                            // ローカルのリストから削除
+                            this.faqs = this.faqs.filter(f => f.id !== faq.id);
+                            this.filterFAQs();
+                            lifeXAPI.showToast('FAQを削除しました', 'success');
+
+                            // LocalStorageも更新
+                            if (!window.supabaseAPI) {
+                                this.saveToAPI();
+                            }
+                        } catch (error) {
+                            console.error('FAQ削除エラー:', error);
+                            lifeXAPI.showToast('FAQの削除に失敗しました', 'error');
+                        }
                     }
                 },
 

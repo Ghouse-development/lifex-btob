@@ -152,6 +152,24 @@ window.supabaseAPI = {
             return module.faqAPI.searchFAQs(keyword);
         },
 
+        // FAQ作成
+        async create(faqData) {
+            const module = await import('./supabase-api.js');
+            return module.faqAPI.create(faqData);
+        },
+
+        // FAQ更新
+        async update(faqId, updates) {
+            const module = await import('./supabase-api.js');
+            return module.faqAPI.update(faqId, updates);
+        },
+
+        // FAQ削除
+        async delete(faqId) {
+            const module = await import('./supabase-api.js');
+            return module.faqAPI.delete(faqId);
+        },
+
         // フィードバック送信
         async submitFeedback(faqId, isHelpful, comment = null) {
             const module = await import('./supabase-api.js');
