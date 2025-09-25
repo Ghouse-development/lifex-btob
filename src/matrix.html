@@ -32,6 +32,17 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+
+    <!-- Supabase Integration -->
+    <script type="module" src="/js/supabase-integration.js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://tkemcbxqbrfqgmyswkjg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrZW1jYnhxYnJmcWdteXN3a2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3OTIwMjUsImV4cCI6MjA3NDM2ODAyNX0.UKHU7iTO35N3MuIzJYp9VVxB7ga2YDQ5Vrzd6Gf3k-I';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         .matrix-cell {

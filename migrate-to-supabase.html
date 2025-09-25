@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase データ移行ツール | LIFE X</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Supabase接続情報
+        const supabaseUrl = 'https://tkemcbxqbrfqgmyswkjg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrZW1jYnhxYnJmcWdteXN3a2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3OTIwMjUsImV4cCI6MjA3NDM2ODAyNX0.UKHU7iTO35N3MuIzJYp9VVxB7ga2YDQ5Vrzd6Gf3k-I';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // グローバルに公開
+        window.supabase = supabase;
+    </script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen py-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- ヘッダー -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">Supabase データ移行ツール</h1>
+                <p class="mt-2 text-gray-600">LocalStorageからSupabaseデータベースへのデータ移行を実行します</p>
+            </div>
+
+            <!-- 移行ステータス -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">移行ステータス</h2>
+                <div class="space-y-4">
+                    <div id="migration-log" class="bg-gray-50 rounded p-4 h-64 overflow-y-auto font-mono text-sm">
+                        <div class="text-gray-500">移行を開始するには下のボタンをクリックしてください</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button onclick="checkLocalStorageData()" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                            LocalStorageデータ確認
+                        </button>
+                        <button onclick="startMigration()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                            移行開始
+                        </button>
+                        <button onclick="clearLog()" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            ログクリア
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- データプレビュー -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- LocalStorage データ -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-3">LocalStorage データ</h3>
+                    <div class="space-y-2">
+                        <div id="localStorage-summary" class="text-sm text-gray-600"></div>
+                    </div>
+                </div>
+
+                <!-- Supabase データ -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-semibold mb-3">Supabase データベース</h3>
+                    <div class="space-y-2">
+                        <div id="supabase-summary" class="text-sm text-gray-600"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const logElement = document.getElementById('migration-log');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'text-red-500' :
+                         type === 'success' ? 'text-green-500' :
+                         type === 'warning' ? 'text-yellow-600' : 'text-gray-700';
+
+            const logEntry = document.createElement('div');
+            logEntry.className = color;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            logElement.innerHTML = '';
+            log('ログをクリアしました');
+        }
+
+        async function checkLocalStorageData() {
+            log('LocalStorageデータを確認中...');
+            const summary = document.getElementById('localStorage-summary');
+            let html = '';
+
+            // プランデータ
+            const plansData = localStorage.getItem('plansData');
+            if (plansData) {
+                const plans = JSON.parse(plansData).plans || [];
+                html += `<div>📝 プラン: ${plans.length}件</div>`;
+                log(`プランデータ: ${plans.length}件見つかりました`);
+            } else {
+                html += `<div class="text-gray-400">📝 プラン: 0件</div>`;
+            }
+
+            // ルールデータ
+            const rulesData = localStorage.getItem('rules_categories_data');
+            if (rulesData) {
+                const categories = JSON.parse(rulesData).categories || [];
+                const totalRules = categories.reduce((sum, cat) => sum + (cat.rules?.length || 0), 0);
+                html += `<div>📋 ルール: ${totalRules}件 (${categories.length}カテゴリ)</div>`;
+                log(`ルールデータ: ${totalRules}件見つかりました`);
+            } else {
+                html += `<div class="text-gray-400">📋 ルール: 0件</div>`;
+            }
+
+            // FAQデータ
+            const faqData = localStorage.getItem('faqData');
+            if (faqData) {
+                const faqs = JSON.parse(faqData).faqs || [];
+                html += `<div>❓ FAQ: ${faqs.length}件</div>`;
+                log(`FAQデータ: ${faqs.length}件見つかりました`);
+            } else {
+                html += `<div class="text-gray-400">❓ FAQ: 0件</div>`;
+            }
+
+            // ダウンロードデータ
+            const downloadsData = localStorage.getItem('downloadsData');
+            if (downloadsData) {
+                const items = JSON.parse(downloadsData).items || [];
+                html += `<div>📥 ダウンロード: ${items.length}件</div>`;
+                log(`ダウンロードデータ: ${items.length}件見つかりました`);
+            } else {
+                html += `<div class="text-gray-400">📥 ダウンロード: 0件</div>`;
+            }
+
+            summary.innerHTML = html;
+            await checkSupabaseData();
+        }
+
+        async function checkSupabaseData() {
+            log('Supabaseデータベースを確認中...');
+            const summary = document.getElementById('supabase-summary');
+            let html = '';
+
+            try {
+                // プラン数
+                const { count: plansCount } = await window.supabase
+                    .from('plans')
+                    .select('*', { count: 'exact', head: true });
+                html += `<div>📝 プラン: ${plansCount || 0}件</div>`;
+
+                // ルール数
+                const { count: rulesCount } = await window.supabase
+                    .from('rules')
+                    .select('*', { count: 'exact', head: true });
+                html += `<div>📋 ルール: ${rulesCount || 0}件</div>`;
+
+                // FAQ数
+                const { count: faqsCount } = await window.supabase
+                    .from('faqs')
+                    .select('*', { count: 'exact', head: true });
+                html += `<div>❓ FAQ: ${faqsCount || 0}件</div>`;
+
+                // ダウンロード数
+                const { count: downloadsCount } = await window.supabase
+                    .from('downloads')
+                    .select('*', { count: 'exact', head: true });
+                html += `<div>📥 ダウンロード: ${downloadsCount || 0}件</div>`;
+
+                summary.innerHTML = html;
+                log('Supabaseデータベースの確認完了', 'success');
+            } catch (error) {
+                log(`Supabaseエラー: ${error.message}`, 'error');
+                summary.innerHTML = '<div class="text-red-500">接続エラー</div>';
+            }
+        }
+
+        async function startMigration() {
+            log('=== データ移行開始 ===', 'success');
+
+            try {
+                // 1. プランデータの移行
+                await migratePlans();
+
+                // 2. ルールデータの移行
+                await migrateRules();
+
+                // 3. FAQデータの移行
+                await migrateFAQs();
+
+                // 4. ダウンロードデータの移行
+                await migrateDownloads();
+
+                log('=== データ移行完了 ===', 'success');
+                await checkSupabaseData();
+
+            } catch (error) {
+                log(`移行エラー: ${error.message}`, 'error');
+            }
+        }
+
+        async function migratePlans() {
+            log('プランデータ移行中...');
+            const plansData = localStorage.getItem('plansData');
+            if (!plansData) {
+                log('プランデータが見つかりません', 'warning');
+                return;
+            }
+
+            const { plans } = JSON.parse(plansData);
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const plan of plans) {
+                try {
+                    // プラン基本情報を整形
+                    const planData = {
+                        id: plan.id || `PLAN-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        name: plan.name || 'Unknown Plan',
+                        category: plan.category || null,
+                        description: plan.description || null,
+                        tsubo: parseFloat(plan.tsubo) || null,
+                        width: parseFloat(plan.width) || null,
+                        depth: parseFloat(plan.depth) || null,
+                        floors: plan.floors || 2,
+                        price: parseInt(plan.price) || null,
+                        price_without_tax: parseInt(plan.priceWithoutTax) || null,
+                        construction_period: parseInt(plan.constructionPeriod) || null,
+                        bedrooms: parseInt(plan.bedrooms) || null,
+                        living_dining: plan.livingDining || null,
+                        kitchen: plan.kitchen || null,
+                        bathroom: plan.bathroom || null,
+                        toilet: parseInt(plan.toilet) || null,
+                        tags: plan.tags || [],
+                        status: plan.status || 'published',
+                        specifications: plan.specifications || {},
+                        options: plan.options || {}
+                    };
+
+                    // プランを挿入
+                    const { error } = await window.supabase
+                        .from('plans')
+                        .upsert([planData], { onConflict: 'id' });
+
+                    if (error) throw error;
+
+                    // 画像データがあれば plan_images に挿入
+                    if (plan.exteriorImage || plan.interiorImage || plan.floorPlan1F || plan.floorPlan2F) {
+                        const images = [];
+
+                        if (plan.exteriorImage) {
+                            images.push({
+                                plan_id: planData.id,
+                                type: 'exterior',
+                                url: plan.exteriorImage
+                            });
+                        }
+
+                        if (plan.interiorImage) {
+                            images.push({
+                                plan_id: planData.id,
+                                type: 'interior',
+                                url: plan.interiorImage
+                            });
+                        }
+
+                        if (plan.floorPlan1F) {
+                            images.push({
+                                plan_id: planData.id,
+                                type: 'floor_plan_1f',
+                                url: plan.floorPlan1F
+                            });
+                        }
+
+                        if (plan.floorPlan2F) {
+                            images.push({
+                                plan_id: planData.id,
+                                type: 'floor_plan_2f',
+                                url: plan.floorPlan2F
+                            });
+                        }
+
+                        if (images.length > 0) {
+                            await window.supabase
+                                .from('plan_images')
+                                .upsert(images, { onConflict: ['plan_id', 'type'] });
+                        }
+                    }
+
+                    successCount++;
+                    log(`✓ プラン "${plan.name}" を移行しました`, 'success');
+                } catch (error) {
+                    errorCount++;
+                    log(`✗ プラン "${plan.name}" の移行失敗: ${error.message}`, 'error');
+                }
+            }
+
+            log(`プラン移行完了: 成功 ${successCount}件, 失敗 ${errorCount}件`, 'success');
+        }
+
+        async function migrateRules() {
+            log('ルールデータ移行中...');
+            const rulesData = localStorage.getItem('rules_categories_data');
+            if (!rulesData) {
+                log('ルールデータが見つかりません', 'warning');
+                return;
+            }
+
+            const { categories } = JSON.parse(rulesData);
+            let categoryCount = 0;
+            let ruleCount = 0;
+
+            for (const category of categories) {
+                try {
+                    // カテゴリを挿入
+                    const categoryData = {
+                        id: category.id || undefined,
+                        name: category.name,
+                        description: category.description || null,
+                        icon: category.icon || null,
+                        display_order: category.order || 0
+                    };
+
+                    const { data: insertedCategory, error: catError } = await window.supabase
+                        .from('rule_categories')
+                        .upsert([categoryData], { onConflict: 'id' })
+                        .select()
+                        .single();
+
+                    if (catError) throw catError;
+                    categoryCount++;
+
+                    // ルールを挿入
+                    if (category.rules && category.rules.length > 0) {
+                        const rules = category.rules.map((rule, index) => ({
+                            category_id: insertedCategory.id,
+                            title: rule.title,
+                            content: rule.content || rule.description,
+                            priority: rule.priority || 'normal',
+                            tags: rule.tags || [],
+                            status: rule.status || 'active',
+                            display_order: index
+                        }));
+
+                        const { error: rulesError } = await window.supabase
+                            .from('rules')
+                            .insert(rules);
+
+                        if (rulesError) throw rulesError;
+                        ruleCount += rules.length;
+                    }
+
+                    log(`✓ カテゴリ "${category.name}" と ${category.rules?.length || 0}件のルールを移行しました`, 'success');
+                } catch (error) {
+                    log(`✗ カテゴリ "${category.name}" の移行失敗: ${error.message}`, 'error');
+                }
+            }
+
+            log(`ルール移行完了: ${categoryCount}カテゴリ, ${ruleCount}ルール`, 'success');
+        }
+
+        async function migrateFAQs() {
+            log('FAQデータ移行中...');
+            const faqData = localStorage.getItem('faqData');
+            if (!faqData) {
+                log('FAQデータが見つかりません', 'warning');
+                return;
+            }
+
+            const { faqs, categories } = JSON.parse(faqData);
+            let categoryCount = 0;
+            let faqCount = 0;
+
+            // カテゴリを先に作成
+            if (categories && categories.length > 0) {
+                for (const category of categories) {
+                    try {
+                        const { error } = await window.supabase
+                            .from('faq_categories')
+                            .upsert([{
+                                name: category.name,
+                                description: category.description || null,
+                                display_order: category.order || 0
+                            }], { onConflict: 'name' });
+
+                        if (error) throw error;
+                        categoryCount++;
+                    } catch (error) {
+                        log(`✗ FAQカテゴリ "${category.name}" の移行失敗: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            // FAQを挿入
+            if (faqs && faqs.length > 0) {
+                for (const faq of faqs) {
+                    try {
+                        const { error } = await window.supabase
+                            .from('faqs')
+                            .insert([{
+                                question: faq.question,
+                                answer: faq.answer,
+                                tags: faq.tags || [],
+                                status: 'published',
+                                display_order: faq.order || 0
+                            }]);
+
+                        if (error) throw error;
+                        faqCount++;
+                    } catch (error) {
+                        log(`✗ FAQ "${faq.question}" の移行失敗: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            log(`FAQ移行完了: ${categoryCount}カテゴリ, ${faqCount}FAQ`, 'success');
+        }
+
+        async function migrateDownloads() {
+            log('ダウンロードデータ移行中...');
+            const downloadsData = localStorage.getItem('downloadsData');
+            if (!downloadsData) {
+                log('ダウンロードデータが見つかりません', 'warning');
+                return;
+            }
+
+            const { items, categories } = JSON.parse(downloadsData);
+            let categoryCount = 0;
+            let itemCount = 0;
+
+            // カテゴリを先に作成
+            if (categories && categories.length > 0) {
+                for (const category of categories) {
+                    try {
+                        const { error } = await window.supabase
+                            .from('download_categories')
+                            .upsert([{
+                                name: category.name,
+                                description: category.description || null,
+                                display_order: category.order || 0
+                            }], { onConflict: 'name' });
+
+                        if (error) throw error;
+                        categoryCount++;
+                    } catch (error) {
+                        log(`✗ ダウンロードカテゴリ "${category.name}" の移行失敗: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            // ダウンロードアイテムを挿入
+            if (items && items.length > 0) {
+                for (const item of items) {
+                    try {
+                        const { error } = await window.supabase
+                            .from('downloads')
+                            .insert([{
+                                title: item.title,
+                                description: item.description || null,
+                                file_type: item.format?.toLowerCase() || 'other',
+                                file_url: item.url || '#',
+                                file_name: item.fileName || item.title,
+                                file_size: item.size || null,
+                                tags: item.tags || [],
+                                status: 'active'
+                            }]);
+
+                        if (error) throw error;
+                        itemCount++;
+                    } catch (error) {
+                        log(`✗ ダウンロード "${item.title}" の移行失敗: ${error.message}`, 'error');
+                    }
+                }
+            }
+
+            log(`ダウンロード移行完了: ${categoryCount}カテゴリ, ${itemCount}アイテム`, 'success');
+        }
+
+        // ページロード時にデータチェック
+        window.addEventListener('load', () => {
+            checkLocalStorageData();
+        });
+    </script>
+</body>
+</html>

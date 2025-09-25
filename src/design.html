@@ -32,11 +32,23 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+
+    <!-- Supabase Integration -->
+    <script type="module" src="/js/supabase-integration.js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Supabase接続
+        const supabaseUrl = 'https://tkemcbxqbrfqgmyswkjg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrZW1jYnhxYnJmcWdteXN3a2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3OTIwMjUsImV4cCI6MjA3NDM2ODAyNX0.UKHU7iTO35N3MuIzJYp9VVxB7ga2YDQ5Vrzd6Gf3k-I';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b border-gray-200">
+    <header class="bg-white border-b border-gray-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
@@ -56,378 +68,247 @@
         </div>
     </header>
 
-    <div x-data="designSearchPage()" x-init="init()">
-        <!-- Page Title -->
-        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">デザインから探す</h1>
-                    <p class="text-lg text-gray-600">外観パースから、お好みのプランをお選びください</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exterior Designs Grid -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <!-- Filter/Sort Options -->
-            <div class="flex justify-between items-center mb-8">
-                <div class="text-gray-700">
-                    <span x-text="plans.length"></span> プラン
-                </div>
-                <div class="flex items-center space-x-4">
-                    <select x-model="sortBy" @change="sortPlans()" class="form-input text-sm">
-                        <option value="name">プラン名順</option>
-                        <option value="tsubo">坪数順</option>
-                        <option value="price">価格順</option>
-                    </select>
-                </div>
+    <!-- Main Content -->
+    <main class="flex-1">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Page Title -->
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">デザインから探す</h1>
+                <p class="mt-2 text-gray-600">外観・内観デザインからプランを検索できます</p>
             </div>
 
-            <!-- Plans Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <template x-for="plan in sortedPlans" :key="plan.id">
-                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                        <!-- Exterior Image -->
-                        <a :href="'/plan-detail.html?id=' + plan.id" class="block aspect-w-16 aspect-h-12 bg-gray-200 cursor-pointer group">
-                            <template x-if="plan.exteriorImage">
-                                <img :src="plan.exteriorImage" 
-                                     :alt="plan.name + ' 外観パース'" 
-                                     class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300">
-                            </template>
-                            <template x-if="!plan.exteriorImage">
-                                <div class="w-full h-56 flex items-center justify-center bg-gray-100">
-                                    <svg class="w-20 h-20 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            <!-- Alpine.js Component -->
+            <div x-data="designExplorer()" x-init="init()">
+                <!-- Tab Navigation -->
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex">
+                            <button @click="activeTab = 'exterior'"
+                                    :class="activeTab === 'exterior' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                外観デザイン
+                            </button>
+                            <button @click="activeTab = 'interior'"
+                                    :class="activeTab === 'interior' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                    class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                内観デザイン
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div x-show="loading" class="text-center py-12">
+                    <div class="inline-flex items-center">
+                        <svg class="animate-spin h-8 w-8 text-primary-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span class="ml-3 text-gray-600">読み込み中...</span>
+                    </div>
+                </div>
+
+                <!-- Design Categories Grid -->
+                <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="category in filteredCategories" :key="category.id">
+                        <div @click="selectCategory(category)"
+                             class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
+                            <div class="aspect-w-16 aspect-h-9 bg-gray-200 rounded-t-lg overflow-hidden">
+                                <img :src="category.thumbnail_url || '/images/placeholder.jpg'"
+                                     :alt="category.name"
+                                     class="w-full h-48 object-cover">
+                            </div>
+                            <div class="p-4">
+                                <h3 class="text-lg font-semibold text-gray-900" x-text="category.name"></h3>
+                                <p class="mt-1 text-sm text-gray-600" x-text="category.description"></p>
+                                <div class="mt-3 flex items-center justify-between">
+                                    <span class="text-sm text-gray-500" x-text="`${category.plan_count || 0} プラン`"></span>
+                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                     </svg>
                                 </div>
-                            </template>
-                        </a>
-                        
-                        <!-- Plan Info -->
-                        <div class="p-4">
-                            <h3 class="text-lg font-bold text-gray-900 mb-2">
-                                <a :href="'/plan-detail.html?id=' + plan.id" 
-                                   class="hover:text-primary-600 transition-colors" 
-                                   x-text="plan.name || plan.id"></a>
-                            </h3>
-                            
-                            <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-                                <div>
-                                    <span class="text-gray-600">坪数:</span>
-                                    <span class="font-semibold" x-text="(plan.tsubo || '-') + '坪'"></span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">間口:</span>
-                                    <span class="font-semibold" x-text="plan.width ? (plan.width / 1000).toFixed(1) + 'm' : '-'"></span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">奥行:</span>
-                                    <span class="font-semibold" x-text="plan.depth ? (plan.depth / 1000).toFixed(1) + 'm' : '-'"></span>
-                                </div>
-                                <div>
-                                    <span class="text-gray-600">販売価格:</span>
-                                    <span class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></span>
-                                </div>
-                            </div>
-
-                            <!-- Tags -->
-                            <div class="flex flex-wrap gap-1">
-                                <template x-for="tag in (plan.tags || []).slice(0, 3)" :key="tag">
-                                    <span x-text="tag" class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"></span>
-                                </template>
-                                <template x-if="plan.tags && plan.tags.length > 3">
-                                    <span class="px-2 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">
-                                        +<span x-text="plan.tags.length - 3"></span>
-                                    </span>
-                                </template>
                             </div>
                         </div>
-                    </div>
-                </template>
-            </div>
+                    </template>
+                </div>
 
-            <!-- No Plans Message -->
-            <div x-show="plans.length === 0" class="text-center py-12">
-                <svg class="mx-auto h-24 w-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <p class="mt-4 text-gray-500">プランデータを読み込み中...</p>
+                <!-- Selected Category Plans -->
+                <div x-show="selectedCategory" class="mt-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-gray-900">
+                            <span x-text="selectedCategory?.name"></span>のプラン
+                        </h2>
+                        <button @click="selectedCategory = null; categoryPlans = []"
+                                class="text-sm text-primary-600 hover:text-primary-800">
+                            ← カテゴリ一覧に戻る
+                        </button>
+                    </div>
+
+                    <div x-show="loadingPlans" class="text-center py-8">
+                        <span class="text-gray-600">プランを読み込み中...</span>
+                    </div>
+
+                    <div x-show="!loadingPlans && categoryPlans.length > 0"
+                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <template x-for="plan in categoryPlans" :key="plan.id">
+                            <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                                <div class="aspect-w-16 aspect-h-9 bg-gray-200 rounded-t-lg overflow-hidden">
+                                    <img :src="getPlanImage(plan)"
+                                         :alt="plan.name"
+                                         class="w-full h-48 object-cover">
+                                </div>
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-gray-900" x-text="plan.name"></h3>
+                                    <div class="mt-2 text-sm text-gray-600">
+                                        <p x-text="`${plan.tsubo}坪 / ${plan.width}m × ${plan.depth}m`"></p>
+                                        <p x-text="`¥${(plan.price / 10000).toLocaleString()}万円`"></p>
+                                    </div>
+                                    <a :href="`/plan-detail.html?id=${plan.id}`"
+                                       class="mt-3 inline-block text-primary-600 hover:text-primary-800 text-sm">
+                                       詳細を見る →
+                                    </a>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div x-show="!loadingPlans && categoryPlans.length === 0"
+                         class="text-center py-8 text-gray-500">
+                        このカテゴリにはプランがありません
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <script>
-        function designSearchPage() {
+        function designExplorer() {
             return {
-                plans: [],
-                sortedPlans: [],
-                sortBy: 'name',
+                activeTab: 'exterior',
+                categories: [],
+                selectedCategory: null,
+                categoryPlans: [],
                 loading: true,
+                loadingPlans: false,
+
+                get filteredCategories() {
+                    return this.categories.filter(cat => cat.type === this.activeTab);
+                },
 
                 async init() {
-                    await this.loadPlans();
-                    this.sortPlans();
+                    await this.loadCategories();
                 },
 
-                async loadPlans() {
+                async loadCategories() {
+                    this.loading = true;
                     try {
-                        // 管理画面で保存されたプランデータを取得
-                        const data = await lifeXAPI.getPlansIndex();
-                        console.log('Raw plans data from storage:', data);
-                        
-                        this.plans = data.plans || [];
-                        console.log('Total plans loaded:', this.plans.length);
-                        console.log('Plans details:', this.plans);
-                        
-                        // 公開されているプラン、またはステータスが未設定のプランを表示
-                        const filteredPlans = this.plans.filter(plan => 
-                            !plan.status || plan.status === 'published' || plan.status === 'active'
-                        );
-                        console.log('Plans after status filter:', filteredPlans.length);
-                        
-                        // 外観画像のパスを設定し、画像の読み込みを試みる
-                        this.plans = await Promise.all(filteredPlans.map(async (plan) => {
-                            // 画像データを復元
-                            if (plan.imageIds && window.imageStorage) {
-                                try {
-                                    const images = await window.imageStorage.getPlanImages(plan.id);
-                                    console.log(`Images loaded for plan ${plan.id}:`, images);
-                                    return {
-                                        ...plan,
-                                        exteriorImage: images.exterior || plan.exteriorImage || plan.images?.exterior || ''
-                                    };
-                                } catch (err) {
-                                    console.error(`Failed to load images for plan ${plan.id}:`, err);
-                                }
+                        // Supabaseからカテゴリを取得
+                        if (window.supabaseAPI) {
+                            const categories = await window.supabaseAPI.design.getCategories();
+
+                            // 各カテゴリのプラン数を取得
+                            for (const category of categories) {
+                                const plans = await window.supabaseAPI.design.getPlansByCategory(category.id);
+                                category.plan_count = plans.length;
                             }
-                            
-                            return {
-                                ...plan,
-                                exteriorImage: plan.exteriorImage || plan.images?.exterior || ''
-                            };
-                        }));
-                        
-                        console.log('Final plans to display:', this.plans);
+
+                            this.categories = categories;
+                        } else {
+                            // フォールバック：デモデータ
+                            this.categories = this.getDemoCategories();
+                        }
                     } catch (error) {
-                        console.error('Failed to load plans:', error);
-                        this.plans = [];
+                        console.error('Error loading categories:', error);
+                        // エラー時はデモデータを使用
+                        this.categories = this.getDemoCategories();
+                    } finally {
+                        this.loading = false;
                     }
-                    this.loading = false;
                 },
 
-                sortPlans() {
-                    const sorted = [...this.plans];
-                    switch(this.sortBy) {
-                        case 'name':
-                            sorted.sort((a, b) => (a.name || a.id).localeCompare(b.name || b.id));
-                            break;
-                        case 'tsubo':
-                            sorted.sort((a, b) => (a.tsubo || 0) - (b.tsubo || 0));
-                            break;
-                        case 'price':
-                            sorted.sort((a, b) => ((a.prices?.sell || 0) - (b.prices?.sell || 0)));
-                            break;
+                async selectCategory(category) {
+                    this.selectedCategory = category;
+                    this.loadingPlans = true;
+
+                    try {
+                        if (window.supabaseAPI) {
+                            this.categoryPlans = await window.supabaseAPI.design.getPlansByCategory(category.id);
+                        } else {
+                            // デモデータ
+                            this.categoryPlans = [];
+                        }
+                    } catch (error) {
+                        console.error('Error loading plans:', error);
+                        this.categoryPlans = [];
+                    } finally {
+                        this.loadingPlans = false;
                     }
-                    this.sortedPlans = sorted;
+                },
+
+                getPlanImage(plan) {
+                    // プラン画像の優先順位
+                    if (plan.plan_images && plan.plan_images.length > 0) {
+                        const exteriorImage = plan.plan_images.find(img => img.type === 'exterior');
+                        if (exteriorImage) return exteriorImage.url;
+                        return plan.plan_images[0].url;
+                    }
+                    return '/images/placeholder.jpg';
+                },
+
+                getDemoCategories() {
+                    return [
+                        {
+                            id: '1',
+                            name: 'モダン',
+                            type: 'exterior',
+                            description: 'シンプルでスタイリッシュな外観デザイン',
+                            thumbnail_url: '/images/modern-exterior.jpg',
+                            plan_count: 15
+                        },
+                        {
+                            id: '2',
+                            name: '和モダン',
+                            type: 'exterior',
+                            description: '和風要素を取り入れたモダンな外観',
+                            thumbnail_url: '/images/wa-modern-exterior.jpg',
+                            plan_count: 12
+                        },
+                        {
+                            id: '3',
+                            name: 'ナチュラル',
+                            type: 'exterior',
+                            description: '自然素材を活かした温かみのある外観',
+                            thumbnail_url: '/images/natural-exterior.jpg',
+                            plan_count: 18
+                        },
+                        {
+                            id: '4',
+                            name: '北欧スタイル',
+                            type: 'interior',
+                            description: '明るく機能的な北欧風インテリア',
+                            thumbnail_url: '/images/nordic-interior.jpg',
+                            plan_count: 20
+                        },
+                        {
+                            id: '5',
+                            name: 'インダストリアル',
+                            type: 'interior',
+                            description: '工業的な要素を取り入れたインテリア',
+                            thumbnail_url: '/images/industrial-interior.jpg',
+                            plan_count: 8
+                        },
+                        {
+                            id: '6',
+                            name: 'ミニマル',
+                            type: 'interior',
+                            description: 'シンプルで洗練されたインテリア',
+                            thumbnail_url: '/images/minimal-interior.jpg',
+                            plan_count: 14
+                        }
+                    ];
                 }
             }
         }
     </script>
-
-<!-- AI Bot Component -->
-<div x-data="aibotComponent()" x-init="init()" class="aibot-container">
-    <!-- AI Bot Floating Button -->
-    <div class="fixed bottom-6 right-6 z-50">
-        <button @click="toggleChat()" 
-                class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 group" 
-                title="AIサポート">
-            <svg x-show="!chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-                <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-            </svg>
-            <svg x-show="chatOpen" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-            </svg>
-        </button>
-    </div>
-
-    <!-- AI Chat Window -->
-    <div x-show="chatOpen" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0 transform translate-y-4"
-         x-transition:enter-end="opacity-100 transform translate-y-0"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100 transform translate-y-0"
-         x-transition:leave-end="opacity-0 transform translate-y-4"
-         class="fixed bottom-24 right-6 w-96 max-w-full bg-white rounded-xl shadow-2xl z-50"
-         style="display: none;">
-        
-        <!-- Chat Header -->
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-t-xl">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                        <span class="text-lg">🤖</span>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold">LIFE X AIサポート</h3>
-                        <p class="text-xs text-white/80">ご質問をどうぞ</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Messages -->
-        <div class="h-96 overflow-y-auto p-4 bg-gray-50" id="aibotChatArea">
-            <!-- Welcome Message -->
-            <div class="mb-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm">AI</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm max-w-xs">
-                        <p class="text-gray-700 text-sm">こんにちは！LIFE Xについて何でもお気軽にご質問ください。</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dynamic Messages -->
-            <template x-for="message in messages" :key="message.id">
-                <div class="mb-4">
-                    <div class="flex items-start space-x-3" :class="message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
-                             :class="message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'">
-                            <span class="text-white text-sm" x-text="message.type === 'user' ? 'You' : 'AI'"></span>
-                        </div>
-                        <div class="p-3 rounded-lg shadow-sm max-w-xs" 
-                             :class="message.type === 'user' ? 'bg-blue-100' : 'bg-white'">
-                            <p class="text-gray-700 text-sm" x-html="message.content"></p>
-                            <p class="text-xs text-gray-500 mt-1" x-text="message.timestamp"></p>
-                        </div>
-                    </div>
-                </div>
-            </template>
-
-            <!-- Typing Indicator -->
-            <div x-show="isTyping" class="mb-4">
-                <div class="flex items-start space-x-3">
-                    <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span class="text-white text-sm">AI</span>
-                    </div>
-                    <div class="bg-white p-3 rounded-lg shadow-sm">
-                        <div class="flex space-x-1">
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
-                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Input Area -->
-        <div class="p-4 border-t border-gray-200">
-            <div class="flex space-x-2">
-                <input type="text" 
-                       x-model="currentMessage" 
-                       @keydown.enter="sendMessage()"
-                       placeholder="メッセージを入力..."
-                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
-                <button @click="sendMessage()" 
-                        :disabled="!currentMessage.trim() || isTyping"
-                        class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:ring-2 focus:ring-purple-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-sm">
-                    送信
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function aibotComponent() {
-    return {
-        chatOpen: false,
-        messages: [],
-        currentMessage: '',
-        isTyping: false,
-
-        init() {
-            // 初期化処理
-        },
-
-        toggleChat() {
-            this.chatOpen = !this.chatOpen;
-            if (this.chatOpen) {
-                setTimeout(() => {
-                    const chatArea = document.getElementById('aibotChatArea');
-                    if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-                }, 100);
-            }
-        },
-
-        async sendMessage() {
-            if (!this.currentMessage.trim() || this.isTyping) return;
-
-            const message = this.currentMessage.trim();
-            const userMessage = {
-                id: Date.now(),
-                type: 'user',
-                content: message,
-                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            this.messages.push(userMessage);
-            this.currentMessage = '';
-            this.isTyping = true;
-
-            // Scroll to bottom
-            setTimeout(() => {
-                const chatArea = document.getElementById('aibotChatArea');
-                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-            }, 100);
-
-            // Generate AI response
-            await this.generateResponse(message);
-        },
-
-        async generateResponse(question) {
-            // AI応答のシミュレーション
-            let response = '';
-            const lowerQuestion = question.toLowerCase();
-            
-            if (lowerQuestion.includes('デザイン') || lowerQuestion.includes('外観')) {
-                response = 'デザインから探すページでは、外観パースの一覧から直感的にプランを選択できます。画像をクリックすると詳細ページへ移動します。';
-            } else if (lowerQuestion.includes('価格') || lowerQuestion.includes('料金') || lowerQuestion.includes('費用')) {
-                response = 'LIFE Xの価格については、標準価格表に基づいて見積もりを作成いたします。詳細は営業担当者にお問い合わせください。';
-            } else if (lowerQuestion.includes('プラン')) {
-                response = 'LIFE Xでは30坪から35坪まで様々なプランをご用意しています。プラン一覧ページでご確認いただけます。';
-            } else if (lowerQuestion.includes('耐震') || lowerQuestion.includes('地震')) {
-                response = 'LIFE Xでは耐震等級3を標準仕様としています。建築基準法の1.5倍の地震力に耐える構造です。';
-            } else {
-                response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
-            }
-
-            // タイピング遅延のシミュレーション
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            const aiMessage = {
-                id: Date.now(),
-                type: 'ai',
-                content: response,
-                timestamp: new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })
-            };
-
-            this.isTyping = false;
-            this.messages.push(aiMessage);
-
-            // Scroll to bottom
-            setTimeout(() => {
-                const chatArea = document.getElementById('aibotChatArea');
-                if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
-            }, 100);
-        }
-    }
-}
-</script>
 </body>
 </html>
