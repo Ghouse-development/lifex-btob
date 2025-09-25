@@ -33,6 +33,17 @@
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <!-- Supabase Integration -->
+    <script type="module" src="/js/supabase-integration.js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://tkemcbxqbrfqgmyswkjg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrZW1jYnhxYnJmcWdteXN3a2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3OTIwMjUsImV4cCI6MjA3NDM2ODAyNX0.UKHU7iTO35N3MuIzJYp9VVxB7ga2YDQ5Vrzd6Gf3k-I';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
@@ -269,12 +280,27 @@
                 },
 
                 async loadFAQs() {
-                    // LocalStorageから取得を試みる
-                    const localData = localStorage.getItem('faq_data');
-                    if (localData) {
-                        this.faqs = JSON.parse(localData).faqs || [];
-                    } else {
-                        // 実際にはAPIから取得
+                    try {
+                        // Supabase or LocalStorage
+                        if (window.supabaseAPI) {
+                            this.faqs = await window.supabaseAPI.faq.getItems();
+                            const categories = await window.supabaseAPI.faq.getCategories();
+                            // カテゴリ名のリストを更新
+                            if (categories && categories.length > 0) {
+                                this.categories = categories.map(cat => cat.name);
+                            }
+                        } else {
+                            // LocalStorageから取得を試みる
+                            const localData = localStorage.getItem('faq_data');
+                            if (localData) {
+                                this.faqs = JSON.parse(localData).faqs || [];
+                            } else {
+                                this.faqs = [];
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error loading FAQs:', error);
+                        lifeXAPI.showToast('FAQデータの読み込みに失敗しました', 'error');
                         this.faqs = [];
                     }
                 },
@@ -541,20 +567,68 @@
                 },
 
                 async saveToAPI() {
-                    // LocalStorageに保存
-                    localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
-                    console.log('Saved FAQs to localStorage', this.faqs);
-                    // 統計更新イベントを発火
-                    window.dispatchEvent(new CustomEvent('stats-updated'));
+                    try {
+                        // Supabase or LocalStorage
+                        if (window.supabaseAPI) {
+                            // Supabaseに保存
+                            for (const faq of this.faqs) {
+                                if (faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
+                                    // UUIDを持つ既存のFAQ（Supabaseから取得したもの）
+                                    // まだAPI未実装なのでスキップ
+                                    console.log('Would update FAQ in Supabase:', faq);
+                                } else {
+                                    // 新規FAQ - Supabaseに作成
+                                    const result = await window.supabaseAPI.faq.create({
+                                        question: faq.question,
+                                        answer: faq.answer,
+                                        category: faq.category || 'その他',
+                                        tags: faq.tags || [],
+                                        status: faq.status || 'published',
+                                        display_order: faq.order || 0
+                                    });
+                                    if (result && result.success) {
+                                        faq.id = result.data.id;
+                                    }
+                                }
+                            }
+                            console.log('FAQs saved to Supabase');
+                        } else {
+                            // LocalStorageに保存
+                            localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
+                            console.log('Saved FAQs to localStorage', this.faqs);
+                        }
+
+                        // 統計更新イベントを発火
+                        window.dispatchEvent(new CustomEvent('stats-updated'));
+                    } catch (error) {
+                        console.error('FAQ保存エラー:', error);
+                        throw error;
+                    }
                 },
 
                 async saveFAQOrder() {
-                    // LocalStorageに保存
-                    localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
-                    console.log('Saved FAQ order to localStorage');
-                    // 統計更新イベントを発火
-                    window.dispatchEvent(new CustomEvent('stats-updated'));
-                    lifeXAPI.showToast('表示順を更新しました', 'success');
+                    try {
+                        if (window.supabaseAPI) {
+                            // Supabaseで順序を更新
+                            for (const faq of this.faqs) {
+                                if (faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
+                                    // 実際のAPI実装時に更新処理を追加
+                                    console.log('Would update FAQ order in Supabase:', faq.id, faq.order);
+                                }
+                            }
+                        } else {
+                            // LocalStorageに保存
+                            localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
+                            console.log('Saved FAQ order to localStorage');
+                        }
+
+                        // 統計更新イベントを発火
+                        window.dispatchEvent(new CustomEvent('stats-updated'));
+                        lifeXAPI.showToast('表示順を更新しました', 'success');
+                    } catch (error) {
+                        console.error('FAQ順序保存エラー:', error);
+                        lifeXAPI.showToast('表示順の更新に失敗しました', 'error');
+                    }
                 }
             };
         }

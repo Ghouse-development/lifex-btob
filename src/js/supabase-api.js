@@ -529,6 +529,61 @@ export const faqAPI = {
         }
     },
 
+    // FAQ作成
+    async create(faqData) {
+        try {
+            const { data, error } = await supabase
+                .from('faqs')
+                .insert([{
+                    question: faqData.question,
+                    answer: faqData.answer,
+                    category_id: faqData.category_id || null,
+                    tags: faqData.tags || [],
+                    status: faqData.status || 'published',
+                    display_order: faqData.display_order || 0
+                }])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // FAQ更新
+    async update(faqId, updates) {
+        try {
+            const { data, error } = await supabase
+                .from('faqs')
+                .update(updates)
+                .eq('id', faqId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // FAQ削除
+    async delete(faqId) {
+        try {
+            const { error } = await supabase
+                .from('faqs')
+                .delete()
+                .eq('id', faqId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
     // FAQ評価送信
     async submitFeedback(faqId, isHelpful, comment = null) {
         try {
