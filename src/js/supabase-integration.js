@@ -256,8 +256,8 @@ window.supabaseAPI = {
 
 // localStorageとSupabaseのブリッジ関数
 window.supabaseBridge = {
-    // Supabase使用フラグ
-    useSupabase: false,
+    // Supabase使用フラグ（デフォルトをtrueに変更）
+    useSupabase: true,
 
     // 設定を切り替え
     toggleDataSource(useSupabase) {
@@ -267,7 +267,9 @@ window.supabaseBridge = {
 
     // 初期化
     init() {
-        this.useSupabase = localStorage.getItem('useSupabase') === 'true';
+        // LocalStorageに設定がない場合はデフォルトでtrue
+        const stored = localStorage.getItem('useSupabase');
+        this.useSupabase = stored === null ? true : stored === 'true';
     },
 
     // プランデータ取得（localStorageまたはSupabase）
