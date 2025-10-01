@@ -299,13 +299,14 @@
         <!-- Add/Edit Modal -->
         <div x-show="showModal"
              @click.self="closeModal()"
-             class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+             class="fixed inset-0 z-[9999] flex items-center justify-center"
+             style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5);"
              x-cloak>
 
             <!-- モーダルコンテナ -->
             <div class="modal-content bg-white shadow-2xl rounded-xl relative"
                  x-data="modalDraggable()"
-                 style="width: 90%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column;"
+                 style="width: 95%; max-width: 1400px; height: 90vh; display: flex; flex-direction: column; position: relative; z-index: 10000;"
                  @click.stop>
                 <!-- ヘッダー（ドラッグ可能） -->
                 <div class="modal-header px-6 py-4 border-b flex-shrink-0"
