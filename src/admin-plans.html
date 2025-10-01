@@ -1357,36 +1357,6 @@
                 switchTab(tabId) {
                     this.currentTab = tabId;
                 },
-                
-                nextTab() {
-                    const currentIndex = this.modalTabs.findIndex(tab => tab.id === this.currentTab);
-                    if (currentIndex < this.modalTabs.length - 1) {
-                        this.currentTab = this.modalTabs[currentIndex + 1].id;
-                    }
-                },
-                
-                prevTab() {
-                    const currentIndex = this.modalTabs.findIndex(tab => tab.id === this.currentTab);
-                    if (currentIndex > 0) {
-                        this.currentTab = this.modalTabs[currentIndex - 1].id;
-                    }
-                },
-                
-                isTabCompleted(tabId) {
-                    switch(tabId) {
-                        case 'basic':
-                            return this.formData.id && this.formData.tsubo && this.formData.layout && this.getActualSellPrice() && this.formData.cost;
-                        case 'features':
-                            return true; // 特徴タグは任意
-                        case 'files':
-                            return true; // 画像も一時的に任意にする
-                        case 'confirm':
-                            return this.isFormValid();
-                        default:
-                            return false;
-                    }
-                },
-                
                 // Form validation
                 validateField(fieldName) {
                     this.formErrors = {...this.formErrors};
