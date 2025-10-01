@@ -324,9 +324,27 @@
 
                 <!-- フォーム全体 -->
                 <form @submit.prevent="handleFormSubmit()" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                    <!-- タブナビゲーション -->
+                    <div class="border-b border-gray-200 px-6 pt-4" style="flex-shrink: 0;">
+                        <div class="flex space-x-1 overflow-x-auto">
+                            <template x-for="tab in modalTabs" :key="tab.id">
+                                <button type="button"
+                                        @click="switchTab(tab.id)"
+                                        :class="currentTab === tab.id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                        class="group inline-flex items-center px-4 py-3 border-b-2 font-medium text-sm transition-colors whitespace-nowrap">
+                                    <span x-html="tab.icon" class="mr-2"></span>
+                                    <span x-text="tab.name"></span>
+                                    <span x-show="isTabCompleted(tab.id)" class="ml-2 text-green-500">✓</span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
                     <!-- スクロール可能な本文エリア（ここだけスクロール） -->
                     <div class="modal-body px-6 py-6 space-y-6" style="flex: 1; overflow-y: auto;">
 
+                        <!-- 基本情報タブ -->
+                        <div x-show="currentTab === 'basic'" x-cloak>
                         <!-- 基本情報セクション -->
                         <section class="border border-gray-200 rounded-xl p-3 sm:p-5">
                             <h3 class="text-base font-semibold text-gray-900 mb-4">基本情報</h3>
@@ -534,8 +552,11 @@
                                     </div>
                             </div>
                         </section>
+                        </div>
+                        <!-- 基本情報タブ終了 -->
 
-                        <!-- 特徴タグセクション -->
+                        <!-- 特徴タグタブ -->
+                        <div x-show="currentTab === 'features'" x-cloak>
                         <section class="border border-gray-200 rounded-xl p-5">
                             <h3 class="text-base font-semibold text-gray-900 mb-4">特徴タグ</h3>
                             <div class="space-y-4">
@@ -603,8 +624,11 @@
                                     </div>
                             </div>
                         </section>
+                        </div>
+                        <!-- 特徴タグタブ終了 -->
 
-                        <!-- 画像・ファイルセクション -->
+                        <!-- 画像・ファイルタブ -->
+                        <div x-show="currentTab === 'files'" x-cloak>
                         <section class="border border-gray-200 rounded-xl p-5">
                             <h3 class="text-base font-semibold text-gray-900 mb-4">画像・ファイル</h3>
                             <div class="grid grid-cols-2 gap-4">
@@ -1125,25 +1149,135 @@
                     </div>
 
                         </section>
+                        </div>
+                        <!-- 画像・ファイルタブ終了 -->
+
+                        <!-- 確認タブ -->
+                        <div x-show="currentTab === 'confirm'" x-cloak>
+                            <section class="border border-gray-200 rounded-xl p-5">
+                                <h3 class="text-base font-semibold text-gray-900 mb-4">入力内容の確認</h3>
+
+                                <div class="space-y-6">
+                                    <!-- 基本情報確認 -->
+                                    <div class="border-b pb-4">
+                                        <h4 class="font-semibold text-gray-700 mb-3">基本情報</h4>
+                                        <div class="grid grid-cols-2 gap-3 text-sm">
+                                            <div><span class="text-gray-500">プランコード:</span> <span class="font-medium" x-text="formData.id || '未入力'"></span></div>
+                                            <div><span class="text-gray-500">階数:</span> <span class="font-medium" x-text="formData.floors + '階建て'"></span></div>
+                                            <div><span class="text-gray-500">坪数:</span> <span class="font-medium" x-text="formData.tsubo ? formData.tsubo + '坪' : '未入力'"></span></div>
+                                            <div><span class="text-gray-500">間取り:</span> <span class="font-medium" x-text="formData.layout || '未入力'"></span></div>
+                                            <div><span class="text-gray-500">間口:</span> <span class="font-medium" x-text="formData.width ? formData.width + 'mm' : '未入力'"></span></div>
+                                            <div><span class="text-gray-500">奥行:</span> <span class="font-medium" x-text="formData.depth ? formData.depth + 'mm' : '未入力'"></span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 価格情報確認 -->
+                                    <div class="border-b pb-4">
+                                        <h4 class="font-semibold text-gray-700 mb-3">価格情報</h4>
+                                        <div class="grid grid-cols-2 gap-3 text-sm">
+                                            <div><span class="text-gray-500">販売価格:</span> <span class="font-medium" x-text="getActualSellPrice() ? getActualSellPrice() + '万円' : '未入力'"></span></div>
+                                            <div><span class="text-gray-500">原価:</span> <span class="font-medium" x-text="formData.cost ? formData.cost + '万円' : '未入力'"></span></div>
+                                            <div><span class="text-gray-500">粗利益:</span> <span class="font-medium" x-text="calculatedGrossProfit || '未計算'"></span></div>
+                                            <div><span class="text-gray-500">UA値:</span> <span class="font-medium" x-text="formData.uaValue ? formData.uaValue + 'W/m²K' : '未入力'"></span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- ファイル確認 -->
+                                    <div class="border-b pb-4">
+                                        <h4 class="font-semibold text-gray-700 mb-3">アップロード済みファイル</h4>
+                                        <div class="space-y-2 text-sm">
+                                            <div><span class="text-gray-500">外観パース:</span> <span class="font-medium" x-text="formData.files?.images?.exterior?.name || '未アップロード'"></span></div>
+                                            <div><span class="text-gray-500">内観パース:</span> <span class="font-medium" x-text="formData.files?.images?.interior?.name || '未アップロード'"></span></div>
+                                            <div><span class="text-gray-500">間取り図:</span> <span class="font-medium" x-text="Object.keys(formData.files?.floorPlans || {}).length + '件'"></span></div>
+                                            <div><span class="text-gray-500">図面:</span> <span class="font-medium" x-text="Object.keys(formData.files?.drawings || {}).reduce((sum, key) => sum + (formData.files.drawings[key]?.length || 0), 0) + '件'"></span></div>
+                                            <div><span class="text-gray-500">その他資料:</span> <span class="font-medium" x-text="Object.keys(formData.files?.documents || {}).reduce((sum, key) => sum + (formData.files.documents[key]?.length || 0), 0) + '件'"></span></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 特徴タグ確認 -->
+                                    <div>
+                                        <h4 class="font-semibold text-gray-700 mb-3">特徴タグ</h4>
+                                        <div class="flex flex-wrap gap-2">
+                                            <template x-for="tag in getAllSelectedTags()" :key="tag">
+                                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium" x-text="tag"></span>
+                                            </template>
+                                            <span x-show="getAllSelectedTags().length === 0" class="text-gray-500 text-sm">タグが選択されていません</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- バリデーション状態 -->
+                                    <div class="bg-green-50 border border-green-200 rounded-lg p-4" x-show="isFormValid()">
+                                        <div class="flex items-center">
+                                            <svg class="w-6 h-6 text-green-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span class="text-green-800 font-medium">すべての必須項目が入力されています。保存できます。</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-red-50 border border-red-200 rounded-lg p-4" x-show="!isFormValid()">
+                                        <div class="flex items-start">
+                                            <svg class="w-6 h-6 text-red-600 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <div class="text-red-800">
+                                                <p class="font-medium mb-1">未入力の必須項目があります:</p>
+                                                <ul class="list-disc list-inside text-sm space-y-1">
+                                                    <li x-show="!formData.id">プランコード</li>
+                                                    <li x-show="!formData.tsubo">坪数</li>
+                                                    <li x-show="!formData.layout">間取り</li>
+                                                    <li x-show="!getActualSellPrice()">販売価格</li>
+                                                    <li x-show="!formData.cost">原価</li>
+                                                    <li x-show="!formData.files?.images?.exterior">外観パース</li>
+                                                    <li x-show="!formData.files?.images?.interior">内観パース</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                        <!-- 確認タブ終了 -->
 
                     </div>
+                    <!-- modal-body終了 -->
 
                     <!-- フッター（常に画面下に表示・スマホ最適化） -->
                     <div class="modal-footer px-4 sm:px-6 py-4 border-t bg-white" style="flex-shrink: 0;">
-                        <div class="flex items-center justify-center gap-3 sm:gap-4 w-full">
-                            <!-- キャンセルボタン -->
+                        <div class="flex items-center justify-between gap-3 sm:gap-4 w-full">
+                            <!-- 前へボタン -->
                             <button type="button"
-                                    @click="closeModal()"
-                                    class="flex-1 sm:flex-none sm:w-32 px-6 py-3 min-h-[48px] rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors font-medium text-base">
-                                キャンセル
+                                    @click="prevTab()"
+                                    x-show="currentTab !== 'basic'"
+                                    class="px-4 py-3 min-h-[48px] rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors font-medium text-base">
+                                ← 前へ
                             </button>
 
-                            <!-- 保存ボタン -->
-                            <button type="submit"
-                                    :disabled="!isFormValid() || saving"
-                                    :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800' : 'bg-gray-400 cursor-not-allowed'"
-                                    class="flex-1 sm:flex-none sm:w-32 px-6 py-3 min-h-[48px] rounded-lg text-white font-medium text-base transition-colors disabled:opacity-50">
-                                <span x-text="saving ? '保存中...' : '保存'"></span>
+                            <!-- 中央のボタングループ -->
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <!-- キャンセルボタン -->
+                                <button type="button"
+                                        @click="closeModal()"
+                                        class="px-6 py-3 min-h-[48px] rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors font-medium text-base">
+                                    キャンセル
+                                </button>
+
+                                <!-- 保存ボタン（確認タブでのみ表示） -->
+                                <button type="submit"
+                                        x-show="currentTab === 'confirm'"
+                                        :disabled="!isFormValid() || saving"
+                                        :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800' : 'bg-gray-400 cursor-not-allowed'"
+                                        class="px-6 py-3 min-h-[48px] rounded-lg text-white font-medium text-base transition-colors disabled:opacity-50">
+                                    <span x-text="saving ? '保存中...' : '保存'"></span>
+                                </button>
+                            </div>
+
+                            <!-- 次へボタン -->
+                            <button type="button"
+                                    @click="nextTab()"
+                                    x-show="currentTab !== 'confirm'"
+                                    class="px-4 py-3 min-h-[48px] rounded-lg bg-blue-600 hover:bg-blue-700 text-white active:bg-blue-800 transition-colors font-medium text-base">
+                                次へ →
                             </button>
                         </div>
                     </div>
