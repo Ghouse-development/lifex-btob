@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>モーダルテスト</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-100 p-8" x-data="{ showModal: false }">
+
+    <h1 class="text-2xl font-bold mb-4">モーダルテスト</h1>
+
+    <button @click="showModal = true" class="bg-blue-600 text-white px-6 py-3 rounded-lg">
+        モーダルを開く
+    </button>
+
+    <!-- モーダル -->
+    <div x-show="showModal"
+         @click.self="showModal = false"
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+         x-cloak>
+
+        <!-- モーダルコンテナ -->
+        <div class="bg-white shadow-2xl rounded-xl relative"
+             style="width: 90%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column;"
+             @click.stop>
+
+            <!-- ヘッダー -->
+            <div style="flex-shrink: 0; padding: 20px; border-bottom: 1px solid #ccc;">
+                <h2 class="text-xl font-bold">モーダルヘッダー</h2>
+                <button @click="showModal = false" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                    ✕
+                </button>
+            </div>
+
+            <!-- ボディ（スクロール可能） -->
+            <div style="flex: 1; overflow-y: scroll; padding: 20px; background: #f9fafb;">
+                <h3 class="font-bold mb-4">コンテンツエリア</h3>
+                <div style="height: 2000px; background: linear-gradient(to bottom, #dbeafe, #fef3c7);">
+                    <p>このエリアは長いコンテンツです。スクロールバーが表示されるはずです。</p>
+                    <p class="mt-4">一番下までスクロールすると、保存ボタンが見えます。</p>
+                </div>
+            </div>
+
+            <!-- フッター -->
+            <div style="flex-shrink: 0; padding: 20px; border-top: 1px solid #ccc; background: white;">
+                <div class="flex gap-4 justify-center">
+                    <button @click="showModal = false" class="px-6 py-3 border-2 border-gray-300 rounded-lg">
+                        キャンセル
+                    </button>
+                    <button class="px-6 py-3 bg-blue-600 text-white rounded-lg">
+                        保存
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
