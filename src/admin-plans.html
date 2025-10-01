@@ -200,12 +200,20 @@
                     <h1 class="text-3xl font-bold text-gray-900">プラン管理</h1>
                     <p class="text-gray-600 mt-2">住宅プランの追加・編集・削除を管理</p>
                 </div>
-                <button @click="openAddModal()" class="btn-primary">
-                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    新規プラン追加
-                </button>
+                <div class="flex gap-3">
+                    <button @click="openAddModal()" class="btn-primary">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        新規プラン追加
+                    </button>
+                    <button @click="savePlansToLocalStorage()" class="btn-secondary">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                        </svg>
+                        保存
+                    </button>
+                </div>
             </div>
 
             <!-- Filter & Search -->
@@ -1553,6 +1561,22 @@
                 updateFloorPlans() {
                     const floors = parseInt(this.formData.floors) || 1;
                     this.formData.floorPlans = Array(floors).fill('');
+                },
+
+                // LocalStorageに保存
+                async savePlansToLocalStorage() {
+                    try {
+                        const plansData = {
+                            plans: this.plans,
+                            lastUpdated: new Date().toISOString()
+                        };
+                        localStorage.setItem('plansData', JSON.stringify(plansData));
+                        lifeXAPI.showToast('プランデータを保存しました', 'success');
+                        console.log('Plans saved to localStorage:', plansData);
+                    } catch (error) {
+                        console.error('Failed to save plans:', error);
+                        lifeXAPI.showToast('保存に失敗しました', 'error');
+                    }
                 }
             }
         }

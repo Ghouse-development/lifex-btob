@@ -41,7 +41,8 @@
       "Bash(npm install:*)",
       "Bash(! grep -q \"cdn.tailwindcss.com\" \"$file\")",
       "Bash(then echo \"$file needs Tailwind CDN\")",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(git remote set-url:*)"
     ],
     "deny": [],
     "ask": []

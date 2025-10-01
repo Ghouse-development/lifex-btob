@@ -357,4 +357,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // エクスポート
-export { supabaseAPI, supabaseBridge };
+export const supabaseAPI = window.supabaseAPI;
+export const supabaseBridge = window.supabaseBridge;
