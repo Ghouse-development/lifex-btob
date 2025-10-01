@@ -58,6 +58,12 @@
             display: none !important;
         }
 
+        /* モーダルフッターを常に表示 */
+        .modal-footer {
+            background: white !important;
+            border-top: 1px solid #e5e7eb;
+        }
+
         /* モーダルヘッダーのドラッグスタイル */
         .modal-header {
             cursor: grab;
@@ -200,20 +206,12 @@
                     <h1 class="text-3xl font-bold text-gray-900">プラン管理</h1>
                     <p class="text-gray-600 mt-2">住宅プランの追加・編集・削除を管理</p>
                 </div>
-                <div class="flex gap-3">
-                    <button @click="openAddModal()" class="btn-primary">
-                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        新規プラン追加
-                    </button>
-                    <button @click="savePlansToLocalStorage()" class="btn-secondary">
-                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        保存
-                    </button>
-                </div>
+                <button @click="openAddModal()" class="btn-primary">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    新規プラン追加
+                </button>
             </div>
 
             <!-- Filter & Search -->
@@ -302,8 +300,8 @@
              style="display: none;">
 
             <!-- モーダルコンテナ -->
-            <div class="modal-content fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-6xl bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
-                 :style="`transform: translate(calc(-50% + ${dragPosition.x}px), calc(-50% + ${dragPosition.y}px)); width: min(calc(100vw - 32px), 1536px);`">
+            <div class="modal-content fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-5xl bg-white rounded-2xl shadow-xl flex flex-col"
+                 :style="`transform: translate(calc(-50% + ${dragPosition.x}px), calc(-50% + ${dragPosition.y}px)); width: min(calc(100vw - 64px), 1280px); height: calc(100vh - 80px); max-height: 900px;`">
                 <!-- ヘッダー（ドラッグ可能） -->
                 <div class="modal-header px-6 py-4 border-b flex-shrink-0"
                      @mousedown="startDrag($event)"
@@ -325,7 +323,7 @@
                 <!-- フォーム全体 -->
                 <form @submit.prevent="handleFormSubmit()" class="flex-grow flex flex-col overflow-hidden">
                     <!-- スクロール可能な本文エリア（ここだけスクロール） -->
-                    <div class="modal-body flex-grow px-6 py-6 space-y-6">
+                    <div class="modal-body flex-grow px-6 py-6 space-y-6 overflow-y-auto">
 
                         <!-- 基本情報セクション -->
                         <section class="border border-gray-200 rounded-xl p-5">
@@ -832,20 +830,19 @@
                     </div>
 
                     <!-- フッター（常に画面下に表示） -->
-                    <div class="px-6 py-4 border-t bg-white sticky bottom-0 flex-shrink-0">
+                    <div class="modal-footer px-6 py-4 border-t bg-white flex-shrink-0">
                         <div class="flex items-center justify-end gap-3">
                             <!-- キャンセルボタン -->
                             <button type="button"
                                     @click="closeModal()"
-                                    class="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-50 transition-colors">
+                                    class="px-6 py-3 rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium text-base">
                                 キャンセル
                             </button>
 
-                            <!-- 保存ボタン -->
+                            <!-- 保存ボタン - 常に表示 -->
                             <button type="submit"
-                                    :disabled="!isFormValid() || saving"
-                                    :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'"
-                                    class="px-5 py-2 rounded-lg transition-all">
+                                    :disabled="saving"
+                                    class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                                 <span x-text="saving ? '保存中...' : '保存'"></span>
                             </button>
                         </div>
