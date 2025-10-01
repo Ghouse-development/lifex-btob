@@ -328,7 +328,7 @@
                 <!-- フォーム全体 -->
                 <form @submit.prevent="handleFormSubmit()" style="flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden;">
                     <!-- スクロール可能な本文エリア（ここだけスクロール） -->
-                    <div class="modal-body px-6 py-6 space-y-6" style="flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0;">
+                    <div class="modal-body px-6 py-6 space-y-6" style="flex: 1; overflow-y: scroll !important; overflow-x: hidden; min-height: 0; background: #f9fafb;">
 
                         <!-- 基本情報セクション -->
                         <section class="border border-gray-200 rounded-xl p-3 sm:p-5">
