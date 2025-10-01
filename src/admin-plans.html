@@ -298,13 +298,13 @@
 
         <!-- Add/Edit Modal -->
         <div x-show="showModal"
-             x-data="modalDraggable()"
              @click.self="closeModal()"
              class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
              x-cloak>
 
             <!-- モーダルコンテナ -->
             <div class="modal-content bg-white shadow-2xl rounded-xl relative"
+                 x-data="modalDraggable()"
                  style="width: 90%; max-width: 1200px; height: 85vh; display: flex; flex-direction: column;"
                  @click.stop>
                 <!-- ヘッダー（ドラッグ可能） -->
