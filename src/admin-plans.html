@@ -32,6 +32,7 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+    <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
 </head>
@@ -300,8 +301,8 @@
              style="display: none;">
 
             <!-- モーダルコンテナ -->
-            <div class="modal-content fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl bg-white rounded-2xl shadow-xl"
-                 style="width: 90vw; max-width: 1200px; height: 85vh; max-height: 800px; display: flex; flex-direction: column;"
+            <div class="modal-content fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white shadow-xl rounded-xl"
+                 style="width: 85vw; max-width: 1100px; height: 80vh; max-height: 850px; display: flex; flex-direction: column;"
                  :style="`transform: translate(calc(-50% + ${dragPosition.x}px), calc(-50% + ${dragPosition.y}px));`">
                 <!-- ヘッダー（ドラッグ可能） -->
                 <div class="modal-header px-6 py-4 border-b flex-shrink-0"
@@ -327,9 +328,9 @@
                     <div class="modal-body px-6 py-6 space-y-6" style="flex: 1; overflow-y: auto;">
 
                         <!-- 基本情報セクション -->
-                        <section class="border border-gray-200 rounded-xl p-5">
+                        <section class="border border-gray-200 rounded-xl p-3 sm:p-5">
                             <h3 class="text-base font-semibold text-gray-900 mb-4">基本情報</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                     <label class="form-field">
                                         <span>プランコード <span class="text-red-500">*</span></span>
                                         <input type="text"
@@ -441,9 +442,9 @@
                         </section>
 
                         <!-- 価格情報セクション -->
-                        <section class="border border-gray-200 rounded-xl p-5">
+                        <section class="border border-gray-200 rounded-xl p-3 sm:p-5">
                             <h3 class="text-base font-semibold text-gray-900 mb-4">価格情報</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                     <label class="form-field">
                                         <span>想定販売価格（万円）<span class="text-red-500">*</span> <span class="ml-1 text-gray-400">税込</span></span>
                                         <select x-model="formData.sellPrice"
@@ -544,8 +545,8 @@
                                             <template x-for="tag in ['吹抜', 'フリースペース', '書斎', '畳スペース', 'ヌック', 'ロフト']" :key="tag">
                                                 <button type="button"
                                                         @click="toggleFeatureTag(tag)"
-                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50'"
-                                                        class="px-4 py-2 border rounded-lg text-sm transition-colors duration-200 flex items-center space-x-2">
+                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 active:bg-blue-100'"
+                                                        class="px-4 py-3 border rounded-lg text-sm sm:text-base transition-colors duration-200 flex items-center justify-center space-x-2 min-h-[44px]">
                                                     <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
                                                     <span x-text="tag"></span>
                                                 </button>
@@ -559,8 +560,8 @@
                                             <template x-for="tag in ['パントリー', 'ウォークインクローゼット', 'シューズクローク', 'ファミリークローク', 'リビング収納', '小屋裏収納']" :key="tag">
                                                 <button type="button"
                                                         @click="toggleFeatureTag(tag)"
-                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50'"
-                                                        class="px-4 py-2 border rounded-lg text-sm transition-colors duration-200 flex items-center space-x-2">
+                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50 active:bg-green-100'"
+                                                        class="px-4 py-3 border rounded-lg text-sm sm:text-base transition-colors duration-200 flex items-center justify-center space-x-2 min-h-[44px]">
                                                     <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
                                                     <span x-text="tag"></span>
                                                 </button>
@@ -574,8 +575,8 @@
                                             <template x-for="tag in ['バルコニー', 'ウッドデッキ', 'ガレージ', 'カーポート', '庫裏']" :key="tag">
                                                 <button type="button"
                                                         @click="toggleFeatureTag(tag)"
-                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50'"
-                                                        class="px-4 py-2 border rounded-lg text-sm transition-colors duration-200 flex items-center space-x-2">
+                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50 active:bg-purple-100'"
+                                                        class="px-4 py-3 border rounded-lg text-sm sm:text-base transition-colors duration-200 flex items-center justify-center space-x-2 min-h-[44px]">
                                                     <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
                                                     <span x-text="tag"></span>
                                                 </button>
@@ -642,7 +643,7 @@
                                                      @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
                                                      @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
                                                      @click="document.getElementById('file-exterior').click()"
-                                                     class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[100px] flex flex-col items-center justify-center">
+                                                     class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[120px] sm:min-h-[100px] flex flex-col items-center justify-center active:bg-gray-100">
                                                     <div class="flex items-center justify-center mb-2">
                                                         <svg class="h-8 w-8 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -691,7 +692,7 @@
                                                      @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
                                                      @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
                                                      @click="document.getElementById('file-interior').click()"
-                                                     class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[100px] flex flex-col items-center justify-center">
+                                                     class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[120px] sm:min-h-[100px] flex flex-col items-center justify-center active:bg-gray-100">
                                                     <div class="flex items-center justify-center mb-2">
                                                         <svg class="h-8 w-8 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -712,30 +713,50 @@
                                 <div>
                                     <label class="text-sm font-medium text-gray-700 mb-2 block">間取り図（階数分登録） <span class="text-red-500">*</span></label>
                                     <template x-for="floor in Array.from({length: parseInt(formData.floors) || 1}, (_, i) => i + 1)" :key="floor">
-                                        <div class="mb-2">
+                                        <div class="mb-3">
                                             <div class="file-upload-item">
                                                 <input type="file" @change="handleFileSelect($event, 'floorPlan', floor)" accept="image/*" class="hidden" :id="'file-floor-' + floor">
-                                                <div 
-                                                    @drop="handleDrop($event, 'floorPlan', floor)" 
-                                                    @dragover.prevent 
-                                                    @dragenter.prevent
-                                                    @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
-                                                    @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
-                                                    @click="document.getElementById('file-floor-' + floor).click()"
-                                                    class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[60px] flex flex-col items-center justify-center">
-                                                    <div class="flex items-center justify-center mb-1">
-                                                        <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
-                                                        <span class="font-medium" x-text="`${floor}階間取り図`"></span>
-                                                    </div>
-                                                    <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                                    <template x-if="formData.files && formData.files.floorPlans && formData.files.floorPlans[floor] && formData.files.floorPlans[floor].name">
-                                                        <div class="text-green-600 mt-1 text-xs">
-                                                            <div class="truncate" x-text="`✓ ${formData.files.floorPlans[floor].name}`"></div>
+
+                                                <!-- プレビューまたはアップロード領域 -->
+                                                <template x-if="formData.files?.floorPlans?.[floor]?.preview">
+                                                    <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                                        <img :src="formData.files.floorPlans[floor].preview"
+                                                             :alt="`${floor}階間取り図`"
+                                                             class="w-full h-40 object-contain bg-white">
+                                                        <div class="absolute top-2 right-2">
+                                                            <button type="button"
+                                                                    @click.stop="removeFile('floorPlan', floor)"
+                                                                    class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                </svg>
+                                                            </button>
                                                         </div>
-                                                    </template>
-                                                </div>
+                                                        <div class="p-2 bg-white bg-opacity-90">
+                                                            <p class="text-sm text-green-600 font-medium truncate" x-text="`${floor}階: ${formData.files.floorPlans[floor].name}`"></p>
+                                                            <p class="text-xs text-gray-500" x-text="(formData.files.floorPlans[floor].size / 1024).toFixed(1) + ' KB'"></p>
+                                                        </div>
+                                                    </div>
+                                                </template>
+
+                                                <template x-if="!formData.files?.floorPlans?.[floor]?.preview">
+                                                    <div
+                                                        @drop="handleDrop($event, 'floorPlan', floor)"
+                                                        @dragover.prevent
+                                                        @dragenter.prevent
+                                                        @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
+                                                        @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
+                                                        @click="document.getElementById('file-floor-' + floor).click()"
+                                                        class="border-2 border-dashed border-gray-300 rounded p-4 text-sm hover:bg-gray-50 transition-colors cursor-pointer min-h-[90px] sm:min-h-[70px] flex flex-col items-center justify-center active:bg-gray-100">
+                                                        <div class="flex items-center justify-center mb-1">
+                                                            <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            <span class="font-medium" x-text="`${floor}階間取り図`"></span>
+                                                        </div>
+                                                        <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
                                     </template>
@@ -750,100 +771,351 @@
                             <!-- プレゼン資料 -->
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">プレゼン資料</label>
-                                <div class="space-y-2">
-                                    <div class="file-upload-area" @drop="handleDrop($event, 'presentation')" @dragover.prevent @dragenter.prevent>
-                                        <input type="file" @change="handleFileSelect($event, 'presentation')" accept=".pptx,.ppt" class="hidden" id="file-presentation">
-                                        <label for="file-presentation" class="cursor-pointer">
-                                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-primary-400 transition-colors">
-                                                <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                <div class="file-upload-item">
+                                    <input type="file" @change="handleFileSelect($event, 'presentation')" accept=".pptx,.ppt,.pdf" class="hidden" id="file-presentation">
+
+                                    <!-- プレビューまたはアップロード領域 -->
+                                    <template x-if="formData.files?.presentation?.name">
+                                        <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                            <div class="w-full h-32 bg-orange-50 flex items-center justify-center">
+                                                <svg class="w-16 h-16 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                                 </svg>
-                                                <p class="text-sm text-gray-600 mt-2">プレゼン（パワーポイント）をドラッグ＆ドロップまたはクリックして選択</p>
-                                                <template x-if="formData.files && formData.files.presentation && formData.files.presentation.name">
-                                                    <div class="text-green-600 mt-2 text-xs">
-                                                        <div class="truncate" x-text="`✓ ${formData.files.presentation.name}`"></div>
-                                                    </div>
-                                                </template>
                                             </div>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- 図面 -->
-                            <div class="mb-4">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">図面（複数ファイル可）</label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <template x-for="drawing in ['実施図', 'キッチン', '洗面化粧台', 'システムバス', 'トイレ', '照明', '換気システム', 'evoltz', '太陽光（オプション）', '内装プレゼン（EXCEL）', '仕様書・外装プレゼン（EXCEL）', '建具プレゼン', 'サッシプレゼン', '申請図・構造図・プレカット図']" :key="drawing">
-                                        <div class="file-upload-item">
-                                            <input type="file" multiple @change="handleFileSelect($event, 'drawing', drawing)" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
-                                            <div 
-                                                @drop="handleDrop($event, 'drawing', drawing)" 
-                                                @dragover.prevent 
-                                                @dragenter.prevent
-                                                @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
-                                                @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
-                                                @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()"
-                                                class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[60px] flex flex-col items-center justify-center">
-                                                <div class="flex items-center justify-center mb-1">
-                                                    <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                            <div class="absolute top-2 right-2">
+                                                <button type="button" @click.stop="removeFile('presentation')" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                     </svg>
-                                                    <span class="font-medium" x-text="drawing"></span>
-                                                </div>
-                                                <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                                <div x-show="formData.files && formData.files.drawings && formData.files.drawings[drawing]" class="text-green-600 mt-1 text-xs">
-                                                    <template x-if="Array.isArray(formData.files.drawings[drawing])">
-                                                        <div>
-                                                            <template x-for="file in formData.files.drawings[drawing]" :key="file.name">
-                                                                <div class="truncate" x-text="`✓ ${file.name}`"></div>
-                                                            </template>
-                                                        </div>
-                                                    </template>
-                                                    <template x-if="!Array.isArray(formData.files.drawings[drawing]) && formData.files.drawings[drawing]">
-                                                        <div class="truncate" x-text="`✓ ${formData.files.drawings[drawing].name}`"></div>
-                                                    </template>
-                                                </div>
+                                                </button>
                                             </div>
+                                            <div class="p-2 bg-white bg-opacity-90">
+                                                <p class="text-sm text-green-600 font-medium truncate" x-text="formData.files.presentation.name"></p>
+                                                <p class="text-xs text-gray-500" x-text="(formData.files.presentation.size / 1024).toFixed(1) + ' KB'"></p>
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- 初回アップロード領域 -->
+                                    <template x-if="!formData.files?.presentation?.name">
+                                        <div @drop="handleDrop($event, 'presentation')" @dragover.prevent @dragenter.prevent @click="document.getElementById('file-presentation').click()" class="border-2 border-dashed border-gray-300 rounded p-4 text-center hover:bg-gray-50 transition-colors cursor-pointer min-h-[100px] flex flex-col items-center justify-center active:bg-gray-100">
+                                            <svg class="h-10 w-10 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                            </svg>
+                                            <span class="text-gray-600 text-sm">プレゼン資料（PowerPoint, PDF）</span>
+                                            <span class="text-gray-500 text-xs mt-1">ドラッグ&ドロップまたはクリック</span>
                                         </div>
                                     </template>
                                 </div>
                             </div>
                             
+                            <!-- 図面（アコーディオン化） -->
+                            <div class="mb-4" x-data="{
+                                equipmentOpen: false,
+                                structureOpen: false,
+                                presentationOpen: false,
+                                optionOpen: false
+                            }">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">図面（グループ別）</label>
+
+                                <!-- 設備図面グループ -->
+                                <div class="mb-2 border border-gray-200 rounded-lg overflow-hidden">
+                                    <button type="button" @click="equipmentOpen = !equipmentOpen" class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition-colors">
+                                        <span class="font-medium text-gray-700">🏠 設備図面（6種類）</span>
+                                        <svg class="w-5 h-5 transition-transform" :class="equipmentOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="equipmentOpen" x-collapse class="p-3 bg-white">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <template x-for="drawing in ['キッチン', '洗面化粧台', 'システムバス', 'トイレ', '照明', '換気システム']" :key="drawing">
+                                                <div class="mb-3">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1" x-text="drawing"></label>
+                                                    <div class="file-upload-item">
+                                                        <input type="file" multiple @change="handleFileSelect($event, 'drawing', drawing)" accept=".pdf,.jpg,.jpeg,.png" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
+
+                                                        <!-- プレビューまたはアップロード領域 -->
+                                                        <template x-if="formData.files?.drawings?.[drawing]?.length > 0">
+                                                            <div class="space-y-2">
+                                                                <template x-for="(file, index) in formData.files.drawings[drawing]" :key="index">
+                                                                    <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                                                        <!-- 画像プレビュー -->
+                                                                        <template x-if="file.preview">
+                                                                            <img :src="file.preview" :alt="file.name" class="w-full h-32 object-contain bg-white">
+                                                                        </template>
+                                                                        <!-- PDFプレビュー -->
+                                                                        <template x-if="!file.preview">
+                                                                            <div class="w-full h-32 bg-red-50 flex items-center justify-center">
+                                                                                <svg class="w-12 h-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                                                </svg>
+                                                                            </div>
+                                                                        </template>
+                                                                        <!-- 削除ボタン -->
+                                                                        <div class="absolute top-2 right-2">
+                                                                            <button type="button" @click.stop="removeDrawingFile(drawing, index)" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                        <!-- ファイル情報 -->
+                                                                        <div class="p-2 bg-white bg-opacity-90">
+                                                                            <p class="text-sm text-green-600 font-medium truncate" x-text="file.name"></p>
+                                                                            <p class="text-xs text-gray-500" x-text="(file.size / 1024).toFixed(1) + ' KB'"></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                                <!-- 追加アップロード -->
+                                                                <button type="button" @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="w-full border-2 border-dashed border-gray-300 rounded p-2 text-xs hover:bg-gray-50 transition-colors active:bg-gray-100">
+                                                                    + さらに追加
+                                                                </button>
+                                                            </div>
+                                                        </template>
+
+                                                        <!-- 初回アップロード領域 -->
+                                                        <template x-if="!formData.files?.drawings?.[drawing] || formData.files.drawings[drawing].length === 0">
+                                                            <div @drop="handleDrop($event, 'drawing', drawing)" @dragover.prevent @dragenter.prevent @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[90px] sm:min-h-[70px] flex flex-col items-center justify-center active:bg-gray-100">
+                                                                <svg class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                                </svg>
+                                                                <span class="text-gray-500 text-center">ドラッグ&ドロップ<br>またはクリック</span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 構造図面グループ -->
+                                <div class="mb-2 border border-gray-200 rounded-lg overflow-hidden">
+                                    <button type="button" @click="structureOpen = !structureOpen" class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition-colors">
+                                        <span class="font-medium text-gray-700">🏗️ 構造図面（2種類）</span>
+                                        <svg class="w-5 h-5 transition-transform" :class="structureOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="structureOpen" x-collapse class="p-3 bg-white">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <template x-for="drawing in ['実施図', '申請図・構造図・プレカット図']" :key="drawing">
+                                                <div class="mb-3">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1" x-text="drawing"></label>
+                                                    <div class="file-upload-item">
+                                                        <input type="file" multiple @change="handleFileSelect($event, 'drawing', drawing)" accept=".pdf,.jpg,.jpeg,.png" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
+                                                        <template x-if="formData.files?.drawings?.[drawing]?.length > 0">
+                                                            <div class="space-y-2">
+                                                                <template x-for="(file, index) in formData.files.drawings[drawing]" :key="index">
+                                                                    <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                                                        <template x-if="file.preview">
+                                                                            <img :src="file.preview" :alt="file.name" class="w-full h-32 object-contain bg-white">
+                                                                        </template>
+                                                                        <template x-if="!file.preview">
+                                                                            <div class="w-full h-32 bg-red-50 flex items-center justify-center">
+                                                                                <svg class="w-12 h-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                                                </svg>
+                                                                            </div>
+                                                                        </template>
+                                                                        <div class="absolute top-2 right-2">
+                                                                            <button type="button" @click.stop="removeDrawingFile(drawing, index)" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="p-2 bg-white bg-opacity-90">
+                                                                            <p class="text-sm text-green-600 font-medium truncate" x-text="file.name"></p>
+                                                                            <p class="text-xs text-gray-500" x-text="(file.size / 1024).toFixed(1) + ' KB'"></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                                <button type="button" @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="w-full border-2 border-dashed border-gray-300 rounded p-2 text-xs hover:bg-gray-50 transition-colors active:bg-gray-100">+ さらに追加</button>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!formData.files?.drawings?.[drawing] || formData.files.drawings[drawing].length === 0">
+                                                            <div @drop="handleDrop($event, 'drawing', drawing)" @dragover.prevent @dragenter.prevent @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[90px] sm:min-h-[70px] flex flex-col items-center justify-center active:bg-gray-100">
+                                                                <svg class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                                </svg>
+                                                                <span class="text-gray-500 text-center">ドラッグ&ドロップ<br>またはクリック</span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- プレゼン図面グループ -->
+                                <div class="mb-2 border border-gray-200 rounded-lg overflow-hidden">
+                                    <button type="button" @click="presentationOpen = !presentationOpen" class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition-colors">
+                                        <span class="font-medium text-gray-700">📊 プレゼン図面（4種類）</span>
+                                        <svg class="w-5 h-5 transition-transform" :class="presentationOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="presentationOpen" x-collapse class="p-3 bg-white">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <template x-for="drawing in ['内装プレゼン（EXCEL）', '仕様書・外装プレゼン（EXCEL）', '建具プレゼン', 'サッシプレゼン']" :key="drawing">
+                                                <div class="mb-3">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1" x-text="drawing"></label>
+                                                    <div class="file-upload-item">
+                                                        <input type="file" multiple @change="handleFileSelect($event, 'drawing', drawing)" accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
+                                                        <template x-if="formData.files?.drawings?.[drawing]?.length > 0">
+                                                            <div class="space-y-2">
+                                                                <template x-for="(file, index) in formData.files.drawings[drawing]" :key="index">
+                                                                    <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                                                        <template x-if="file.preview">
+                                                                            <img :src="file.preview" :alt="file.name" class="w-full h-32 object-contain bg-white">
+                                                                        </template>
+                                                                        <template x-if="!file.preview">
+                                                                            <div class="w-full h-32 bg-green-50 flex items-center justify-center">
+                                                                                <svg class="w-12 h-12 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                                </svg>
+                                                                            </div>
+                                                                        </template>
+                                                                        <div class="absolute top-2 right-2">
+                                                                            <button type="button" @click.stop="removeDrawingFile(drawing, index)" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="p-2 bg-white bg-opacity-90">
+                                                                            <p class="text-sm text-green-600 font-medium truncate" x-text="file.name"></p>
+                                                                            <p class="text-xs text-gray-500" x-text="(file.size / 1024).toFixed(1) + ' KB'"></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                                <button type="button" @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="w-full border-2 border-dashed border-gray-300 rounded p-2 text-xs hover:bg-gray-50 transition-colors active:bg-gray-100">+ さらに追加</button>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!formData.files?.drawings?.[drawing] || formData.files.drawings[drawing].length === 0">
+                                                            <div @drop="handleDrop($event, 'drawing', drawing)" @dragover.prevent @dragenter.prevent @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[90px] sm:min-h-[70px] flex flex-col items-center justify-center active:bg-gray-100">
+                                                                <svg class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                                </svg>
+                                                                <span class="text-gray-500 text-center">ドラッグ&ドロップ<br>またはクリック</span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- オプション図面グループ -->
+                                <div class="mb-2 border border-gray-200 rounded-lg overflow-hidden">
+                                    <button type="button" @click="optionOpen = !optionOpen" class="w-full px-4 py-3 bg-gray-50 hover:bg-gray-100 flex justify-between items-center transition-colors">
+                                        <span class="font-medium text-gray-700">⚡ オプション（2種類）</span>
+                                        <svg class="w-5 h-5 transition-transform" :class="optionOpen ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+                                    <div x-show="optionOpen" x-collapse class="p-3 bg-white">
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <template x-for="drawing in ['evoltz', '太陽光（オプション）']" :key="drawing">
+                                                <div class="mb-3">
+                                                    <label class="block text-xs font-medium text-gray-600 mb-1" x-text="drawing"></label>
+                                                    <div class="file-upload-item">
+                                                        <input type="file" multiple @change="handleFileSelect($event, 'drawing', drawing)" accept=".pdf,.jpg,.jpeg,.png" class="hidden" :id="'file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')">
+                                                        <template x-if="formData.files?.drawings?.[drawing]?.length > 0">
+                                                            <div class="space-y-2">
+                                                                <template x-for="(file, index) in formData.files.drawings[drawing]" :key="index">
+                                                                    <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                                                        <template x-if="file.preview">
+                                                                            <img :src="file.preview" :alt="file.name" class="w-full h-32 object-contain bg-white">
+                                                                        </template>
+                                                                        <template x-if="!file.preview">
+                                                                            <div class="w-full h-32 bg-red-50 flex items-center justify-center">
+                                                                                <svg class="w-12 h-12 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                                                </svg>
+                                                                            </div>
+                                                                        </template>
+                                                                        <div class="absolute top-2 right-2">
+                                                                            <button type="button" @click.stop="removeDrawingFile(drawing, index)" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                                </svg>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="p-2 bg-white bg-opacity-90">
+                                                                            <p class="text-sm text-green-600 font-medium truncate" x-text="file.name"></p>
+                                                                            <p class="text-xs text-gray-500" x-text="(file.size / 1024).toFixed(1) + ' KB'"></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                                <button type="button" @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="w-full border-2 border-dashed border-gray-300 rounded p-2 text-xs hover:bg-gray-50 transition-colors active:bg-gray-100">+ さらに追加</button>
+                                                            </div>
+                                                        </template>
+                                                        <template x-if="!formData.files?.drawings?.[drawing] || formData.files.drawings[drawing].length === 0">
+                                                            <div @drop="handleDrop($event, 'drawing', drawing)" @dragover.prevent @dragenter.prevent @click="document.getElementById('file-' + drawing.replace(/[^a-zA-Z0-9]/g, '')).click()" class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[90px] sm:min-h-[70px] flex flex-col items-center justify-center active:bg-gray-100">
+                                                                <svg class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                                </svg>
+                                                                <span class="text-gray-500 text-center">ドラッグ&ドロップ<br>またはクリック</span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- その他のファイル -->
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">その他の資料</label>
-                                <div class="grid grid-cols-2 gap-3">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <template x-for="doc in ['資金計画書', '実行予算', 'Walk in Homeデータ']" :key="doc">
-                                        <div class="file-upload-item">
-                                            <input type="file" multiple @change="handleFileSelect($event, 'document', doc)" class="hidden" :id="'file-' + doc.replace(/[^a-zA-Z0-9]/g, '')">
-                                            <div 
-                                                @drop="handleDrop($event, 'document', doc)" 
-                                                @dragover.prevent 
-                                                @dragenter.prevent
-                                                @dragenter="$event.target.closest('.file-upload-item').classList.add('drag-over')"
-                                                @dragleave="$event.target.closest('.file-upload-item').classList.remove('drag-over')"
-                                                @click="document.getElementById('file-' + doc.replace(/[^a-zA-Z0-9]/g, '')).click()"
-                                                class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[60px] flex flex-col items-center justify-center">
-                                                <div class="flex items-center justify-center mb-1">
-                                                    <svg class="h-4 w-4 text-gray-400 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                    </svg>
-                                                    <span class="font-medium" x-text="doc"></span>
-                                                </div>
-                                                <span class="text-gray-500">ドラッグ&ドロップまたはクリック</span>
-                                                <div x-show="formData.files && formData.files.documents && formData.files.documents[doc]" class="text-green-600 mt-1 text-xs">
-                                                    <template x-if="Array.isArray(formData.files.documents[doc])">
-                                                        <div>
-                                                            <template x-for="file in formData.files.documents[doc]" :key="file.name">
-                                                                <div class="truncate" x-text="`✓ ${file.name}`"></div>
-                                                            </template>
-                                                        </div>
-                                                    </template>
-                                                    <template x-if="!Array.isArray(formData.files.documents[doc]) && formData.files.documents[doc]">
-                                                        <div class="truncate" x-text="`✓ ${formData.files.documents[doc].name}`"></div>
-                                                    </template>
-                                                </div>
+                                        <div class="mb-3">
+                                            <label class="block text-xs font-medium text-gray-600 mb-1" x-text="doc"></label>
+                                            <div class="file-upload-item">
+                                                <input type="file" multiple @change="handleFileSelect($event, 'document', doc)" accept=".pdf,.xlsx,.xls,.doc,.docx" class="hidden" :id="'file-' + doc.replace(/[^a-zA-Z0-9]/g, '')">
+
+                                                <!-- プレビューまたはアップロード領域 -->
+                                                <template x-if="formData.files?.documents?.[doc]?.length > 0">
+                                                    <div class="space-y-2">
+                                                        <template x-for="(file, index) in formData.files.documents[doc]" :key="index">
+                                                            <div class="relative border-2 border-green-300 rounded-lg overflow-hidden bg-green-50">
+                                                                <div class="w-full h-24 bg-blue-50 flex items-center justify-center">
+                                                                    <svg class="w-10 h-10 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                    </svg>
+                                                                </div>
+                                                                <div class="absolute top-2 right-2">
+                                                                    <button type="button" @click.stop="removeDocumentFile(doc, index)" class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors">
+                                                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="p-2 bg-white bg-opacity-90">
+                                                                    <p class="text-sm text-green-600 font-medium truncate" x-text="file.name"></p>
+                                                                    <p class="text-xs text-gray-500" x-text="(file.size / 1024).toFixed(1) + ' KB'"></p>
+                                                                </div>
+                                                            </div>
+                                                        </template>
+                                                        <button type="button" @click="document.getElementById('file-' + doc.replace(/[^a-zA-Z0-9]/g, '')).click()" class="w-full border-2 border-dashed border-gray-300 rounded p-2 text-xs hover:bg-gray-50 transition-colors active:bg-gray-100">+ さらに追加</button>
+                                                    </div>
+                                                </template>
+
+                                                <!-- 初回アップロード領域 -->
+                                                <template x-if="!formData.files?.documents?.[doc] || formData.files.documents[doc].length === 0">
+                                                    <div @drop="handleDrop($event, 'document', doc)" @dragover.prevent @dragenter.prevent @click="document.getElementById('file-' + doc.replace(/[^a-zA-Z0-9]/g, '')).click()" class="border-2 border-dashed border-gray-300 rounded p-3 text-xs hover:bg-gray-50 transition-colors cursor-pointer min-h-[90px] sm:min-h-[70px] flex flex-col items-center justify-center active:bg-gray-100">
+                                                        <svg class="h-6 w-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                        <span class="text-gray-500 text-center">ドラッグ&ドロップ<br>またはクリック</span>
+                                                    </div>
+                                                </template>
                                             </div>
                                         </div>
                                     </template>
@@ -856,21 +1128,21 @@
 
                     </div>
 
-                    <!-- フッター（常に画面下に表示） -->
-                    <div class="modal-footer px-6 py-4 border-t bg-white" style="flex-shrink: 0;">
-                        <div class="flex items-center justify-center gap-4 w-full">
+                    <!-- フッター（常に画面下に表示・スマホ最適化） -->
+                    <div class="modal-footer px-4 sm:px-6 py-4 border-t bg-white" style="flex-shrink: 0;">
+                        <div class="flex items-center justify-center gap-3 sm:gap-4 w-full">
                             <!-- キャンセルボタン -->
                             <button type="button"
                                     @click="closeModal()"
-                                    class="w-32 px-6 py-3 rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors font-medium text-base">
+                                    class="flex-1 sm:flex-none sm:w-32 px-6 py-3 min-h-[48px] rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition-colors font-medium text-base">
                                 キャンセル
                             </button>
 
                             <!-- 保存ボタン -->
                             <button type="submit"
                                     :disabled="!isFormValid() || saving"
-                                    :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'"
-                                    class="w-32 px-6 py-3 rounded-lg text-white font-medium text-base transition-colors disabled:opacity-50">
+                                    :class="isFormValid() && !saving ? 'bg-blue-600 hover:bg-blue-700 active:bg-blue-800' : 'bg-gray-400 cursor-not-allowed'"
+                                    class="flex-1 sm:flex-none sm:w-32 px-6 py-3 min-h-[48px] rounded-lg text-white font-medium text-base transition-colors disabled:opacity-50">
                                 <span x-text="saving ? '保存中...' : '保存'"></span>
                             </button>
                         </div>
@@ -952,11 +1224,18 @@
                     return 0;
                 },
 
+                realtimeChannel: null,
+
                 async init() {
                     // プランデータの読み込み
                     await this.loadPlans();
                     this.filterPlans();
                     this.loading = false;
+
+                    // Realtime購読開始（同時編集対応）
+                    if (typeof this.setupRealtimeSubscription === 'function') {
+                        this.setupRealtimeSubscription();
+                    }
 
                     // Escキーでモーダルを閉じる
                     document.addEventListener('keydown', (e) => {
@@ -1554,8 +1833,8 @@
                         file: file  // 実際のファイルオブジェクトを保持
                     };
 
-                    // 画像の場合はプレビューURLを生成
-                    if (type === 'image' || type === 'floorPlan') {
+                    // 画像ファイルの場合はプレビューURLを生成
+                    if (file.type.startsWith('image/')) {
                         fileInfo.preview = URL.createObjectURL(file);
                     }
 
@@ -1621,6 +1900,54 @@
                             }
                             delete this.formData.files.floorPlans[subtype];
                         }
+                    } else if (type === 'presentation') {
+                        if (this.formData.files?.presentation) {
+                            delete this.formData.files.presentation;
+                        }
+                    }
+
+                    lifeXAPI.showToast('ファイルを削除しました', 'success');
+                },
+
+                removeDrawingFile(drawingType, index) {
+                    if (!confirm('このファイルを削除してもよろしいですか？')) {
+                        return;
+                    }
+
+                    if (this.formData.files?.drawings?.[drawingType]?.[index]) {
+                        // プレビューURLを解放
+                        if (this.formData.files.drawings[drawingType][index].preview) {
+                            URL.revokeObjectURL(this.formData.files.drawings[drawingType][index].preview);
+                        }
+                        // 配列から削除
+                        this.formData.files.drawings[drawingType].splice(index, 1);
+
+                        // 配列が空になったら削除
+                        if (this.formData.files.drawings[drawingType].length === 0) {
+                            delete this.formData.files.drawings[drawingType];
+                        }
+                    }
+
+                    lifeXAPI.showToast('ファイルを削除しました', 'success');
+                },
+
+                removeDocumentFile(docType, index) {
+                    if (!confirm('このファイルを削除してもよろしいですか？')) {
+                        return;
+                    }
+
+                    if (this.formData.files?.documents?.[docType]?.[index]) {
+                        // プレビューURLを解放（画像の場合）
+                        if (this.formData.files.documents[docType][index].preview) {
+                            URL.revokeObjectURL(this.formData.files.documents[docType][index].preview);
+                        }
+                        // 配列から削除
+                        this.formData.files.documents[docType].splice(index, 1);
+
+                        // 配列が空になったら削除
+                        if (this.formData.files.documents[docType].length === 0) {
+                            delete this.formData.files.documents[docType];
+                        }
                     }
 
                     lifeXAPI.showToast('ファイルを削除しました', 'success');
@@ -1656,6 +1983,80 @@
                     } catch (error) {
                         console.error('Failed to save plans:', error);
                         lifeXAPI.showToast('保存に失敗しました', 'error');
+                    }
+                },
+
+                // Realtime同時編集機能
+                setupRealtimeSubscription() {
+                    // Supabase Realtimeのインポート確認
+                    if (!window.supabase) {
+                        console.warn('Supabase not loaded, realtime disabled');
+                        return;
+                    }
+
+                    this.realtimeChannel = window.supabase
+                        .channel('plans-realtime')
+                        .on(
+                            'postgres_changes',
+                            {
+                                event: '*',
+                                schema: 'public',
+                                table: 'plans'
+                            },
+                            (payload) => {
+                                console.log('Realtime update:', payload);
+                                this.handleRealtimeUpdate(payload);
+                            }
+                        )
+                        .subscribe((status) => {
+                            if (status === 'SUBSCRIBED') {
+                                console.log('✅ Realtime同時編集機能が有効になりました');
+                                lifeXAPI.showToast('同時編集機能が有効です', 'info');
+                            }
+                        });
+                },
+
+                handleRealtimeUpdate(payload) {
+                    const { eventType, new: newRecord, old: oldRecord } = payload;
+
+                    if (eventType === 'INSERT') {
+                        // 新規追加: リストに追加
+                        const exists = this.plans.find(p => p.id === newRecord.id);
+                        if (!exists) {
+                            this.plans.unshift(newRecord);
+                            this.filterPlans();
+                            lifeXAPI.showToast('他のユーザーが新しいプランを追加しました', 'info');
+                        }
+                    } else if (eventType === 'UPDATE') {
+                        // 更新: リスト内のデータを更新
+                        const index = this.plans.findIndex(p => p.id === newRecord.id);
+                        if (index !== -1) {
+                            // 現在編集中のプランと同じか確認
+                            if (this.editingPlan && this.editingPlan.id === newRecord.id) {
+                                if (confirm('他のユーザーがこのプランを更新しました。最新データを読み込みますか？\n（キャンセルすると編集内容が上書きされる可能性があります）')) {
+                                    this.plans[index] = newRecord;
+                                    this.editingPlan = { ...newRecord };
+                                    this.loadFormData(newRecord);
+                                    lifeXAPI.showToast('最新データを読み込みました', 'success');
+                                }
+                            } else {
+                                this.plans[index] = newRecord;
+                                this.filterPlans();
+                                lifeXAPI.showToast('プランが更新されました', 'info');
+                            }
+                        }
+                    } else if (eventType === 'DELETE') {
+                        // 削除: リストから削除
+                        this.plans = this.plans.filter(p => p.id !== oldRecord.id);
+                        this.filterPlans();
+
+                        // 編集中のプランが削除された場合
+                        if (this.editingPlan && this.editingPlan.id === oldRecord.id) {
+                            alert('他のユーザーがこのプランを削除しました。モーダルを閉じます。');
+                            this.closeModal();
+                        } else {
+                            lifeXAPI.showToast('プランが削除されました', 'info');
+                        }
                     }
                 }
             }
@@ -1737,6 +2138,14 @@
                 }
             }
         }
+
+        // ページ離脱時のクリーンアップ
+        window.addEventListener('beforeunload', () => {
+            const component = Alpine.$data(document.querySelector('[x-data="adminPlans()"]'));
+            if (component && component.cleanup) {
+                component.cleanup();
+            }
+        });
     </script>
 </body>
 </html>
