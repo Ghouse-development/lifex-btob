@@ -74,5 +74,38 @@ export function handleError(error) {
     return '予期しないエラーが発生しました';
 }
 
+// Realtime購読管理
+export const realtime = {
+    // プランテーブルの変更を購読
+    subscribePlans(callback) {
+        const channel = supabase
+            .channel('plans-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*', // INSERT, UPDATE, DELETE全て
+                    schema: 'public',
+                    table: 'plans'
+                },
+                (payload) => {
+                    console.log('Plans change detected:', payload);
+                    callback(payload);
+                }
+            )
+            .subscribe((status) => {
+                console.log('Subscription status:', status);
+            });
+
+        return channel;
+    },
+
+    // 購読解除
+    unsubscribe(channel) {
+        if (channel) {
+            supabase.removeChannel(channel);
+        }
+    }
+};
+
 // デフォルトエクスポート
 export default supabase;

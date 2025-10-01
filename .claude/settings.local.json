@@ -44,7 +44,12 @@
       "Bash(findstr:*)",
       "Bash(git remote set-url:*)",
       "Bash(curl -s http://localhost:3001/admin-plans.html)",
-      "Bash(then echo \"=== $file ===\")"
+      "Bash(then echo \"=== $file ===\")",
+      "Bash(git log:*)",
+      "Bash(chmod:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3001/admin-plans.html)",
+      "Bash(echo:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []
