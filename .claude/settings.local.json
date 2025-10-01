@@ -43,7 +43,8 @@
       "Bash(then echo \"$file needs Tailwind CDN\")",
       "Bash(findstr:*)",
       "Bash(git remote set-url:*)",
-      "Bash(curl -s http://localhost:3001/admin-plans.html)"
+      "Bash(curl -s http://localhost:3001/admin-plans.html)",
+      "Bash(then echo \"=== $file ===\")"
     ],
     "deny": [],
     "ask": []

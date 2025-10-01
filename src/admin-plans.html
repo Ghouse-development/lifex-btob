@@ -853,11 +853,6 @@
     </div>
 
     <script>
-        // 認証チェック
-        if (!window.authManager.requireAuth()) {
-            // requireAuth内でリダイレクトされる
-        }
-
         function adminPlans() {
             return {
                 plans: [],
@@ -930,12 +925,6 @@
                 },
 
                 async init() {
-                    // 認証チェック
-                    if (!authManager.isAuthenticated()) {
-                        window.location.href = '/admin-login.html';
-                        return;
-                    }
-
                     // プランデータの読み込み
                     await this.loadPlans();
                     this.filterPlans();

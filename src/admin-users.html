@@ -202,11 +202,6 @@
                 },
 
                 async init() {
-                    // 認証チェック
-                    if (!authManager.requireAuth()) {
-                        return;
-                    }
-
                     // 現在のユーザー情報を取得
                     this.currentUser = googleAuth.getCurrentUser();
                     
@@ -323,11 +318,6 @@
                     authManager.logout();
                 }
             };
-        }
-
-        // 認証チェック
-        if (!window.authManager.requireAuth()) {
-            // requireAuth内でリダイレクトされる
         }
     </script>
 </body>

@@ -289,12 +289,6 @@
                 },
 
                 async init() {
-                    // 認証チェック
-                    if (!authManager.isAuthenticated()) {
-                        window.location.href = '/admin-login.html';
-                        return;
-                    }
-                    
                     // カテゴリとルールデータの読み込み
                     await this.loadCategories();
                     
@@ -522,11 +516,6 @@
                     window.dispatchEvent(new CustomEvent('stats-updated'));
                 }
             };
-        }
-
-        // 認証チェック
-        if (!window.authManager.requireAuth()) {
-            // requireAuth内でリダイレクトされる
         }
     </script>
 </body>

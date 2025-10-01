@@ -305,12 +305,6 @@
                 sortable: null,
 
                 async init() {
-                    // 認証チェック（オプション）
-                    // if (!window.authManager.isAuthenticated()) {
-                    //     window.location.href = '/admin-login.html';
-                    //     return;
-                    // }
-                    
                     // FAQデータの読み込み
                     await this.loadFAQs();
                     this.filterFAQs();
@@ -723,11 +717,6 @@
                 }
             };
         }
-
-        // 認証チェック（オプション）
-        // if (window.authManager && !window.authManager.requireAuth()) {
-        //     // requireAuth内でリダイレクトされる
-        // }
     </script>
 </body>
 </html>
