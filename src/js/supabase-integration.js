@@ -39,6 +39,12 @@ window.supabaseAPI = {
         async uploadImage(planId, file, type) {
             const module = await import('./supabase-api.js');
             return module.plansAPI.uploadPlanImage(planId, file, type);
+        },
+
+        // プラン削除
+        async delete(planId) {
+            const module = await import('./supabase-api.js');
+            return module.plansAPI.deletePlan(planId);
         }
     },
 

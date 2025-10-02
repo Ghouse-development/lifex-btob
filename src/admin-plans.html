@@ -1203,8 +1203,16 @@
                 
                 async loadPlans() {
                     try {
-                        const data = await lifeXAPI.getPlansIndex();
-                        this.plans = data.plans || [];
+                        // Supabase連携を使用
+                        if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
+                            console.log('[LoadPlans] Supabaseからプランを取得');
+                            const plans = await window.supabaseBridge.getPlans();
+                            this.plans = plans || [];
+                        } else {
+                            console.log('[LoadPlans] LocalStorageからプランを取得');
+                            const data = await lifeXAPI.getPlansIndex();
+                            this.plans = data.plans || [];
+                        }
                         this.filterPlans();
                     } catch (error) {
                         console.error('プランの読み込みに失敗しました:', error);
@@ -1480,14 +1488,21 @@
                 async deletePlan(plan) {
                     if (confirm(`プラン「${plan.name}」を削除しますか？`)) {
                         try {
-                            // LocalStorageから削除
-                            const localData = localStorage.getItem('plans_data');
-                            if (localData) {
-                                let plansData = JSON.parse(localData);
-                                plansData.plans = plansData.plans.filter(p => p.id !== plan.id);
-                                localStorage.setItem('plans_data', JSON.stringify(plansData));
+                            // Supabase連携を使用
+                            if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
+                                console.log('[DeletePlan] Supabaseからプランを削除');
+                                await window.supabaseAPI.plans.delete(plan.id);
+                            } else {
+                                console.log('[DeletePlan] LocalStorageからプランを削除');
+                                // LocalStorageから削除
+                                const localData = localStorage.getItem('plans_data');
+                                if (localData) {
+                                    let plansData = JSON.parse(localData);
+                                    plansData.plans = plansData.plans.filter(p => p.id !== plan.id);
+                                    localStorage.setItem('plans_data', JSON.stringify(plansData));
+                                }
                             }
-                            
+
                             // UIから削除
                             this.plans = this.plans.filter(p => p.id !== plan.id);
                             this.filterPlans();
@@ -1610,12 +1625,23 @@
                         try {
                             if (this.editingPlan) {
                                 console.log('[SavePlan] 既存プランを更新:', this.editingPlan.id);
-                                await lifeXAPI.updatePlan(this.editingPlan.id, planData);
+                                // Supabase連携を使用
+                                if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
+                                    await window.supabaseBridge.updatePlan(this.editingPlan.id, planData);
+                                } else {
+                                    await lifeXAPI.updatePlan(this.editingPlan.id, planData);
+                                }
                                 console.log('[SavePlan] プラン更新成功');
                                 lifeXAPI.showToast('プランを更新しました', 'success');
                             } else {
                                 console.log('[SavePlan] 新規プランを作成');
-                                const result = await lifeXAPI.createPlan(planData);
+                                // Supabase連携を使用
+                                let result;
+                                if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
+                                    result = await window.supabaseBridge.savePlan(planData);
+                                } else {
+                                    result = await lifeXAPI.createPlan(planData);
+                                }
                                 console.log('[SavePlan] プラン作成成功:', result);
                                 lifeXAPI.showToast('プランを追加しました', 'success');
                             }
