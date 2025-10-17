@@ -36,6 +36,17 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Supabase Client Initialization -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        // Supabase接続
+        const supabaseUrl = 'https://tkemcbxqbrfqgmyswkjg.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrZW1jYnhxYnJmcWdteXN3a2pnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg3OTIwMjUsImV4cCI6MjA3NDM2ODAyNX0.UKHU7iTO35N3MuIzJYp9VVxB7ga2YDQ5Vrzd6Gf3k-I';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+        console.log('[Supabase] Client initialized:', window.supabase);
+    </script>
+
     <!-- Supabase Integration Scripts -->
     <script type="module" src="/js/supabase-integration.js"></script>
     <script type="module">
@@ -45,18 +56,18 @@
         // ページ読み込み後に初期化
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
-                console.log('[Supabase] Initializing...');
+                console.log('[Supabase] Initializing bridge...');
                 if (window.supabaseBridge) {
                     window.supabaseBridge.init();
-                    console.log('[Supabase] Initialized, useSupabase:', window.supabaseBridge.useSupabase);
+                    console.log('[Supabase] Bridge initialized, useSupabase:', window.supabaseBridge.useSupabase);
                 }
             });
         } else {
             // DOMが既に読み込まれている場合は即座に初期化
-            console.log('[Supabase] DOM already loaded, initializing now...');
+            console.log('[Supabase] DOM already loaded, initializing bridge now...');
             if (window.supabaseBridge) {
                 window.supabaseBridge.init();
-                console.log('[Supabase] Initialized, useSupabase:', window.supabaseBridge.useSupabase);
+                console.log('[Supabase] Bridge initialized, useSupabase:', window.supabaseBridge.useSupabase);
             }
         }
     </script>
@@ -2005,30 +2016,41 @@
                 setupRealtimeSubscription() {
                     // Supabase Realtimeのインポート確認
                     if (!window.supabase) {
-                        console.warn('Supabase not loaded, realtime disabled');
+                        console.warn('[Realtime] Supabase not loaded, realtime disabled');
                         return;
                     }
 
-                    this.realtimeChannel = window.supabase
-                        .channel('plans-realtime')
-                        .on(
-                            'postgres_changes',
-                            {
-                                event: '*',
-                                schema: 'public',
-                                table: 'plans'
-                            },
-                            (payload) => {
-                                console.log('Realtime update:', payload);
-                                this.handleRealtimeUpdate(payload);
-                            }
-                        )
-                        .subscribe((status) => {
-                            if (status === 'SUBSCRIBED') {
-                                console.log('✅ Realtime同時編集機能が有効になりました');
-                                showToast('同時編集機能が有効です', 'info');
-                            }
-                        });
+                    // channelメソッドが存在するか確認
+                    if (typeof window.supabase.channel !== 'function') {
+                        console.warn('[Realtime] Supabase channel method not available, realtime disabled');
+                        return;
+                    }
+
+                    try {
+                        this.realtimeChannel = window.supabase
+                            .channel('plans-realtime')
+                            .on(
+                                'postgres_changes',
+                                {
+                                    event: '*',
+                                    schema: 'public',
+                                    table: 'plans'
+                                },
+                                (payload) => {
+                                    console.log('[Realtime] Update received:', payload);
+                                    this.handleRealtimeUpdate(payload);
+                                }
+                            )
+                            .subscribe((status) => {
+                                if (status === 'SUBSCRIBED') {
+                                    console.log('[Realtime] ✅ 同時編集機能が有効になりました');
+                                    // showToast('同時編集機能が有効です', 'info'); // 通知は不要
+                                }
+                            });
+                    } catch (error) {
+                        console.error('[Realtime] Failed to setup subscription:', error);
+                        // エラーが発生してもアプリは継続動作
+                    }
                 },
 
                 handleRealtimeUpdate(payload) {
