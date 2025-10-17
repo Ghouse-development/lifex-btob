@@ -1122,6 +1122,17 @@
     <!-- adminPlans() scope end -->
 
     <script>
+        // トースト表示のヘルパー関数（lifeXAPIが未定義の場合の対策）
+        function showToast(message, type = 'info') {
+            if (window.lifeXAPI && typeof window.showToast === 'function') {
+                window.showToast(message, type);
+            } else {
+                // フォールバック: alertで表示
+                const icon = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
+                alert(`${icon} ${message}`);
+            }
+        }
+
         function adminPlans() {
             return {
                 plans: [],
@@ -1235,17 +1246,30 @@
                         // Supabase連携を使用
                         if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
                             console.log('[LoadPlans] Supabaseからプランを取得');
-                            const plans = await window.supabaseBridge.getPlans();
-                            this.plans = plans || [];
+                            try {
+                                const plans = await window.supabaseBridge.getPlans();
+                                this.plans = plans || [];
+                                console.log('[LoadPlans] Supabaseから取得成功:', this.plans.length, '件');
+                            } catch (supabaseError) {
+                                console.warn('[LoadPlans] Supabase取得失敗、LocalStorageから取得:', supabaseError);
+                                // フォールバック: LocalStorageから読み込み
+                                const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
+                                this.plans = plansData.plans || [];
+                                console.log('[LoadPlans] LocalStorageから取得:', this.plans.length, '件');
+                            }
                         } else {
                             console.log('[LoadPlans] LocalStorageからプランを取得');
-                            const data = await lifeXAPI.getPlansIndex();
-                            this.plans = data.plans || [];
+                            // LocalStorageから直接読み込み
+                            const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
+                            this.plans = plansData.plans || [];
+                            console.log('[LoadPlans] LocalStorageから取得:', this.plans.length, '件');
                         }
                         this.filterPlans();
                     } catch (error) {
                         console.error('プランの読み込みに失敗しました:', error);
-                        lifeXAPI.showToast('プランの読み込みに失敗しました', 'error');
+                        showToast('プランの読み込みに失敗しました', 'error');
+                        // 最終フォールバック: 空配列
+                        this.plans = [];
                     }
                 },
 
@@ -1536,10 +1560,10 @@
                             this.plans = this.plans.filter(p => p.id !== plan.id);
                             this.filterPlans();
                             this.updateStats();
-                            lifeXAPI.showToast('プランを削除しました', 'success');
+                            showToast('プランを削除しました', 'success');
                         } catch (error) {
                             console.error('プランの削除に失敗しました:', error);
-                            lifeXAPI.showToast('プランの削除に失敗しました', 'error');
+                            showToast('プランの削除に失敗しました', 'error');
                         }
                     }
                 },
@@ -1593,7 +1617,7 @@
                             ? `以下の必須項目を入力してください: ${errorMessages.join('、')}`
                             : '必須項目を入力してください';
 
-                        lifeXAPI.showToast(message, 'error');
+                        showToast(message, 'error');
 
                         // 最初のエラーフィールドにスクロール
                         if (firstErrorField) {
@@ -1661,18 +1685,38 @@
                                     await lifeXAPI.updatePlan(this.editingPlan.id, planData);
                                 }
                                 console.log('[SavePlan] プラン更新成功');
-                                lifeXAPI.showToast('プランを更新しました', 'success');
+                                showToast('プランを更新しました', 'success');
                             } else {
                                 console.log('[SavePlan] 新規プランを作成');
                                 // Supabase連携を使用
                                 let result;
                                 if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
+                                    console.log('[SavePlan] Supabaseに保存を試行');
                                     result = await window.supabaseBridge.savePlan(planData);
+                                    console.log('[SavePlan] Supabase保存結果:', result);
+
+                                    // Supabase保存失敗時はLocalStorageにフォールバック
+                                    if (!result.success) {
+                                        console.warn('[SavePlan] Supabase保存失敗、LocalStorageにフォールバック');
+                                        // LocalStorageに保存
+                                        const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
+                                        plansData.plans.push(planData);
+                                        localStorage.setItem('plans_data', JSON.stringify(plansData));
+                                        result = { success: true, data: planData, source: 'localStorage' };
+                                    }
                                 } else {
-                                    result = await lifeXAPI.createPlan(planData);
+                                    console.log('[SavePlan] LocalStorageに保存');
+                                    // LocalStorageに保存
+                                    const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
+                                    plansData.plans.push(planData);
+                                    localStorage.setItem('plans_data', JSON.stringify(plansData));
+                                    result = { success: true, data: planData, source: 'localStorage' };
                                 }
                                 console.log('[SavePlan] プラン作成成功:', result);
-                                lifeXAPI.showToast('プランを追加しました', 'success');
+                                const message = result.source === 'localStorage'
+                                    ? 'プランを追加しました（ローカルに保存）'
+                                    : 'プランを追加しました';
+                                showToast(message, 'success');
                             }
 
                             console.log('[SavePlan] プラン一覧を再読み込み');
@@ -1695,7 +1739,7 @@
                         const errorMessage = error.response?.data?.message
                             || error.message
                             || 'プランの保存に失敗しました';
-                        lifeXAPI.showToast(errorMessage, 'error');
+                        showToast(errorMessage, 'error');
                     } finally {
                         this.saving = false;
                         console.log('[SavePlan] 保存処理終了');
@@ -1753,7 +1797,7 @@
                             // 単一ファイルの場合
                             this.processFile(files[0], type);
                         }
-                        lifeXAPI.showToast(`${files.length}ファイルがアップロードされました`, 'success');
+                        showToast(`${files.length}ファイルがアップロードされました`, 'success');
                     }
                 },
                 
@@ -1782,7 +1826,7 @@
                     // ファイルサイズチェック（5MB制限）
                     const maxSize = 5 * 1024 * 1024; // 5MB
                     if (file.size > maxSize) {
-                        lifeXAPI.showToast(`ファイルサイズが大きすぎます（最大5MB）: ${file.name}`, 'error');
+                        showToast(`ファイルサイズが大きすぎます（最大5MB）: ${file.name}`, 'error');
                         return;
                     }
 
@@ -1790,7 +1834,7 @@
                     if (type === 'image' || type === 'floorPlan') {
                         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
                         if (!allowedTypes.includes(file.type)) {
-                            lifeXAPI.showToast('対応していない画像形式です（JPG, PNG, WebPのみ）', 'error');
+                            showToast('対応していない画像形式です（JPG, PNG, WebPのみ）', 'error');
                             return;
                         }
                     }
@@ -1877,7 +1921,7 @@
                         }
                     }
 
-                    lifeXAPI.showToast('ファイルを削除しました', 'success');
+                    showToast('ファイルを削除しました', 'success');
                 },
 
                 removeDrawingFile(drawingType, index) {
@@ -1899,7 +1943,7 @@
                         }
                     }
 
-                    lifeXAPI.showToast('ファイルを削除しました', 'success');
+                    showToast('ファイルを削除しました', 'success');
                 },
 
                 removeDocumentFile(docType, index) {
@@ -1921,7 +1965,7 @@
                         }
                     }
 
-                    lifeXAPI.showToast('ファイルを削除しました', 'success');
+                    showToast('ファイルを削除しました', 'success');
                 },
 
                 toggleFeatureTag(tag) {
@@ -1949,11 +1993,11 @@
                             lastUpdated: new Date().toISOString()
                         };
                         localStorage.setItem('plansData', JSON.stringify(plansData));
-                        lifeXAPI.showToast('プランデータを保存しました', 'success');
+                        showToast('プランデータを保存しました', 'success');
                         console.log('Plans saved to localStorage:', plansData);
                     } catch (error) {
                         console.error('Failed to save plans:', error);
-                        lifeXAPI.showToast('保存に失敗しました', 'error');
+                        showToast('保存に失敗しました', 'error');
                     }
                 },
 
@@ -1982,7 +2026,7 @@
                         .subscribe((status) => {
                             if (status === 'SUBSCRIBED') {
                                 console.log('✅ Realtime同時編集機能が有効になりました');
-                                lifeXAPI.showToast('同時編集機能が有効です', 'info');
+                                showToast('同時編集機能が有効です', 'info');
                             }
                         });
                 },
@@ -1996,7 +2040,7 @@
                         if (!exists) {
                             this.plans.unshift(newRecord);
                             this.filterPlans();
-                            lifeXAPI.showToast('他のユーザーが新しいプランを追加しました', 'info');
+                            showToast('他のユーザーが新しいプランを追加しました', 'info');
                         }
                     } else if (eventType === 'UPDATE') {
                         // 更新: リスト内のデータを更新
@@ -2008,12 +2052,12 @@
                                     this.plans[index] = newRecord;
                                     this.editingPlan = { ...newRecord };
                                     this.loadFormData(newRecord);
-                                    lifeXAPI.showToast('最新データを読み込みました', 'success');
+                                    showToast('最新データを読み込みました', 'success');
                                 }
                             } else {
                                 this.plans[index] = newRecord;
                                 this.filterPlans();
-                                lifeXAPI.showToast('プランが更新されました', 'info');
+                                showToast('プランが更新されました', 'info');
                             }
                         }
                     } else if (eventType === 'DELETE') {
@@ -2026,7 +2070,7 @@
                             alert('他のユーザーがこのプランを削除しました。モーダルを閉じます。');
                             this.closeModal();
                         } else {
-                            lifeXAPI.showToast('プランが削除されました', 'info');
+                            showToast('プランが削除されました', 'info');
                         }
                     }
                 }
