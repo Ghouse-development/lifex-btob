@@ -37,9 +37,28 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <!-- Supabase Integration Scripts -->
+    <script type="module" src="/js/supabase-integration.js"></script>
     <script type="module">
-        // Supabase統合スクリプトを読み込み
-        import './js/supabase-integration.js';
+        // Supabase統合の初期化を確実に行う
+        import { supabaseBridge } from './js/supabase-integration.js';
+
+        // ページ読み込み後に初期化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('[Supabase] Initializing...');
+                if (window.supabaseBridge) {
+                    window.supabaseBridge.init();
+                    console.log('[Supabase] Initialized, useSupabase:', window.supabaseBridge.useSupabase);
+                }
+            });
+        } else {
+            // DOMが既に読み込まれている場合は即座に初期化
+            console.log('[Supabase] DOM already loaded, initializing now...');
+            if (window.supabaseBridge) {
+                window.supabaseBridge.init();
+                console.log('[Supabase] Initialized, useSupabase:', window.supabaseBridge.useSupabase);
+            }
+        }
     </script>
 
     <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
