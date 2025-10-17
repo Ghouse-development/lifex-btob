@@ -64,7 +64,7 @@
                     <a href="/admin-system.html" class="nav-link">システム管理</a>
                     <a href="/admin-report.html" class="nav-link">レポート</a>
                     <a href="/" class="nav-link">サイトに戻る</a>
-                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
+                    <button onclick="logout()" type="button" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
                 <div id="userInfo" class="text-sm"></div>
             </div>
@@ -79,7 +79,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">よくある質問管理</h1>
                     <p class="text-gray-600 mt-2">FAQの追加・編集・削除・並び替えを管理</p>
                 </div>
-                <button @click="openAddModal()" class="btn-primary">
+                <button type="button" @click="openAddModal()" class="btn-primary">
                     <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -135,12 +135,12 @@
                                     
                                     <!-- 操作ボタン -->
                                     <div class="flex items-center space-x-2 ml-4">
-                                        <button @click="editFAQ(faq)" class="text-blue-600 hover:text-blue-900">
+                                        <button type="button" @click="editFAQ(faq)" class="text-blue-600 hover:text-blue-900">
                                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                             </svg>
                                         </button>
-                                        <button @click="deleteFAQ(faq)" class="text-red-600 hover:text-red-900">
+                                        <button type="button" @click="deleteFAQ(faq)" class="text-red-600 hover:text-red-900">
                                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -215,8 +215,8 @@
                     </div>
                     
                     <div class="mt-6 flex justify-end space-x-3">
-                        <button @click="closeModal()" class="btn-secondary" :disabled="saving">キャンセル</button>
-                        <button @click="saveFAQ()" 
+                        <button type="button" @click="closeModal()" class="btn-secondary" :disabled="saving">キャンセル</button>
+                        <button type="button" @click="saveFAQ()"
                                 :disabled="saving || !canSave"
                                 :class="saving || !canSave ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'btn-primary'"
                                 class="px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">

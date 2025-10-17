@@ -52,7 +52,7 @@
                     <a href="/admin-system.html" class="nav-link active">システム管理</a>
                     <a href="/admin-report.html" class="nav-link">レポート</a>
                     <a href="/" class="nav-link">サイトに戻る</a>
-                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
+                    <button onclick="logout()" type="button" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm text-gray-600">管理者</span>
@@ -72,27 +72,27 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8">
-                    <button @click="activeTab = 'users'" 
+                    <button type="button" @click="activeTab = 'users'"
                             :class="activeTab === 'users' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                             class="py-2 px-1 border-b-2 font-medium text-sm">
                         管理者アカウント
                     </button>
-                    <button @click="activeTab = 'password'" 
+                    <button type="button" @click="activeTab = 'password'"
                             :class="activeTab === 'password' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                             class="py-2 px-1 border-b-2 font-medium text-sm">
                         パスワード変更
                     </button>
-                    <button @click="activeTab = 'settings'" 
+                    <button type="button" @click="activeTab = 'settings'"
                             :class="activeTab === 'settings' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                             class="py-2 px-1 border-b-2 font-medium text-sm">
                         システム設定
                     </button>
-                    <button @click="activeTab = 'logs'" 
+                    <button type="button" @click="activeTab = 'logs'"
                             :class="activeTab === 'logs' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                             class="py-2 px-1 border-b-2 font-medium text-sm">
                         操作ログ
                     </button>
-                    <button @click="activeTab = 'backup'" 
+                    <button type="button" @click="activeTab = 'backup'"
                             :class="activeTab === 'backup' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                             class="py-2 px-1 border-b-2 font-medium text-sm">
                         バックアップ
@@ -108,7 +108,7 @@
             <div x-show="activeTab === 'users'" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-xl font-semibold text-gray-900">管理者アカウント一覧</h2>
-                    <button @click="showAddUserModal = true" class="btn-primary">
+                    <button type="button" @click="showAddUserModal = true" class="btn-primary">
                         + 新規管理者追加
                     </button>
                 </div>
@@ -142,8 +142,8 @@
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="user.lastLogin"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button @click="editUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-3">編集</button>
-                                        <button @click="deleteUser(user)" class="text-red-600 hover:text-red-900">削除</button>
+                                        <button type="button" @click="editUser(user)" class="text-indigo-600 hover:text-indigo-900 mr-3">編集</button>
+                                        <button type="button" @click="deleteUser(user)" class="text-red-600 hover:text-red-900">削除</button>
                                     </td>
                                 </tr>
                             </template>
@@ -227,7 +227,7 @@
                 </div>
 
                 <div class="flex justify-end">
-                    <button @click="saveSettings()" class="btn-primary">設定を保存</button>
+                    <button type="button" @click="saveSettings()" class="btn-primary">設定を保存</button>
                 </div>
             </div>
 
@@ -270,7 +270,7 @@
                     <h2 class="text-xl font-semibold text-gray-900 mb-6">バックアップ管理</h2>
                     
                     <div class="mb-6">
-                        <button @click="createBackup()" class="btn-primary">今すぐバックアップ</button>
+                        <button type="button" @click="createBackup()" class="btn-primary">今すぐバックアップ</button>
                     </div>
 
                     <div class="space-y-4">
@@ -284,13 +284,13 @@
                                         <p class="text-sm text-gray-500" x-text="`サイズ: ${backup.size}`"></p>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <button @click="downloadBackup(backup)" class="text-sm text-indigo-600 hover:text-indigo-900">
+                                        <button type="button" @click="downloadBackup(backup)" class="text-sm text-indigo-600 hover:text-indigo-900">
                                             ダウンロード
                                         </button>
-                                        <button @click="restoreBackup(backup)" class="text-sm text-green-600 hover:text-green-900">
+                                        <button type="button" @click="restoreBackup(backup)" class="text-sm text-green-600 hover:text-green-900">
                                             復元
                                         </button>
-                                        <button @click="deleteBackup(backup)" class="text-sm text-red-600 hover:text-red-900">
+                                        <button type="button" @click="deleteBackup(backup)" class="text-sm text-red-600 hover:text-red-900">
                                             削除
                                         </button>
                                     </div>

@@ -32,9 +32,19 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase Integration Scripts -->
+    <script type="module">
+        // Supabase統合スクリプトを読み込み
+        import './js/supabase-integration.js';
+    </script>
+
     <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
+
 </head>
 <body class="h-full bg-gray-50">
     <style>
@@ -195,7 +205,7 @@
                     <a href="/admin-system.html" class="nav-link">システム管理</a>
                     <a href="/admin-report.html" class="nav-link">レポート</a>
                     <a href="/" class="nav-link">サイトに戻る</a>
-                    <button @click="logout()" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
+                    <button onclick="logout()" type="button" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
                 </nav>
                 <div id="userInfo" class="text-sm"></div>
             </div>
@@ -210,7 +220,7 @@
                     <h1 class="text-3xl font-bold text-gray-900">プラン管理</h1>
                     <p class="text-gray-600 mt-2">住宅プランの追加・編集・削除を管理</p>
                 </div>
-                <button @click="openAddModal()" class="btn-primary">
+                <button type="button" @click="openAddModal()" class="btn-primary">
                     <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
@@ -266,8 +276,8 @@
                             <template x-for="plan in filteredPlans" :key="plan.id">
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap text-left text-sm font-medium">
-                                        <button @click="editPlan(plan)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
-                                        <button @click="deletePlan(plan)" class="text-red-600 hover:text-red-900">削除</button>
+                                        <button type="button" @click="editPlan(plan)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
+                                        <button type="button" @click="deletePlan(plan)" class="text-red-600 hover:text-red-900">削除</button>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.id"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
