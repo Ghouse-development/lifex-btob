@@ -1253,14 +1253,23 @@
                 },
                 
                 async loadPlans() {
+                    this.loading = true;
                     try {
                         // Supabase連携を使用
                         if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
                             console.log('[LoadPlans] Supabaseからプランを取得');
                             try {
                                 const plans = await window.supabaseBridge.getPlans();
-                                this.plans = plans || [];
-                                console.log('[LoadPlans] Supabaseから取得成功:', this.plans.length, '件');
+                                if (plans && plans.length > 0) {
+                                    this.plans = plans;
+                                    console.log('[LoadPlans] Supabaseから取得成功:', this.plans.length, '件');
+                                } else {
+                                    // Supabaseが空の場合、LocalStorageを確認
+                                    console.warn('[LoadPlans] Supabaseが空、LocalStorageから取得');
+                                    const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
+                                    this.plans = plansData.plans || [];
+                                    console.log('[LoadPlans] LocalStorageから取得:', this.plans.length, '件');
+                                }
                             } catch (supabaseError) {
                                 console.warn('[LoadPlans] Supabase取得失敗、LocalStorageから取得:', supabaseError);
                                 // フォールバック: LocalStorageから読み込み
@@ -1281,6 +1290,8 @@
                         showToast('プランの読み込みに失敗しました', 'error');
                         // 最終フォールバック: 空配列
                         this.plans = [];
+                    } finally {
+                        this.loading = false;
                     }
                 },
 
@@ -1728,12 +1739,27 @@
                                     ? 'プランを追加しました（ローカルに保存）'
                                     : 'プランを追加しました';
                                 showToast(message, 'success');
+
+                                // LocalStorageに保存した場合は、直接plansリストに追加
+                                if (result.source === 'localStorage') {
+                                    console.log('[SavePlan] LocalStorageモード: plansリストに直接追加');
+                                    this.plans.push(result.data);
+                                }
                             }
 
                             console.log('[SavePlan] プラン一覧を再読み込み');
-                            await this.loadPlans();
+                            // LocalStorageに保存した場合は再読み込みをスキップ
+                            const skipReload = this.plans.some(p => p.id === planData.id);
+                            if (!skipReload) {
+                                await this.loadPlans();
+                            } else {
+                                console.log('[SavePlan] LocalStorageモード: 再読み込みスキップ');
+                            }
                             this.filterPlans();
                             this.updateStats();
+
+                            // モーダルを閉じる前に状態をリセット
+                            this.hasUnsavedChanges = false;
                             this.closeModal();
                             console.log('[submit] success');
                         } catch (apiError) {
