@@ -14,7 +14,8 @@
       "Bash(ping:*)",
       "Bash(curl:*)",
       "Bash(npm run build:*)",
-      "Bash(node scripts/utilities/check-supabase-tables.js:*)"
+      "Bash(node scripts/utilities/check-supabase-tables.js:*)",
+      "Bash(xargs basename:*)"
     ],
     "deny": [],
     "ask": []
