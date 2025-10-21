@@ -569,6 +569,14 @@
                     return maxOrder + 1;
                 },
 
+                getCategoryIdByName(categoryName) {
+                    // カテゴリ名からcategory_idを取得
+                    if (!categoryName) {
+                        return this.categoryMap['その他'];
+                    }
+                    return this.categoryMap[categoryName] || this.categoryMap['その他'];
+                },
+
                 async deleteFAQ(faq) {
                     if (confirm(`「${faq.question}」を削除しますか？`)) {
                         try {
@@ -652,16 +660,25 @@
                             // Supabaseに保存
                             for (const faq of this.faqs) {
                                 if (faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
-                                    // UUIDを持つ既存のFAQ（Supabaseから取得したもの）
-                                    // まだAPI未実装なのでスキップ
-                                    console.log('Would update FAQ in Supabase:', faq);
+                                    // UUIDを持つ既存のFAQ（Supabaseから取得したもの）→ 更新
+                                    const categoryId = this.getCategoryIdByName(faq.category);
+
+                                    const result = await window.supabaseAPI.faq.update(faq.id, {
+                                        question: faq.question,
+                                        answer: faq.answer,
+                                        category_id: categoryId,
+                                        tags: faq.tags || [],
+                                        status: faq.status || 'published',
+                                        display_order: faq.order || 0
+                                    });
+
+                                    if (!result.success) {
+                                        console.error('FAQ更新失敗:', result.error);
+                                        throw new Error(result.error);
+                                    }
                                 } else {
                                     // 新規FAQ - Supabaseに作成
-                                    // カテゴリ名からcategory_idを取得
-                                    let categoryId = null;
-                                    if (faq.category) {
-                                        categoryId = this.categoryMap[faq.category] || this.categoryMap['その他'];
-                                    }
+                                    const categoryId = this.getCategoryIdByName(faq.category);
 
                                     const result = await window.supabaseAPI.faq.create({
                                         question: faq.question,
@@ -671,22 +688,30 @@
                                         status: faq.status || 'published',
                                         display_order: faq.order || 0
                                     });
+
                                     if (result && result.success) {
+                                        // ローカルのFAQのIDをSupabaseのIDに更新
                                         faq.id = result.data.id;
+                                    } else {
+                                        console.error('FAQ作成失敗:', result.error);
+                                        throw new Error(result.error);
                                     }
                                 }
                             }
-                            console.log('FAQs saved to Supabase');
+                            console.log('✅ FAQs saved to Supabase');
                         } else {
-                            // LocalStorageに保存
+                            // LocalStorageに保存（フォールバック）
                             localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
-                            console.log('Saved FAQs to localStorage', this.faqs);
+                            console.log('⚠️ Saved FAQs to localStorage (fallback)', this.faqs);
                         }
 
                         // 統計更新イベントを発火
                         window.dispatchEvent(new CustomEvent('stats-updated'));
                     } catch (error) {
-                        console.error('FAQ保存エラー:', error);
+                        console.error('❌ FAQ保存エラー:', error);
+                        // Supabase保存失敗時はLocalStorageにフォールバック
+                        localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
+                        console.log('⚠️ Saved to localStorage due to error');
                         throw error;
                     }
                 },
@@ -697,14 +722,20 @@
                             // Supabaseで順序を更新
                             for (const faq of this.faqs) {
                                 if (faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
-                                    // 実際のAPI実装時に更新処理を追加
-                                    console.log('Would update FAQ order in Supabase:', faq.id, faq.order);
+                                    const result = await window.supabaseAPI.faq.update(faq.id, {
+                                        display_order: faq.order || 0
+                                    });
+
+                                    if (!result.success) {
+                                        console.error('FAQ順序更新失敗:', result.error);
+                                    }
                                 }
                             }
+                            console.log('✅ FAQ order updated in Supabase');
                         } else {
-                            // LocalStorageに保存
+                            // LocalStorageに保存（フォールバック）
                             localStorage.setItem('faq_data', JSON.stringify({ faqs: this.faqs }));
-                            console.log('Saved FAQ order to localStorage');
+                            console.log('⚠️ Saved FAQ order to localStorage');
                         }
 
                         // 統計更新イベントを発火

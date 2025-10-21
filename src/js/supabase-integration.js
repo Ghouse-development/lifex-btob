@@ -108,6 +108,12 @@ window.supabaseAPI = {
         async update(ruleId, updates) {
             const module = await import('./supabase-api.js');
             return module.rulesAPI.updateRule(ruleId, updates);
+        },
+
+        // ルール削除
+        async delete(ruleId) {
+            const module = await import('./supabase-api.js');
+            return module.rulesAPI.deleteRule(ruleId);
         }
     },
 
@@ -135,6 +141,24 @@ window.supabaseAPI = {
         async uploadFile(file, category) {
             const module = await import('./supabase-api.js');
             return module.downloadsAPI.uploadFile(file, category);
+        },
+
+        // ダウンロード作成
+        async create(downloadData) {
+            const module = await import('./supabase-api.js');
+            return module.downloadsAPI.createDownload(downloadData);
+        },
+
+        // ダウンロード更新
+        async update(downloadId, updates) {
+            const module = await import('./supabase-api.js');
+            return module.downloadsAPI.updateDownload(downloadId, updates);
+        },
+
+        // ダウンロード削除
+        async delete(downloadId) {
+            const module = await import('./supabase-api.js');
+            return module.downloadsAPI.deleteDownload(downloadId);
         }
     },
 

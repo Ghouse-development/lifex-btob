@@ -33,6 +33,17 @@
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <!-- Supabase Integration -->
+    <script type="module" src="/js/supabase-integration.js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
@@ -299,13 +310,50 @@
                 },
 
                 async loadCategories() {
-                    // LocalStorageから取得を試みる
-                    const localData = localStorage.getItem('rules_categories_data');
-                    if (localData) {
-                        this.categories = JSON.parse(localData).categories || [];
-                    } else {
-                        // 実際にはAPIから取得
-                        this.categories = [];
+                    try {
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 10) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        // Supabase or LocalStorage
+                        if (window.supabaseAPI && window.supabase) {
+                            console.log('Loading rule categories from Supabase...');
+                            const categories = await window.supabaseAPI.rules.getCategories();
+
+                            if (categories && categories.length > 0) {
+                                this.categories = categories;
+                            } else {
+                                // Supabaseが空の場合、LocalStorageを確認
+                                const localData = localStorage.getItem('rules_categories_data');
+                                if (localData) {
+                                    this.categories = JSON.parse(localData).categories || [];
+                                } else {
+                                    this.categories = [];
+                                }
+                            }
+                            console.log('✅ Loaded rule categories from Supabase:', this.categories.length);
+                        } else {
+                            // LocalStorageから取得（フォールバック）
+                            const localData = localStorage.getItem('rules_categories_data');
+                            if (localData) {
+                                this.categories = JSON.parse(localData).categories || [];
+                            } else {
+                                this.categories = [];
+                            }
+                            console.log('⚠️ Loaded from localStorage (fallback)');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error loading rule categories:', error);
+                        // エラー時はLocalStorageフォールバック
+                        const localData = localStorage.getItem('rules_categories_data');
+                        if (localData) {
+                            this.categories = JSON.parse(localData).categories || [];
+                        } else {
+                            this.categories = [];
+                        }
                     }
                 },
 
@@ -348,7 +396,7 @@
                         cat.order = index + 1;
                     });
                     
-                    this.saveToLocalStorage();
+                    this.saveToSupabase();
                     lifeXAPI.showToast('カテゴリの順番を更新しました', 'success');
                 },
 
@@ -365,7 +413,7 @@
                             rule.order = index + 1;
                         });
                         
-                        this.saveToLocalStorage();
+                        this.saveToSupabase();
                         lifeXAPI.showToast('ルールの順番を更新しました', 'success');
                     }
                 },
@@ -411,7 +459,7 @@
                     }
                     
                     this.closeCategoryModal();
-                    this.saveToLocalStorage();
+                    this.saveToSupabase();
                     this.$nextTick(() => this.initSortable());
                 },
 
@@ -423,7 +471,7 @@
                     
                     if (confirm(`カテゴリ「${category.name}」を削除しますか？`)) {
                         this.categories = this.categories.filter(c => c.id !== category.id);
-                        this.saveToLocalStorage();
+                        this.saveToSupabase();
                         lifeXAPI.showToast('カテゴリを削除しました', 'success');
                     }
                 },
@@ -492,13 +540,13 @@
                     }
                     
                     this.closeRuleModal();
-                    this.saveToLocalStorage();
+                    this.saveToSupabase();
                 },
 
                 deleteRule(rule, category) {
                     if (confirm(`ルール「${rule.title}」を削除しますか？`)) {
                         category.rules = category.rules.filter(r => r.id !== rule.id);
-                        this.saveToLocalStorage();
+                        this.saveToSupabase();
                         lifeXAPI.showToast('ルールを削除しました', 'success');
                     }
                 },
@@ -509,11 +557,69 @@
                     this.selectedCategory = null;
                 },
                 
-                saveToLocalStorage() {
-                    localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
-                    console.log('Saved rules to localStorage', this.categories);
-                    // 統計更新イベントを発火
-                    window.dispatchEvent(new CustomEvent('stats-updated'));
+                async saveToSupabase() {
+                    try {
+                        if (window.supabaseAPI) {
+                            // Supabaseに保存
+                            for (const category of this.categories) {
+                                if (category.id && typeof category.id === 'string' && category.id.includes('-')) {
+                                    // UUIDを持つ既存カテゴリ → 更新
+                                    const result = await window.supabaseAPI.rules.update(category.id, {
+                                        name: category.name,
+                                        description: category.description,
+                                        display_order: category.display_order || 0,
+                                        status: category.status || 'active'
+                                    });
+
+                                    if (!result.success) {
+                                        console.error('カテゴリ更新失敗:', result.error);
+                                    }
+
+                                    // カテゴリ内のルールも保存
+                                    if (category.rules && category.rules.length > 0) {
+                                        for (const rule of category.rules) {
+                                            if (rule.id && typeof rule.id === 'string' && rule.id.includes('-')) {
+                                                // 既存ルール更新
+                                                await window.supabaseAPI.rules.update(rule.id, {
+                                                    title: rule.title,
+                                                    content: rule.content,
+                                                    category_id: category.id,
+                                                    importance: rule.importance,
+                                                    display_order: rule.display_order || 0,
+                                                    status: rule.status || 'active'
+                                                });
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // 新規カテゴリ作成
+                                    const result = await window.supabaseAPI.rules.create({
+                                        name: category.name,
+                                        description: category.description,
+                                        display_order: category.display_order || 0,
+                                        status: category.status || 'active'
+                                    });
+
+                                    if (result.success && result.data) {
+                                        category.id = result.data.id;
+                                    }
+                                }
+                            }
+                            console.log('✅ Rules saved to Supabase');
+                        } else {
+                            // LocalStorageに保存（フォールバック）
+                            localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
+                            console.log('⚠️ Saved to localStorage (fallback)');
+                        }
+
+                        // 統計更新イベントを発火
+                        window.dispatchEvent(new CustomEvent('stats-updated'));
+                    } catch (error) {
+                        console.error('❌ Error saving rules:', error);
+                        // エラー時はLocalStorageにフォールバック
+                        localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
+                        console.log('⚠️ Saved to localStorage due to error');
+                    }
                 }
             };
         }

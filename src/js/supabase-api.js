@@ -366,6 +366,21 @@ export const rulesAPI = {
         } catch (error) {
             return { success: false, error: handleError(error) };
         }
+    },
+
+    // ルール削除
+    async deleteRule(ruleId) {
+        try {
+            const { error } = await supabase
+                .from('rules')
+                .delete()
+                .eq('id', ruleId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
     }
 };
 
@@ -456,6 +471,54 @@ export const downloadsAPI = {
                 .getPublicUrl(fileName);
 
             return { success: true, url: publicUrl };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // ダウンロード作成
+    async createDownload(downloadData) {
+        try {
+            const { data, error } = await supabase
+                .from('downloads')
+                .insert([downloadData])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // ダウンロード更新
+    async updateDownload(downloadId, updates) {
+        try {
+            const { data, error } = await supabase
+                .from('downloads')
+                .update(updates)
+                .eq('id', downloadId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // ダウンロード削除
+    async deleteDownload(downloadId) {
+        try {
+            const { error } = await supabase
+                .from('downloads')
+                .delete()
+                .eq('id', downloadId);
+
+            if (error) throw error;
+            return { success: true };
         } catch (error) {
             return { success: false, error: handleError(error) };
         }

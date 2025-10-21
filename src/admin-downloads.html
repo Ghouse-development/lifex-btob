@@ -32,6 +32,17 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+
+    <!-- Supabase Integration -->
+    <script type="module" src="/js/supabase-integration.js"></script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
@@ -287,7 +298,7 @@
 
                 init() {
                     // ローカルストレージからデータを読み込み
-                    this.loadFromLocalStorage();
+                    this.loadFromSupabase();
                     
                     // カテゴリが空の場合はデフォルトカテゴリを設定
                     if (this.categories.length === 0) {
@@ -348,7 +359,7 @@
                         this.newCategoryName = '';
                         
                         // データを保存
-                        this.saveToLocalStorage();
+                        this.saveToSupabase();
                         
                         this.$nextTick(() => {
                             this.initSortable();
@@ -366,7 +377,7 @@
                 deleteCategory(categoryId) {
                     if (confirm('このカテゴリを削除しますか？')) {
                         this.categories = this.categories.filter(c => c.id !== categoryId);
-                        this.saveToLocalStorage();
+                        this.saveToSupabase();
                     }
                 },
 
@@ -393,7 +404,7 @@
                         const category = this.categories.find(c => c.id === categoryId);
                         if (category) {
                             category.files = category.files.filter(f => f.id !== fileId);
-                            this.saveToLocalStorage();
+                            this.saveToSupabase();
                         }
                     }
                 },
@@ -413,7 +424,7 @@
                             });
                         }
                     }
-                    this.saveToLocalStorage();
+                    this.saveToSupabase();
                     this.closeFileModal();
                 },
 
@@ -487,33 +498,153 @@
                 reorderCategories(oldIndex, newIndex) {
                     const item = this.categories.splice(oldIndex, 1)[0];
                     this.categories.splice(newIndex, 0, item);
-                    this.saveToLocalStorage();
+                    this.saveToSupabase();
                 },
                 
-                saveToLocalStorage() {
-                    // カテゴリーデータをローカルストレージに保存（新形式）
-                    const data = {
-                        categories: this.categories.map(cat => ({
-                            id: cat.id,
-                            name: cat.name,
-                            files: cat.files || []
-                        }))
-                    };
-                    localStorage.setItem('downloads_data', JSON.stringify(data));
-                    // 統計更新イベントを発火
-                    window.dispatchEvent(new CustomEvent('stats-updated'));
-                    console.log('Saved downloads data:', data);
-                },
-                
-                loadFromLocalStorage() {
-                    // ローカルストレージからデータを読み込み
+                async saveToSupabase() {
                     try {
+                        if (window.supabaseAPI) {
+                            // Supabaseに保存
+                            for (const category of this.categories) {
+                                // カテゴリ内のファイル（ダウンロード資料）を保存
+                                if (category.files && category.files.length > 0) {
+                                    for (const file of category.files) {
+                                        if (file.id && typeof file.id === 'string' && file.id.includes('-')) {
+                                            // 既存ファイル更新
+                                            await window.supabaseAPI.downloads.update(file.id, {
+                                                title: file.title || file.name,
+                                                description: file.description || '',
+                                                file_url: file.url || file.file_url,
+                                                file_size: file.size || file.file_size || 0,
+                                                file_type: file.type || file.file_type || '',
+                                                category_id: file.category_id,
+                                                display_order: file.display_order || 0,
+                                                status: file.status || 'active'
+                                            });
+                                        } else {
+                                            // 新規ファイル作成
+                                            const result = await window.supabaseAPI.downloads.create({
+                                                title: file.title || file.name,
+                                                description: file.description || '',
+                                                file_url: file.url || file.file_url,
+                                                file_size: file.size || file.file_size || 0,
+                                                file_type: file.type || file.file_type || '',
+                                                category_id: file.category_id,
+                                                display_order: file.display_order || 0,
+                                                status: file.status || 'active'
+                                            });
+
+                                            if (result.success && result.data) {
+                                                file.id = result.data.id;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            console.log('✅ Downloads saved to Supabase');
+                        } else {
+                            // LocalStorageに保存（フォールバック）
+                            const data = {
+                                categories: this.categories.map(cat => ({
+                                    id: cat.id,
+                                    name: cat.name,
+                                    files: cat.files || []
+                                }))
+                            };
+                            localStorage.setItem('downloads_data', JSON.stringify(data));
+                            console.log('⚠️ Saved to localStorage (fallback)');
+                        }
+
+                        // 統計更新イベントを発火
+                        window.dispatchEvent(new CustomEvent('stats-updated'));
+                    } catch (error) {
+                        console.error('❌ Error saving downloads:', error);
+                        // エラー時はLocalStorageにフォールバック
+                        const data = {
+                            categories: this.categories.map(cat => ({
+                                id: cat.id,
+                                name: cat.name,
+                                files: cat.files || []
+                            }))
+                        };
+                        localStorage.setItem('downloads_data', JSON.stringify(data));
+                        console.log('⚠️ Saved to localStorage due to error');
+                    }
+                },
+                
+                async loadFromSupabase() {
+                    try {
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 10) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        // Supabase or LocalStorage
+                        if (window.supabaseAPI && window.supabase) {
+                            console.log('Loading downloads from Supabase...');
+
+                            // カテゴリとダウンロード資料を取得
+                            const downloadCategories = await window.supabaseAPI.downloads.getCategories();
+                            const downloads = await window.supabaseAPI.downloads.getItems();
+
+                            if (downloadCategories && downloadCategories.length > 0) {
+                                // カテゴリにダウンロード資料を紐付け
+                                this.categories = downloadCategories.map(cat => ({
+                                    id: cat.id,
+                                    name: cat.name,
+                                    expanded: true,
+                                    files: downloads.filter(d => d.category_id === cat.id)
+                                }));
+                            } else {
+                                // Supabaseが空の場合、LocalStorageを確認
+                                const data = localStorage.getItem('downloads_data');
+                                if (data) {
+                                    const parsed = JSON.parse(data);
+                                    if (parsed.categories && Array.isArray(parsed.categories)) {
+                                        this.categories = parsed.categories.map(cat => ({
+                                            ...cat,
+                                            expanded: true,
+                                            files: cat.files || []
+                                        }));
+                                    }
+                                }
+                            }
+                            console.log('✅ Loaded downloads from Supabase:', this.categories.length);
+                        } else {
+                            // LocalStorageから読み込み（フォールバック）
+                            const data = localStorage.getItem('downloads_data');
+                            if (data) {
+                                const parsed = JSON.parse(data);
+                                console.log('Loading downloads data:', parsed);
+
+                                // 新形式（配列）のチェック
+                                if (parsed.categories && Array.isArray(parsed.categories)) {
+                                    this.categories = parsed.categories.map(cat => ({
+                                        ...cat,
+                                        expanded: true,
+                                        files: cat.files || []
+                                    }));
+                                }
+                                // 古い形式（オブジェクト）のチェック（互換性のため）
+                                else if (parsed.categories && typeof parsed.categories === 'object') {
+                                    this.categories = Object.entries(parsed.categories).map(([key, value], index) => ({
+                                        id: index + 1,
+                                        name: value.name || key,
+                                        expanded: true,
+                                        files: value.files || value.items || []
+                                    }));
+                                }
+                            }
+                            console.log('⚠️ Loaded from localStorage (fallback)');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error loading downloads:', error);
+                        // エラー時はLocalStorageフォールバック
                         const data = localStorage.getItem('downloads_data');
                         if (data) {
                             const parsed = JSON.parse(data);
-                            console.log('Loading downloads data:', parsed);
-                            
-                            // 新形式（配列）のチェック
                             if (parsed.categories && Array.isArray(parsed.categories)) {
                                 this.categories = parsed.categories.map(cat => ({
                                     ...cat,
@@ -521,18 +652,7 @@
                                     files: cat.files || []
                                 }));
                             }
-                            // 古い形式（オブジェクト）のチェック（互換性のため）
-                            else if (parsed.categories && typeof parsed.categories === 'object') {
-                                this.categories = Object.entries(parsed.categories).map(([key, value], index) => ({
-                                    id: index + 1,
-                                    name: value.name || key,
-                                    expanded: true,
-                                    files: value.files || value.items || []
-                                }));
-                            }
                         }
-                    } catch (error) {
-                        console.error('Error loading data from localStorage:', error);
                     }
                 },
 
