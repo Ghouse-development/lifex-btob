@@ -23,16 +23,19 @@
 2. 該当プロジェクトを選択
 3. 左サイドバーから **SQL Editor** をクリック
 
-#### 1.2 マイグレーションSQLを実行
+#### 1.2 認証テーブルのマイグレーション
+
+**使用するファイル**: `supabase-auth-migration-minimal.sql`
 
 1. **New query** ボタンをクリック
-2. ルートディレクトリの `supabase-auth-migration.sql` の内容を全てコピー
+2. `supabase-auth-migration-minimal.sql` の内容を全てコピー
 3. SQLエディターに貼り付け
 4. **Run** ボタンをクリック
 
 **期待される結果:**
 ```
-✅ テーブル作成成功
+✅ user_profiles テーブル作成成功
+✅ login_history テーブル作成成功
 ✅ RLSポリシー作成成功
 ✅ トリガー作成成功
 ✅ ヘルパー関数作成成功
@@ -44,6 +47,19 @@
 2. 以下のテーブルが作成されていることを確認:
    - `user_profiles`
    - `login_history`
+
+#### 1.4 既存テーブルへのRLS適用（オプション）
+
+**既に plans, faqs, rules, downloads テーブルが存在する場合のみ実行**
+
+**使用するファイル**: `supabase-auth-migration-rls-only.sql`
+
+1. **New query** ボタンをクリック
+2. `supabase-auth-migration-rls-only.sql` の内容を全てコピー
+3. SQLエディターに貼り付け
+4. **Run** ボタンをクリック
+
+このSQLは既存テーブルにRLS（アクセス制御）を追加します。テーブルが存在しない場合は自動的にスキップされます。
 
 ---
 

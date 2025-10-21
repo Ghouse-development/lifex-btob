@@ -256,15 +256,15 @@
                         {
                             id: Date.now(),
                             role: 'assistant',
-                            content: 'こんにちは！LIFE X AIアシスタントです。<br>住宅建築やLIFE Xに関するご質問をお気軽にどうぞ。',
+                            content: 'こんにちは！LIFE X AIアシスタント（Powered by Gemini）です。<br>住宅建築やLIFE Xに関するご質問をお気軽にどうぞ。<br><br>プラン、仕様、設計、施工など、なんでもお聞きください！',
                             timestamp: this.getTimestamp()
                         }
                     ];
                 },
 
-                sendMessage() {
+                async sendMessage() {
                     if (!this.input.trim() || this.isTyping) return;
-                    
+
                     // Add user message
                     this.messages.push({
                         id: Date.now(),
@@ -272,31 +272,88 @@
                         content: this.input,
                         timestamp: this.getTimestamp()
                     });
-                    
+
                     const question = this.input;
                     this.input = '';
                     this.isTyping = true;
-                    
+
                     // Scroll to bottom
                     this.$nextTick(() => {
                         this.scrollToBottom();
                     });
-                    
-                    // Simulate AI response with delay
-                    setTimeout(() => {
-                        const response = this.generateResponse(question);
+
+                    try {
+                        // Call Gemini API via Vercel Function
+                        const response = await this.callGeminiAPI(question);
+
                         this.messages.push({
                             id: Date.now(),
                             role: 'assistant',
-                            content: response,
+                            content: this.formatResponse(response),
                             timestamp: this.getTimestamp()
                         });
-                        this.isTyping = false;
-                        
-                        this.$nextTick(() => {
-                            this.scrollToBottom();
+                    } catch (error) {
+                        console.error('AI response error:', error);
+
+                        // Fallback to knowledge base on error
+                        const fallbackResponse = this.generateResponse(question);
+                        this.messages.push({
+                            id: Date.now(),
+                            role: 'assistant',
+                            content: fallbackResponse + '<br><br><small class="text-gray-500">※ AI接続エラーのため、ナレッジベースから回答しています</small>',
+                            timestamp: this.getTimestamp()
                         });
-                    }, 1500);
+                    }
+
+                    this.isTyping = false;
+
+                    this.$nextTick(() => {
+                        this.scrollToBottom();
+                    });
+                },
+
+                async callGeminiAPI(message) {
+                    // Get conversation history (last 5 messages)
+                    const history = this.messages
+                        .slice(-10) // Last 10 messages
+                        .map(msg => ({
+                            role: msg.role,
+                            content: msg.content.replace(/<[^>]*>/g, '') // Strip HTML
+                        }));
+
+                    const response = await fetch('/api/gemini-chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            history: history
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('API request failed');
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        throw new Error(data.error || 'Unknown error');
+                    }
+
+                    return data.response;
+                },
+
+                formatResponse(text) {
+                    // Convert markdown-like formatting to HTML
+                    let formatted = text
+                        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>') // Bold
+                        .replace(/\*(.+?)\*/g, '<em>$1</em>') // Italic
+                        .replace(/\n/g, '<br>') // Line breaks
+                        .replace(/【(.+?)】/g, '<strong>$1</strong>'); // Japanese brackets to bold
+
+                    return formatted;
                 },
 
                 askSuggestion(question) {

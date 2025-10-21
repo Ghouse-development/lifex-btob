@@ -1,7 +1,10 @@
 -- =====================================================
--- Supabase Auth統合 - データベースマイグレーション
+-- Supabase Auth統合 - 最小構成マイグレーション
 -- 作成日: 2025-01-21
--- 目的: 認証・ユーザー管理機能の強化
+-- 目的: 認証・ユーザー管理テーブルのみ作成
+--
+-- 注意: このSQLは認証関連テーブルのみを作成します。
+--       既存テーブル(plans, faqs, rules, downloads)へのRLS適用は含まれません。
 -- =====================================================
 
 -- =====================================================
@@ -188,83 +191,7 @@ ON login_history FOR INSERT
 WITH CHECK (true);
 
 -- =====================================================
--- 6. 既存テーブルへのRLS追加（プラン、FAQ、ルール、ダウンロード）
--- =====================================================
-
--- plans テーブル
-ALTER TABLE IF EXISTS plans ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Authenticated users can view plans" ON plans;
-CREATE POLICY "Authenticated users can view plans"
-ON plans FOR SELECT
-USING (auth.role() = 'authenticated');
-
-DROP POLICY IF EXISTS "Admins can manage plans" ON plans;
-CREATE POLICY "Admins can manage plans"
-ON plans FOR ALL
-USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles
-        WHERE id = auth.uid() AND role = 'admin'
-    )
-);
-
--- faqs テーブル
-ALTER TABLE IF EXISTS faqs ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Authenticated users can view faqs" ON faqs;
-CREATE POLICY "Authenticated users can view faqs"
-ON faqs FOR SELECT
-USING (auth.role() = 'authenticated');
-
-DROP POLICY IF EXISTS "Admins can manage faqs" ON faqs;
-CREATE POLICY "Admins can manage faqs"
-ON faqs FOR ALL
-USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles
-        WHERE id = auth.uid() AND role = 'admin'
-    )
-);
-
--- rules テーブル
-ALTER TABLE IF EXISTS rules ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Authenticated users can view rules" ON rules;
-CREATE POLICY "Authenticated users can view rules"
-ON rules FOR SELECT
-USING (auth.role() = 'authenticated');
-
-DROP POLICY IF EXISTS "Admins can manage rules" ON rules;
-CREATE POLICY "Admins can manage rules"
-ON rules FOR ALL
-USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles
-        WHERE id = auth.uid() AND role = 'admin'
-    )
-);
-
--- downloads テーブル
-ALTER TABLE IF EXISTS downloads ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Authenticated users can view downloads" ON downloads;
-CREATE POLICY "Authenticated users can view downloads"
-ON downloads FOR SELECT
-USING (auth.role() = 'authenticated');
-
-DROP POLICY IF EXISTS "Admins can manage downloads" ON downloads;
-CREATE POLICY "Admins can manage downloads"
-ON downloads FOR ALL
-USING (
-    EXISTS (
-        SELECT 1 FROM user_profiles
-        WHERE id = auth.uid() AND role = 'admin'
-    )
-);
-
--- =====================================================
--- 7. ヘルパー関数
+-- 6. ヘルパー関数
 -- =====================================================
 
 -- 現在のユーザーが管理者かチェック
@@ -290,15 +217,6 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- =====================================================
--- 8. 初期データ（管理者アカウント用）
--- =====================================================
-
--- 注意: 実際のユーザー作成はSupabase Dashboardまたは
--- サインアップフローで行います。
--- このSQLは実行後、手動でadmin@ghouse.co.jpアカウントを
--- Supabase Dashboardで作成し、そのUIDでuser_profilesを更新してください。
-
--- =====================================================
 -- 実行完了メッセージ
 -- =====================================================
 
@@ -319,11 +237,8 @@ BEGIN
     RAISE NOTICE '- user_profiles';
     RAISE NOTICE '- login_history';
     RAISE NOTICE '';
-    RAISE NOTICE 'RLSが有効化されたテーブル:';
-    RAISE NOTICE '- user_profiles';
-    RAISE NOTICE '- login_history';
-    RAISE NOTICE '- plans';
-    RAISE NOTICE '- faqs';
-    RAISE NOTICE '- rules';
-    RAISE NOTICE '- downloads';
+    RAISE NOTICE '注意: 既存テーブル(plans, faqs, rules, downloads)への';
+    RAISE NOTICE 'RLS適用は含まれていません。';
+    RAISE NOTICE 'これらのテーブルが作成された後、';
+    RAISE NOTICE 'supabase-auth-migration-rls-only.sql を実行してください。';
 END $$;
