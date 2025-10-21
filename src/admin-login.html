@@ -32,6 +32,13 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+
+    <!-- Supabase Auth Module -->
+    <script type="module">
+        import * as SupabaseAuth from '/js/supabase-auth.js';
+        window.SupabaseAuth = SupabaseAuth;
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gradient-to-br from-gray-50 to-gray-100">
@@ -55,20 +62,38 @@
             <!-- Login Form -->
             <div class="mt-8 bg-white py-8 px-4 shadow-xl rounded-lg sm:px-10" x-data="loginForm()">
                 <form @submit.prevent="handleLogin" class="space-y-6">
+                    <!-- Email Input -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">
+                            メールアドレス
+                        </label>
+                        <div class="mt-1">
+                            <input
+                                type="email"
+                                id="email"
+                                x-model="email"
+                                required
+                                autocomplete="email"
+                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                placeholder="example@ghouse.co.jp">
+                        </div>
+                    </div>
+
                     <!-- Password Input -->
                     <div>
                         <label for="password" class="block text-sm font-medium text-gray-700">
                             パスワード
                         </label>
                         <div class="mt-1 relative">
-                            <input 
-                                :type="showPassword ? 'text' : 'password'" 
-                                id="password" 
+                            <input
+                                :type="showPassword ? 'text' : 'password'"
+                                id="password"
                                 x-model="password"
-                                required 
+                                required
+                                autocomplete="current-password"
                                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
                                 placeholder="パスワードを入力">
-                            <button 
+                            <button
                                 type="button"
                                 @click="showPassword = !showPassword"
                                 class="absolute inset-y-0 right-0 pr-3 flex items-center">
@@ -160,20 +185,50 @@
                     </div>
                 </div>
 
-                <!-- Password Help Modal -->
+                <!-- Password Reset Modal -->
                 <div x-show="showPasswordHelp" x-cloak class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="showPasswordHelp = false">
                     <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" @click.stop>
                         <div class="mt-3">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">パスワードについて</h3>
-                            <p class="text-sm text-gray-600 mb-4">
-                                初期パスワードは「admin123」です。<br>
-                                ログイン後、管理画面から変更できます。
-                            </p>
-                            <p class="text-sm text-gray-600 mb-4">
-                                パスワードを忘れた場合は、システム管理者にお問い合わせください。
-                            </p>
-                            <div class="mt-4">
-                                <button @click="showPasswordHelp = false" class="w-full py-2 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">パスワードリセット</h3>
+
+                            <!-- Reset Form -->
+                            <div x-show="!resetEmailSent">
+                                <p class="text-sm text-gray-600 mb-4">
+                                    登録されているメールアドレスを入力してください。<br>
+                                    パスワードリセット用のリンクをお送りします。
+                                </p>
+                                <div class="mb-4">
+                                    <input
+                                        type="email"
+                                        x-model="resetEmail"
+                                        placeholder="メールアドレス"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button @click="showPasswordHelp = false" class="py-2 px-4 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50">
+                                        キャンセル
+                                    </button>
+                                    <button @click="handlePasswordReset" :disabled="isResetting" class="py-2 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50">
+                                        <span x-show="!isResetting">送信</span>
+                                        <span x-show="isResetting">送信中...</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Success Message -->
+                            <div x-show="resetEmailSent">
+                                <div class="rounded-md bg-green-50 p-4 mb-4">
+                                    <div class="flex">
+                                        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                        <p class="ml-3 text-sm text-green-800">
+                                            パスワードリセットメールを送信しました。<br>
+                                            メールをご確認ください。
+                                        </p>
+                                    </div>
+                                </div>
+                                <button @click="showPasswordHelp = false; resetEmailSent = false" class="w-full py-2 px-4 bg-primary-600 text-white rounded-md hover:bg-primary-700">
                                     閉じる
                                 </button>
                             </div>
@@ -187,37 +242,91 @@
     <script>
         function loginForm() {
             return {
+                email: '',
                 password: '',
                 showPassword: false,
                 rememberMe: false,
                 isLoading: false,
                 errorMessage: '',
                 showPasswordHelp: false,
+                resetEmail: '',
+                resetEmailSent: false,
+                isResetting: false,
 
-                handleLogin() {
+                async handleLogin() {
                     this.isLoading = true;
                     this.errorMessage = '';
 
-                    // ダミーの遅延を追加（実際のAPIコールをシミュレート）
-                    setTimeout(() => {
-                        if (window.authManager.login(this.password)) {
-                            // ログイン成功
-                            window.authManager.redirectAfterLogin();
+                    try {
+                        console.log('🔐 ログイン処理開始:', this.email);
+
+                        // Supabase Authでログイン
+                        const result = await window.SupabaseAuth.signIn(this.email, this.password);
+
+                        if (result.success) {
+                            console.log('✅ ログイン成功:', result.profile.company_name);
+
+                            // プロファイル情報をセッションストレージに保存
+                            sessionStorage.setItem('userProfile', JSON.stringify(result.profile));
+
+                            // ダッシュボードにリダイレクト
+                            window.location.href = '/admin.html';
                         } else {
-                            // ログイン失敗
-                            this.errorMessage = 'パスワードが正しくありません';
+                            console.error('❌ ログイン失敗:', result.error);
+                            this.errorMessage = result.error || 'ログインに失敗しました';
                             this.password = '';
                             this.isLoading = false;
                         }
-                    }, 500);
+                    } catch (error) {
+                        console.error('❌ ログイン処理エラー:', error);
+                        this.errorMessage = '予期しないエラーが発生しました';
+                        this.password = '';
+                        this.isLoading = false;
+                    }
+                },
+
+                async handlePasswordReset() {
+                    if (!this.resetEmail) {
+                        alert('メールアドレスを入力してください');
+                        return;
+                    }
+
+                    this.isResetting = true;
+
+                    try {
+                        const result = await window.SupabaseAuth.sendPasswordResetEmail(this.resetEmail);
+
+                        if (result.success) {
+                            this.resetEmailSent = true;
+                            this.resetEmail = '';
+                        } else {
+                            alert(result.error || 'メール送信に失敗しました');
+                        }
+                    } catch (error) {
+                        console.error('❌ パスワードリセットエラー:', error);
+                        alert('予期しないエラーが発生しました');
+                    } finally {
+                        this.isResetting = false;
+                    }
                 }
             }
         }
 
-        // 既にログイン済みの場合はリダイレクト
-        if (window.authManager.isAuthenticated()) {
-            window.location.href = '/admin.html';
-        }
+        // ページ読み込み時: 既にログイン済みの場合はリダイレクト
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔍 認証状態チェック中...');
+
+            try {
+                const { user, profile } = await window.SupabaseAuth.getCurrentUser();
+
+                if (user && profile && profile.status === 'active') {
+                    console.log('✅ 既にログイン済み - リダイレクト');
+                    window.location.href = '/admin.html';
+                }
+            } catch (error) {
+                console.log('ℹ️ 未認証ユーザー');
+            }
+        });
     </script>
 </body>
 </html>
