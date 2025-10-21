@@ -32,6 +32,15 @@
 
     <link href="./styles/main.css" rel="stylesheet">
     <script src="/js/common.js"></script>
+
+    <!-- Supabase Auth Guard (Admin Only) -->
+    <script type="module">
+        import { protectPage } from '/js/auth-guard.js';
+        (async () => {
+            await protectPage({ requireAdmin: true });
+        })();
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
