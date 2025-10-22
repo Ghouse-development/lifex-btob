@@ -83,7 +83,10 @@
                     </button>
                     
                     <nav class="hidden md:flex space-x-8">
-                        <a href="/" class="text-gray-900 hover:text-gray-600 text-sm font-medium">ホーム</a>
+                        <a href="/" class="text-gray-900 hover:text-gray-600 text-sm font-medium relative">
+                            ホーム
+                            <span class="notification-badge hidden absolute -top-1 -right-3 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </a>
                         <a href="/matrix.html" class="text-gray-600 hover:text-gray-900 text-sm">間取マトリックス</a>
                         <a href="/design.html" class="text-gray-600 hover:text-gray-900 text-sm">デザインから探す</a>
                         <a href="/plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン一覧</a>
@@ -108,7 +111,10 @@
                     
                     <!-- Mobile Menu -->
                     <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border border-gray-200 p-4 z-50 min-w-48">
-                        <a href="/" class="block py-2 text-sm text-gray-900">ホーム</a>
+                        <a href="/" class="block py-2 text-sm text-gray-900 relative">
+                            ホーム
+                            <span class="notification-badge hidden absolute top-1 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                        </a>
                         <a href="/matrix.html" class="block py-2 text-sm text-gray-600">間取マトリックス</a>
                         <a href="/design.html" class="block py-2 text-sm text-gray-600">デザインから探す</a>
                         <a href="/plans.html" class="block py-2 text-sm text-gray-600">プラン一覧</a>
@@ -215,11 +221,48 @@
         <section class="py-12 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Latest Updates -->
-                    <div class="lg:col-span-2">
-                        <h2 class="text-lg font-medium text-gray-900 mb-4">プラン・ルール・よくある質問が追加されたとき</h2>
-                        <div class="space-y-3">
-                            <template x-for="update in updates.slice(0, 5)" :key="update.id">
+                    <!-- お知らせ & 最新情報 -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- お知らせ -->
+                        <div>
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">お知らせ</h2>
+                            <div class="space-y-3">
+                                <template x-for="notification in notifications.slice(0, 3)" :key="notification.id">
+                                    <div class="bg-white p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-start justify-between">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-3 mb-2">
+                                                    <span class="text-xs px-2 py-1 rounded"
+                                                          :class="{
+                                                              'bg-blue-100 text-blue-600': notification.category === 'plan',
+                                                              'bg-green-100 text-green-600': notification.category === 'rule',
+                                                              'bg-purple-100 text-purple-600': notification.category === 'download',
+                                                              'bg-orange-100 text-orange-600': notification.category === 'faq',
+                                                              'bg-red-100 text-red-600': notification.category === 'system',
+                                                              'bg-gray-100 text-gray-600': notification.category === 'general'
+                                                          }"
+                                                          x-text="getCategoryLabel(notification.category)"></span>
+                                                    <span x-show="notification.priority === 'high'" class="text-xs px-2 py-1 bg-red-100 text-red-600 rounded">重要</span>
+                                                    <span x-text="formatDate(notification.published_at)" class="text-xs text-gray-500"></span>
+                                                </div>
+                                                <h3 x-text="notification.title" class="text-sm font-medium text-gray-900 mb-1"></h3>
+                                                <p x-text="notification.content" class="text-sm text-gray-600 line-clamp-2"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="notifications.length === 0" class="bg-white p-6 border border-gray-200 rounded-lg text-center">
+                                    <div class="text-gray-400 mb-2">📢</div>
+                                    <p class="text-sm text-gray-500">お知らせはありません</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 最新の更新 -->
+                        <div>
+                            <h2 class="text-lg font-medium text-gray-900 mb-4">最新の更新</h2>
+                            <div class="space-y-3">
+                                <template x-for="update in updates.slice(0, 5)" :key="update.id">
                                 <div class="bg-white p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                                      :class="update.planId ? 'cursor-pointer' : ''"
                                      @click="update.planId ? window.location.href = `/plan-detail.html?id=${update.planId}` : null">
@@ -245,13 +288,14 @@
                                         </div>
                                     </div>
                                 </div>
-                            </template>
-                            
-                            <!-- 最新情報がない場合の表示 -->
-                            <div x-show="updates.length === 0" class="bg-white p-6 border border-gray-200 rounded-lg text-center">
-                                <div class="text-gray-400 mb-2">📋</div>
-                                <p class="text-sm text-gray-500">新着情報はありません</p>
-                                <p class="text-xs text-gray-400 mt-1">コンテンツが更新されると、ここに表示されます</p>
+                                </template>
+
+                                <!-- 最新情報がない場合の表示 -->
+                                <div x-show="updates.length === 0" class="bg-white p-6 border border-gray-200 rounded-lg text-center">
+                                    <div class="text-gray-400 mb-2">📋</div>
+                                    <p class="text-sm text-gray-500">新着情報はありません</p>
+                                    <p class="text-xs text-gray-400 mt-1">コンテンツが更新されると、ここに表示されます</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -284,6 +328,7 @@
         function homePage() {
             return {
                 updates: [],
+                notifications: [],
                 stats: {
                     totalPlans: 0,
                     totalDownloads: 0,
@@ -362,7 +407,110 @@
                         console.error('Error loading stats:', error);
                     }
                 },
-                
+
+                async loadNotifications() {
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('notifications')
+                            .select('*')
+                            .eq('status', 'published')
+                            .lte('published_at', new Date().toISOString())
+                            .or('expires_at.is.null,expires_at.gte.' + new Date().toISOString())
+                            .order('published_at', { ascending: false })
+                            .limit(3);
+
+                        if (error) {
+                            console.error('Error loading notifications:', error);
+                            this.notifications = [];
+                            return;
+                        }
+
+                        this.notifications = data || [];
+                        console.log('Notifications loaded:', this.notifications);
+
+                        // 未読バッジ数を更新
+                        await this.updateUnreadBadge();
+                    } catch (error) {
+                        console.error('Error loading notifications:', error);
+                        this.notifications = [];
+                    }
+                },
+
+                async updateUnreadBadge() {
+                    try {
+                        // 現在のユーザーを取得
+                        const { data: { user } } = await window.supabase.auth.getUser();
+
+                        if (!user) {
+                            // 未認証の場合は全てのお知らせを未読とカウント
+                            const { data, error } = await window.supabase
+                                .from('notifications')
+                                .select('id', { count: 'exact', head: true })
+                                .eq('status', 'published')
+                                .lte('published_at', new Date().toISOString())
+                                .or('expires_at.is.null,expires_at.gte.' + new Date().toISOString());
+
+                            const unreadCount = data?.length || 0;
+                            this.setUnreadBadge(unreadCount);
+                            return;
+                        }
+
+                        // 認証済みユーザーの場合、既読テーブルをチェック
+                        const { data: allNotifications, error: notifError } = await window.supabase
+                            .from('notifications')
+                            .select('id')
+                            .eq('status', 'published')
+                            .lte('published_at', new Date().toISOString())
+                            .or('expires_at.is.null,expires_at.gte.' + new Date().toISOString());
+
+                        if (notifError) {
+                            console.error('Error fetching notifications:', notifError);
+                            return;
+                        }
+
+                        const { data: readNotifications, error: readError } = await window.supabase
+                            .from('notification_reads')
+                            .select('notification_id')
+                            .eq('user_id', user.id);
+
+                        if (readError) {
+                            console.error('Error fetching read notifications:', readError);
+                            return;
+                        }
+
+                        const readIds = new Set(readNotifications?.map(r => r.notification_id) || []);
+                        const unreadCount = (allNotifications || []).filter(n => !readIds.has(n.id)).length;
+
+                        this.setUnreadBadge(unreadCount);
+                    } catch (error) {
+                        console.error('Error updating unread badge:', error);
+                    }
+                },
+
+                setUnreadBadge(count) {
+                    const badgeElements = document.querySelectorAll('.notification-badge');
+                    badgeElements.forEach(badge => {
+                        if (count > 0) {
+                            badge.textContent = count > 99 ? '99+' : count;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    });
+                },
+
+                getCategoryLabel(category) {
+                    const labels = {
+                        general: '一般',
+                        plan: 'プラン',
+                        rule: 'ルール',
+                        download: 'ダウンロード',
+                        faq: 'FAQ',
+                        system: 'システム'
+                    };
+                    return labels[category] || category;
+                },
+
                 async init() {
                     // LocalStorageにプランデータがない場合、初期データを設定
                     if (!localStorage.getItem('plans_data')) {
@@ -421,7 +569,10 @@
                     
                     // リアルタイム統計情報を取得
                     await this.loadStats();
-                    
+
+                    // お知らせを読み込み
+                    await this.loadNotifications();
+
                     // 最新情報を読み込み
                     this.loadUpdates();
                     
