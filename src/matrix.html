@@ -374,33 +374,37 @@
 
                 async loadPlans() {
                     try {
-                        const data = await lifeXAPI.getPlansIndex();
-                        this.plans = data.plans || [];
-                        
-                        // デバッグログ
-                        console.log('Matrix - Loaded plans:', this.plans);
-                        if (this.plans.length > 0) {
-                            console.log('Matrix - First plan data:', this.plans[0]);
-                            console.log('Matrix - First plan images before mapping:', {
-                                exteriorImage: this.plans[0].exteriorImage,
-                                images: this.plans[0].images,
-                                imagesExterior: this.plans[0].images?.exterior,
-                                hasExterior: !!this.plans[0].exteriorImage || !!this.plans[0].images?.exterior,
-                                imagesExteriorLength: this.plans[0].images?.exterior ? this.plans[0].images.exterior.length : 0
-                            });
+                        // Supabaseからプランを取得
+                        const { data, error } = await window.supabase
+                            .from('plans')
+                            .select('*')
+                            .order('created_at', { ascending: false });
+
+                        if (error) {
+                            console.error('Supabase error:', error);
+                            throw error;
                         }
-                        
-                        // 画像パスの設定（管理画面との互換性のため）
-                        this.plans = this.plans.map((plan) => ({
-                            ...plan,
-                            exteriorImage: plan.exteriorImage || plan.images?.exterior || plan.files?.images?.exterior?.data || '',
-                            interiorImage: plan.interiorImage || plan.images?.interior || plan.files?.images?.interior?.data || '',
-                            floorPlanImage: plan.floorPlanImage || plan.floorPlans?.[0] || ''
+
+                        // Supabaseのデータ形式をマトリックス用に変換
+                        this.plans = (data || []).map(plan => ({
+                            id: plan.id,
+                            name: plan.plan_name,
+                            width: plan.maguchi ? Math.round(plan.maguchi * 1000) : 0, // mをmmに変換
+                            depth: plan.oku_yuki ? Math.round(plan.oku_yuki * 1000) : 0, // mをmmに変換
+                            tsubo: plan.tsubo,
+                            category: plan.plan_category,
+                            subCategory: plan.plan_sub_category,
+                            exteriorImage: plan.thumbnail_url || '',
+                            floorPlans: plan.drawing_file_path ? [plan.drawing_file_path] : [],
+                            totalArea: plan.total_area,
+                            floor1Area: plan.floor1_area,
+                            floor2Area: plan.floor2_area
                         }));
                         
-                        // マッピング後のデバッグログ
+                        // デバッグログ
+                        console.log('Matrix - Loaded plans from Supabase:', this.plans.length);
                         if (this.plans.length > 0) {
-                            console.log('Matrix - After mapping, first plan exterior:', this.plans[0].exteriorImage ? 'Has image' : 'No image');
+                            console.log('Matrix - First plan:', this.plans[0]);
                         }
                         
                         this.totalPlans = this.plans.length;

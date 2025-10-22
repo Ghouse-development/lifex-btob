@@ -1047,11 +1047,41 @@
                 async loadPlans() {
                     let plansData = { plans: [] };
 
-                    // Supabase or localStorage
-                    if (window.supabaseAPI) {
-                        const plans = await window.supabaseAPI.plans.getAll();
-                        plansData = { plans };
-                    } else {
+                    // Supabaseから直接取得
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('plans')
+                            .select('*')
+                            .order('created_at', { ascending: false });
+
+                        if (error) {
+                            console.error('Supabase error:', error);
+                            throw error;
+                        }
+
+                        // Supabaseデータを既存フォーマットに変換
+                        plansData = {
+                            plans: (data || []).map(plan => ({
+                                id: plan.id,
+                                name: plan.plan_name,
+                                planId: plan.plan_id,
+                                tsubo: plan.tsubo,
+                                width: plan.maguchi,
+                                depth: plan.oku_yuki,
+                                category: plan.plan_category,
+                                subCategory: plan.plan_sub_category,
+                                totalArea: plan.total_area,
+                                floor1Area: plan.floor1_area,
+                                floor2Area: plan.floor2_area,
+                                floor3Area: plan.floor3_area,
+                                exteriorImage: plan.thumbnail_url,
+                                drawingFile: plan.drawing_file_path,
+                                status: 'published' // Supabaseのデータは全て公開済み
+                            }))
+                        };
+                    } catch (error) {
+                        console.error('Failed to load from Supabase:', error);
+                        // フォールバック: LocalStorageから読み込み
                         plansData = await lifeXAPI.getPlansIndex();
                     }
 
