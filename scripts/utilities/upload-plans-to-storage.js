@@ -96,7 +96,8 @@ async function uploadPlanFiles() {
         const presentationPath = path.join(planPath, presentationFile);
 
         if (fs.existsSync(presentationPath)) {
-            const storagePath = `${planFolder}/${presentationFile}`;
+            // Supabase Storageで使用する簡潔な英語パス
+            const storagePath = `${planFolder}/presentation.pdf`;
             const result = await uploadFile(presentationPath, storagePath, 'plan-drawings');
 
             if (result.success) {
