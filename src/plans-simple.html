@@ -119,12 +119,25 @@
         <!-- Plans Grid -->
         <div x-show="!loading && filteredPlans.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <template x-for="plan in filteredPlans" :key="plan.id">
-                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
-                    <!-- Plan Name -->
-                    <h3 class="text-lg font-bold text-blue-600 mb-3" x-text="plan.plan_name"></h3>
+                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden">
+                    <!-- Thumbnail Image -->
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center">
+                        <template x-if="plan.thumbnail_url">
+                            <img :src="plan.thumbnail_url" :alt="plan.plan_name" class="w-full h-full object-cover">
+                        </template>
+                        <template x-if="!plan.thumbnail_url">
+                            <svg class="w-16 h-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                        </template>
+                    </div>
 
-                    <!-- Details Grid -->
-                    <div class="space-y-2 text-sm">
+                    <div class="p-6">
+                        <!-- Plan Name -->
+                        <h3 class="text-lg font-bold text-blue-600 mb-3" x-text="plan.plan_name"></h3>
+
+                        <!-- Details Grid -->
+                        <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-600">坪数:</span>
                             <span class="font-semibold" x-text="plan.tsubo + '坪'"></span>
@@ -148,13 +161,23 @@
                         <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full" x-text="plan.plan_sub_category"></span>
                     </div>
 
-                    <!-- Details Button -->
-                    <div class="mt-4">
-                        <button
-                            @click="showDetails(plan)"
-                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            詳細を見る
-                        </button>
+                        <!-- Action Buttons -->
+                        <div class="mt-4 flex space-x-2">
+                            <button
+                                @click="showDetails(plan)"
+                                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                詳細を見る
+                            </button>
+                            <template x-if="plan.drawing_file_path">
+                                <button
+                                    @click="showPDF(plan.drawing_file_path)"
+                                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center justify-center">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </template>
@@ -167,6 +190,30 @@
             </svg>
             <h3 class="text-lg font-medium text-gray-900 mb-2">該当するプランが見つかりませんでした</h3>
             <p class="text-gray-600 mb-4">検索条件を変更してお試しください</p>
+        </div>
+
+        <!-- PDF Viewer Modal -->
+        <div x-show="pdfUrl" x-cloak class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50" @click="pdfUrl = null">
+            <div @click.stop class="bg-white rounded-lg shadow-xl w-full h-full md:w-[90%] md:h-[90%] mx-4 my-4 flex flex-col">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h2 class="text-xl font-bold text-gray-900">図面プレビュー</h2>
+                    <div class="flex space-x-2">
+                        <a :href="pdfUrl" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                            新しいタブで開く
+                        </a>
+                        <button @click="pdfUrl = null" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!-- PDF Viewer -->
+                <div class="flex-1 overflow-hidden">
+                    <iframe :src="pdfUrl" class="w-full h-full border-0"></iframe>
+                </div>
+            </div>
         </div>
 
         <!-- Detail Modal -->
@@ -233,8 +280,16 @@
 
                             <template x-if="selectedPlan.drawing_file_path">
                                 <div class="pt-4 border-t">
-                                    <div class="text-sm text-gray-600 mb-2">図面ファイル</div>
-                                    <div class="text-sm text-blue-600" x-text="selectedPlan.drawing_file_path"></div>
+                                    <div class="text-sm text-gray-600 mb-3">図面ファイル</div>
+                                    <button
+                                        @click="showPDF(selectedPlan.drawing_file_path)"
+                                        class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        <span>図面を表示</span>
+                                    </button>
                                 </div>
                             </template>
                         </div>
@@ -260,6 +315,7 @@
                     maguchiMax: ''
                 },
                 selectedPlan: null,
+                pdfUrl: null,
 
                 async init() {
                     try {
@@ -341,6 +397,10 @@
 
                 showDetails(plan) {
                     this.selectedPlan = plan;
+                },
+
+                showPDF(url) {
+                    this.pdfUrl = url;
                 }
             };
         }

@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プラン管理 | LIFE X 管理画面</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+
+    <div x-data="adminPlanApp()" x-init="init()" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">プラン管理</h1>
+            <p class="text-gray-600">プランの追加・編集・削除を行います</p>
+        </div>
+
+        <!-- Auth Check -->
+        <template x-if="!isAuthenticated">
+            <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+                <svg class="w-12 h-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <h3 class="text-lg font-medium text-red-900 mb-2">認証が必要です</h3>
+                <p class="text-red-700 mb-4">この画面にアクセスするには管理者権限が必要です。</p>
+                <a href="/login.html" class="inline-block px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    ログインページへ
+                </a>
+            </div>
+        </template>
+
+        <template x-if="isAuthenticated">
+            <div>
+                <!-- Action Buttons -->
+                <div class="mb-6 flex space-x-4">
+                    <button
+                        @click="showCreateForm()"
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span>新規プラン追加</span>
+                    </button>
+                    <a href="/plans-simple.html" class="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        プラン一覧を表示
+                    </a>
+                </div>
+
+                <!-- Loading -->
+                <div x-show="loading" class="text-center py-12">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <p class="mt-4 text-gray-600">読み込み中...</p>
+                </div>
+
+                <!-- Plans Table -->
+                <div x-show="!loading && !showForm" class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プラン名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">坪数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">カテゴリ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間口</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">奥行</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <template x-for="plan in plans" :key="plan.id">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900" x-text="plan.plan_name"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900" x-text="plan.tsubo + '坪'"></div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" x-text="plan.plan_category"></span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="plan.maguchi + 'm'"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="plan.oku_yuki + 'm'"></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button
+                                                @click="showEditForm(plan)"
+                                                class="text-blue-600 hover:text-blue-900 mr-4">
+                                                編集
+                                            </button>
+                                            <button
+                                                @click="deletePlan(plan)"
+                                                class="text-red-600 hover:text-red-900">
+                                                削除
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div x-show="plans.length === 0" class="text-center py-12">
+                        <p class="text-gray-600">プランがまだ登録されていません</p>
+                    </div>
+                </div>
+
+                <!-- Create/Edit Form -->
+                <div x-show="showForm" x-cloak class="bg-white rounded-lg shadow-md p-8">
+                    <div class="mb-6 flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-900" x-text="editMode ? 'プラン編集' : '新規プラン追加'"></h2>
+                        <button @click="cancelForm()" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <form @submit.prevent="savePlan()" class="space-y-6">
+                        <!-- プラン名 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">プラン名 *</label>
+                            <input
+                                type="text"
+                                x-model="formData.plan_name"
+                                required
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- 基本情報 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">坪数 *</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    x-model.number="formData.tsubo"
+                                    required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">カテゴリ *</label>
+                                <select
+                                    x-model="formData.plan_category"
+                                    required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">選択してください</option>
+                                    <option value="平屋">平屋</option>
+                                    <option value="2階建て">2階建て</option>
+                                    <option value="3階建て">3階建て</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 寸法 -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">間口 (m)</label>
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    x-model.number="formData.maguchi"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">奥行 (m)</label>
+                                <input
+                                    type="number"
+                                    step="0.1"
+                                    x-model.number="formData.oku_yuki"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <!-- 床面積 -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">1階床面積 (㎡)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    x-model.number="formData.floor1_area"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">2階床面積 (㎡)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    x-model.number="formData.floor2_area"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">延床面積 (㎡)</label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    x-model.number="formData.total_area"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+
+                        <!-- サブカテゴリ -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">サブカテゴリ</label>
+                            <input
+                                type="text"
+                                x-model="formData.plan_sub_category"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- 備考 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">備考</label>
+                            <textarea
+                                x-model="formData.remarks"
+                                rows="3"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+
+                        <!-- 画像URL -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">サムネイル画像URL</label>
+                            <input
+                                type="url"
+                                x-model="formData.thumbnail_url"
+                                placeholder="https://..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <p class="mt-1 text-sm text-gray-500">Supabase Storageにアップロード後、URLを入力してください</p>
+                        </div>
+
+                        <!-- PDF URL -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">図面PDF URL</label>
+                            <input
+                                type="url"
+                                x-model="formData.drawing_file_path"
+                                placeholder="https://..."
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <p class="mt-1 text-sm text-gray-500">Supabase Storageにアップロード後、URLを入力してください</p>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex space-x-4 pt-6 border-t">
+                            <button
+                                type="submit"
+                                :disabled="saving"
+                                class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span x-show="!saving">保存する</span>
+                                <span x-show="saving">保存中...</span>
+                            </button>
+                            <button
+                                type="button"
+                                @click="cancelForm()"
+                                class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                                キャンセル
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+        function adminPlanApp() {
+            return {
+                isAuthenticated: true, // TODO: 実際の認証チェックを実装
+                loading: true,
+                saving: false,
+                plans: [],
+                showForm: false,
+                editMode: false,
+                currentPlan: null,
+                formData: this.getEmptyForm(),
+
+                getEmptyForm() {
+                    return {
+                        plan_name: '',
+                        tsubo: '',
+                        maguchi: '',
+                        oku_yuki: '',
+                        plan_category: '',
+                        plan_sub_category: '',
+                        total_area: '',
+                        floor1_area: '',
+                        floor2_area: '',
+                        floor3_area: '',
+                        remarks: '',
+                        thumbnail_url: '',
+                        drawing_file_path: ''
+                    };
+                },
+
+                async init() {
+                    try {
+                        // TODO: 認証チェックを実装
+                        // const { data: { user } } = await window.supabase.auth.getUser();
+                        // this.isAuthenticated = user && user.role === 'admin';
+
+                        if (this.isAuthenticated) {
+                            await this.loadPlans();
+                        }
+                    } catch (error) {
+                        console.error('Error during init:', error);
+                        alert('初期化エラーが発生しました');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadPlans() {
+                    const { data, error } = await window.supabase
+                        .from('plans')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) {
+                        console.error('Error loading plans:', error);
+                        throw error;
+                    }
+
+                    this.plans = data || [];
+                    console.log('Loaded plans:', this.plans.length);
+                },
+
+                showCreateForm() {
+                    this.editMode = false;
+                    this.currentPlan = null;
+                    this.formData = this.getEmptyForm();
+                    this.showForm = true;
+                },
+
+                showEditForm(plan) {
+                    this.editMode = true;
+                    this.currentPlan = plan;
+                    this.formData = { ...plan };
+                    this.showForm = true;
+                },
+
+                cancelForm() {
+                    this.showForm = false;
+                    this.formData = this.getEmptyForm();
+                    this.currentPlan = null;
+                },
+
+                async savePlan() {
+                    this.saving = true;
+
+                    try {
+                        if (this.editMode) {
+                            // Update existing plan
+                            const { error } = await window.supabase
+                                .from('plans')
+                                .update({
+                                    ...this.formData,
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('id', this.currentPlan.id);
+
+                            if (error) throw error;
+
+                            alert('プランを更新しました');
+                        } else {
+                            // Create new plan
+                            const { error } = await window.supabase
+                                .from('plans')
+                                .insert([this.formData]);
+
+                            if (error) throw error;
+
+                            alert('プランを追加しました');
+                        }
+
+                        await this.loadPlans();
+                        this.cancelForm();
+                    } catch (error) {
+                        console.error('Error saving plan:', error);
+                        alert('保存に失敗しました: ' + error.message);
+                    } finally {
+                        this.saving = false;
+                    }
+                },
+
+                async deletePlan(plan) {
+                    if (!confirm(`「${plan.plan_name}」を削除してもよろしいですか？`)) {
+                        return;
+                    }
+
+                    try {
+                        const { error } = await window.supabase
+                            .from('plans')
+                            .delete()
+                            .eq('id', plan.id);
+
+                        if (error) throw error;
+
+                        alert('プランを削除しました');
+                        await this.loadPlans();
+                    } catch (error) {
+                        console.error('Error deleting plan:', error);
+                        alert('削除に失敗しました: ' + error.message);
+                    }
+                }
+            };
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</body>
+</html>
