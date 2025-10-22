@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロファイル管理 | LIFE X</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="./styles/main.css" rel="stylesheet">
+    <script src="/js/common.js"></script>
+
+    <!-- Supabase Auth Guard -->
+    <script type="module" src="/js/auth-guard.js"></script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
+                    <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">プロファイル</span>
+                </div>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="/admin.html" class="nav-link">管理ホーム</a>
+                    <a href="/admin-plans.html" class="nav-link">プラン管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール・ガイドライン管理</a>
+                    <a href="/admin-downloads.html" class="nav-link">ダウンロード管理</a>
+                    <a href="/admin-faq.html" class="nav-link">よくある質問管理</a>
+                    <a href="/admin-system.html" class="nav-link" data-admin-only>システム管理</a>
+                    <a href="/admin-report.html" class="nav-link">レポート</a>
+                    <a href="/" class="nav-link">サイトに戻る</a>
+                    <button data-logout type="button" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
+                </nav>
+                <div id="userInfo" class="text-sm"></div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="profileManager()" x-init="init()">
+        <!-- Page Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">プロファイル管理</h1>
+                <p class="text-gray-600 mt-2">アカウント情報の確認・編集</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- メインコンテンツ -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- プロファイル情報 -->
+                    <div class="card">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-semibold text-gray-900">基本情報</h2>
+                            <button type="button" @click="editMode = !editMode"
+                                    class="btn-secondary text-sm"
+                                    x-text="editMode ? 'キャンセル' : '編集'"></button>
+                        </div>
+
+                        <div x-show="!editMode" class="space-y-4">
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">メールアドレス</label>
+                                <p class="mt-1 text-gray-900" x-text="profile.email"></p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">会社名</label>
+                                <p class="mt-1 text-gray-900" x-text="profile.company_name"></p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">会社コード</label>
+                                <p class="mt-1 text-gray-900" x-text="profile.company_code || '未設定'"></p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">担当者名</label>
+                                <p class="mt-1 text-gray-900" x-text="profile.contact_name || '未設定'"></p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">電話番号</label>
+                                <p class="mt-1 text-gray-900" x-text="profile.phone || '未設定'"></p>
+                            </div>
+                            <div>
+                                <label class="text-sm font-medium text-gray-500">役割</label>
+                                <p class="mt-1">
+                                    <span class="px-2 py-1 text-xs rounded-full"
+                                          :class="profile.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'"
+                                          x-text="profile.role === 'admin' ? '管理者' : 'メンバー'"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 編集フォーム -->
+                        <form x-show="editMode" @submit.prevent="updateProfile()" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">会社名 <span class="text-red-500">*</span></label>
+                                <input type="text" x-model="editData.company_name" class="form-input w-full" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">会社コード</label>
+                                <input type="text" x-model="editData.company_code" class="form-input w-full">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">担当者名</label>
+                                <input type="text" x-model="editData.contact_name" class="form-input w-full">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">電話番号</label>
+                                <input type="tel" x-model="editData.phone" class="form-input w-full">
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button type="button" @click="editMode = false" class="btn-secondary">キャンセル</button>
+                                <button type="submit" class="btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- パスワード変更 -->
+                    <div class="card">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-6">パスワード変更</h2>
+
+                        <form @submit.prevent="changePassword()" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">新しいパスワード</label>
+                                <input type="password" x-model="passwordData.newPassword"
+                                       class="form-input w-full"
+                                       minlength="6"
+                                       placeholder="6文字以上">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">新しいパスワード（確認）</label>
+                                <input type="password" x-model="passwordData.confirmPassword"
+                                       class="form-input w-full"
+                                       minlength="6"
+                                       placeholder="6文字以上">
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn-primary">パスワードを変更</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- ログイン履歴 -->
+                    <div class="card">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-6">ログイン履歴</h2>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">日時</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ステータス</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">IPアドレス</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <template x-for="history in loginHistory" :key="history.id">
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="formatDate(history.login_at)"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 text-xs rounded-full"
+                                                      :class="history.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+                                                      x-text="history.status === 'success' ? '成功' : '失敗'"></span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="history.ip_address || '-'"></td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="loginHistory.length === 0">
+                                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">
+                                            ログイン履歴がありません
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- サイドバー -->
+                <div class="space-y-6">
+                    <!-- アカウント情報 -->
+                    <div class="card">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-4">アカウント情報</h3>
+                        <div class="space-y-3 text-sm">
+                            <div>
+                                <span class="text-gray-500">アカウント作成日</span>
+                                <p class="text-gray-900 font-medium" x-text="formatDate(profile.created_at)"></p>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">最終更新日</span>
+                                <p class="text-gray-900 font-medium" x-text="formatDate(profile.updated_at)"></p>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">最終ログイン</span>
+                                <p class="text-gray-900 font-medium" x-text="formatDate(profile.last_login_at)"></p>
+                            </div>
+                            <div>
+                                <span class="text-gray-500">ステータス</span>
+                                <p>
+                                    <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800"
+                                          x-text="profile.status === 'active' ? '有効' : profile.status"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- クイックアクション -->
+                    <div class="card">
+                        <h3 class="text-sm font-semibold text-gray-900 mb-4">クイックアクション</h3>
+                        <div class="space-y-2">
+                            <a href="/admin.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+                                管理ホームへ
+                            </a>
+                            <a href="/" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded">
+                                サイトへ戻る
+                            </a>
+                            <button type="button" data-logout class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded">
+                                ログアウト
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getCurrentUser, updateUserProfile, updatePassword } from '/js/supabase-auth.js';
+
+        function profileManager() {
+            return {
+                profile: {},
+                editMode: false,
+                editData: {},
+                passwordData: {
+                    newPassword: '',
+                    confirmPassword: ''
+                },
+                loginHistory: [],
+
+                async init() {
+                    await this.loadProfile();
+                    await this.loadLoginHistory();
+                },
+
+                async loadProfile() {
+                    try {
+                        const { user, profile } = await getCurrentUser();
+                        if (profile) {
+                            this.profile = profile;
+                            this.editData = { ...profile };
+                        }
+                    } catch (error) {
+                        console.error('Error loading profile:', error);
+                        lifeXAPI.showToast('プロファイル情報の読み込みに失敗しました', 'error');
+                    }
+                },
+
+                async loadLoginHistory() {
+                    try {
+                        const { data, error } = await window.supabase
+                            .from('login_history')
+                            .select('*')
+                            .eq('user_id', this.profile.id)
+                            .order('login_at', { ascending: false })
+                            .limit(10);
+
+                        if (error) throw error;
+                        this.loginHistory = data || [];
+                    } catch (error) {
+                        console.error('Error loading login history:', error);
+                        // エラーは表示しない（テーブルがまだ作成されていない可能性があるため）
+                    }
+                },
+
+                async updateProfile() {
+                    try {
+                        const updates = {
+                            company_name: this.editData.company_name,
+                            company_code: this.editData.company_code,
+                            contact_name: this.editData.contact_name,
+                            phone: this.editData.phone,
+                            updated_at: new Date().toISOString()
+                        };
+
+                        const { error } = await window.supabase
+                            .from('user_profiles')
+                            .update(updates)
+                            .eq('id', this.profile.id);
+
+                        if (error) throw error;
+
+                        this.profile = { ...this.profile, ...updates };
+                        this.editMode = false;
+                        lifeXAPI.showToast('プロファイルを更新しました', 'success');
+                    } catch (error) {
+                        console.error('Error updating profile:', error);
+                        lifeXAPI.showToast('プロファイルの更新に失敗しました', 'error');
+                    }
+                },
+
+                async changePassword() {
+                    if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
+                        lifeXAPI.showToast('パスワードが一致しません', 'error');
+                        return;
+                    }
+
+                    if (this.passwordData.newPassword.length < 6) {
+                        lifeXAPI.showToast('パスワードは6文字以上で入力してください', 'error');
+                        return;
+                    }
+
+                    try {
+                        const { error } = await updatePassword(this.passwordData.newPassword);
+                        if (error) throw error;
+
+                        this.passwordData = { newPassword: '', confirmPassword: '' };
+                        lifeXAPI.showToast('パスワードを変更しました', 'success');
+                    } catch (error) {
+                        console.error('Error changing password:', error);
+                        lifeXAPI.showToast('パスワードの変更に失敗しました', 'error');
+                    }
+                },
+
+                formatDate(dateStr) {
+                    if (!dateStr) return '-';
+                    const date = new Date(dateStr);
+                    return date.toLocaleString('ja-JP', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+            };
+        }
+
+        window.profileManager = profileManager;
+    </script>
+</body>
+</html>
