@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プラン一覧 | LIFE X 加盟店専用サイト</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Supabase -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+    </script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+
+    <div x-data="plansApp()" x-init="init()" class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">プラン一覧</h1>
+            <p class="text-gray-600">全 <span x-text="filteredPlans.length"></span> 件のプラン</p>
+        </div>
+
+        <!-- Loading -->
+        <div x-show="loading" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <p class="mt-4 text-gray-600">読み込み中...</p>
+        </div>
+
+        <!-- Search & Filters -->
+        <div x-show="!loading" class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <!-- Search -->
+            <div class="mb-6">
+                <input
+                    type="text"
+                    x-model="searchQuery"
+                    @input="applyFilters()"
+                    placeholder="プラン名で検索..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- 坪数 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">坪数</label>
+                    <div class="flex space-x-2">
+                        <input
+                            type="number"
+                            x-model.number="filters.tsuboMin"
+                            @input="applyFilters()"
+                            placeholder="最小"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <span class="flex items-center">~</span>
+                        <input
+                            type="number"
+                            x-model.number="filters.tsuboMax"
+                            @input="applyFilters()"
+                            placeholder="最大"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+
+                <!-- カテゴリ -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">カテゴリ</label>
+                    <select
+                        x-model="filters.category"
+                        @change="applyFilters()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <option value="">全て</option>
+                        <template x-for="cat in categories" :key="cat">
+                            <option :value="cat" x-text="cat"></option>
+                        </template>
+                    </select>
+                </div>
+
+                <!-- 間口 -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">間口(m)</label>
+                    <div class="flex space-x-2">
+                        <input
+                            type="number"
+                            x-model.number="filters.maguchiMin"
+                            @input="applyFilters()"
+                            placeholder="最小"
+                            step="0.1"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                        <span class="flex items-center">~</span>
+                        <input
+                            type="number"
+                            x-model.number="filters.maguchiMax"
+                            @input="applyFilters()"
+                            placeholder="最大"
+                            step="0.1"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clear Button -->
+            <div class="mt-4">
+                <button
+                    @click="clearFilters()"
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    フィルタをクリア
+                </button>
+            </div>
+        </div>
+
+        <!-- Plans Grid -->
+        <div x-show="!loading && filteredPlans.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="plan in filteredPlans" :key="plan.id">
+                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6">
+                    <!-- Plan Name -->
+                    <h3 class="text-lg font-bold text-blue-600 mb-3" x-text="plan.plan_name"></h3>
+
+                    <!-- Details Grid -->
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">坪数:</span>
+                            <span class="font-semibold" x-text="plan.tsubo + '坪'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">カテゴリ:</span>
+                            <span class="font-semibold" x-text="plan.plan_category"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">間口:</span>
+                            <span class="font-semibold" x-text="plan.maguchi + 'm'"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">延床面積:</span>
+                            <span class="font-semibold" x-text="plan.total_area + '㎡'"></span>
+                        </div>
+                    </div>
+
+                    <!-- Sub Category Badge -->
+                    <div class="mt-3">
+                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full" x-text="plan.plan_sub_category"></span>
+                    </div>
+
+                    <!-- Details Button -->
+                    <div class="mt-4">
+                        <button
+                            @click="showDetails(plan)"
+                            class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            詳細を見る
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- No Results -->
+        <div x-show="!loading && filteredPlans.length === 0" class="bg-white rounded-lg shadow-md p-12 text-center">
+            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">該当するプランが見つかりませんでした</h3>
+            <p class="text-gray-600 mb-4">検索条件を変更してお試しください</p>
+        </div>
+
+        <!-- Detail Modal -->
+        <div x-show="selectedPlan" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click="selectedPlan = null">
+            <div @click.stop class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900" x-text="selectedPlan?.plan_name"></h2>
+                        <button @click="selectedPlan = null" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Details -->
+                    <template x-if="selectedPlan">
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <div class="text-sm text-gray-600">坪数</div>
+                                    <div class="text-lg font-semibold" x-text="selectedPlan.tsubo + '坪'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-600">カテゴリ</div>
+                                    <div class="text-lg font-semibold" x-text="selectedPlan.plan_category"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-600">間口</div>
+                                    <div class="text-lg font-semibold" x-text="selectedPlan.maguchi + 'm'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-600">奥行</div>
+                                    <div class="text-lg font-semibold" x-text="selectedPlan.oku_yuki + 'm'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-600">延床面積</div>
+                                    <div class="text-lg font-semibold" x-text="selectedPlan.total_area + '㎡'"></div>
+                                </div>
+                                <div>
+                                    <div class="text-sm text-gray-600">1階床面積</div>
+                                    <div class="text-lg font-semibold" x-text="selectedPlan.floor1_area + '㎡'"></div>
+                                </div>
+                                <template x-if="selectedPlan.floor2_area > 0">
+                                    <div>
+                                        <div class="text-sm text-gray-600">2階床面積</div>
+                                        <div class="text-lg font-semibold" x-text="selectedPlan.floor2_area + '㎡'"></div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="pt-4 border-t">
+                                <div class="text-sm text-gray-600 mb-2">サブカテゴリ</div>
+                                <div class="font-semibold" x-text="selectedPlan.plan_sub_category"></div>
+                            </div>
+
+                            <template x-if="selectedPlan.remarks">
+                                <div class="pt-4 border-t">
+                                    <div class="text-sm text-gray-600 mb-2">備考</div>
+                                    <div class="text-sm" x-text="selectedPlan.remarks"></div>
+                                </div>
+                            </template>
+
+                            <template x-if="selectedPlan.drawing_file_path">
+                                <div class="pt-4 border-t">
+                                    <div class="text-sm text-gray-600 mb-2">図面ファイル</div>
+                                    <div class="text-sm text-blue-600" x-text="selectedPlan.drawing_file_path"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function plansApp() {
+            return {
+                loading: true,
+                allPlans: [],
+                filteredPlans: [],
+                categories: [],
+                searchQuery: '',
+                filters: {
+                    tsuboMin: '',
+                    tsuboMax: '',
+                    category: '',
+                    maguchiMin: '',
+                    maguchiMax: ''
+                },
+                selectedPlan: null,
+
+                async init() {
+                    try {
+                        await this.loadPlans();
+                        this.applyFilters();
+                    } catch (error) {
+                        console.error('Error loading plans:', error);
+                        alert('プランデータの読み込みに失敗しました');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async loadPlans() {
+                    const { data, error } = await window.supabase
+                        .from('plans')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (error) {
+                        console.error('Supabase error:', error);
+                        throw error;
+                    }
+
+                    this.allPlans = data || [];
+
+                    // Extract unique categories
+                    this.categories = [...new Set(this.allPlans.map(p => p.plan_category))].filter(Boolean);
+
+                    console.log('Loaded plans:', this.allPlans.length);
+                },
+
+                applyFilters() {
+                    let filtered = [...this.allPlans];
+
+                    // Search filter
+                    if (this.searchQuery) {
+                        const query = this.searchQuery.toLowerCase();
+                        filtered = filtered.filter(plan =>
+                            plan.plan_name?.toLowerCase().includes(query)
+                        );
+                    }
+
+                    // Tsubo filter
+                    if (this.filters.tsuboMin) {
+                        filtered = filtered.filter(plan => plan.tsubo >= this.filters.tsuboMin);
+                    }
+                    if (this.filters.tsuboMax) {
+                        filtered = filtered.filter(plan => plan.tsubo <= this.filters.tsuboMax);
+                    }
+
+                    // Category filter
+                    if (this.filters.category) {
+                        filtered = filtered.filter(plan => plan.plan_category === this.filters.category);
+                    }
+
+                    // Maguchi filter
+                    if (this.filters.maguchiMin) {
+                        filtered = filtered.filter(plan => plan.maguchi >= this.filters.maguchiMin);
+                    }
+                    if (this.filters.maguchiMax) {
+                        filtered = filtered.filter(plan => plan.maguchi <= this.filters.maguchiMax);
+                    }
+
+                    this.filteredPlans = filtered;
+                },
+
+                clearFilters() {
+                    this.searchQuery = '';
+                    this.filters = {
+                        tsuboMin: '',
+                        tsuboMax: '',
+                        category: '',
+                        maguchiMin: '',
+                        maguchiMax: ''
+                    };
+                    this.applyFilters();
+                },
+
+                showDetails(plan) {
+                    this.selectedPlan = plan;
+                }
+            };
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</body>
+</html>

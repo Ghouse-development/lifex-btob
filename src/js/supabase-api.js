@@ -10,11 +10,7 @@ export const plansAPI = {
         try {
             const { data, error } = await supabase
                 .from('plans')
-                .select(`
-                    *,
-                    plan_images(*)
-                `)
-                .eq('status', 'published')
+                .select('*')
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -30,11 +26,7 @@ export const plansAPI = {
         try {
             let query = supabase
                 .from('plans')
-                .select(`
-                    *,
-                    plan_images(*)
-                `)
-                .eq('status', 'published');
+                .select('*');
 
             // 坪数フィルタ
             if (filters.tsuboMin) {
@@ -45,37 +37,34 @@ export const plansAPI = {
             }
 
             // 間口フィルタ
-            if (filters.widthMin) {
-                query = query.gte('width', filters.widthMin);
+            if (filters.maguchiMin || filters.widthMin) {
+                query = query.gte('maguchi', filters.maguchiMin || filters.widthMin);
             }
-            if (filters.widthMax) {
-                query = query.lte('width', filters.widthMax);
+            if (filters.maguchiMax || filters.widthMax) {
+                query = query.lte('maguchi', filters.maguchiMax || filters.widthMax);
             }
 
             // 奥行フィルタ
-            if (filters.depthMin) {
-                query = query.gte('depth', filters.depthMin);
+            if (filters.okuYukiMin || filters.depthMin) {
+                query = query.gte('oku_yuki', filters.okuYukiMin || filters.depthMin);
             }
-            if (filters.depthMax) {
-                query = query.lte('depth', filters.depthMax);
-            }
-
-            // 価格フィルタ
-            if (filters.priceMin) {
-                query = query.gte('price', filters.priceMin);
-            }
-            if (filters.priceMax) {
-                query = query.lte('price', filters.priceMax);
-            }
-
-            // タグフィルタ
-            if (filters.tags && filters.tags.length > 0) {
-                query = query.contains('tags', filters.tags);
+            if (filters.okuYukiMax || filters.depthMax) {
+                query = query.lte('oku_yuki', filters.okuYukiMax || filters.depthMax);
             }
 
             // カテゴリフィルタ
-            if (filters.category) {
-                query = query.eq('category', filters.category);
+            if (filters.category || filters.plan_category) {
+                query = query.eq('plan_category', filters.category || filters.plan_category);
+            }
+
+            // サブカテゴリフィルタ
+            if (filters.plan_sub_category) {
+                query = query.eq('plan_sub_category', filters.plan_sub_category);
+            }
+
+            // キーワード検索（プラン名または備考）
+            if (filters.keyword) {
+                query = query.or(`plan_name.ilike.%${filters.keyword}%,remarks.ilike.%${filters.keyword}%`);
             }
 
             const { data, error } = await query.order('created_at', { ascending: false });
@@ -91,13 +80,9 @@ export const plansAPI = {
     // 単一プラン取得
     async getPlanById(planId) {
         try {
-            const { data, error } = await supabase
+            const { data, error} = await supabase
                 .from('plans')
-                .select(`
-                    *,
-                    plan_images(*),
-                    plan_files(*)
-                `)
+                .select('*')
                 .eq('id', planId)
                 .single();
 
@@ -105,6 +90,23 @@ export const plansAPI = {
             return data;
         } catch (error) {
             console.error('Error fetching plan:', handleError(error));
+            return null;
+        }
+    },
+
+    // プラン名で取得
+    async getPlanByName(planName) {
+        try {
+            const { data, error } = await supabase
+                .from('plans')
+                .select('*')
+                .eq('plan_name', planName)
+                .single();
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('Error fetching plan by name:', handleError(error));
             return null;
         }
     },

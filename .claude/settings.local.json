@@ -18,7 +18,13 @@
       "Bash(xargs basename:*)",
       "Bash(node scripts/utilities/check-auth-tables.js:*)",
       "Read(//c/Users/nishino/Downloads/**)",
-      "Bash(npx vercel env:*)"
+      "Bash(npx vercel env:*)",
+      "Bash(node scripts/utilities/generate-plan-csv.js:*)",
+      "Bash(npx supabase:*)",
+      "Bash(node scripts/utilities/import-plans-to-supabase.js:*)",
+      "Bash(node scripts/utilities/generate-import-sql.js:*)",
+      "Bash(node scripts/utilities/verify-plans-import.js:*)",
+      "Bash(npm run dev:*:*)"
     ],
     "deny": [],
     "ask": []
