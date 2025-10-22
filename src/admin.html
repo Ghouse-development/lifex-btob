@@ -560,16 +560,17 @@
                 async loadStats() {
                     try {
                         // プラン統計（公開中のプランのみカウント - ホームページと一致させる）
-                        const plansData = await lifeXAPI.getPlansIndex();
-                        const publishedPlans = (plansData.plans || []).filter(plan => 
-                            !plan.status || plan.status === 'published' || plan.status === 'active'
-                        );
+                        const { data, error } = await window.supabase
+                            .from('plans')
+                            .select('*');
+
+                        const publishedPlans = (data || []);
                         this.stats.plans = publishedPlans.length;
                         this.stats.plansUpdated = publishedPlans.filter(plan => {
-                            if (!plan.updatedAt) return false;
-                            const updatedDate = new Date(plan.updatedAt);
+                            if (!plan.updated_at) return false;
+                            const updatedDate = new Date(plan.updated_at);
                             const thisMonth = new Date();
-                            return updatedDate.getMonth() === thisMonth.getMonth() && 
+                            return updatedDate.getMonth() === thisMonth.getMonth() &&
                                    updatedDate.getFullYear() === thisMonth.getFullYear();
                         }).length;
                         
@@ -687,11 +688,16 @@
                 async performBackup() {
                     try {
                         lifeXAPI.showToast('バックアップを開始しました', 'info');
-                        
-                        // 全てのLocalStorageデータを収集
+
+                        // Supabaseからプランデータを取得
+                        const { data: plans } = await window.supabase
+                            .from('plans')
+                            .select('*');
+
+                        // 全てのデータを収集
                         const backupData = {
                             timestamp: new Date().toISOString(),
-                            plans: localStorage.getItem('plans_data'),
+                            plans: JSON.stringify({ plans: plans || [] }),
                             downloads: localStorage.getItem('downloads_data'),
                             rules: localStorage.getItem('rules_categories_data'),
                             faqs: localStorage.getItem('faq_data'),
@@ -728,30 +734,32 @@
                 async exportData() {
                     try {
                         lifeXAPI.showToast('データエクスポートを開始しました', 'info');
-                        
+
                         // CSVエクスポート用のプランデータを取得
-                        const plansData = await lifeXAPI.getPlansIndex();
-                        const plans = plansData.plans || [];
-                        
-                        if (plans.length === 0) {
+                        const { data: plans, error } = await window.supabase
+                            .from('plans')
+                            .select('*');
+
+                        if (error) throw error;
+
+                        if (!plans || plans.length === 0) {
                             lifeXAPI.showToast('エクスポートするプランがありません', 'warning');
                             return;
                         }
-                        
+
                         // CSV形式に変換
-                        const headers = ['プランID', '階数', '坪数', '間取り', '想定販売価格', '想定原価', '想定粗利', 'ステータス', '更新日'];
+                        const headers = ['プランID', '階数', '坪数', '間取り', '想定販売価格', '想定原価', '想定粗利', '更新日'];
                         const csvData = [
                             headers.join(','),
                             ...plans.map(plan => [
                                 plan.id || '',
-                                plan.floors == 1 ? '平屋' : plan.floors == 2 ? '2階建て' : '3階建て',
+                                plan.building_floors == 1 ? '平屋' : plan.building_floors == 2 ? '2階建て' : '3階建て',
                                 plan.tsubo || '',
-                                plan.layout || '',
-                                plan.prices?.sell ? Math.round(plan.prices.sell / 10000) + '万円' : '',
-                                plan.prices?.cost ? Math.round(plan.prices.cost / 10000) + '万円' : '',
-                                plan.prices?.gross ? Math.round(plan.prices.gross / 10000) + '万円' : '',
-                                plan.status === 'published' ? '公開中' : '下書き',
-                                plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString('ja-JP') : ''
+                                plan.plan_name || '',
+                                plan.sell_price ? Math.round(plan.sell_price / 10000) + '万円' : '',
+                                plan.cost_price ? Math.round(plan.cost_price / 10000) + '万円' : '',
+                                plan.gross_profit ? Math.round(plan.gross_profit / 10000) + '万円' : '',
+                                plan.updated_at ? new Date(plan.updated_at).toLocaleDateString('ja-JP') : ''
                             ].join(','))
                         ].join('\n');
                         

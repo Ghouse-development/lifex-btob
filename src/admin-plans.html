@@ -1258,40 +1258,14 @@
                 async loadPlans() {
                     this.loading = true;
                     try {
-                        // Supabase連携を使用
-                        if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
-                            console.log('[LoadPlans] Supabaseからプランを取得');
-                            try {
-                                const plans = await window.supabaseBridge.getPlans();
-                                if (plans && plans.length > 0) {
-                                    this.plans = plans;
-                                    console.log('[LoadPlans] Supabaseから取得成功:', this.plans.length, '件');
-                                } else {
-                                    // Supabaseが空の場合、LocalStorageを確認
-                                    console.warn('[LoadPlans] Supabaseが空、LocalStorageから取得');
-                                    const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
-                                    this.plans = plansData.plans || [];
-                                    console.log('[LoadPlans] LocalStorageから取得:', this.plans.length, '件');
-                                }
-                            } catch (supabaseError) {
-                                console.warn('[LoadPlans] Supabase取得失敗、LocalStorageから取得:', supabaseError);
-                                // フォールバック: LocalStorageから読み込み
-                                const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
-                                this.plans = plansData.plans || [];
-                                console.log('[LoadPlans] LocalStorageから取得:', this.plans.length, '件');
-                            }
-                        } else {
-                            console.log('[LoadPlans] LocalStorageからプランを取得');
-                            // LocalStorageから直接読み込み
-                            const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
-                            this.plans = plansData.plans || [];
-                            console.log('[LoadPlans] LocalStorageから取得:', this.plans.length, '件');
-                        }
+                        console.log('[LoadPlans] Supabaseからプランを取得');
+                        const plans = await window.supabaseBridge.getPlans();
+                        this.plans = plans || [];
+                        console.log('[LoadPlans] Supabaseから取得成功:', this.plans.length, '件');
                         this.filterPlans();
                     } catch (error) {
                         console.error('プランの読み込みに失敗しました:', error);
                         showToast('プランの読み込みに失敗しました', 'error');
-                        // 最終フォールバック: 空配列
                         this.plans = [];
                     } finally {
                         this.loading = false;
@@ -1566,20 +1540,8 @@
                 async deletePlan(plan) {
                     if (confirm(`プラン「${plan.name}」を削除しますか？`)) {
                         try {
-                            // Supabase連携を使用
-                            if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
-                                console.log('[DeletePlan] Supabaseからプランを削除');
-                                await window.supabaseAPI.plans.delete(plan.id);
-                            } else {
-                                console.log('[DeletePlan] LocalStorageからプランを削除');
-                                // LocalStorageから削除
-                                const localData = localStorage.getItem('plans_data');
-                                if (localData) {
-                                    let plansData = JSON.parse(localData);
-                                    plansData.plans = plansData.plans.filter(p => p.id !== plan.id);
-                                    localStorage.setItem('plans_data', JSON.stringify(plansData));
-                                }
-                            }
+                            console.log('[DeletePlan] Supabaseからプランを削除');
+                            await window.supabaseAPI.plans.delete(plan.id);
 
                             // UIから削除
                             this.plans = this.plans.filter(p => p.id !== plan.id);
@@ -1703,61 +1665,19 @@
                         try {
                             if (this.editingPlan) {
                                 console.log('[SavePlan] 既存プランを更新:', this.editingPlan.id);
-                                // Supabase連携を使用
-                                if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
-                                    await window.supabaseBridge.updatePlan(this.editingPlan.id, planData);
-                                } else {
-                                    await lifeXAPI.updatePlan(this.editingPlan.id, planData);
-                                }
+                                await window.supabaseBridge.updatePlan(this.editingPlan.id, planData);
                                 console.log('[SavePlan] プラン更新成功');
                                 showToast('プランを更新しました', 'success');
                             } else {
                                 console.log('[SavePlan] 新規プランを作成');
-                                // Supabase連携を使用
-                                let result;
-                                if (window.supabaseBridge && window.supabaseBridge.useSupabase) {
-                                    console.log('[SavePlan] Supabaseに保存を試行');
-                                    result = await window.supabaseBridge.savePlan(planData);
-                                    console.log('[SavePlan] Supabase保存結果:', result);
-
-                                    // Supabase保存失敗時はLocalStorageにフォールバック
-                                    if (!result.success) {
-                                        console.warn('[SavePlan] Supabase保存失敗、LocalStorageにフォールバック');
-                                        // LocalStorageに保存
-                                        const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
-                                        plansData.plans.push(planData);
-                                        localStorage.setItem('plans_data', JSON.stringify(plansData));
-                                        result = { success: true, data: planData, source: 'localStorage' };
-                                    }
-                                } else {
-                                    console.log('[SavePlan] LocalStorageに保存');
-                                    // LocalStorageに保存
-                                    const plansData = JSON.parse(localStorage.getItem('plans_data') || '{"plans":[]}');
-                                    plansData.plans.push(planData);
-                                    localStorage.setItem('plans_data', JSON.stringify(plansData));
-                                    result = { success: true, data: planData, source: 'localStorage' };
-                                }
-                                console.log('[SavePlan] プラン作成成功:', result);
-                                const message = result.source === 'localStorage'
-                                    ? 'プランを追加しました（ローカルに保存）'
-                                    : 'プランを追加しました';
-                                showToast(message, 'success');
-
-                                // LocalStorageに保存した場合は、直接plansリストに追加
-                                if (result.source === 'localStorage') {
-                                    console.log('[SavePlan] LocalStorageモード: plansリストに直接追加');
-                                    this.plans.push(result.data);
-                                }
+                                console.log('[SavePlan] Supabaseに保存を試行');
+                                const result = await window.supabaseBridge.savePlan(planData);
+                                console.log('[SavePlan] Supabase保存結果:', result);
+                                showToast('プランを追加しました', 'success');
                             }
 
                             console.log('[SavePlan] プラン一覧を再読み込み');
-                            // LocalStorageに保存した場合は再読み込みをスキップ
-                            const skipReload = this.plans.some(p => p.id === planData.id);
-                            if (!skipReload) {
-                                await this.loadPlans();
-                            } else {
-                                console.log('[SavePlan] LocalStorageモード: 再読み込みスキップ');
-                            }
+                            await this.loadPlans();
                             this.filterPlans();
                             this.updateStats();
 

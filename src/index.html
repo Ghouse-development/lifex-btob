@@ -337,12 +337,13 @@
                 
                 async loadStats() {
                     try {
-                        const plansData = await lifeXAPI.getPlansIndex();
-                        console.log('Plans data loaded:', plansData);
-                        // statusがpublishedまたは未設定のプランをカウント
-                        this.stats.totalPlans = (plansData.plans || []).filter(plan => 
-                            !plan.status || plan.status === 'published' || plan.status === 'active'
-                        ).length;
+                        // Supabaseからプランデータを取得
+                        const { data: plans, error } = await window.supabase
+                            .from('plans')
+                            .select('*');
+
+                        console.log('Plans data loaded from Supabase:', plans);
+                        this.stats.totalPlans = (plans || []).length;
                         console.log('Total plans count:', this.stats.totalPlans);
                         
                         // ダウンロード資料数をlocalStorageから取得
@@ -512,20 +513,7 @@
                 },
 
                 async init() {
-                    // LocalStorageにプランデータがない場合、初期データを設定
-                    if (!localStorage.getItem('plans_data')) {
-                        const initialPlan = {
-                            plans: [{
-                                id: 'LX-001',
-                                name: 'サンプルプラン',
-                                status: 'published',
-                                tsubo: 30,
-                                updatedAt: new Date().toISOString()
-                            }]
-                        };
-                        localStorage.setItem('plans_data', JSON.stringify(initialPlan));
-                        console.log('Initial plan data set');
-                    }
+                    // プランデータはSupabaseで管理されているため、LocalStorageの初期化は不要
                     
                     // ダウンロードデータのデモデータをクリア（管理画面で登録されていない場合）
                     const downloadsData = localStorage.getItem('downloads_data');

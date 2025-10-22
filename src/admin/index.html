@@ -343,19 +343,22 @@
 
                 async loadDashboardData() {
                     try {
-                        const plansData = await lifeXAPI.getPlansIndex();
-                        const plans = plansData.plans;
-                        
-                        // 公開中のプランのみカウント（他の画面と統一）
-                        const publishedPlans = plans.filter(p => 
-                            !p.status || p.status === 'published' || p.status === 'active'
-                        );
-                        this.stats.totalPlans = publishedPlans.length;
-                        this.stats.publishedPlans = publishedPlans.length;
-                        this.stats.draftPlans = plans.filter(p => p.status === 'draft').length;
+                        // Supabaseからプランデータを取得
+                        const { data: plans, error } = await window.supabase
+                            .from('plans')
+                            .select('*');
+
+                        if (error) throw error;
+
+                        const plansArray = plans || [];
+
+                        // 全プランをカウント
+                        this.stats.totalPlans = plansArray.length;
+                        this.stats.publishedPlans = plansArray.length;
+                        this.stats.draftPlans = 0;
                         
                         // Simulate file count
-                        this.stats.totalFiles = plans.length * 15; // Approximate files per plan
+                        this.stats.totalFiles = plansArray.length * 15; // Approximate files per plan
                         
                         // Mock recent activities
                         this.recentActivities = [

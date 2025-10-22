@@ -460,8 +460,51 @@
 
                 async loadPlan(planId) {
                     try {
-                        this.plan = await lifeXAPI.getPlan(planId);
+                        // Load plan from Supabase
+                        const { data, error } = await window.supabase
+                            .from('plans')
+                            .select('*')
+                            .eq('id', planId)
+                            .single();
+
+                        if (error) throw error;
+                        if (!data) {
+                            this.error = true;
+                            return;
+                        }
+
+                        // Map Supabase data to plan format
+                        this.plan = {
+                            id: data.id,
+                            name: data.plan_name,
+                            tsubo: data.tsubo,
+                            width: data.maguchi ? data.maguchi.toFixed(2) : '0',
+                            depth: data.oku_yuki ? data.oku_yuki.toFixed(2) : '0',
+                            floors: data.building_floors || '-',
+                            ldkFloor: data.ldk_floor || '1階',
+                            bathroomFloor: data.bathroom_floor || '1階',
+                            version: data.version || '1.0',
+                            floorPlan: data.thumbnail_url,
+                            prices: {
+                                sell: data.sell_price,
+                                cost: data.cost_price,
+                                gross: data.gross_profit
+                            },
+                            tags: [],  // TODO: タグ機能が実装されたら対応
+                            updatedAt: data.updated_at || data.created_at,
+                            files: {
+                                presentation: [],  // TODO: ファイル管理機能が実装されたら対応
+                                drawings: {},
+                                excel: {},
+                                doors: [],
+                                sashes: [],
+                                budget: [],
+                                estimate: [],
+                                wih: []
+                            }
+                        };
                     } catch (error) {
+                        console.error('Error loading plan from Supabase:', error);
                         this.error = true;
                         throw error;
                     }
@@ -469,36 +512,46 @@
 
                 async loadRelatedPlans(currentPlanId) {
                     try {
-                        const plansData = await lifeXAPI.getPlansIndex();
-                        const allPlans = plansData.plans.filter(p => p.status === 'published' && p.id !== currentPlanId);
-                        
-                        if (!this.plan) return;
-                        
+                        // Load all plans from Supabase
+                        const { data, error } = await window.supabase
+                            .from('plans')
+                            .select('*')
+                            .neq('id', currentPlanId)
+                            .order('created_at', { ascending: false });
+
+                        if (error) throw error;
+                        if (!this.plan || !data) return;
+
+                        // Map Supabase data to plan format
+                        const allPlans = data.map(p => ({
+                            id: p.id,
+                            name: p.plan_name,
+                            tsubo: p.tsubo,
+                            width: p.maguchi ? p.maguchi.toFixed(2) : '0',
+                            depth: p.oku_yuki ? p.oku_yuki.toFixed(2) : '0',
+                            tags: [],  // TODO: タグ機能実装後に対応
+                            prices: {
+                                sell: p.sell_price
+                            }
+                        }));
+
                         // Find plans with similar characteristics
                         const similarPlans = allPlans.filter(p => {
                             // Similar size (±5 tsubo)
                             const sizeDiff = Math.abs(p.tsubo - this.plan.tsubo);
-                            // Shared tags
-                            const sharedTags = p.tags.filter(tag => this.plan.tags.includes(tag));
-                            
-                            return sizeDiff <= 5 || sharedTags.length > 0;
+                            return sizeDiff <= 5;
                         });
 
                         // Sort by relevance and take top 3
                         this.relatedPlans = similarPlans
                             .sort((a, b) => {
-                                const aSharedTags = a.tags.filter(tag => this.plan.tags.includes(tag)).length;
-                                const bSharedTags = b.tags.filter(tag => this.plan.tags.includes(tag)).length;
                                 const aSizeDiff = Math.abs(a.tsubo - this.plan.tsubo);
                                 const bSizeDiff = Math.abs(b.tsubo - this.plan.tsubo);
-                                
-                                // First sort by shared tags, then by size similarity
-                                if (aSharedTags !== bSharedTags) return bSharedTags - aSharedTags;
                                 return aSizeDiff - bSizeDiff;
                             })
                             .slice(0, 3);
                     } catch (error) {
-                        console.error('Error loading related plans:', error);
+                        console.error('Error loading related plans from Supabase:', error);
                     }
                 },
 
