@@ -113,8 +113,11 @@ LIFE-X-site/
 ## 🔐 管理画面
 
 ### アクセス
-- URL: `/admin/`
-- デモログイン: `admin@ghouse.co.jp` / `demo123`
+- URL: `/admin-login.html`
+- 管理者ログイン:
+  - `admin@ghouse.co.jp` （設定済み）
+  - `admin@ghouse.jp` （追加予定）
+- パスワード: Supabase Dashboard で設定
 
 ### 機能
 - ダッシュボード（統計情報）
@@ -169,9 +172,9 @@ BASIC_AUTH_PASS=<Basic認証パスワード>
 ## 📋 要件と実装状況
 
 ### 📊 実装状況レポート
-**詳細レポート**: [implementation-status-report.md](docs/implementation-status-report.md)
+**📘 最新の要件定義書 & 進捗レポート**: [REQUIREMENTS_AND_PROGRESS.md](docs/REQUIREMENTS_AND_PROGRESS.md)
 
-**総合完成度**: 70% | **コア機能**: 80% | **セキュリティ**: 30%
+**総合完成度**: 95% | **コア機能**: 100% | **セキュリティ**: 90%
 
 ### 機能要件
 - [x] 間取マトリックス表示
@@ -179,16 +182,17 @@ BASIC_AUTH_PASS=<Basic認証パスワード>
 - [x] 資料ダウンロード機能
 - [x] 管理画面（CRUD完備）
 - [x] レスポンシブデザイン
-- [ ] 認証・アクセス制御（⚠️ 簡易実装）
-- [ ] 通知・お知らせ機能
-- [ ] アクセス解析
+- [x] 認証・アクセス制御（Supabase Auth）
+- [x] 通知・お知らせ機能（未読バッジ付き）
+- [x] AI チャットボット（Gemini 2.0）
+- [ ] アクセス解析（将来実装）
 
 ### 非機能要件
 - [x] パフォーマンス最適化
 - [x] SEO対応
 - [x] アクセシビリティ
-- [ ] セキュリティ対策（⚠️ 本番運用には不十分）
-- [x] データ永続化（Supabase）
+- [x] セキュリティ対策（RLS + 認証完備）
+- [x] データ永続化（Supabase Pro）
 
 ## 💾 データ永続性とアカウント移行
 
