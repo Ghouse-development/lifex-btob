@@ -29,7 +29,10 @@
       "Bash(psql:*)",
       "Bash(node scripts/utilities/setup-storage-buckets.js:*)",
       "Bash(node scripts/utilities/check-storage-buckets.js:*)",
-      "Bash(node scripts/utilities/upload-plans-to-storage.js:*)"
+      "Bash(node scripts/utilities/upload-plans-to-storage.js:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []
