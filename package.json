@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
-    "alpinejs": "^3.13.3"
+    "alpinejs": "^3.13.3",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.0",

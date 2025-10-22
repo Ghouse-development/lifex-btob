@@ -59,4 +59,4 @@ jspm_packages/
 # Local development
 .cache/
 temp/
-tmp/
+tmp/.env.local
