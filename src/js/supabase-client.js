@@ -1,9 +1,14 @@
 // Supabase Client Configuration
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase接続情報
-const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+// Supabase接続情報（環境変数から取得）
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseAnonKey) {
+    console.error('❌ VITE_SUPABASE_ANON_KEY が設定されていません');
+    throw new Error('Supabase API key is not configured. Please set VITE_SUPABASE_ANON_KEY environment variable.');
+}
 
 // Supabaseクライアントの作成
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
