@@ -15,7 +15,10 @@
       "Bash(curl:*)",
       "Bash(npm run build:*)",
       "Bash(node scripts/utilities/check-supabase-tables.js:*)",
-      "Bash(xargs basename:*)"
+      "Bash(xargs basename:*)",
+      "Bash(node scripts/utilities/check-auth-tables.js:*)",
+      "Read(//c/Users/nishino/Downloads/**)",
+      "Bash(npx vercel env:*)"
     ],
     "deny": [],
     "ask": []

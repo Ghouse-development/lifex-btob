@@ -780,15 +780,119 @@ function aibotComponent() {
             await this.generateResponse(message);
         },
 
+        // サイト内データ検索（RAG: Retrieval-Augmented Generation）
+        async searchSiteData(question) {
+            const results = {
+                plans: [],
+                notifications: [],
+                popular_pages: []
+            };
+
+            try {
+                const lowerQuestion = question.toLowerCase();
+
+                // プラン検索（プランに関する質問の場合）
+                if (lowerQuestion.includes('プラン') || lowerQuestion.includes('間取') || lowerQuestion.includes('坪')) {
+                    const { data: plans } = await window.supabase
+                        .from('plans')
+                        .select('plan_name, tsubo, plan_category, plan_sub_category')
+                        .limit(5);
+                    if (plans) results.plans = plans;
+                }
+
+                // 最新のお知らせを検索
+                const { data: notifications } = await window.supabase
+                    .from('notifications')
+                    .select('title, content, category')
+                    .eq('status', 'published')
+                    .order('published_at', { ascending: false })
+                    .limit(3);
+                if (notifications) results.notifications = notifications;
+
+                // 人気ページを検索（最近のアクセス傾向）
+                const { data: popular } = await window.supabase
+                    .from('popular_pages')
+                    .select('page_path, page_title, view_count')
+                    .limit(5);
+                if (popular) results.popular_pages = popular;
+
+            } catch (error) {
+                console.error('Error searching site data:', error);
+            }
+
+            return results;
+        },
+
+        // Gemini APIを呼び出す
+        async callGeminiAPI(question, siteData) {
+            try {
+                // サイトデータを整形してコンテキストとして渡す
+                let context = 'このサイト（LIFE X規格住宅サイト）内の情報のみを使って回答してください。一般的な知識は使わないでください。\n\n';
+
+                if (siteData.plans && siteData.plans.length > 0) {
+                    context += '【サイト内のプラン情報】\n';
+                    siteData.plans.forEach(plan => {
+                        context += `- ${plan.plan_name} (${plan.tsubo}坪, カテゴリ: ${plan.plan_category})\n`;
+                    });
+                    context += '\n';
+                }
+
+                if (siteData.notifications && siteData.notifications.length > 0) {
+                    context += '【サイト内の最新お知らせ】\n';
+                    siteData.notifications.forEach(notif => {
+                        context += `- ${notif.title}: ${notif.content.substring(0, 100)}...\n`;
+                    });
+                    context += '\n';
+                }
+
+                if (siteData.popular_pages && siteData.popular_pages.length > 0) {
+                    context += '【サイト内の人気ページ】\n';
+                    siteData.popular_pages.forEach(page => {
+                        context += `- ${page.page_title || page.page_path} (閲覧数: ${page.view_count})\n`;
+                    });
+                    context += '\n';
+                }
+
+                context += `【ユーザーからの質問】\n${question}\n\n`;
+                context += '※上記のサイト内情報のみを使って、簡潔に3〜5文で回答してください。情報が不足している場合は「詳細は担当者にお問い合わせください」と案内してください。';
+
+                // Gemini APIエンドポイントを呼び出す
+                const response = await fetch('/api/gemini-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: context,
+                        history: []
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Gemini API呼び出しに失敗しました');
+                }
+
+                const data = await response.json();
+
+                if (data.success && data.response) {
+                    return data.response;
+                } else {
+                    throw new Error('APIレスポンスが不正です');
+                }
+
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                return null;
+            }
+        },
+
         async generateResponse(question) {
-            // AI応答のシミュレーション
             let response = '';
             const lowerQuestion = question.toLowerCase();
-            
+
+            // ステップ1: ルールベースの高速応答（よくある質問）
             if (lowerQuestion.includes('価格') || lowerQuestion.includes('料金') || lowerQuestion.includes('費用')) {
                 response = 'LIFE Xの価格については、標準価格表に基づいて見積もりを作成いたします。詳細は営業担当者にお問い合わせください。';
-            } else if (lowerQuestion.includes('プラン')) {
-                response = 'LIFE Xでは30坪から35坪まで様々なプランをご用意しています。プラン一覧ページでご確認いただけます。';
             } else if (lowerQuestion.includes('耐震') || lowerQuestion.includes('地震')) {
                 response = 'LIFE Xでは耐震等級3を標準仕様としています。建築基準法の1.5倍の地震力に耐える構造です。';
             } else if (lowerQuestion.includes('工期') || lowerQuestion.includes('期間')) {
@@ -800,11 +904,25 @@ function aibotComponent() {
             } else if (lowerQuestion.includes('間取') || lowerQuestion.includes('マトリックス')) {
                 response = '間取マトリックスページでは、建物間口と奥行の組み合わせから最適なプランを検索できます。';
             } else {
-                response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
+                // ステップ2: 複雑な質問はGemini + RAGで処理
+                console.log('Using Gemini API with RAG for complex question');
+
+                // サイトデータを検索
+                const siteData = await this.searchSiteData(question);
+
+                // Gemini APIを呼び出す
+                const aiResponse = await this.callGeminiAPI(question, siteData);
+
+                if (aiResponse) {
+                    response = aiResponse;
+                } else {
+                    // APIエラー時のフォールバック
+                    response = 'ご質問ありがとうございます。詳しい情報はメニューから各ページをご確認いただくか、お問い合わせください。';
+                }
             }
 
             // タイピング遅延のシミュレーション
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
             const aiMessage = {
                 id: Date.now(),
