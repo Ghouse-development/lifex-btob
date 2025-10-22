@@ -80,7 +80,11 @@ Gハウス規格住宅「LIFE X」の加盟店が、プラン情報・設計資�
 
 **管理者アカウント:**
 - `admin@ghouse.co.jp` ✅ 設定済み
-- `admin@ghouse.jp` ✅ 追加予定
+- `admin@ghouse.jp` ✅ 設定済み（2025-10-22）
+  - User ID: `7d816c1f-3081-4e6d-92b8-328fb392d44d`
+  - Password: `Ghouse0648`
+  - Role: `admin`
+  - Status: `active`
 
 **未実装:**
 - [ ] パスワードリセット機能（Supabaseメール設定が必要）
@@ -385,6 +389,26 @@ Gハウス規格住宅「LIFE X」の加盟店が、プラン情報・設計資�
 - **ホスティング**: Vercel Pro
 - **データベース**: Supabase Pro
 - **プロジェクトID**: hegpxvyziovlfxdfsrsv
+
+### Supabase 認証情報
+
+**⚠️ セキュリティ重要情報**
+
+以下の情報は Supabase Dashboard から取得してください：
+
+1. **Project URL**: `https://hegpxvyziovlfxdfsrsv.supabase.co`
+2. **Anon Key**: Supabase Dashboard → Settings → API → `anon` → `public`
+3. **Service Role Key**: Supabase Dashboard → Settings → API → `service_role` → `secret`
+   - ⚠️ **絶対に公開しないこと！**
+   - 管理者権限を持つため、流出すると重大なセキュリティリスク
+   - GitHub や公開ドキュメントには含めない
+   - `.env.local` ファイルで管理（.gitignore 済み）
+
+**取得手順:**
+1. https://supabase.com/dashboard にアクセス
+2. プロジェクト `hegpxvyziovlfxdfsrsv` を選択
+3. Settings → API
+4. 必要なキーをコピー
 
 ### 自動デプロイ
 
