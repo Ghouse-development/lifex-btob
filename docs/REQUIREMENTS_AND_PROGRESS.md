@@ -410,6 +410,18 @@ Gハウス規格住宅「LIFE X」の加盟店が、プラン情報・設計資�
 3. Settings → API
 4. 必要なキーをコピー
 
+**✅ 正しいANON KEY（2025-10-22確認済み）:**
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws
+```
+
+**⚠️ 重要**: Vercelの環境変数設定時は、必ず上記の正しいキーを使用してください。
+- 環境変数名: `VITE_SUPABASE_ANON_KEY`
+- 設定場所: Vercel Dashboard → Settings → Environment Variables
+- 適用環境: Production, Preview, Development **全て**にチェック
+
+詳細は [VERCEL_ENV_SETUP.md](../VERCEL_ENV_SETUP.md) を参照。
+
 ### 自動デプロイ
 
 - ✅ GitHub main ブランチへのプッシュで自動デプロイ
