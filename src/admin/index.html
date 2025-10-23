@@ -350,6 +350,11 @@
 
                 async loadDashboardData() {
                     try {
+                        // Wait for Supabase to be ready
+                        while (!window.supabase) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+
                         // Supabaseからプランデータを取得
                         const { data: plans, error } = await window.supabase
                             .from('plans')
