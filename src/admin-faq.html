@@ -85,12 +85,20 @@
                     <h1 class="text-3xl font-bold text-gray-900">よくある質問管理</h1>
                     <p class="text-gray-600 mt-2">FAQの追加・編集・削除・並び替えを管理</p>
                 </div>
-                <button type="button" @click="openAddModal()" class="btn-primary">
-                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    新規FAQ追加
-                </button>
+                <div class="flex space-x-3">
+                    <button type="button" @click="openCategoryModal()" class="btn-secondary">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                        </svg>
+                        カテゴリ管理
+                    </button>
+                    <button type="button" @click="openAddModal()" class="btn-primary">
+                        <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        新規FAQ追加
+                    </button>
+                </div>
             </div>
 
             <!-- カテゴリ別タブ -->
@@ -165,7 +173,7 @@
             <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-3xl shadow-lg rounded-md bg-white mb-10">
                 <div class="mt-3">
                     <h3 class="text-lg font-medium text-gray-900 mb-4" x-text="editingFAQ ? 'FAQ編集' : '新規FAQ追加'"></h3>
-                    
+
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -195,12 +203,12 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">質問</label>
                             <input type="text" x-model="formData.question" class="form-input w-full" placeholder="よくある質問を入力">
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">回答</label>
                             <div class="mb-2">
@@ -208,21 +216,21 @@
                                 <button type="button" @click="insertHTML('list')" class="text-sm px-2 py-1 bg-gray-100 rounded mr-1">リスト</button>
                                 <button type="button" @click="insertHTML('br')" class="text-sm px-2 py-1 bg-gray-100 rounded">改行</button>
                             </div>
-                            <textarea 
-                                x-model="formData.answer" 
-                                rows="8" 
-                                class="form-input w-full" 
+                            <textarea
+                                x-model="formData.answer"
+                                rows="8"
+                                class="form-input w-full"
                                 placeholder="回答を入力（HTML可）">
                             </textarea>
                             <p class="text-xs text-gray-500 mt-1">※ HTMLタグが使用可能です（&lt;br&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt; など）</p>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">プレビュー</label>
                             <div class="p-4 bg-gray-50 rounded border border-gray-200 min-h-[100px]" x-html="formData.answer || '（回答のプレビューがここに表示されます）'"></div>
                         </div>
                     </div>
-                    
+
                     <div class="mt-6 flex justify-end space-x-3">
                         <button type="button" @click="closeModal()" class="btn-secondary" :disabled="saving">キャンセル</button>
                         <button type="button" @click="saveFAQ()"
@@ -238,6 +246,82 @@
                                 保存中...
                             </span>
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Management Modal -->
+        <div x-show="showCategoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" style="display: none;">
+            <div class="relative top-10 mx-auto p-5 border w-11/12 max-w-2xl shadow-lg rounded-md bg-white mb-10">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">FAQカテゴリ管理</h3>
+
+                    <!-- カテゴリリスト -->
+                    <div class="space-y-2 mb-4">
+                        <template x-for="(category, index) in categoryObjects" :key="category.id">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
+                                <div class="flex-1">
+                                    <div x-show="editingCategory && editingCategory.id === category.id">
+                                        <input
+                                            type="text"
+                                            x-model="categoryFormData.name"
+                                            class="form-input w-full"
+                                            placeholder="カテゴリ名">
+                                    </div>
+                                    <div x-show="!editingCategory || editingCategory.id !== category.id">
+                                        <span class="font-medium" x-text="category.name"></span>
+                                        <span class="text-xs text-gray-500 ml-2" x-text="`表示順: ${category.display_order || index + 1}`"></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <template x-if="editingCategory && editingCategory.id === category.id">
+                                        <div class="flex space-x-2">
+                                            <button type="button" @click="saveCategoryEdit()" class="text-green-600 hover:text-green-900 text-sm">
+                                                保存
+                                            </button>
+                                            <button type="button" @click="cancelCategoryEdit()" class="text-gray-600 hover:text-gray-900 text-sm">
+                                                キャンセル
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <template x-if="!editingCategory || editingCategory.id !== category.id">
+                                        <div class="flex space-x-2">
+                                            <button type="button" @click="editCategoryItem(category)" class="text-blue-600 hover:text-blue-900">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </button>
+                                            <button type="button" @click="deleteCategoryItem(category)" class="text-red-600 hover:text-red-900">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- 新規カテゴリ追加フォーム -->
+                    <div class="p-4 bg-blue-50 rounded border border-blue-200">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">新規カテゴリ追加</h4>
+                        <div class="flex space-x-2">
+                            <input
+                                type="text"
+                                x-model="newCategoryName"
+                                @keyup.enter="addNewCategory()"
+                                class="form-input flex-1"
+                                placeholder="カテゴリ名を入力">
+                            <button type="button" @click="addNewCategory()" class="btn-primary">
+                                追加
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" @click="closeCategoryModal()" class="btn-secondary">閉じる</button>
                     </div>
                 </div>
             </div>
@@ -288,8 +372,11 @@
                 categoryObjects: [],
                 activeCategory: 'all',
                 showModal: false,
+                showCategoryModal: false,
                 editingFAQ: null,
+                editingCategory: null,
                 newCategory: '',
+                newCategoryName: '',
                 saving: false,
                 formData: {
                     question: '',
@@ -298,7 +385,11 @@
                     status: 'published',
                     order: 1
                 },
-                
+                categoryFormData: {
+                    name: '',
+                    display_order: 0
+                },
+
                 get canSave() {
                     const hasQuestion = this.formData.question.trim().length > 0;
                     const hasAnswer = this.formData.answer.trim().length > 0;
@@ -790,6 +881,220 @@
                     } catch (error) {
                         console.error('FAQ順序保存エラー:', error);
                         lifeXAPI.showToast('表示順の更新に失敗しました', 'error');
+                    }
+                },
+
+                // カテゴリ管理関数
+                openCategoryModal() {
+                    this.showCategoryModal = true;
+                    this.editingCategory = null;
+                    this.newCategoryName = '';
+                },
+
+                closeCategoryModal() {
+                    this.showCategoryModal = false;
+                    this.editingCategory = null;
+                    this.newCategoryName = '';
+                    this.categoryFormData = {
+                        name: '',
+                        display_order: 0
+                    };
+                },
+
+                editCategoryItem(category) {
+                    this.editingCategory = category;
+                    this.categoryFormData = {
+                        name: category.name,
+                        display_order: category.display_order || 0
+                    };
+                },
+
+                async saveCategoryEdit() {
+                    if (!this.editingCategory) return;
+
+                    const trimmedName = this.categoryFormData.name.trim();
+                    if (!trimmedName) {
+                        lifeXAPI.showToast('カテゴリ名を入力してください', 'error');
+                        return;
+                    }
+
+                    try {
+                        // window.supabaseが利用可能になるまで待機
+                        let retries = 0;
+                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        if (window.supabase && window.supabase.from) {
+                            // 直接Supabaseを使用してカテゴリを更新
+                            const { data, error } = await window.supabase
+                                .from('faq_categories')
+                                .update({
+                                    name: trimmedName,
+                                    display_order: this.categoryFormData.display_order,
+                                    updated_at: new Date().toISOString()
+                                })
+                                .eq('id', this.editingCategory.id)
+                                .select();
+
+                            if (error) {
+                                console.error('カテゴリ更新エラー:', error);
+                                lifeXAPI.showToast('カテゴリの更新に失敗しました', 'error');
+                                return;
+                            }
+
+                            // ローカルのカテゴリリストを更新
+                            const index = this.categoryObjects.findIndex(c => c.id === this.editingCategory.id);
+                            if (index > -1) {
+                                this.categoryObjects[index].name = trimmedName;
+                                this.categoryObjects[index].display_order = this.categoryFormData.display_order;
+                            }
+
+                            // カテゴリ名リストを更新
+                            this.categories = this.categoryObjects.map(c => c.name);
+
+                            // カテゴリマップを再構築
+                            this.categoryMap = {};
+                            this.categoryObjects.forEach(cat => {
+                                this.categoryMap[cat.name] = cat.id;
+                            });
+
+                            lifeXAPI.showToast('カテゴリを更新しました', 'success');
+                            this.editingCategory = null;
+                        } else {
+                            throw new Error('Supabaseクライアントが初期化されていません');
+                        }
+                    } catch (error) {
+                        console.error('カテゴリ更新エラー:', error);
+                        lifeXAPI.showToast('カテゴリの更新に失敗しました', 'error');
+                    }
+                },
+
+                cancelCategoryEdit() {
+                    this.editingCategory = null;
+                    this.categoryFormData = {
+                        name: '',
+                        display_order: 0
+                    };
+                },
+
+                async deleteCategoryItem(category) {
+                    // このカテゴリに属するFAQがあるか確認
+                    const faqsInCategory = this.faqs.filter(faq => faq.category === category.name);
+                    if (faqsInCategory.length > 0) {
+                        lifeXAPI.showToast('このカテゴリにはFAQが存在するため削除できません', 'error');
+                        return;
+                    }
+
+                    if (!confirm(`カテゴリ「${category.name}」を削除しますか？`)) {
+                        return;
+                    }
+
+                    try {
+                        // window.supabaseが利用可能になるまで待機
+                        let retries = 0;
+                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        if (window.supabase && window.supabase.from) {
+                            // 直接Supabaseを使用してカテゴリを削除
+                            const { error } = await window.supabase
+                                .from('faq_categories')
+                                .delete()
+                                .eq('id', category.id);
+
+                            if (error) {
+                                console.error('カテゴリ削除エラー:', error);
+                                lifeXAPI.showToast('カテゴリの削除に失敗しました', 'error');
+                                return;
+                            }
+
+                            // ローカルのカテゴリリストから削除
+                            this.categoryObjects = this.categoryObjects.filter(c => c.id !== category.id);
+                            this.categories = this.categoryObjects.map(c => c.name);
+
+                            // カテゴリマップを再構築
+                            this.categoryMap = {};
+                            this.categoryObjects.forEach(cat => {
+                                this.categoryMap[cat.name] = cat.id;
+                            });
+
+                            lifeXAPI.showToast('カテゴリを削除しました', 'success');
+                        } else {
+                            throw new Error('Supabaseクライアントが初期化されていません');
+                        }
+                    } catch (error) {
+                        console.error('カテゴリ削除エラー:', error);
+                        lifeXAPI.showToast('カテゴリの削除に失敗しました', 'error');
+                    }
+                },
+
+                async addNewCategory() {
+                    const trimmedName = this.newCategoryName.trim();
+                    if (!trimmedName) {
+                        lifeXAPI.showToast('カテゴリ名を入力してください', 'error');
+                        return;
+                    }
+
+                    // 重複チェック
+                    if (this.categories.includes(trimmedName)) {
+                        lifeXAPI.showToast('このカテゴリ名は既に存在します', 'error');
+                        return;
+                    }
+
+                    try {
+                        // window.supabaseが利用可能になるまで待機
+                        let retries = 0;
+                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        if (window.supabase && window.supabase.from) {
+                            // 新しい表示順を計算
+                            const maxOrder = this.categoryObjects.reduce((max, cat) =>
+                                Math.max(max, cat.display_order || 0), 0);
+
+                            // 直接Supabaseを使用してカテゴリを作成
+                            const { data, error } = await window.supabase
+                                .from('faq_categories')
+                                .insert([{
+                                    name: trimmedName,
+                                    display_order: maxOrder + 1,
+                                    created_at: new Date().toISOString(),
+                                    updated_at: new Date().toISOString()
+                                }])
+                                .select();
+
+                            if (error) {
+                                console.error('カテゴリ作成エラー:', error);
+                                lifeXAPI.showToast('カテゴリの作成に失敗しました', 'error');
+                                return;
+                            }
+
+                            if (data && data.length > 0) {
+                                // ローカルのカテゴリリストに追加
+                                const newCategory = data[0];
+                                this.categoryObjects.push(newCategory);
+                                this.categories.push(newCategory.name);
+
+                                // カテゴリマップを更新
+                                this.categoryMap[newCategory.name] = newCategory.id;
+
+                                // 入力欄をクリア
+                                this.newCategoryName = '';
+
+                                lifeXAPI.showToast('カテゴリを追加しました', 'success');
+                            }
+                        } else {
+                            throw new Error('Supabaseクライアントが初期化されていません');
+                        }
+                    } catch (error) {
+                        console.error('カテゴリ作成エラー:', error);
+                        lifeXAPI.showToast('カテゴリの作成に失敗しました', 'error');
                     }
                 }
             };
