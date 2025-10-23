@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理画面 | LIFE X 加盟店専用サイト</title>
     <link href="../styles/main.css" rel="stylesheet">
+
+    <!-- Supabase Client -->
+    <script type="module">
+        import { supabase } from '../js/supabase-client.js';
+        window.supabase = supabase;
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script type="module" src="../utils/api.js"></script>
 </head>
