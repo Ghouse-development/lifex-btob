@@ -1607,16 +1607,26 @@
                            this.isFieldValid('sellPrice') &&
                            this.isFieldValid('cost');
 
-                    console.log('Validation check:', {
+                    const validationResult = {
                         id: this.isFieldValid('id'),
+                        idValue: this.formData.id,
                         planCode: this.formData.planCode ? this.isFieldValid('planCode') : 'optional',
+                        planCodeValue: this.formData.planCode,
                         totalFloorArea: this.isFieldValid('totalFloorArea'),
+                        totalFloorAreaValue: this.formData.totalFloorArea,
                         constructionFloorArea: this.isFieldValid('constructionFloorArea'),
+                        constructionFloorAreaValue: this.formData.constructionFloorArea,
                         layout: this.isFieldValid('layout'),
+                        layoutValue: this.formData.layout,
                         sellPrice: this.isFieldValid('sellPrice'),
+                        sellPriceValue: this.formData.sellPrice,
                         cost: this.isFieldValid('cost'),
+                        costValue: this.formData.cost,
                         basicValid: basicValid
-                    });
+                    };
+
+                    console.log('🔍 Validation check:', JSON.stringify(validationResult, null, 2));
+                    console.log('❓ isFormValid() =', basicValid);
 
                     return basicValid;
                 },
