@@ -501,15 +501,30 @@
                     this.$nextTick(() => this.initSortable());
                 },
 
-                deleteCategory(category) {
+                async deleteCategory(category) {
                     if (category.rules && category.rules.length > 0) {
                         lifeXAPI.showToast('ルールが存在するカテゴリは削除できません', 'error');
                         return;
                     }
-                    
+
                     if (confirm(`カテゴリ「${category.name}」を削除しますか？`)) {
+                        // メモリから削除
                         this.categories = this.categories.filter(c => c.id !== category.id);
-                        this.saveToSupabase();
+
+                        // UUIDを持つカテゴリはデータベースからも削除
+                        if (category.id && typeof category.id === 'string' && category.id.includes('-')) {
+                            const { error } = await window.supabase
+                                .from('rule_categories')
+                                .delete()
+                                .eq('id', category.id);
+
+                            if (error) {
+                                console.error('カテゴリ削除エラー:', error);
+                                lifeXAPI.showToast('削除に失敗しました', 'error');
+                                return;
+                            }
+                        }
+
                         lifeXAPI.showToast('カテゴリを削除しました', 'success');
                     }
                 },
@@ -606,10 +621,25 @@
                     this.saveToSupabase();
                 },
 
-                deleteRule(rule, category) {
+                async deleteRule(rule, category) {
                     if (confirm(`ルール「${rule.title}」を削除しますか？`)) {
+                        // メモリから削除
                         category.rules = category.rules.filter(r => r.id !== rule.id);
-                        this.saveToSupabase();
+
+                        // UUIDを持つルールはデータベースからも削除
+                        if (rule.id && typeof rule.id === 'string' && rule.id.includes('-')) {
+                            const { error } = await window.supabase
+                                .from('rules')
+                                .delete()
+                                .eq('id', rule.id);
+
+                            if (error) {
+                                console.error('ルール削除エラー:', error);
+                                lifeXAPI.showToast('削除に失敗しました', 'error');
+                                return;
+                            }
+                        }
+
                         lifeXAPI.showToast('ルールを削除しました', 'success');
                     }
                 },
