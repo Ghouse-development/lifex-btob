@@ -145,7 +145,7 @@ export const plansAPI = {
     },
 
     // プラン削除
-    async delete(planId) {
+    async deletePlan(planId) {
         try {
             const { error } = await supabase
                 .from('plans')
