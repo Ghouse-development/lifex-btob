@@ -259,30 +259,41 @@
                 
                 async loadRules() {
                     try {
-                        // Supabase or localStorage
-                        if (window.supabaseAPI) {
-                            this.categories = await window.supabaseAPI.rules.getCategories();
-                        } else {
-                            // 管理画面で保存されたデータを読み込み
-                            const localData = localStorage.getItem('rules_categories_data');
-                            if (localData) {
-                                const data = JSON.parse(localData);
-                                this.categories = data.categories || [];
-                            }
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 20) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
                         }
 
-                        // アクティブなルールのみフィルタリング
-                        this.categories = this.categories.map(cat => ({
-                            ...cat,
-                            rules: (cat.rules || []).filter(rule => rule.status === 'active')
-                        }));
+                        if (window.supabaseAPI) {
+                            // カテゴリとルールを両方取得
+                            const [categories, rules] = await Promise.all([
+                                window.supabaseAPI.rules.getCategories(),
+                                window.supabaseAPI.rules.getAll()
+                            ]);
+
+                            console.log('✅ Loaded categories:', categories?.length || 0);
+                            console.log('✅ Loaded rules:', rules?.length || 0);
+
+                            // カテゴリにルールを紐づける
+                            this.categories = (categories || []).map(cat => ({
+                                ...cat,
+                                rules: (rules || []).filter(rule => rule.category_id === cat.id)
+                            }));
+
+                            console.log('✅ Categories with rules:', this.categories);
+                        } else {
+                            console.warn('⚠️ Supabase API not available');
+                            this.categories = [];
+                        }
 
                         // 最初のカテゴリーを展開
                         if (this.categories.length > 0) {
                             this.expandedCategories.push(this.categories[0].id);
                         }
                     } catch (error) {
-                        console.error('Error loading rules:', error);
+                        console.error('❌ Error loading rules:', error);
                         this.categories = [];
                     }
                 },
