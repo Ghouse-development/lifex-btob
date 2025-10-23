@@ -514,14 +514,33 @@
 
     </div>
 
-    <!-- Supabase Client -->
+    <!-- Supabase Client (CDN版 - より確実) -->
     <script type="module">
-        import { supabase } from '/js/supabase-client.js';
-        // window.supabase をグローバルに設定
-        window.supabase = supabase;
+        // Supabase設定
+        const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
 
-        // Supabase読み込み完了を通知
-        window.dispatchEvent(new CustomEvent('supabase-ready'));
+        // SupabaseクライアントをCDN経由で読み込み
+        import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm')
+            .then(({ createClient }) => {
+                window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                console.log('✅ Supabase client initialized via CDN');
+                // Supabase読み込み完了を通知
+                window.dispatchEvent(new CustomEvent('supabase-ready'));
+            })
+            .catch(error => {
+                console.error('❌ Failed to load Supabase from CDN:', error);
+                // フォールバック: ローカルのsupabase-client.jsを試す
+                import('/js/supabase-client.js')
+                    .then(({ supabase }) => {
+                        window.supabase = supabase;
+                        console.log('✅ Supabase client initialized via local file');
+                        window.dispatchEvent(new CustomEvent('supabase-ready'));
+                    })
+                    .catch(err => {
+                        console.error('❌ Failed to load Supabase from local file:', err);
+                    });
+            });
     </script>
 
     <script>
