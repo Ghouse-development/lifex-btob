@@ -51,7 +51,9 @@
       "Bash(node scripts/utilities/check-faq-data.js:*)",
       "Bash(node scripts/utilities/fix-faq-null-categories.js:*)",
       "Bash(node scripts/utilities/comprehensive-database-check.js:*)",
-      "Bash(node scripts/utilities/comprehensive-syntax-check.js:*)"
+      "Bash(node scripts/utilities/comprehensive-syntax-check.js:*)",
+      "Bash(xargs:*)",
+      "Bash(node scripts/utilities/verify-all-pages.js:*)"
     ],
     "deny": [],
     "ask": []
