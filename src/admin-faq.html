@@ -302,14 +302,39 @@
                 sortable: null,
 
                 async init() {
+                    // カテゴリデータの読み込み
+                    await this.loadCategories();
                     // FAQデータの読み込み
                     await this.loadFAQs();
                     this.filterFAQs();
-                    
+
                     // ドラッグ&ドロップの初期化
                     this.$nextTick(() => {
                         this.initSortable();
                     });
+                },
+
+                async loadCategories() {
+                    try {
+                        if (window.supabaseAPI) {
+                            const categories = await window.supabaseAPI.faq.getCategories();
+                            if (categories && categories.length > 0) {
+                                this.categoryObjects = categories;
+                                this.categories = categories.map(c => c.name);
+
+                                // Build category map: name -> id
+                                this.categoryMap = {};
+                                categories.forEach(cat => {
+                                    this.categoryMap[cat.name] = cat.id;
+                                });
+
+                                console.log('✅ FAQ categories loaded:', this.categories);
+                                console.log('   Category map:', this.categoryMap);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('❌ Error loading FAQ categories:', error);
+                    }
                 },
 
                 async loadFAQs() {
