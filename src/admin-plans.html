@@ -39,37 +39,61 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Supabase Client Initialization -->
-    <script type="module">
-        // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from '/js/supabase-client.js';
-        window.supabase = supabase;
-        console.log('[Supabase] Client initialized:', window.supabase);
-    </script>
+    <!-- Supabase Client Initialization (Inline) -->
+    <script>
+        // Supabase接続情報
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
 
-    <!-- Supabase Integration Scripts -->
-    <script type="module" src="/js/supabase-integration.js"></script>
-    <script type="module">
-        // Supabase統合の初期化を確実に行う
-        import { supabaseBridge } from './js/supabase-integration.js';
-
-        // ページ読み込み後に初期化
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                console.log('[Supabase] Initializing bridge...');
-                if (window.supabaseBridge) {
-                    window.supabaseBridge.init();
-                    console.log('[Supabase] Bridge initialized, useSupabase:', window.supabaseBridge.useSupabase);
+        // CDN版のSupabaseからクライアントを作成
+        if (window.supabase && window.supabase.createClient) {
+            window.supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                },
+                db: {
+                    schema: 'public'
+                },
+                global: {
+                    headers: { 'x-application-name': 'LIFE-X' }
                 }
             });
+            console.log('✅ [Supabase] Client initialized');
         } else {
-            // DOMが既に読み込まれている場合は即座に初期化
-            console.log('[Supabase] DOM already loaded, initializing bridge now...');
-            if (window.supabaseBridge) {
-                window.supabaseBridge.init();
-                console.log('[Supabase] Bridge initialized, useSupabase:', window.supabaseBridge.useSupabase);
-            }
+            console.error('❌ [Supabase] CDN not loaded');
         }
+
+        // Supabase APIをグローバルに公開
+        window.supabaseAPI = {
+            plans: {
+                async getAll() {
+                    const { data, error } = await window.supabase.from('plans').select('*').order('created_at', { ascending: false });
+                    if (error) throw error;
+                    return data || [];
+                },
+                async delete(planId) {
+                    const { data, error } = await window.supabase.from('plans').update({ status: 'deleted', updated_at: new Date().toISOString() }).eq('id', planId).select().single();
+                    if (error) throw error;
+                    return { success: true, data };
+                }
+            }
+        };
+
+        // Supabase Bridgeをグローバルに公開
+        window.supabaseBridge = {
+            useSupabase: true,
+            init() {
+                console.log('✅ [Supabase Bridge] Initialized');
+            },
+            async getPlans() {
+                return await window.supabaseAPI.plans.getAll();
+            }
+        };
+
+        // 初期化
+        window.supabaseBridge.init();
     </script>
 
     <script defer src="https://unpkg.com/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
