@@ -379,7 +379,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランコード</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">プランID</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">階数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">坪数</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">間口×奥行</th>
@@ -398,7 +398,7 @@
                                         <button type="button" @click="editPlan(plan)" class="text-blue-600 hover:text-blue-900 mr-3">編集</button>
                                         <button type="button" @click="deletePlan(plan)" class="text-red-600 hover:text-red-900">削除</button>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.id"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="plan.plan_code || plan.planCode || plan.id.substring(0, 8) + '...'"></td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         <span x-text="plan.floors == 1 ? '平屋' : plan.floors == 2 ? '2階建て' : '3階建て'"></span>
                                     </td>
@@ -634,7 +634,7 @@
                                         <div x-show="formErrors.sellPrice" class="text-red-500 text-xs mt-1" x-text="formErrors.sellPrice"></div>
                                     </label>
                                     <label class="form-field">
-                                        <span>想定原価（万円） <a class="text-blue-600 underline text-xs">税別</a></span>
+                                        <span>想定原価（万円） <span class="text-red-500">*</span> <a class="text-blue-600 underline text-xs">税別</a></span>
                                         <input type="number"
                                                x-model="formData.cost"
                                                name="cost"
