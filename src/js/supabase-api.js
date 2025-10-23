@@ -180,6 +180,44 @@ export const plansAPI = {
         } catch (error) {
             return { success: false, error: handleError(error) };
         }
+    },
+
+    // プラン削除（ソフトデリート）
+    async deletePlan(planId) {
+        try {
+            // ソフトデリート: statusを'deleted'に変更
+            const { data, error } = await supabase
+                .from('plans')
+                .update({
+                    status: 'deleted',
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', planId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // プラン完全削除（ハードデリート）※管理者専用
+    async hardDeletePlan(planId) {
+        try {
+            // ハードデリート: レコードを完全削除
+            // 注意: CASCADE設定により、関連する plan_images, matrix_cells なども削除される
+            const { error } = await supabase
+                .from('plans')
+                .delete()
+                .eq('id', planId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
     }
 };
 

@@ -53,7 +53,9 @@
       "Bash(node scripts/utilities/comprehensive-database-check.js:*)",
       "Bash(node scripts/utilities/comprehensive-syntax-check.js:*)",
       "Bash(xargs:*)",
-      "Bash(node scripts/utilities/verify-all-pages.js:*)"
+      "Bash(node scripts/utilities/verify-all-pages.js:*)",
+      "Bash(node scripts/utilities/diagnose-data-display.js:*)",
+      "Bash(node scripts/utilities/test-anon-access.js:*)"
     ],
     "deny": [],
     "ask": []
