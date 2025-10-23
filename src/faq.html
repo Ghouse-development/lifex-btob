@@ -160,34 +160,21 @@
 
         <!-- FAQ Content -->
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-            <div class="space-y-1">
+            <div class="space-y-3">
                 <template x-for="faq in filteredFAQs" :key="faq.id">
-                    <div class="card">
-                        <div @click="toggleFAQ(faq.id)" class="cursor-pointer">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-semibold text-gray-900 flex items-start">
-                                        <span class="text-primary-600 mr-2 flex-shrink-0">Q.</span>
-                                        <span x-text="faq.question"></span>
-                                    </h3>
-                                </div>
-                                <svg :class="expandedFAQs.includes(faq.id) ? 'rotate-180' : ''" 
-                                     class="w-5 h-5 text-gray-400 transition-transform duration-200 flex-shrink-0 ml-4" 
-                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
+                    <div @click="openModal(faq)"
+                         class="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-medium text-gray-900 flex items-start">
+                                    <span class="text-primary-600 mr-2 flex-shrink-0">Q.</span>
+                                    <span x-text="faq.question"></span>
+                                </h3>
                             </div>
-                        </div>
-                        
-                        <div x-show="expandedFAQs.includes(faq.id)" 
-                             x-transition:enter="transition ease-out duration-200"
-                             x-transition:enter-start="opacity-0 transform -translate-y-2"
-                             x-transition:enter-end="opacity-100 transform translate-y-0"
-                             class="mt-2 pt-2 border-t border-gray-200">
-                            <div class="flex items-start">
-                                <span class="text-green-600 font-bold mr-2 flex-shrink-0">A.</span>
-                                <div class="text-gray-700" x-html="faq.answer"></div>
-                            </div>
+                            <svg class="w-5 h-5 text-gray-400 flex-shrink-0 ml-4"
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
                         </div>
                     </div>
                 </template>
@@ -198,6 +185,50 @@
                 <p class="text-gray-500">このカテゴリーに該当する質問はまだありません。</p>
             </div>
         </div>
+
+        <!-- Prisma-style Modal -->
+        <div x-show="showModal"
+             x-cloak
+             @click.self="closeModal()"
+             class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4"
+             style="display: none;">
+            <div @click.stop
+                 x-show="showModal"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0 transform scale-95"
+                 x-transition:enter-end="opacity-100 transform scale-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100 transform scale-100"
+                 x-transition:leave-end="opacity-0 transform scale-95"
+                 class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[85vh] overflow-hidden">
+
+                <!-- Modal Header -->
+                <div class="flex items-start justify-between p-6 border-b border-gray-100">
+                    <div class="flex-1 pr-8">
+                        <h2 class="text-xl font-semibold text-gray-900 flex items-start">
+                            <span class="text-primary-600 mr-2 flex-shrink-0">Q.</span>
+                            <span x-text="selectedFAQ?.question"></span>
+                        </h2>
+                    </div>
+                    <button @click="closeModal()"
+                            class="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6 overflow-y-auto" style="max-height: calc(85vh - 120px);">
+                    <div class="flex items-start">
+                        <span class="text-green-600 font-semibold mr-2 flex-shrink-0 text-lg">A.</span>
+                        <div class="text-gray-700 leading-relaxed prose prose-sm max-w-none"
+                             style="white-space: pre-wrap;"
+                             x-html="selectedFAQ?.answer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -205,20 +236,21 @@
             return {
                 categories: ['すべて'],
                 selectedCategory: 'すべて',
-                expandedFAQs: [],
+                showModal: false,
+                selectedFAQ: null,
                 faqs: [],
-                
+
                 get filteredFAQs() {
                     if (this.selectedCategory === 'すべて') {
                         return this.faqs;
                     }
                     return this.faqs.filter(faq => faq.category === this.selectedCategory);
                 },
-                
+
                 async init() {
                     await this.loadFAQs();
                 },
-                
+
                 async loadFAQs() {
                     try {
                         // Supabase APIが利用可能になるまで待機
@@ -261,18 +293,19 @@
                         this.faqs = [];
                     }
                 },
-                
-                toggleFAQ(id) {
-                    const index = this.expandedFAQs.indexOf(id);
-                    if (index > -1) {
-                        this.expandedFAQs.splice(index, 1);
-                    } else {
-                        this.expandedFAQs.push(id);
-                    }
+
+                openModal(faq) {
+                    this.selectedFAQ = faq;
+                    this.showModal = true;
+                    // Prevent body scroll when modal is open
+                    document.body.style.overflow = 'hidden';
                 },
-                
-                getDefaultFAQs() {
-                    return [];
+
+                closeModal() {
+                    this.showModal = false;
+                    this.selectedFAQ = null;
+                    // Restore body scroll
+                    document.body.style.overflow = '';
                 }
             }
         }
