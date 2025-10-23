@@ -463,18 +463,24 @@
                         <section class="border border-gray-200 rounded-xl p-3 sm:p-5">
                             <h3 class="text-base font-semibold text-gray-900 mb-4">基本情報</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                                    <!-- プランID（内部用UUID、非表示） -->
+                                    <input type="hidden" x-model="formData.id">
+
+                                    <!-- プランコード（表示用、手入力） -->
                                     <label class="form-field">
-                                        <span>プランID <span class="text-red-500">*</span></span>
+                                        <span>プランコード <span class="text-red-500">*</span></span>
                                         <input type="text"
-                                               x-model="formData.id"
+                                               x-model="formData.planCode"
                                                name="planCode"
-                                               @input="validateField('id')"
-                                               :class="formErrors.id ? 'border-red-300' : ''"
+                                               @input="validateField('planCode')"
+                                               :class="formErrors.planCode ? 'border-red-300' : ''"
                                                class="input"
-                                               placeholder="自動生成されます"
-                                               readonly
+                                               placeholder="例: LX-001"
+                                               pattern="[A-Za-z0-9\-]+"
+                                               title="半角英数字とハイフンのみ使用できます"
                                                required>
-                                        <div x-show="formErrors.id" class="text-red-500 text-xs mt-1" x-text="formErrors.id"></div>
+                                        <div x-show="formErrors.planCode" class="text-red-500 text-xs mt-1" x-text="formErrors.planCode"></div>
+                                        <div class="text-xs text-gray-500 mt-1">半角英数字とハイフンのみ</div>
                                     </label>
                                     <label class="form-field">
                                         <span>階数 <span class="text-red-500">*</span></span>
@@ -1436,7 +1442,8 @@
                     this.formErrors = {};
                     this.saving = false;
                     this.formData = {
-                        id: '',  // 保存時に自動生成
+                        id: '',  // 保存時に自動生成（UUID）
+                        planCode: '',  // 手入力用プランコード
                         floors: '2',
                         ldkFloor: '1',  // 数値文字列に修正
                         bathroomFloor: '1',  // 数値文字列に修正
@@ -1499,6 +1506,24 @@
                                     this.formErrors.id = 'このプランIDは既に使用されています';
                                 } else {
                                     delete this.formErrors.id;
+                                }
+                            }
+                            break;
+                        case 'planCode':
+                            if (!this.formData.planCode) {
+                                this.formErrors.planCode = 'プランコードは必須です';
+                            } else if (!/^[A-Za-z0-9\-]+$/.test(this.formData.planCode)) {
+                                this.formErrors.planCode = '半角英数字とハイフンのみ使用できます';
+                            } else {
+                                // 重複チェック（編集時は自分自身を除外）
+                                const duplicate = this.plans.find(p =>
+                                    p.plan_code === this.formData.planCode &&
+                                    (!this.editingPlan || p.plan_code !== this.editingPlan.plan_code)
+                                );
+                                if (duplicate) {
+                                    this.formErrors.planCode = 'このプランコードは既に使用されています';
+                                } else {
+                                    delete this.formErrors.planCode;
                                 }
                             }
                             break;
@@ -1566,6 +1591,7 @@
                 isFieldValid(fieldName) {
                     switch(fieldName) {
                         case 'id': return !!this.formData.id;
+                        case 'planCode': return !!this.formData.planCode && /^[A-Za-z0-9\-]+$/.test(this.formData.planCode);
                         case 'totalFloorArea': return this.formData.totalFloorArea >= 33 && this.formData.totalFloorArea <= 330;
                         case 'constructionFloorArea': return this.formData.constructionFloorArea >= 33 && this.formData.constructionFloorArea <= 330;
                         case 'layout': return !!this.formData.layout;
@@ -1580,6 +1606,7 @@
                 isFormValid() {
                     // 基本情報のバリデーションのみチェック（画像は一時的に必須から外す）
                     const basicValid = this.isFieldValid('id') &&
+                           this.isFieldValid('planCode') &&
                            this.isFieldValid('totalFloorArea') &&
                            this.isFieldValid('constructionFloorArea') &&
                            this.isFieldValid('layout') &&
@@ -1588,6 +1615,7 @@
 
                     console.log('Validation check:', {
                         id: this.isFieldValid('id'),
+                        planCode: this.isFieldValid('planCode'),
                         totalFloorArea: this.isFieldValid('totalFloorArea'),
                         constructionFloorArea: this.isFieldValid('constructionFloorArea'),
                         layout: this.isFieldValid('layout'),
@@ -1651,6 +1679,7 @@
 
                     this.formData = {
                         ...plan,
+                        planCode: plan.plan_code || plan.planCode || '',  // プランコード
                         ldkFloor: String(plan.ldkFloor || plan.ldk_floor || 1),  // 数値を文字列に変換
                         bathroomFloor: String(plan.bathroomFloor || plan.bathroom_floor || 1),  // 数値を文字列に変換
                         uaValue: plan.uaValue || plan.ua_value || '',
@@ -1789,6 +1818,7 @@
                         const planData = {
                             // 基本情報
                             id: this.formData.id,
+                            plan_code: this.formData.planCode,  // 表示用プランコード（手入力）
                             plan_name: planName,  // データベースの実際のカラム名
                             name: planName,       // 後方互換性のため両方設定
                             description: this.formData.description || '',
