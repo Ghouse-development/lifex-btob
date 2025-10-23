@@ -1206,10 +1206,14 @@
                     width: '',
                     depth: '',
                     layout: '',
+                    ldkFloor: '',
+                    bathroomFloor: '',
                     sellPrice: '',
                     customSellPrice: '',
                     cost: '',
                     grossProfit: '',
+                    uaValue: '',
+                    energyReduction: '',
                     status: 'draft',
                     description: '',
                     designer: '',
@@ -1676,31 +1680,54 @@
                         // プラン名を生成（階数と坪数とレイアウトから）
                         const floorName = this.formData.floors == 1 ? '平屋' : `${this.formData.floors}階建て`;
                         const planName = `${floorName} ${this.formData.tsubo}坪 ${this.formData.layout}`;
-                        
+
+                        // データベーススキーマに合わせてsnake_caseで送信
                         const planData = {
-                            ...this.formData,
-                            name: planName,  // プラン名を追加
-                            size: parseFloat(this.formData.tsubo) || 0,  // sizeフィールドも追加（互換性のため）
-                            updatedAt: new Date().toISOString(),
-                            updated: new Date().toISOString(),  // updatedフィールドも追加（互換性のため）
+                            // 基本情報
+                            id: this.formData.id,
+                            name: planName,
+                            description: this.formData.description || '',
+
+                            // 基本仕様（snake_case）
                             tsubo: parseFloat(this.formData.tsubo) || 0,
-                            width: parseInt(this.formData.width) || 0,
-                            depth: parseInt(this.formData.depth) || 0,
-                            prices: {
-                                sell: actualSellPrice * 10000,  // 万円→円に変換
-                                cost: actualCost * 10000,      // 万円→円に変換
-                                gross: actualGrossProfit * 10000 // 万円→円に変換
-                            },
-                            price: actualSellPrice * 10000,  // priceフィールドも追加（互換性のため）
-                            sellPrice: actualSellPrice * 10000,  // sellPriceフィールドも維持
-                            cost: actualCost * 10000,  // costフィールドも維持
-                            grossProfit: actualGrossProfit * 10000  // grossProfitフィールドも維持
+                            width: parseFloat(this.formData.width) || 0,
+                            depth: parseFloat(this.formData.depth) || 0,
+                            floors: parseInt(this.formData.floors) || 2,
+                            layout: this.formData.layout || '',
+
+                            // LDK・浴室階数（snake_case）
+                            ldk_floor: parseInt(this.formData.ldkFloor) || null,
+                            bathroom_floor: parseInt(this.formData.bathroomFloor) || null,
+
+                            // 価格情報（snake_case、円単位）
+                            price: actualSellPrice * 10000,  // 基本価格フィールド
+                            sell_price: actualSellPrice * 10000,  // 販売価格
+                            cost: actualCost * 10000,  // 原価
+                            gross_profit: actualGrossProfit * 10000,  // 粗利
+
+                            // 性能値（snake_case）
+                            ua_value: parseFloat(this.formData.uaValue) || null,
+                            energy_reduction: parseFloat(this.formData.energyReduction) || null,
+
+                            // 設計者・ステータス
+                            designer: this.formData.designer || '',
+                            status: this.formData.status || 'draft',
+
+                            // タグ（JSONB）
+                            tags: this.formData.tags || [],
+
+                            // 画像データ（JSONB）
+                            images: this.formData.images || {},
+
+                            // 間取図データ（snake_case、JSONB）
+                            floor_plans: this.formData.floorPlans || [],
+
+                            // ファイルデータ（JSONB）
+                            files: this.formData.files || {},
+
+                            // タイムスタンプ（snake_case）
+                            updated_at: new Date().toISOString()
                         };
-                        
-                        // 不要なフィールドを削除（互換性フィールドは残す）
-                        delete planData.customSellPrice;
-                        delete planData.featureTags;
-                        delete planData.customTags;
                         
                         console.log('[SavePlan] 送信データ:', planData);
 
