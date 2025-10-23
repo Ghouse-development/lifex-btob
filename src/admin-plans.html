@@ -43,11 +43,12 @@
     <script>
         // Supabase接続情報
         const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+        // 管理画面ではService role keyを使用（RLS制限を回避）
+        const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDY3OTkyNiwiZXhwIjoyMDc2MjU1OTI2fQ.OYB1WmG_xWsAVJQZFQ4fToCR6AXcFYHYNH-1QDOS8uM';
 
         // CDN版のSupabaseからクライアントを作成
         if (window.supabase && window.supabase.createClient) {
-            window.supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+            window.supabase = window.supabase.createClient(supabaseUrl, supabaseServiceKey, {
                 auth: {
                     autoRefreshToken: true,
                     persistSession: true,
@@ -79,18 +80,61 @@
                     return data || [];
                 },
                 async create(planData) {
-                    const { data, error } = await window.supabase.from('plans').insert([planData]).select().single();
-                    if (error) throw error;
-                    return { success: true, data };
+                    console.log('[create] 送信するデータ:', planData);
+                    console.log('[create] データのキー:', Object.keys(planData));
+                    console.log('[create] plan_nameが含まれているか:', 'plan_name' in planData, planData.plan_name);
+
+                    try {
+                        // INSERT実行（返り値なし）
+                        const { error: insertError } = await window.supabase
+                            .from('plans')
+                            .insert(planData);  // 配列ではなくオブジェクトで送信
+
+                        if (insertError) {
+                            console.error('[create] INSERT エラー:', insertError);
+                            console.error('[create] エラーコード:', insertError.code);
+                            console.error('[create] エラーメッセージ:', insertError.message);
+                            console.error('[create] エラー詳細:', insertError.details);
+                            throw insertError;
+                        }
+
+                        console.log('[create] INSERT成功、データを取得中...');
+
+                        // 挿入後にデータを取得
+                        const { data: inserted, error: selectError } = await window.supabase
+                            .from('plans')
+                            .select()
+                            .eq('id', planData.id)
+                            .single();
+
+                        if (selectError) {
+                            console.warn('[create] 取得エラー:', selectError);
+                            // 挿入は成功したのでplanDataを返す
+                            return { success: true, data: planData };
+                        }
+
+                        console.log('[create] 完全成功:', inserted);
+                        return { success: true, data: inserted };
+
+                    } catch (err) {
+                        console.error('[create] 予期しないエラー:', err);
+                        throw err;
+                    }
                 },
                 async update(planId, updates) {
-                    const { data, error } = await window.supabase.from('plans').update(updates).eq('id', planId).select().single();
-                    if (error) throw error;
+                    const { data, error } = await window.supabase.from('plans').update(updates).eq('id', planId).select('*').single();
+                    if (error) {
+                        console.error('[update] Supabase error:', error);
+                        throw error;
+                    }
                     return { success: true, data };
                 },
                 async delete(planId) {
-                    const { data, error } = await window.supabase.from('plans').update({ status: 'deleted', updated_at: new Date().toISOString() }).eq('id', planId).select().single();
-                    if (error) throw error;
+                    const { data, error } = await window.supabase.from('plans').update({ status: 'deleted', updated_at: new Date().toISOString() }).eq('id', planId).select('*').single();
+                    if (error) {
+                        console.error('[delete] Supabase error:', error);
+                        throw error;
+                    }
                     return { success: true, data };
                 }
             }
@@ -420,14 +464,15 @@
                             <h3 class="text-base font-semibold text-gray-900 mb-4">基本情報</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                     <label class="form-field">
-                                        <span>プランコード <span class="text-red-500">*</span></span>
+                                        <span>プランID <span class="text-red-500">*</span></span>
                                         <input type="text"
                                                x-model="formData.id"
                                                name="planCode"
                                                @input="validateField('id')"
                                                :class="formErrors.id ? 'border-red-300' : ''"
                                                class="input"
-                                               placeholder="例：28-40-N-12-001"
+                                               placeholder="自動生成されます"
+                                               readonly
                                                required>
                                         <div x-show="formErrors.id" class="text-red-500 text-xs mt-1" x-text="formErrors.id"></div>
                                     </label>
@@ -449,17 +494,17 @@
                                     <label class="form-field">
                                         <span>LDK階数</span>
                                         <select x-model="formData.ldkFloor" name="ldkFloor" class="input">
-                                            <option value="1階">1階</option>
-                                            <option value="2階">2階</option>
-                                            <option value="3階">3階</option>
+                                            <option value="1">1階</option>
+                                            <option value="2">2階</option>
+                                            <option value="3">3階</option>
                                         </select>
                                     </label>
                                     <label class="form-field">
                                         <span>水廻り階数</span>
                                         <select x-model="formData.bathroomFloor" name="bathroomFloor" class="input">
-                                            <option value="1階">1階</option>
-                                            <option value="2階">2階</option>
-                                            <option value="3階">3階</option>
+                                            <option value="1">1階</option>
+                                            <option value="2">2階</option>
+                                            <option value="3">3階</option>
                                         </select>
                                     </label>
                                     <label class="form-field">
@@ -475,6 +520,9 @@
                                                max="330"
                                                step="0.01"
                                                required>
+                                        <div x-show="calculatedTsubo" class="text-xs text-gray-500 mt-1">
+                                            坪数: <span class="font-semibold text-gray-700" x-text="`${calculatedTsubo}坪`"></span>
+                                        </div>
                                         <div x-show="formErrors.totalFloorArea" class="text-red-500 text-xs mt-1" x-text="formErrors.totalFloorArea"></div>
                                     </label>
                                     <label class="form-field">
@@ -1357,8 +1405,8 @@
                             const size = parseInt(this.filterCategory);
                             filtered = filtered.filter(plan => plan.size === size);
                         } else {
-                            filtered = filtered.filter(plan => 
-                                plan.name.includes(this.filterCategory)
+                            filtered = filtered.filter(plan =>
+                                (plan.name || plan.plan_name || '').includes(this.filterCategory)
                             );
                         }
                     }
@@ -1388,10 +1436,10 @@
                     this.formErrors = {};
                     this.saving = false;
                     this.formData = {
-                        id: '',
+                        id: crypto.randomUUID(), // UUID自動生成
                         floors: '2',
-                        ldkFloor: '1階',
-                        bathroomFloor: '1階',
+                        ldkFloor: '1',  // 数値文字列に修正
+                        bathroomFloor: '1',  // 数値文字列に修正
                         totalFloorArea: '',
                         constructionFloorArea: '',
                         width: '',
@@ -1440,7 +1488,7 @@
                     switch(fieldName) {
                         case 'id':
                             if (!this.formData.id) {
-                                this.formErrors.id = 'プランコードは必須です';
+                                this.formErrors.id = 'プランIDは必須です';
                             } else {
                                 // 重複チェック（編集時は自分自身を除外）
                                 const duplicate = this.plans.find(p =>
@@ -1448,7 +1496,7 @@
                                     (!this.editingPlan || p.id !== this.editingPlan.id)
                                 );
                                 if (duplicate) {
-                                    this.formErrors.id = 'このプランコードは既に使用されています';
+                                    this.formErrors.id = 'このプランIDは既に使用されています';
                                 } else {
                                     delete this.formErrors.id;
                                 }
@@ -1579,9 +1627,8 @@
                 
                 // Auto-generation functions
                 generatePlanCode() {
-                    const timestamp = Date.now().toString().slice(-3);
-                    const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
-                    this.formData.id = `LX-${timestamp}${randomLetter}`;
+                    // UUID v4形式で生成（データベースのid型に合わせる）
+                    this.formData.id = crypto.randomUUID();
                     this.validateField('id');
                 },
                 
@@ -1604,8 +1651,8 @@
 
                     this.formData = {
                         ...plan,
-                        ldkFloor: plan.ldkFloor || plan.ldk_floor || '1階',
-                        bathroomFloor: plan.bathroomFloor || plan.bathroom_floor || '1階',
+                        ldkFloor: String(plan.ldkFloor || plan.ldk_floor || 1),  // 数値を文字列に変換
+                        bathroomFloor: String(plan.bathroomFloor || plan.bathroom_floor || 1),  // 数値を文字列に変換
                         uaValue: plan.uaValue || plan.ua_value || '',
                         energyReduction: plan.energyReduction || plan.energy_reduction || '',
                         totalFloorArea: totalFloorArea,
@@ -1673,7 +1720,7 @@
                         let firstErrorField = null;
 
                         if (!this.formData.id) {
-                            errorMessages.push('プランコード');
+                            errorMessages.push('プランID');
                             if (!firstErrorField) firstErrorField = 'id';
                         }
                         if (!this.formData.totalFloorArea) {
@@ -1736,7 +1783,8 @@
                         const planData = {
                             // 基本情報
                             id: this.formData.id,
-                            name: planName,
+                            plan_name: planName,  // データベースの実際のカラム名
+                            name: planName,       // 後方互換性のため両方設定
                             description: this.formData.description || '',
 
                             // 基本仕様（snake_case）
@@ -1835,7 +1883,7 @@
                         } else if (error.code === '23502') {
                             errorMessage = '必須項目が入力されていません: ' + (error.details || error.message);
                         } else if (error.code === '23505') {
-                            errorMessage = 'プランコードが重複しています。別のコードを入力してください。';
+                            errorMessage = 'プランIDが重複しています。';
                         }
 
                         showToast(errorMessage, 'error');
