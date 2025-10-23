@@ -1436,8 +1436,8 @@
                     this.formErrors = {};
                     this.saving = false;
                     this.formData = {
-                        id: '',  // 保存時に自動生成（UUID）
-                        planCode: '',  // 手入力用プランコード
+                        id: crypto.randomUUID(),  // UUID自動生成（内部用・非表示）
+                        planCode: '',  // 手入力用プランコード（任意）
                         floors: '2',
                         ldkFloor: '1',  // 数値文字列に修正
                         bathroomFloor: '1',  // 数値文字列に修正
@@ -1807,12 +1807,6 @@
                         const actualSellPrice = this.getActualSellPrice();
                         const actualCost = parseFloat(this.formData.cost) || 0;
                         const actualGrossProfit = this.calculatedGrossProfit;
-                        
-                        // 新規作成時のみIDを生成
-                        if (!this.editingPlan && !this.formData.id) {
-                            this.formData.id = crypto.randomUUID();
-                            console.log('[SavePlan] 新規プランID生成:', this.formData.id);
-                        }
 
                         // プラン名を生成（階数と坪数とレイアウトから）
                         const floorName = this.formData.floors == 1 ? '平屋' : `${this.formData.floors}階建て`;
