@@ -463,20 +463,40 @@
                                         </select>
                                     </label>
                                     <label class="form-field">
-                                        <span>坪数 <span class="text-red-500">*</span></span>
+                                        <span>延床面積（㎡） <span class="text-red-500">*</span></span>
                                         <input type="number"
-                                               x-model="formData.tsubo"
-                                               name="tsubo"
-                                               @input="validateField('tsubo')"
-                                               :class="formErrors.tsubo ? 'border-red-300' : ''"
+                                               x-model="formData.totalFloorArea"
+                                               name="totalFloorArea"
+                                               @input="validateField('totalFloorArea')"
+                                               :class="formErrors.totalFloorArea ? 'border-red-300' : ''"
                                                class="input"
-                                               placeholder="例：30.25"
-                                               min="10"
-                                               max="100"
+                                               placeholder="例：100.00"
+                                               min="33"
+                                               max="330"
                                                step="0.01"
                                                required>
-                                        <div x-show="formErrors.tsubo" class="text-red-500 text-xs mt-1" x-text="formErrors.tsubo"></div>
+                                        <div x-show="formErrors.totalFloorArea" class="text-red-500 text-xs mt-1" x-text="formErrors.totalFloorArea"></div>
                                     </label>
+                                    <label class="form-field">
+                                        <span>施工床面積（㎡） <span class="text-red-500">*</span></span>
+                                        <input type="number"
+                                               x-model="formData.constructionFloorArea"
+                                               name="constructionFloorArea"
+                                               @input="validateField('constructionFloorArea')"
+                                               :class="formErrors.constructionFloorArea ? 'border-red-300' : ''"
+                                               class="input"
+                                               placeholder="例：110.00"
+                                               min="33"
+                                               max="330"
+                                               step="0.01"
+                                               required>
+                                        <div x-show="formErrors.constructionFloorArea" class="text-red-500 text-xs mt-1" x-text="formErrors.constructionFloorArea"></div>
+                                    </label>
+                                    <!-- 坪数（自動計算・表示のみ） -->
+                                    <div x-show="calculatedTsubo" class="col-span-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                        <p class="text-sm text-gray-600">自動計算された坪数:</p>
+                                        <p class="text-lg font-semibold text-blue-700" x-text="`${calculatedTsubo}坪`"></p>
+                                    </div>
                                     <label class="form-field">
                                         <span>間口（mm） <span class="text-red-500">*</span></span>
                                         <input type="number"
@@ -543,13 +563,11 @@
                                                 class="input"
                                                 required>
                                             <option value="">選択してください</option>
-                                            <option value="2200">2200万円</option>
                                             <option value="2400">2400万円</option>
                                             <option value="2500">2500万円</option>
                                             <option value="2610">2610万円</option>
                                             <option value="2720">2720万円</option>
                                             <option value="2830">2830万円</option>
-                                            <option value="3000">3000万円</option>
                                             <option value="その他">その他（直接入力）</option>
                                         </select>
                                         <div x-show="formData.sellPrice === 'その他'" class="mt-2">
@@ -631,7 +649,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">住空間特徴</label>
                                         <div class="flex flex-wrap gap-2">
-                                            <template x-for="tag in ['吹抜', 'フリースペース', '書斎', '畳スペース', 'ヌック', 'ロフト']" :key="tag">
+                                            <template x-for="tag in ['吹抜', 'フリースペース', '書斎', '畳スペース', 'バルコニー']" :key="tag">
                                                 <button type="button"
                                                         @click="toggleFeatureTag(tag)"
                                                         :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-50 active:bg-blue-100'"
@@ -646,7 +664,7 @@
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-2">収納設備</label>
                                         <div class="flex flex-wrap gap-2">
-                                            <template x-for="tag in ['パントリー', 'ウォークインクローゼット', 'シューズクローク', 'ファミリークローク', 'リビング収納', '小屋裏収納']" :key="tag">
+                                            <template x-for="tag in ['パントリー', 'ウォークインクローゼット', 'シューズクローク', 'ファミリークローク', 'リビング収納']" :key="tag">
                                                 <button type="button"
                                                         @click="toggleFeatureTag(tag)"
                                                         :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-green-600 text-white border-green-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-green-50 active:bg-green-100'"
@@ -657,22 +675,7 @@
                                             </template>
                                         </div>
                                     </div>
-                                    
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">外部設備</label>
-                                        <div class="flex flex-wrap gap-2">
-                                            <template x-for="tag in ['バルコニー', 'ウッドデッキ', 'ガレージ', 'カーポート', '庫裏']" :key="tag">
-                                                <button type="button"
-                                                        @click="toggleFeatureTag(tag)"
-                                                        :class="formData.featureTags && formData.featureTags.includes(tag) ? 'bg-purple-600 text-white border-purple-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50 active:bg-purple-100'"
-                                                        class="px-4 py-3 border rounded-lg text-sm sm:text-base transition-colors duration-200 flex items-center justify-center space-x-2 min-h-[44px]">
-                                                    <span x-show="formData.featureTags && formData.featureTags.includes(tag)" class="text-white">✓</span>
-                                                    <span x-text="tag"></span>
-                                                </button>
-                                            </template>
-                                        </div>
-                                    </div>
-                                    
+
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">カスタムタグ</label>
                                         <input type="text" x-model="formData.customTags" 
@@ -748,7 +751,7 @@
                                     
                                     <!-- 内観パース -->
                                     <div>
-                                        <label class="text-sm font-medium text-gray-700 mb-2 block">内観パース <span class="text-red-500">*</span></label>
+                                        <label class="text-sm font-medium text-gray-700 mb-2 block">内観パース</label>
                                         <div class="file-upload-item">
                                             <input type="file" @change="handleFileSelect($event, 'image', 'interior')" accept="image/*" class="hidden" id="file-interior">
 
@@ -1098,7 +1101,7 @@
                             <div class="mb-4">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">その他の資料</label>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    <template x-for="doc in ['資金計画書', '実行予算', 'Walk in Homeデータ']" :key="doc">
+                                    <template x-for="doc in ['実行予算', 'Walk in Homeデータ']" :key="doc">
                                         <div class="mb-3">
                                             <label class="block text-xs font-medium text-gray-600 mb-1" x-text="doc"></label>
                                             <div class="file-upload-item">
@@ -1202,7 +1205,8 @@
                 formData: {
                     id: '',
                     floors: '2',
-                    tsubo: '',
+                    totalFloorArea: '',
+                    constructionFloorArea: '',
                     width: '',
                     depth: '',
                     layout: '',
@@ -1237,6 +1241,15 @@
                 // Enhanced modal functionality
                 formErrors: {},
                 saving: false,
+
+                get calculatedTsubo() {
+                    const area = parseFloat(this.formData.totalFloorArea) || 0;
+                    if (area > 0) {
+                        const tsubo = area / 3.3058; // m2 to tsubo
+                        return Math.round(tsubo * 100) / 100; // 小数点第二位まで
+                    }
+                    return '';
+                },
 
                 get calculatedGrossProfit() {
                     const sellPrice = this.getActualSellPrice();
@@ -1367,7 +1380,8 @@
                         floors: '2',
                         ldkFloor: '1階',
                         bathroomFloor: '1階',
-                        tsubo: '',
+                        totalFloorArea: '',
+                        constructionFloorArea: '',
                         width: '',
                         depth: '',
                         layout: '',
@@ -1428,11 +1442,22 @@
                                 }
                             }
                             break;
-                        case 'tsubo':
-                            if (!this.formData.tsubo) {
-                                this.formErrors.tsubo = '坪数は必須です';
-                            } else if (this.formData.tsubo < 10 || this.formData.tsubo > 100) {
-                                this.formErrors.tsubo = '坪数は10-100の範囲で入力してください';
+                        case 'totalFloorArea':
+                            if (!this.formData.totalFloorArea) {
+                                this.formErrors.totalFloorArea = '延床面積は必須です';
+                            } else if (this.formData.totalFloorArea < 33 || this.formData.totalFloorArea > 330) {
+                                this.formErrors.totalFloorArea = '延床面積は33-330㎡の範囲で入力してください';
+                            } else {
+                                delete this.formErrors.totalFloorArea;
+                            }
+                            break;
+                        case 'constructionFloorArea':
+                            if (!this.formData.constructionFloorArea) {
+                                this.formErrors.constructionFloorArea = '施工床面積は必須です';
+                            } else if (this.formData.constructionFloorArea < 33 || this.formData.constructionFloorArea > 330) {
+                                this.formErrors.constructionFloorArea = '施工床面積は33-330㎡の範囲で入力してください';
+                            } else {
+                                delete this.formErrors.constructionFloorArea;
                             }
                             break;
                         case 'layout':
@@ -1481,7 +1506,8 @@
                 isFieldValid(fieldName) {
                     switch(fieldName) {
                         case 'id': return !!this.formData.id;
-                        case 'tsubo': return this.formData.tsubo >= 10 && this.formData.tsubo <= 100;
+                        case 'totalFloorArea': return this.formData.totalFloorArea >= 33 && this.formData.totalFloorArea <= 330;
+                        case 'constructionFloorArea': return this.formData.constructionFloorArea >= 33 && this.formData.constructionFloorArea <= 330;
                         case 'layout': return !!this.formData.layout;
                         case 'sellPrice': return !!this.getActualSellPrice();
                         case 'cost': return this.formData.cost >= 500 && this.formData.cost <= 5000;
@@ -1493,21 +1519,23 @@
                 
                 isFormValid() {
                     // 基本情報のバリデーションのみチェック（画像は一時的に必須から外す）
-                    const basicValid = this.isFieldValid('id') && 
-                           this.isFieldValid('tsubo') && 
-                           this.isFieldValid('layout') && 
-                           this.isFieldValid('sellPrice') && 
+                    const basicValid = this.isFieldValid('id') &&
+                           this.isFieldValid('totalFloorArea') &&
+                           this.isFieldValid('constructionFloorArea') &&
+                           this.isFieldValid('layout') &&
+                           this.isFieldValid('sellPrice') &&
                            this.isFieldValid('cost');
-                    
+
                     console.log('Validation check:', {
                         id: this.isFieldValid('id'),
-                        tsubo: this.isFieldValid('tsubo'),
+                        totalFloorArea: this.isFieldValid('totalFloorArea'),
+                        constructionFloorArea: this.isFieldValid('constructionFloorArea'),
                         layout: this.isFieldValid('layout'),
                         sellPrice: this.isFieldValid('sellPrice'),
                         cost: this.isFieldValid('cost'),
                         basicValid: basicValid
                     });
-                    
+
                     return basicValid;
                 },
                 
@@ -1556,20 +1584,27 @@
                 editPlan(plan) {
                     this.editingPlan = plan;
                     this.currentTab = 'basic';
+
+                    // 延床面積・施工床面積のフォールバック処理（旧データ対応）
+                    const tsubo = plan.tsubo || plan.size || 0;
+                    const totalFloorArea = plan.total_floor_area || (tsubo > 0 ? Math.round(tsubo * 3.3058 * 100) / 100 : '');
+                    const constructionFloorArea = plan.construction_floor_area || totalFloorArea;
+
                     this.formData = {
                         ...plan,
-                        ldkFloor: plan.ldkFloor || '1階',
-                        bathroomFloor: plan.bathroomFloor || '1階',
-                        uaValue: plan.uaValue || '',
-                        energyReduction: plan.energyReduction || '',
-                        tsubo: plan.tsubo || plan.size || '',
-                        sellPrice: plan.prices?.sell ? plan.prices.sell / 10000 : (plan.sellPrice || plan.price || ''),  // 円→万円に変換
-                        cost: plan.prices?.cost ? plan.prices.cost / 10000 : (plan.cost || ''),      // 円→万円に変換
-                        grossProfit: plan.prices?.gross ? plan.prices.gross / 10000 : (plan.grossProfit || ''), // 円→万円に変換
+                        ldkFloor: plan.ldkFloor || plan.ldk_floor || '1階',
+                        bathroomFloor: plan.bathroomFloor || plan.bathroom_floor || '1階',
+                        uaValue: plan.uaValue || plan.ua_value || '',
+                        energyReduction: plan.energyReduction || plan.energy_reduction || '',
+                        totalFloorArea: totalFloorArea,
+                        constructionFloorArea: constructionFloorArea,
+                        sellPrice: plan.prices?.sell ? plan.prices.sell / 10000 : (plan.sell_price ? plan.sell_price / 10000 : (plan.sellPrice || plan.price || '')),  // 円→万円に変換
+                        cost: plan.prices?.cost ? plan.prices.cost / 10000 : (plan.cost ? plan.cost / 10000 : ''),      // 円→万円に変換
+                        grossProfit: plan.prices?.gross ? plan.prices.gross / 10000 : (plan.gross_profit ? plan.gross_profit / 10000 : ''), // 円→万円に変換
                         tags: plan.tags || [],
                         featureTags: plan.featureTags || plan.tags || [],
                         images: plan.images || { exterior: '', interior: '' },
-                        floorPlans: plan.floorPlans || [],
+                        floorPlans: plan.floorPlans || plan.floor_plans || [],
                         files: plan.files || { presentation: null, drawings: {}, documents: {}, images: {}, floorPlans: {} }
                     };
                     this.showModal = true;
@@ -1629,9 +1664,13 @@
                             errorMessages.push('プランコード');
                             if (!firstErrorField) firstErrorField = 'id';
                         }
-                        if (!this.formData.tsubo) {
-                            errorMessages.push('坪数');
-                            if (!firstErrorField) firstErrorField = 'tsubo';
+                        if (!this.formData.totalFloorArea) {
+                            errorMessages.push('延床面積');
+                            if (!firstErrorField) firstErrorField = 'totalFloorArea';
+                        }
+                        if (!this.formData.constructionFloorArea) {
+                            errorMessages.push('施工床面積');
+                            if (!firstErrorField) firstErrorField = 'constructionFloorArea';
                         }
                         if (!this.formData.layout) {
                             errorMessages.push('間取り');
@@ -1679,7 +1718,7 @@
                         
                         // プラン名を生成（階数と坪数とレイアウトから）
                         const floorName = this.formData.floors == 1 ? '平屋' : `${this.formData.floors}階建て`;
-                        const planName = `${floorName} ${this.formData.tsubo}坪 ${this.formData.layout}`;
+                        const planName = `${floorName} ${this.calculatedTsubo}坪 ${this.formData.layout}`;
 
                         // データベーススキーマに合わせてsnake_caseで送信
                         const planData = {
@@ -1689,7 +1728,9 @@
                             description: this.formData.description || '',
 
                             // 基本仕様（snake_case）
-                            tsubo: parseFloat(this.formData.tsubo) || 0,
+                            tsubo: this.calculatedTsubo || 0,
+                            total_floor_area: parseFloat(this.formData.totalFloorArea) || 0,
+                            construction_floor_area: parseFloat(this.formData.constructionFloorArea) || 0,
                             width: parseFloat(this.formData.width) || 0,
                             depth: parseFloat(this.formData.depth) || 0,
                             floors: parseInt(this.formData.floors) || 2,

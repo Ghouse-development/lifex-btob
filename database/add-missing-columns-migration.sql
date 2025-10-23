@@ -16,6 +16,10 @@ ALTER TABLE plans
     ADD COLUMN IF NOT EXISTS ldk_floor INTEGER,
     ADD COLUMN IF NOT EXISTS bathroom_floor INTEGER,
 
+    -- 面積情報
+    ADD COLUMN IF NOT EXISTS total_floor_area DECIMAL(10,2),
+    ADD COLUMN IF NOT EXISTS construction_floor_area DECIMAL(10,2),
+
     -- 価格情報（詳細）
     ADD COLUMN IF NOT EXISTS sell_price BIGINT,
     ADD COLUMN IF NOT EXISTS cost BIGINT,
@@ -43,6 +47,8 @@ CREATE INDEX IF NOT EXISTS idx_plans_status ON plans(status);
 COMMENT ON COLUMN plans.layout IS '間取り（例: 3LDK, 4LDK）';
 COMMENT ON COLUMN plans.ldk_floor IS 'LDKの階数（1階 or 2階）';
 COMMENT ON COLUMN plans.bathroom_floor IS '浴室の階数（1階 or 2階）';
+COMMENT ON COLUMN plans.total_floor_area IS '延床面積（㎡）';
+COMMENT ON COLUMN plans.construction_floor_area IS '施工床面積（㎡）';
 COMMENT ON COLUMN plans.sell_price IS '販売価格（円単位）';
 COMMENT ON COLUMN plans.cost IS '原価（円単位）';
 COMMENT ON COLUMN plans.gross_profit IS '粗利（円単位）';
