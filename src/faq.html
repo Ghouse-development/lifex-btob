@@ -31,14 +31,67 @@
     </script>
 
     <link href="./styles/main.css" rel="stylesheet">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="/js/common.js"></script>
 
-    <!-- Supabase Integration -->
-    <script type="module" src="/js/supabase-integration.js"></script>
-    <script type="module">
-        // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from '/js/supabase-client.js';
-        window.supabase = supabase;
+    <!-- Supabase Client Initialization -->
+    <script>
+        // Supabaseクライアントを初期化
+        (function() {
+            const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+
+            // CDNが読み込まれるまで待機
+            let retries = 0;
+            const checkInterval = setInterval(() => {
+                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                    clearInterval(checkInterval);
+
+                    const { createClient } = window.supabase;
+                    const client = createClient(supabaseUrl, supabaseAnonKey);
+
+                    // グローバルに設定
+                    window.supabaseClient = client;
+
+                    // supabaseAPI互換のオブジェクトを作成
+                    window.supabaseAPI = {
+                        faq: {
+                            async getItems() {
+                                const { data, error } = await client
+                                    .from('faqs')
+                                    .select('*')
+                                    .eq('status', 'published')
+                                    .order('display_order', { ascending: true });
+                                if (error) {
+                                    console.error('Error fetching FAQs:', error);
+                                    return [];
+                                }
+                                return data || [];
+                            },
+                            async getCategories() {
+                                const { data, error } = await client
+                                    .from('faq_categories')
+                                    .select('*')
+                                    .order('display_order', { ascending: true });
+                                if (error) {
+                                    console.error('Error fetching FAQ categories:', error);
+                                    return [];
+                                }
+                                return data || [];
+                            }
+                        }
+                    };
+
+                    console.log('✅ Supabase initialized');
+                } else if (retries++ > 50) {
+                    clearInterval(checkInterval);
+                    console.error('❌ Supabase CDN failed to load');
+                }
+            }, 100);
+        })();
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
