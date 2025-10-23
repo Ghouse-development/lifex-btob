@@ -44,22 +44,16 @@
 
     <!-- Supabase Client Initialization -->
     <script>
-        // Supabaseクライアントを初期化
+        // common.jsのSupabaseクライアントを使用してAPIを初期化
         (function() {
-            const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-            const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
-
-            // CDNが読み込まれるまで待機
+            // common.jsがSupabaseを初期化するまで待機
             let retries = 0;
             const checkInterval = setInterval(() => {
-                if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                // window.supabase が既にクライアントとして初期化されているかチェック
+                if (typeof window.supabase !== 'undefined' && window.supabase.from) {
                     clearInterval(checkInterval);
 
-                    const { createClient } = window.supabase;
-                    const client = createClient(supabaseUrl, supabaseAnonKey);
-
-                    // グローバルに設定
-                    window.supabaseClient = client;
+                    const client = window.supabase;
 
                     // supabaseAPI互換のオブジェクトを作成
                     window.supabaseAPI = {
@@ -90,10 +84,10 @@
                         }
                     };
 
-                    console.log('✅ Supabase initialized');
+                    console.log('✅ Supabase API initialized for rules');
                 } else if (retries++ > 50) {
                     clearInterval(checkInterval);
-                    console.error('❌ Supabase CDN failed to load');
+                    console.error('❌ common.js Supabase client not available');
                 }
             }, 100);
         })();
