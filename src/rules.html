@@ -270,11 +270,13 @@
                             console.log('✅ Loaded categories:', categories?.length || 0);
                             console.log('✅ Loaded rules:', rules?.length || 0);
 
-                            // カテゴリにルールを紐づける
-                            this.categories = (categories || []).map(cat => ({
-                                ...cat,
-                                rules: (rules || []).filter(rule => rule.category_id === cat.id)
-                            }));
+                            // カテゴリにルールを紐づける（ルールが0件のカテゴリは非表示）
+                            this.categories = (categories || [])
+                                .map(cat => ({
+                                    ...cat,
+                                    rules: (rules || []).filter(rule => rule.category_id === cat.id)
+                                }))
+                                .filter(cat => cat.rules && cat.rules.length > 0);
 
                             console.log('✅ Categories with rules:', this.categories);
                         } else {

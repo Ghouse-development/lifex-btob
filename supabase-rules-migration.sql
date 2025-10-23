@@ -119,13 +119,14 @@ CREATE TRIGGER update_rule_categories_updated_at BEFORE UPDATE ON rule_categorie
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- 初期データ: ルールカテゴリ
-INSERT INTO rule_categories (name, description, icon, display_order) VALUES
-    ('営業ルール', '営業活動に関するルールとガイドライン', '💼', 1),
-    ('施工ルール', '施工に関するルールと注意事項', '🔨', 2),
-    ('品質管理', '品質管理に関するルール', '✅', 3),
-    ('安全管理', '安全管理に関するルール', '⚠️', 4),
-    ('顧客対応', '顧客対応に関するルール', '🤝', 5)
-ON CONFLICT DO NOTHING;
+-- 注意: 初期データは自動挿入しません。必要に応じて管理画面から追加してください。
+-- INSERT INTO rule_categories (name, description, icon, display_order) VALUES
+--     ('営業ルール', '営業活動に関するルールとガイドライン', '💼', 1),
+--     ('施工ルール', '施工に関するルールと注意事項', '🔨', 2),
+--     ('品質管理', '品質管理に関するルール', '✅', 3),
+--     ('安全管理', '安全管理に関するルール', '⚠️', 4),
+--     ('顧客対応', '顧客対応に関するルール', '🤝', 5)
+-- ON CONFLICT DO NOTHING;
 
 -- スキーマキャッシュをリフレッシュ
 NOTIFY pgrst, 'reload schema';
