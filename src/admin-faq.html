@@ -165,20 +165,22 @@
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
-                                <select x-model="formData.category" class="form-input w-full">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ <span class="text-red-500">*</span></label>
+                                <select x-model="formData.category" class="form-input w-full" required>
                                     <option value="">選択してください</option>
                                     <template x-for="(category, index) in categories" :key="index">
                                         <option :value="category" x-text="category"></option>
                                     </template>
                                     <option value="new">新規カテゴリを追加...</option>
                                 </select>
-                                <input 
+                                <input
                                     x-show="formData.category === 'new'"
                                     x-model="newCategory"
                                     type="text"
                                     placeholder="新しいカテゴリ名"
-                                    class="form-input w-full mt-2">
+                                    class="form-input w-full mt-2"
+                                    required>
+                                <p class="text-xs text-gray-500 mt-1">カテゴリを必ず選択してください</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
@@ -594,9 +596,27 @@
                 getCategoryIdByName(categoryName) {
                     // カテゴリ名からcategory_idを取得
                     if (!categoryName) {
-                        return this.categoryMap['その他'];
+                        console.warn('⚠️ Category name is empty, using "その他"');
+                        const otherId = this.categoryMap['その他'];
+                        if (!otherId) {
+                            console.error('❌ categoryMap is empty or missing "その他"!', this.categoryMap);
+                            throw new Error('カテゴリデータが読み込まれていません。ページを再読み込みしてください。');
+                        }
+                        return otherId;
                     }
-                    return this.categoryMap[categoryName] || this.categoryMap['その他'];
+
+                    const categoryId = this.categoryMap[categoryName];
+                    if (!categoryId) {
+                        console.warn(`⚠️ Category "${categoryName}" not found in map, using "その他"`);
+                        const otherId = this.categoryMap['その他'];
+                        if (!otherId) {
+                            console.error('❌ categoryMap is empty or missing "その他"!', this.categoryMap);
+                            throw new Error('カテゴリデータが読み込まれていません。ページを再読み込みしてください。');
+                        }
+                        return otherId;
+                    }
+
+                    return categoryId;
                 },
 
                 async deleteFAQ(faq) {

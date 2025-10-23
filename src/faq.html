@@ -177,23 +177,43 @@
                 
                 async loadFAQs() {
                     try {
-                        // 管理画面で保存されたデータを読み込み
-                        const data = await lifeXAPI.getFAQ();
-                        this.faqs = data.faqs || [];
-                        
-                        // カテゴリーを動的に取得
-                        const uniqueCategories = new Set(['すべて']);
-                        this.faqs.forEach(faq => {
-                            if (faq.category && faq.status === 'active') {
-                                uniqueCategories.add(faq.category);
-                            }
-                        });
-                        this.categories = Array.from(uniqueCategories);
-                        
-                        // アクティブなもののみ表示
-                        this.faqs = this.faqs.filter(faq => faq.status === 'active');
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 20) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        if (window.supabaseAPI) {
+                            // Supabaseから公開中のFAQを取得
+                            const data = await window.supabaseAPI.faq.getFAQs();
+                            console.log('✅ Loaded FAQs from Supabase:', data?.length || 0);
+
+                            // カテゴリ名を取得してFAQに追加
+                            const categories = await window.supabaseAPI.faq.getCategories();
+
+                            this.faqs = (data || []).map(faq => {
+                                const category = categories.find(cat => cat.id === faq.category_id);
+                                return {
+                                    ...faq,
+                                    category: category ? category.name : 'その他'
+                                };
+                            });
+
+                            // カテゴリーを動的に取得
+                            const uniqueCategories = new Set(['すべて']);
+                            this.faqs.forEach(faq => {
+                                if (faq.category) {
+                                    uniqueCategories.add(faq.category);
+                                }
+                            });
+                            this.categories = Array.from(uniqueCategories);
+                        } else {
+                            console.warn('⚠️ Supabase API not available');
+                            this.faqs = [];
+                        }
                     } catch (error) {
-                        console.error('Error loading FAQs:', error);
+                        console.error('❌ Error loading FAQs:', error);
                         this.faqs = [];
                     }
                 },
