@@ -73,6 +73,16 @@
                     if (error) throw error;
                     return data || [];
                 },
+                async create(planData) {
+                    const { data, error } = await window.supabase.from('plans').insert([planData]).select().single();
+                    if (error) throw error;
+                    return { success: true, data };
+                },
+                async update(planId, updates) {
+                    const { data, error } = await window.supabase.from('plans').update(updates).eq('id', planId).select().single();
+                    if (error) throw error;
+                    return { success: true, data };
+                },
                 async delete(planId) {
                     const { data, error } = await window.supabase.from('plans').update({ status: 'deleted', updated_at: new Date().toISOString() }).eq('id', planId).select().single();
                     if (error) throw error;
@@ -89,6 +99,12 @@
             },
             async getPlans() {
                 return await window.supabaseAPI.plans.getAll();
+            },
+            async savePlan(planData) {
+                return await window.supabaseAPI.plans.create(planData);
+            },
+            async updatePlan(planId, updates) {
+                return await window.supabaseAPI.plans.update(planId, updates);
             }
         };
 
