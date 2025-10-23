@@ -514,6 +514,16 @@
 
     </div>
 
+    <!-- Supabase Client -->
+    <script type="module">
+        import { supabase } from '/js/supabase-client.js';
+        // window.supabase をグローバルに設定
+        window.supabase = supabase;
+
+        // Supabase読み込み完了を通知
+        window.dispatchEvent(new CustomEvent('supabase-ready'));
+    </script>
+
     <script>
         function adminMenu() {
             return {
@@ -535,8 +545,17 @@
                 recentActivities: [],
                 loading: false,
                 statusMessage: null,
+                supabaseReady: false,
 
                 async init() {
+                    // Supabaseの読み込みを待つ
+                    if (!window.supabase) {
+                        await new Promise(resolve => {
+                            window.addEventListener('supabase-ready', resolve, { once: true });
+                        });
+                    }
+                    this.supabaseReady = true;
+
                     // Load stats from API or localStorage
                     await this.loadStats();
                     
