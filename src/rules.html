@@ -217,17 +217,16 @@
                                 this.categories = data.categories || [];
                             }
                         }
-                            
-                            // アクティブなルールのみフィルタリング
-                            this.categories = this.categories.map(cat => ({
-                                ...cat,
-                                rules: (cat.rules || []).filter(rule => rule.status === 'active')
-                            }));
-                            
-                            // 最初のカテゴリーを展開
-                            if (this.categories.length > 0) {
-                                this.expandedCategories.push(this.categories[0].id);
-                            }
+
+                        // アクティブなルールのみフィルタリング
+                        this.categories = this.categories.map(cat => ({
+                            ...cat,
+                            rules: (cat.rules || []).filter(rule => rule.status === 'active')
+                        }));
+
+                        // 最初のカテゴリーを展開
+                        if (this.categories.length > 0) {
+                            this.expandedCategories.push(this.categories[0].id);
                         }
                     } catch (error) {
                         console.error('Error loading rules:', error);
