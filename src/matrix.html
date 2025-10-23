@@ -185,6 +185,36 @@
                 <div class="loading-spinner"></div>
             </div>
 
+            <!-- Floor Filter Tabs -->
+            <div x-show="!loading" class="mb-6 flex justify-center">
+                <div class="inline-flex rounded-lg border border-gray-300 bg-white p-1">
+                    <button
+                        @click="setFloorFilter('all')"
+                        :class="selectedFloorFilter === 'all' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                        class="px-6 py-2 rounded-md text-sm font-medium transition-colors">
+                        すべて
+                    </button>
+                    <button
+                        @click="setFloorFilter('1')"
+                        :class="selectedFloorFilter === '1' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                        class="px-6 py-2 rounded-md text-sm font-medium transition-colors">
+                        平屋
+                    </button>
+                    <button
+                        @click="setFloorFilter('2')"
+                        :class="selectedFloorFilter === '2' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                        class="px-6 py-2 rounded-md text-sm font-medium transition-colors">
+                        2階建て
+                    </button>
+                    <button
+                        @click="setFloorFilter('3')"
+                        :class="selectedFloorFilter === '3' ? 'bg-primary-600 text-white' : 'text-gray-700 hover:bg-gray-100'"
+                        class="px-6 py-2 rounded-md text-sm font-medium transition-colors">
+                        3階建て
+                    </button>
+                </div>
+            </div>
+
             <!-- Empty State -->
             <div x-show="!loading && widthOptions.length === 0 && depthOptions.length === 0" class="card text-center py-12">
                 <div class="text-gray-400 mb-4">
@@ -268,7 +298,7 @@
                                                                 </div>
                                                             </template>
                                                             <!-- プランID表示 -->
-                                                            <div class="text-xs font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].id"></div>
+                                                            <div class="text-xs font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].id.substring(0, 8) + '...'"></div>
                                                             <!-- 階数情報表示 -->
                                                             <div class="text-xs text-gray-600 mt-1 flex flex-col">
                                                                 <div x-text="`建物${getCellPlans(width, depth)[0].floors?.building || 2}階`"></div>
@@ -339,7 +369,7 @@
                                         </svg>
                                     </div>
                                 </template>
-                                <div class="text-sm font-bold text-gray-900" x-text="plan.id"></div>
+                                <div class="text-sm font-bold text-gray-900" x-text="plan.id.substring(0, 8) + '...'"></div>
                                 <div class="text-xs text-gray-600" x-text="`${plan.tsubo || plan.size}坪 ${plan.layout}`"></div>
                                 <div class="text-xs text-primary-600 mt-1">クリックで詳細表示</div>
                             </div>
@@ -366,6 +396,7 @@
                 modalPlans: [],
                 selectedWidth: null,
                 selectedDepth: null,
+                selectedFloorFilter: 'all', // 'all', '1', '2', '3'
                 planMatrix: {},
 
                 // 455単位で繰り上げる関数
@@ -399,20 +430,38 @@
                         }
 
                         // Supabaseのデータ形式をマトリックス用に変換
-                        this.plans = (data || []).map(plan => ({
-                            id: plan.id,
-                            name: plan.plan_name,
-                            width: plan.width || 0, // すでにmm単位で保存されている
-                            depth: plan.depth || 0, // すでにmm単位で保存されている
-                            tsubo: plan.tsubo,
-                            category: plan.plan_category,
-                            subCategory: plan.plan_sub_category,
-                            exteriorImage: plan.thumbnail_url || '',
-                            floorPlans: plan.drawing_file_path ? [plan.drawing_file_path] : [],
-                            totalArea: plan.total_area,
-                            floor1Area: plan.floor1_area,
-                            floor2Area: plan.floor2_area
-                        }));
+                        this.plans = (data || []).map(plan => {
+                            // 外観パース画像を取得（優先順位: thumbnail_url > images.exterior > images配列の最初）
+                            let exteriorImage = plan.thumbnail_url || '';
+                            if (!exteriorImage && plan.images) {
+                                if (typeof plan.images === 'object') {
+                                    // images.exteriorをチェック
+                                    exteriorImage = plan.images.exterior || plan.images.外観パース || '';
+                                    // 配列の場合は最初の要素
+                                    if (!exteriorImage && Array.isArray(plan.images)) {
+                                        exteriorImage = plan.images[0] || '';
+                                    }
+                                }
+                            }
+
+                            return {
+                                id: plan.id,
+                                planCode: plan.plan_code,
+                                name: plan.plan_name,
+                                width: plan.width || 0, // すでにmm単位で保存されている
+                                depth: plan.depth || 0, // すでにmm単位で保存されている
+                                tsubo: plan.tsubo,
+                                constructionFloorArea: plan.construction_floor_area, // 施工床面積（㎡）
+                                floors: plan.floors || 2, // 階数
+                                category: plan.plan_category,
+                                subCategory: plan.plan_sub_category,
+                                exteriorImage: exteriorImage,
+                                floorPlans: plan.drawing_file_path ? [plan.drawing_file_path] : [],
+                                totalArea: plan.total_area,
+                                floor1Area: plan.floor1_area,
+                                floor2Area: plan.floor2_area
+                            };
+                        });
                         
                         // デバッグログ
                         console.log('Matrix - Loaded plans from Supabase:', this.plans.length);
@@ -431,14 +480,24 @@
                             if (plan.depth) depthSet.add(this.roundUpTo455(plan.depth));
                         });
 
+                        // デフォルトの範囲を含める（4.5P～8.5P、7.5P～15P）
+                        for (let i = 4095; i <= 7735; i += 455) {
+                            widthSet.add(i);
+                        }
+                        for (let i = 6825; i <= 13650; i += 455) {
+                            depthSet.add(i);
+                        }
+
                         this.widthOptions = Array.from(widthSet).sort((a, b) => a - b);
                         this.depthOptions = Array.from(depthSet).sort((a, b) => a - b);
                     } catch (error) {
                         console.error('Error loading plans:', error);
                         // 管理画面からプランが追加されるまで空
                         this.plans = [];
-                        this.widthOptions = [];
-                        this.depthOptions = [];
+
+                        // デフォルトのオプション
+                        this.widthOptions = [4095, 4550, 5005, 5460, 5915, 6370, 6825, 7280, 7735];
+                        this.depthOptions = [6825, 7280, 7735, 8190, 8645, 9100, 9555, 10010, 10465, 10920, 11375, 11830, 12285, 12740, 13195, 13650];
                     }
                 },
 
@@ -446,22 +505,34 @@
                 buildMatrix() {
                     // マトリックスデータを構築
                     this.planMatrix = {};
-                    
-                    this.plans.forEach(plan => {
+
+                    // 階数フィルターを適用
+                    const filteredPlans = this.selectedFloorFilter === 'all'
+                        ? this.plans
+                        : this.plans.filter(plan => plan.floors == this.selectedFloorFilter);
+
+                    filteredPlans.forEach(plan => {
                         if (plan.width && plan.depth) {
                             // 455単位で繰り上げてマトリックスに配置
                             const roundedWidth = this.roundUpTo455(plan.width);
                             const roundedDepth = this.roundUpTo455(plan.depth);
                             const key = `${roundedWidth}-${roundedDepth}`;
-                            
+
                             if (!this.planMatrix[key]) {
                                 this.planMatrix[key] = [];
                             }
                             this.planMatrix[key].push(plan);
                         }
                     });
-                    
+
                     console.log('Matrix built with rounded dimensions:', this.planMatrix);
+                    console.log('Floor filter:', this.selectedFloorFilter, 'Filtered plans:', filteredPlans.length);
+                },
+
+                // 階数フィルターを変更
+                setFloorFilter(filter) {
+                    this.selectedFloorFilter = filter;
+                    this.buildMatrix();
                 },
 
                 getCellPlans(width, depth) {
@@ -469,14 +540,34 @@
                     return this.planMatrix[key] || [];
                 },
 
+                // 施工床面積に基づく色分けを取得
+                getColorByFloorArea(constructionFloorArea) {
+                    if (!constructionFloorArea) return 'bg-gray-50';
+
+                    // ㎡を坪に変換
+                    const tsubo = constructionFloorArea / 3.3058;
+
+                    if (tsubo >= 28 && tsubo < 30) {
+                        return 'bg-blue-100 border-blue-400'; // 28-30坪: 青
+                    } else if (tsubo >= 30 && tsubo < 33) {
+                        return 'bg-green-100 border-green-400'; // 30-33坪: 緑
+                    } else if (tsubo >= 33 && tsubo < 35) {
+                        return 'bg-yellow-100 border-yellow-400'; // 33-35坪: 黄
+                    } else if (tsubo >= 35 && tsubo < 38) {
+                        return 'bg-orange-100 border-orange-400'; // 35-38坪: オレンジ
+                    } else {
+                        return 'bg-gray-100 border-gray-400'; // その他: グレー
+                    }
+                },
+
                 getCellClass(width, depth) {
                     const plans = this.getCellPlans(width, depth);
                     if (plans.length === 0) {
                         return 'bg-gray-50 hover:bg-gray-100';
-                    } else if (plans.length === 1) {
-                        return 'bg-green-50 hover:bg-green-100 border-2 border-green-300';
                     } else {
-                        return 'bg-blue-50 hover:bg-blue-100 border-2 border-blue-300';
+                        // 最初のプランの施工床面積に基づいて色を決定
+                        const colorClass = this.getColorByFloorArea(plans[0].constructionFloorArea);
+                        return `${colorClass} hover:brightness-95 border-2 cursor-pointer`;
                     }
                 },
 
