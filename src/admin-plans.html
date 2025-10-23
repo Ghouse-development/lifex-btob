@@ -69,7 +69,12 @@
         window.supabaseAPI = {
             plans: {
                 async getAll() {
-                    const { data, error } = await window.supabase.from('plans').select('*').order('created_at', { ascending: false });
+                    // 削除済み（status='deleted'）を除外
+                    const { data, error } = await window.supabase
+                        .from('plans')
+                        .select('*')
+                        .neq('status', 'deleted')  // status != 'deleted'
+                        .order('created_at', { ascending: false });
                     if (error) throw error;
                     return data || [];
                 },
