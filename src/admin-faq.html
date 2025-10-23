@@ -92,14 +92,14 @@
             <!-- カテゴリ別タブ -->
             <div class="card mb-6">
                 <div class="flex space-x-1 border-b border-gray-200">
-                    <button 
+                    <button
                         @click="activeCategory = 'all'"
                         :class="activeCategory === 'all' ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-600 hover:text-gray-900'"
                         class="px-4 py-2 font-medium transition-colors">
                         すべて
                     </button>
-                    <template x-for="category in categories" :key="category">
-                        <button 
+                    <template x-for="(category, index) in categories" :key="index">
+                        <button
                             @click="activeCategory = category"
                             :class="activeCategory === category ? 'border-b-2 border-primary-500 text-primary-600' : 'text-gray-600 hover:text-gray-900'"
                             class="px-4 py-2 font-medium transition-colors"
@@ -168,7 +168,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">カテゴリ</label>
                                 <select x-model="formData.category" class="form-input w-full">
                                     <option value="">選択してください</option>
-                                    <template x-for="category in categories" :key="category">
+                                    <template x-for="(category, index) in categories" :key="index">
                                         <option :value="category" x-text="category"></option>
                                     </template>
                                     <option value="new">新規カテゴリを追加...</option>
