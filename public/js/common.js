@@ -1593,6 +1593,29 @@ function logout() {
     }
 }
 
+// Supabase初期化（即座に実行）
+(function initializeSupabase() {
+    const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+
+    // Supabase CDNライブラリを動的に読み込み
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js';
+    script.onload = function() {
+        if (typeof supabase !== 'undefined' && supabase.createClient) {
+            window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase initialized in common.js');
+            window.dispatchEvent(new CustomEvent('supabase-ready'));
+        } else {
+            console.error('❌ Supabase library loaded but createClient not found');
+        }
+    };
+    script.onerror = function() {
+        console.error('❌ Failed to load Supabase library from CDN');
+    };
+    document.head.appendChild(script);
+})();
+
 // DOM読み込み完了時の初期化
 document.addEventListener('DOMContentLoaded', function() {
     console.log('LIFE X Common JS loaded');

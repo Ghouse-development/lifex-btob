@@ -36,24 +36,8 @@
     </script>
 
     <link href="./styles/main.css" rel="stylesheet">
+    <!-- common.jsでSupabaseを初期化 -->
     <script src="/js/common.js"></script>
-
-    <!-- Supabase Client - Alpine.jsより先に読み込む -->
-    <script type="module">
-        // Supabase設定
-        const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
-
-        // CDN経由でSupabaseクライアントを読み込み
-        import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm')
-            .then(({ createClient }) => {
-                window.supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase initialized in head');
-            })
-            .catch(error => {
-                console.error('❌ Failed to load Supabase:', error);
-            });
-    </script>
 
     <!-- Supabase Auth Guard -->
     <script type="module" src="/js/auth-guard.js"></script>
