@@ -490,6 +490,9 @@
                                                max="330"
                                                step="0.01"
                                                required>
+                                        <div x-show="calculatedConstructionTsubo" class="text-xs text-gray-500 mt-1">
+                                            坪数: <span class="font-semibold text-gray-700" x-text="`${calculatedConstructionTsubo}坪`"></span>
+                                        </div>
                                         <div x-show="formErrors.constructionFloorArea" class="text-red-500 text-xs mt-1" x-text="formErrors.constructionFloorArea"></div>
                                     </label>
                                     <!-- 坪数（自動計算・表示のみ） -->
@@ -1251,6 +1254,15 @@
                     return '';
                 },
 
+                get calculatedConstructionTsubo() {
+                    const area = parseFloat(this.formData.constructionFloorArea) || 0;
+                    if (area > 0) {
+                        const tsubo = area / 3.3058; // m2 to tsubo
+                        return Math.round(tsubo * 100) / 100; // 小数点第二位まで
+                    }
+                    return '';
+                },
+
                 get calculatedGrossProfit() {
                     const sellPrice = this.getActualSellPrice();
                     const cost = parseFloat(this.formData.cost) || 0;
@@ -1806,9 +1818,26 @@
                         }
                     } catch (error) {
                         console.error('[submit] error', error);
-                        const errorMessage = error.response?.data?.message
-                            || error.message
-                            || 'プランの保存に失敗しました';
+                        console.error('[submit] エラーの詳細:', {
+                            message: error.message,
+                            hint: error.hint,
+                            details: error.details,
+                            code: error.code
+                        });
+
+                        let errorMessage = error.message || 'プランの保存に失敗しました';
+
+                        // データベースカラムが存在しない場合の明確なエラーメッセージ
+                        if (error.message && (error.message.includes('column') || error.message.includes('does not exist'))) {
+                            errorMessage = '❌ データベーススキーマが更新されていません。\n\nSupabase SQL Editorでマイグレーションを実行してください。\n\n詳細: ' + error.message;
+                        } else if (error.code === '42703') {
+                            errorMessage = '❌ データベーススキーマが更新されていません。\n\nマイグレーションSQLを実行してください。';
+                        } else if (error.code === '23502') {
+                            errorMessage = '必須項目が入力されていません: ' + (error.details || error.message);
+                        } else if (error.code === '23505') {
+                            errorMessage = 'プランコードが重複しています。別のコードを入力してください。';
+                        }
+
                         showToast(errorMessage, 'error');
                     } finally {
                         this.saving = false;
