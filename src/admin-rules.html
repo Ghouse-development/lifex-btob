@@ -248,15 +248,42 @@
                             <textarea x-model="ruleFormData.notes" rows="3" class="form-input w-full" placeholder="備考や注意事項（任意）"></textarea>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">関連資料</label>
-                                <input type="text" x-model="ruleFormData.documents" class="form-input w-full" placeholder="関連資料名や番号">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">関連資料</label>
+                            <div
+                                @dragover.prevent
+                                @drop.prevent="handleFileDrop($event)"
+                                @click="$refs.fileInput.click()"
+                                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary-500 transition-colors"
+                                :class="{'border-primary-500 bg-primary-50': isDragging}">
+                                <input
+                                    type="file"
+                                    x-ref="fileInput"
+                                    @change="handleFileSelect($event)"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                                    class="hidden">
+                                <div x-show="!ruleFormData.documentFile">
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <p class="mt-2 text-sm text-gray-600">ファイルをドラッグ&ドロップ</p>
+                                    <p class="text-xs text-gray-500">または クリックして選択</p>
+                                    <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel, 画像</p>
+                                </div>
+                                <div x-show="ruleFormData.documentFile" class="text-sm">
+                                    <svg class="mx-auto h-8 w-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="mt-2 text-gray-700 font-medium" x-text="ruleFormData.documentFile?.name"></p>
+                                    <p class="text-xs text-gray-500" x-text="formatFileSize(ruleFormData.documentFile?.size)"></p>
+                                    <button type="button" @click.stop="removeFile()" class="mt-2 text-xs text-red-600 hover:text-red-800">削除</button>
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">施行日</label>
-                                <input type="date" x-model="ruleFormData.effectiveDate" class="form-input w-full">
-                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ルール登録日</label>
+                            <input type="date" x-model="ruleFormData.registeredDate" class="form-input w-full">
                         </div>
                         
                         <div>
@@ -486,6 +513,9 @@
                 openAddRuleModal(category = null) {
                     this.editingRule = null;
                     this.selectedCategory = category;
+                    // 本日の日付を取得
+                    const today = new Date().toISOString().split('T')[0];
+
                     this.ruleFormData = {
                         title: '',
                         content: '',
@@ -493,9 +523,11 @@
                         importance: '重要',
                         notes: '',
                         documents: '',
+                        documentFile: null,
                         status: 'active',
-                        effectiveDate: ''
+                        registeredDate: today  // 本日を初期値に設定
                     };
+                    this.isDragging = false;
                     this.showRuleModal = true;
                 },
 
@@ -509,7 +541,7 @@
                     this.showRuleModal = true;
                 },
 
-                saveRule() {
+                async saveRule() {
                     if (!this.ruleFormData.title || !this.ruleFormData.content) {
                         lifeXAPI.showToast('タイトルと内容を入力してください', 'error');
                         return;
@@ -521,26 +553,46 @@
                         return;
                     }
 
+                    // ファイルがある場合はアップロード
+                    let documentUrl = this.ruleFormData.documents;
+                    if (this.ruleFormData.documentFile) {
+                        const ruleId = this.editingRule?.id || Date.now();
+                        documentUrl = await this.uploadDocument(this.ruleFormData.documentFile, ruleId);
+
+                        if (!documentUrl) {
+                            lifeXAPI.showToast('ファイルのアップロードに失敗しました', 'error');
+                            return;
+                        }
+                    }
+
+                    const ruleData = {
+                        title: this.ruleFormData.title,
+                        content: this.ruleFormData.content,
+                        categoryId: this.ruleFormData.categoryId,
+                        importance: this.ruleFormData.importance,
+                        notes: this.ruleFormData.notes,
+                        documents: documentUrl || '',
+                        status: this.ruleFormData.status,
+                        registeredDate: this.ruleFormData.registeredDate,
+                        updated: new Date().toISOString().split('T')[0]
+                    };
+
                     if (this.editingRule) {
                         // 編集
-                        Object.assign(this.editingRule, {
-                            ...this.ruleFormData,
-                            updated: new Date().toISOString().split('T')[0]
-                        });
+                        Object.assign(this.editingRule, ruleData);
                         lifeXAPI.showToast('ルールを更新しました', 'success');
                     } else {
                         // 新規追加
                         if (!category.rules) category.rules = [];
                         const newRule = {
                             id: Date.now(),
-                            ...this.ruleFormData,
-                            order: category.rules.length + 1,
-                            updated: new Date().toISOString().split('T')[0]
+                            ...ruleData,
+                            order: category.rules.length + 1
                         };
                         category.rules.push(newRule);
                         lifeXAPI.showToast('ルールを追加しました', 'success');
                     }
-                    
+
                     this.closeRuleModal();
                     this.saveToSupabase();
                 },
@@ -553,10 +605,71 @@
                     }
                 },
 
+                // ファイル関連の処理
+                handleFileDrop(event) {
+                    this.isDragging = false;
+                    const files = event.dataTransfer.files;
+                    if (files.length > 0) {
+                        this.ruleFormData.documentFile = files[0];
+                    }
+                },
+
+                handleFileSelect(event) {
+                    const files = event.target.files;
+                    if (files.length > 0) {
+                        this.ruleFormData.documentFile = files[0];
+                    }
+                },
+
+                removeFile() {
+                    this.ruleFormData.documentFile = null;
+                    this.ruleFormData.documents = '';
+                },
+
+                formatFileSize(bytes) {
+                    if (!bytes) return '';
+                    const kb = bytes / 1024;
+                    if (kb < 1024) {
+                        return kb.toFixed(1) + ' KB';
+                    }
+                    return (kb / 1024).toFixed(1) + ' MB';
+                },
+
+                async uploadDocument(file, ruleId) {
+                    if (!file) return null;
+
+                    try {
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `rule_${ruleId}_${Date.now()}.${fileExt}`;
+                        const filePath = `rules/${fileName}`;
+
+                        // Supabase Storageにアップロード
+                        const { data, error } = await window.supabase.storage
+                            .from('documents')
+                            .upload(filePath, file);
+
+                        if (error) {
+                            console.error('File upload error:', error);
+                            return null;
+                        }
+
+                        // 公開URLを取得
+                        const { data: urlData } = window.supabase.storage
+                            .from('documents')
+                            .getPublicUrl(filePath);
+
+                        return urlData.publicUrl;
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        return null;
+                    }
+                },
+
                 closeRuleModal() {
                     this.showRuleModal = false;
                     this.editingRule = null;
                     this.selectedCategory = null;
+                    this.ruleFormData.documentFile = null;
                 },
                 
                 // 重要度を日本語から英語にマッピング
