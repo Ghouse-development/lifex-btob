@@ -402,8 +402,8 @@
                         this.plans = (data || []).map(plan => ({
                             id: plan.id,
                             name: plan.plan_name,
-                            width: plan.maguchi ? Math.round(plan.maguchi * 1000) : 0, // mをmmに変換
-                            depth: plan.oku_yuki ? Math.round(plan.oku_yuki * 1000) : 0, // mをmmに変換
+                            width: plan.width || 0, // すでにmm単位で保存されている
+                            depth: plan.depth || 0, // すでにmm単位で保存されている
                             tsubo: plan.tsubo,
                             category: plan.plan_category,
                             subCategory: plan.plan_sub_category,

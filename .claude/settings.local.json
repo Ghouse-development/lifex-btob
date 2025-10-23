@@ -70,7 +70,8 @@
       "Bash(node scripts/utilities/test-plan-code-feature.js:*)",
       "Bash(node scripts/utilities/clear-plan-codes.js:*)",
       "Bash(node scripts/utilities/check-dashboard-stats.js:*)",
-      "Bash(node scripts/utilities/delete-old-plans.js:*)"
+      "Bash(node scripts/utilities/delete-old-plans.js:*)",
+      "Bash(node scripts/utilities/check-column-names.js:*)"
     ],
     "deny": [],
     "ask": []
