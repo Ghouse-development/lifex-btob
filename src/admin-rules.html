@@ -566,7 +566,7 @@
                             for (const category of this.categories) {
                                 if (category.id && typeof category.id === 'string' && category.id.includes('-')) {
                                     // UUIDを持つ既存カテゴリ → 更新
-                                    const result = await window.supabaseAPI.rules.update(category.id, {
+                                    const result = await window.supabaseAPI.rules.updateCategory(category.id, {
                                         name: category.name,
                                         description: category.description,
                                         display_order: category.display_order || 0,
@@ -586,16 +586,30 @@
                                                     title: rule.title,
                                                     content: rule.content,
                                                     category_id: category.id,
-                                                    importance: rule.importance,
+                                                    priority: rule.importance || 'normal',
                                                     display_order: rule.display_order || 0,
                                                     status: rule.status || 'active'
                                                 });
+                                            } else {
+                                                // 新規ルール作成
+                                                const ruleResult = await window.supabaseAPI.rules.create({
+                                                    title: rule.title,
+                                                    content: rule.content,
+                                                    category_id: category.id,
+                                                    priority: rule.importance || 'normal',
+                                                    display_order: rule.display_order || 0,
+                                                    status: rule.status || 'active'
+                                                });
+
+                                                if (ruleResult.success && ruleResult.data) {
+                                                    rule.id = ruleResult.data.id;
+                                                }
                                             }
                                         }
                                     }
                                 } else {
                                     // 新規カテゴリ作成
-                                    const result = await window.supabaseAPI.rules.create({
+                                    const result = await window.supabaseAPI.rules.createCategory({
                                         name: category.name,
                                         description: category.description,
                                         display_order: category.display_order || 0,
@@ -604,6 +618,24 @@
 
                                     if (result.success && result.data) {
                                         category.id = result.data.id;
+
+                                        // 新規カテゴリ内のルールも作成
+                                        if (category.rules && category.rules.length > 0) {
+                                            for (const rule of category.rules) {
+                                                const ruleResult = await window.supabaseAPI.rules.create({
+                                                    title: rule.title,
+                                                    content: rule.content,
+                                                    category_id: result.data.id,
+                                                    priority: rule.importance || 'normal',
+                                                    display_order: rule.display_order || 0,
+                                                    status: rule.status || 'active'
+                                                });
+
+                                                if (ruleResult.success && ruleResult.data) {
+                                                    rule.id = ruleResult.data.id;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

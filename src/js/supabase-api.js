@@ -383,6 +383,54 @@ export const rulesAPI = {
         } catch (error) {
             return { success: false, error: handleError(error) };
         }
+    },
+
+    // ルールカテゴリ作成
+    async createRuleCategory(categoryData) {
+        try {
+            const { data, error } = await supabase
+                .from('rule_categories')
+                .insert([categoryData])
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // ルールカテゴリ更新
+    async updateRuleCategory(categoryId, updates) {
+        try {
+            const { data, error } = await supabase
+                .from('rule_categories')
+                .update(updates)
+                .eq('id', categoryId)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
+    // ルールカテゴリ削除
+    async deleteRuleCategory(categoryId) {
+        try {
+            const { error } = await supabase
+                .from('rule_categories')
+                .delete()
+                .eq('id', categoryId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
     }
 };
 

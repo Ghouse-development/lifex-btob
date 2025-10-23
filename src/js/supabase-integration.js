@@ -114,6 +114,24 @@ window.supabaseAPI = {
         async delete(ruleId) {
             const module = await import('./supabase-api.js');
             return module.rulesAPI.deleteRule(ruleId);
+        },
+
+        // カテゴリ作成
+        async createCategory(categoryData) {
+            const module = await import('./supabase-api.js');
+            return module.rulesAPI.createRuleCategory(categoryData);
+        },
+
+        // カテゴリ更新
+        async updateCategory(categoryId, updates) {
+            const module = await import('./supabase-api.js');
+            return module.rulesAPI.updateRuleCategory(categoryId, updates);
+        },
+
+        // カテゴリ削除
+        async deleteCategory(categoryId) {
+            const module = await import('./supabase-api.js');
+            return module.rulesAPI.deleteRuleCategory(categoryId);
         }
     },
 
