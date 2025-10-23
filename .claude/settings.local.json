@@ -56,7 +56,21 @@
       "Bash(node scripts/utilities/verify-all-pages.js:*)",
       "Bash(node scripts/utilities/diagnose-data-display.js:*)",
       "Bash(node scripts/utilities/test-anon-access.js:*)",
-      "Bash(node scripts/utilities/apply-plans-migration.js:*)"
+      "Bash(node scripts/utilities/apply-plans-migration.js:*)",
+      "Bash(node scripts/utilities/check-plans-rls.js:*)",
+      "Bash(node scripts/utilities/comprehensive-plans-check.js:*)",
+      "Bash(node scripts/utilities/check-id-column-type.js:*)",
+      "Bash(node scripts/utilities/final-plans-test.js:*)",
+      "Bash(node scripts/utilities/get-actual-schema.js:*)",
+      "Bash(test:*)",
+      "Bash(awk:*)",
+      "Bash(node scripts/utilities/add-plan-code-migration.js:*)",
+      "Bash(set SUPABASE_DB_PASSWORD=Lifex@1031@2024:*)",
+      "Bash(node scripts/utilities/execute-plan-code-migration.js:*)",
+      "Bash(node scripts/utilities/test-plan-code-feature.js:*)",
+      "Bash(node scripts/utilities/clear-plan-codes.js:*)",
+      "Bash(node scripts/utilities/check-dashboard-stats.js:*)",
+      "Bash(node scripts/utilities/delete-old-plans.js:*)"
     ],
     "deny": [],
     "ask": []
