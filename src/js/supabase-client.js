@@ -1,13 +1,15 @@
 // Supabase Client Configuration
 import { createClient } from '@supabase/supabase-js';
 
-// Supabase接続情報（環境変数から取得）
+// Supabase接続情報（環境変数から取得、フォールバックあり）
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY ||
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
 
-if (!supabaseAnonKey) {
-    console.error('❌ VITE_SUPABASE_ANON_KEY が設定されていません');
-    throw new Error('Supabase API key is not configured. Please set VITE_SUPABASE_ANON_KEY environment variable.');
+// 環境変数が設定されていない場合は警告を表示（フォールバック値を使用）
+if (!import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    console.warn('⚠️ VITE_SUPABASE_ANON_KEY が環境変数に設定されていません。フォールバック値を使用しています。');
+    console.warn('   本番環境では Vercel の Environment Variables で設定してください。');
 }
 
 // Supabaseクライアントの作成
