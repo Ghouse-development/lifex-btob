@@ -144,6 +144,21 @@ export const plansAPI = {
         }
     },
 
+    // プラン削除
+    async delete(planId) {
+        try {
+            const { error } = await supabase
+                .from('plans')
+                .delete()
+                .eq('id', planId);
+
+            if (error) throw error;
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: handleError(error) };
+        }
+    },
+
     // プラン画像アップロード
     async uploadPlanImage(planId, file, type) {
         try {
