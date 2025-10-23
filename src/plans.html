@@ -441,15 +441,15 @@
                             <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
                                 <div>
                                     <div class="text-gray-500">想定販売価格<span class="text-red-500 text-xs">(税込)</span></div>
-                                    <div x-text="lifeXAPI.formatPrice(plan.prices.sell)" class="price-display text-sm"></div>
+                                    <div x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'" class="price-display text-sm"></div>
                                 </div>
                                 <div>
                                     <div class="text-gray-500">想定原価<span class="text-blue-500 text-xs">(税別)</span></div>
-                                    <div x-text="lifeXAPI.formatPrice(plan.prices.cost)" class="font-semibold text-sm"></div>
+                                    <div x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.cost) : '-'" class="font-semibold text-sm"></div>
                                 </div>
                                 <div>
                                     <div class="text-gray-500">想定粗利<span class="text-blue-500 text-xs">(税別)</span></div>
-                                    <div x-text="lifeXAPI.formatPrice(plan.prices.gross)" class="font-semibold text-green-600 text-sm"></div>
+                                    <div x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'" class="font-semibold text-green-600 text-sm"></div>
                                 </div>
                             </div>
                             
@@ -557,11 +557,11 @@
                                     </div>
                                     <div>
                                         <div class="text-xs text-gray-600">想定販売価格<span class="text-red-500 ml-1">(税込)</span></div>
-                                        <div class="text-lg font-semibold text-primary-600" x-text="lifeXAPI.formatPrice(plan.prices.sell)"></div>
+                                        <div class="text-lg font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></div>
                                     </div>
                                     <div>
                                         <div class="text-xs text-gray-600">想定粗利<span class="text-blue-500 ml-1">(税別)</span></div>
-                                        <div class="text-lg font-semibold text-green-600" x-text="lifeXAPI.formatPrice(plan.prices.gross)"></div>
+                                        <div class="text-lg font-semibold text-green-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'"></div>
                                     </div>
                                 </div>
                                 
@@ -1045,38 +1045,43 @@
                 async loadPlans() {
                     let plansData = { plans: [] };
 
-                    // Supabaseから直接取得
                     try {
-                        const { data, error } = await window.supabase
-                            .from('plans')
-                            .select('*')
-                            .order('created_at', { ascending: false });
-
-                        if (error) {
-                            console.error('Supabase error:', error);
-                            throw error;
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 20) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
                         }
 
-                        // Supabaseデータを既存フォーマットに変換
-                        plansData = {
-                            plans: (data || []).map(plan => ({
-                                id: plan.id,
-                                name: plan.plan_name,
-                                planId: plan.plan_id,
-                                tsubo: plan.tsubo,
-                                width: plan.maguchi,
-                                depth: plan.oku_yuki,
-                                category: plan.plan_category,
-                                subCategory: plan.plan_sub_category,
-                                totalArea: plan.total_area,
-                                floor1Area: plan.floor1_area,
-                                floor2Area: plan.floor2_area,
-                                floor3Area: plan.floor3_area,
-                                exteriorImage: plan.thumbnail_url,
-                                drawingFile: plan.drawing_file_path,
-                                status: 'published' // Supabaseのデータは全て公開済み
-                            }))
-                        };
+                        if (window.supabaseAPI) {
+                            // Supabase APIを使用してプランを取得
+                            const data = await window.supabaseAPI.plans.getAll();
+                            console.log('✅ Loaded plans from Supabase:', data?.length || 0);
+
+                            // Supabaseデータを既存フォーマットに変換
+                            plansData = {
+                                plans: (data || []).map(plan => ({
+                                    id: plan.id,
+                                    name: plan.plan_name,
+                                    planId: plan.plan_id,
+                                    tsubo: plan.tsubo,
+                                    width: plan.maguchi,
+                                    depth: plan.oku_yuki,
+                                    category: plan.plan_category,
+                                    subCategory: plan.plan_sub_category,
+                                    totalArea: plan.total_area,
+                                    floor1Area: plan.floor1_area,
+                                    floor2Area: plan.floor2_area,
+                                    floor3Area: plan.floor3_area,
+                                    exteriorImage: plan.thumbnail_url,
+                                    drawingFile: plan.drawing_file_path,
+                                    status: 'published' // Supabaseのデータは全て公開済み
+                                }))
+                            };
+                        } else {
+                            console.warn('⚠️ Supabase API not available');
+                            plansData = { plans: [] };
+                        }
                     } catch (error) {
                         console.error('Failed to load from Supabase:', error);
                         // フォールバック: LocalStorageから読み込み
