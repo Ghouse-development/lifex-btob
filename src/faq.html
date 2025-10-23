@@ -186,7 +186,7 @@
 
                         if (window.supabaseAPI) {
                             // Supabaseから公開中のFAQを取得
-                            const data = await window.supabaseAPI.faq.getFAQs();
+                            const data = await window.supabaseAPI.faq.getItems();
                             console.log('✅ Loaded FAQs from Supabase:', data?.length || 0);
 
                             // カテゴリ名を取得してFAQに追加
