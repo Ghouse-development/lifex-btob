@@ -185,8 +185,23 @@
                 <div class="loading-spinner"></div>
             </div>
 
+            <!-- Empty State -->
+            <div x-show="!loading && widthOptions.length === 0 && depthOptions.length === 0" class="card text-center py-12">
+                <div class="text-gray-400 mb-4">
+                    <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">間取マトリックスは空です</h3>
+                <p class="text-gray-600 mb-4">プランに間口・奥行データが設定されていません</p>
+                <p class="text-sm text-gray-500">
+                    管理画面でプランを編集し、延床面積と施工床面積を入力すると、<br/>
+                    間口・奥行が自動計算されてマトリックスに表示されます。
+                </p>
+            </div>
+
             <!-- Matrix Container -->
-            <div x-show="!loading" class="card overflow-x-auto matrix-container">
+            <div x-show="!loading && (widthOptions.length > 0 || depthOptions.length > 0)" class="card overflow-x-auto matrix-container">
                 <div class="flex">
                     <!-- 縦軸ラベル（建物奥行） -->
                     <div class="flex items-center justify-center pr-4">
@@ -284,7 +299,7 @@
             </div>
 
             <!-- Summary Stats -->
-            <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+            <div x-show="!loading && (widthOptions.length > 0 || depthOptions.length > 0)" class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                 <div class="card text-center">
                     <div x-text="totalPlans" class="text-3xl font-bold text-primary-600"></div>
                     <div class="text-gray-600">登録プラン数</div>
@@ -415,25 +430,15 @@
                             if (plan.width) widthSet.add(this.roundUpTo455(plan.width));
                             if (plan.depth) depthSet.add(this.roundUpTo455(plan.depth));
                         });
-                        
-                        // デフォルトの範囲も含める（4.5P～8.5P、7.5P～15P）
-                        for (let i = 4095; i <= 7735; i += 455) {
-                            widthSet.add(i);
-                        }
-                        for (let i = 6825; i <= 13650; i += 455) {
-                            depthSet.add(i);
-                        }
-                        
+
                         this.widthOptions = Array.from(widthSet).sort((a, b) => a - b);
                         this.depthOptions = Array.from(depthSet).sort((a, b) => a - b);
                     } catch (error) {
                         console.error('Error loading plans:', error);
                         // 管理画面からプランが追加されるまで空
                         this.plans = [];
-                        
-                        // デフォルトのオプション
-                        this.widthOptions = [4095, 4550, 5005, 5460, 5915, 6370, 6825, 7280, 7735];
-                        this.depthOptions = [6825, 7280, 7735, 8190, 8645, 9100, 9555, 10010, 10465, 10920, 11375, 11830, 12285, 12740, 13195, 13650];
+                        this.widthOptions = [];
+                        this.depthOptions = [];
                     }
                 },
 
