@@ -559,6 +559,16 @@
                     this.selectedCategory = null;
                 },
                 
+                // 重要度を日本語から英語にマッピング
+                mapImportanceToPriority(importance) {
+                    const mapping = {
+                        '必須': 'high',
+                        '重要': 'normal',
+                        '推奨': 'low'
+                    };
+                    return mapping[importance] || 'normal';
+                },
+
                 async saveToSupabase() {
                     try {
                         if (window.supabaseAPI) {
@@ -580,29 +590,37 @@
                                     // カテゴリ内のルールも保存
                                     if (category.rules && category.rules.length > 0) {
                                         for (const rule of category.rules) {
+                                            const priority = this.mapImportanceToPriority(rule.importance);
+
                                             if (rule.id && typeof rule.id === 'string' && rule.id.includes('-')) {
                                                 // 既存ルール更新
-                                                await window.supabaseAPI.rules.update(rule.id, {
+                                                const updateResult = await window.supabaseAPI.rules.update(rule.id, {
                                                     title: rule.title,
                                                     content: rule.content,
                                                     category_id: category.id,
-                                                    priority: rule.importance || 'normal',
+                                                    priority: priority,
                                                     display_order: rule.display_order || 0,
                                                     status: rule.status || 'active'
                                                 });
+
+                                                if (!updateResult.success) {
+                                                    console.error('ルール更新失敗:', updateResult.error);
+                                                }
                                             } else {
                                                 // 新規ルール作成
                                                 const ruleResult = await window.supabaseAPI.rules.create({
                                                     title: rule.title,
                                                     content: rule.content,
                                                     category_id: category.id,
-                                                    priority: rule.importance || 'normal',
+                                                    priority: priority,
                                                     display_order: rule.display_order || 0,
                                                     status: rule.status || 'active'
                                                 });
 
                                                 if (ruleResult.success && ruleResult.data) {
                                                     rule.id = ruleResult.data.id;
+                                                } else {
+                                                    console.error('ルール作成失敗:', ruleResult.error);
                                                 }
                                             }
                                         }
@@ -622,20 +640,25 @@
                                         // 新規カテゴリ内のルールも作成
                                         if (category.rules && category.rules.length > 0) {
                                             for (const rule of category.rules) {
+                                                const priority = this.mapImportanceToPriority(rule.importance);
                                                 const ruleResult = await window.supabaseAPI.rules.create({
                                                     title: rule.title,
                                                     content: rule.content,
                                                     category_id: result.data.id,
-                                                    priority: rule.importance || 'normal',
+                                                    priority: priority,
                                                     display_order: rule.display_order || 0,
                                                     status: rule.status || 'active'
                                                 });
 
                                                 if (ruleResult.success && ruleResult.data) {
                                                     rule.id = ruleResult.data.id;
+                                                } else {
+                                                    console.error('ルール作成失敗:', ruleResult.error);
                                                 }
                                             }
                                         }
+                                    } else {
+                                        console.error('カテゴリ作成失敗:', result.error);
                                     }
                                 }
                             }
