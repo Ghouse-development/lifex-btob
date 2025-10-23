@@ -183,8 +183,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">ステータス</label>
                                 <select x-model="formData.status" class="form-input w-full">
-                                    <option value="active">公開中</option>
+                                    <option value="published">公開中</option>
                                     <option value="draft">下書き</option>
+                                    <option value="archived">アーカイブ</option>
                                 </select>
                             </div>
                         </div>
@@ -294,7 +295,7 @@
                     question: '',
                     answer: '',
                     category: '',
-                    status: 'active',
+                    status: 'published',
                     order: 1
                 },
                 
@@ -418,7 +419,7 @@
                         question: '',
                         answer: '',
                         category: '',
-                        status: 'active',
+                        status: 'published',
                         order: this.faqs.length + 1
                     };
                     this.showModal = true;
@@ -622,7 +623,7 @@
                         question: '',
                         answer: '',
                         category: '',
-                        status: 'active',
+                        status: 'published',
                         order: 1
                     };
                 },
