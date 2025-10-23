@@ -466,19 +466,18 @@
                                     <!-- プランID（内部用UUID、非表示） -->
                                     <input type="hidden" x-model="formData.id">
 
-                                    <!-- プランコード（表示用、手入力） -->
+                                    <!-- プランコード（表示用、手入力、任意） -->
                                     <label class="form-field">
-                                        <span>プランコード <span class="text-red-500">*</span></span>
+                                        <span>プランコード</span>
                                         <input type="text"
                                                x-model="formData.planCode"
                                                name="planCode"
                                                @input="validateField('planCode')"
                                                :class="formErrors.planCode ? 'border-red-300' : ''"
                                                class="input"
-                                               placeholder="例: LX-001"
+                                               placeholder="例: LX-001（任意）"
                                                pattern="[A-Za-z0-9\-]+"
-                                               title="半角英数字とハイフンのみ使用できます"
-                                               required>
+                                               title="半角英数字とハイフンのみ使用できます">
                                         <div x-show="formErrors.planCode" class="text-red-500 text-xs mt-1" x-text="formErrors.planCode"></div>
                                         <div class="text-xs text-gray-500 mt-1">半角英数字とハイフンのみ</div>
                                     </label>
@@ -549,11 +548,6 @@
                                         </div>
                                         <div x-show="formErrors.constructionFloorArea" class="text-red-500 text-xs mt-1" x-text="formErrors.constructionFloorArea"></div>
                                     </label>
-                                    <!-- 坪数（自動計算・表示のみ） -->
-                                    <div x-show="calculatedTsubo" class="col-span-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                        <p class="text-sm text-gray-600">自動計算された坪数:</p>
-                                        <p class="text-lg font-semibold text-blue-700" x-text="`${calculatedTsubo}坪`"></p>
-                                    </div>
                                     <label class="form-field">
                                         <span>間口（mm） <span class="text-red-500">*</span></span>
                                         <input type="number"
@@ -1605,8 +1599,8 @@
                 
                 isFormValid() {
                     // 基本情報のバリデーションのみチェック（画像は一時的に必須から外す）
+                    // planCodeは任意項目（入力されている場合のみバリデーション）
                     const basicValid = this.isFieldValid('id') &&
-                           this.isFieldValid('planCode') &&
                            this.isFieldValid('totalFloorArea') &&
                            this.isFieldValid('constructionFloorArea') &&
                            this.isFieldValid('layout') &&
@@ -1615,7 +1609,7 @@
 
                     console.log('Validation check:', {
                         id: this.isFieldValid('id'),
-                        planCode: this.isFieldValid('planCode'),
+                        planCode: this.formData.planCode ? this.isFieldValid('planCode') : 'optional',
                         totalFloorArea: this.isFieldValid('totalFloorArea'),
                         constructionFloorArea: this.isFieldValid('constructionFloorArea'),
                         layout: this.isFieldValid('layout'),
