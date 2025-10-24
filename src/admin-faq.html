@@ -660,21 +660,25 @@
                         updated: new Date().toISOString()
                     };
 
+                    // 編集モードかどうかを先に保存（closeModal()でeditingFAQがクリアされるため）
+                    const isEditing = !!this.editingFAQ;
+                    const editingId = this.editingFAQ?.id;
+
                     // すぐにモーダルを閉じる
                     this.closeModal();
-                    
+
                     // バックグラウンドで保存処理を実行
                     this.saving = true;
-                    
+
                     try {
-                        if (this.editingFAQ) {
+                        if (isEditing) {
                             // 編集の場合
-                            const index = this.faqs.findIndex(f => f.id === this.editingFAQ.id);
+                            const index = this.faqs.findIndex(f => f.id === editingId);
                             if (index > -1) {
                                 // IDを保持
                                 this.faqs[index] = {
                                     ...faqData,
-                                    id: this.editingFAQ.id
+                                    id: editingId
                                 };
                                 lifeXAPI.showToast('FAQを更新しました', 'success');
                             } else {
