@@ -422,6 +422,22 @@
                 sortable: null,
 
                 async init() {
+                    // Supabase APIが利用可能になるまで待機（最大10秒）
+                    console.log('⏳ Waiting for Supabase API...');
+                    let retries = 0;
+                    while (!window.supabaseAPI && retries < 100) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        retries++;
+                    }
+
+                    if (!window.supabaseAPI) {
+                        console.error('❌ Supabase APIの初期化に失敗しました');
+                        lifeXAPI.showToast('データの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
+                        return;
+                    }
+
+                    console.log('✅ Supabase API loaded');
+
                     // カテゴリデータの読み込み
                     await this.loadCategories();
                     // FAQデータの読み込み
@@ -436,13 +452,7 @@
 
                 async loadCategories() {
                     try {
-                        // Supabase APIが利用可能になるまで待機
-                        let retries = 0;
-                        while (!window.supabaseAPI && retries < 50) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            retries++;
-                        }
-
+                        // init()で既にsupabaseAPIの待機は完了しているので、ここでは不要
                         if (window.supabaseAPI) {
                             const categories = await window.supabaseAPI.faq.getCategories();
                             if (categories && categories.length > 0) {
@@ -470,14 +480,7 @@
 
                 async loadFAQs() {
                     try {
-                        // Supabase APIが利用可能になるまで待機
-                        let retries = 0;
-                        while (!window.supabaseAPI && retries < 10) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            retries++;
-                        }
-
-                        // Supabase or LocalStorage
+                        // init()で既にsupabaseAPIの待機は完了しているので、ここでは不要
                         if (window.supabaseAPI && window.supabase) {
                             console.log('Loading FAQs from Supabase...');
                             this.faqs = await window.supabaseAPI.faq.getItems();
