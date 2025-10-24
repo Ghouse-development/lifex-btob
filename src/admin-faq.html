@@ -19,36 +19,121 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-    <!-- Supabase Integration - CDN待機後にロード -->
+    <!-- Supabase Integration - 直接初期化 -->
     <script type="module">
-        try {
-            // CDNの読み込みを待ってからインポート
-            await new Promise(resolve => {
-                if (window.supabase?.createClient) {
-                    resolve();
-                } else {
-                    const checkInterval = setInterval(() => {
-                        if (window.supabase?.createClient) {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 50);
+        // CDNの読み込みを待つ
+        await new Promise(resolve => {
+            if (window.supabase?.createClient) {
+                resolve();
+            } else {
+                const checkInterval = setInterval(() => {
+                    if (window.supabase?.createClient) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+
+        // Supabaseクライアントを取得（common.jsで既に初期化済み）
+        const supabase = window.supabase;
+        console.log('✅ Supabase client ready');
+
+        // FAQ用のAPIを直接定義
+        window.supabaseAPI = window.supabaseAPI || {};
+        window.supabaseAPI.faq = {
+            async getCategories() {
+                try {
+                    const { data, error } = await supabase
+                        .from('faq_categories')
+                        .select('*')
+                        .order('display_order');
+                    if (error) throw error;
+                    return data || [];
+                } catch (error) {
+                    console.error('Error fetching FAQ categories:', error);
+                    return [];
                 }
-            });
+            },
 
-            // Supabaseクライアントをsupabase-client.jsからインポート
-            const { supabase } = await import('/js/supabase-client.js?v=20251024c');
-            window.supabase = supabase;
-            console.log('✅ supabase-client.js loaded');
+            async getItems(categoryId = null) {
+                try {
+                    let query = supabase
+                        .from('faqs')
+                        .select('*, faq_categories(name)')
+                        .order('display_order');
 
-            // Supabase Integrationも待機後にロード
-            await import('/js/supabase-integration.js?v=20251024c');
-            console.log('✅ supabase-integration.js loaded');
-            console.log('window.supabaseAPI:', window.supabaseAPI);
-        } catch (error) {
-            console.error('❌ Failed to load Supabase modules:', error);
-            console.error('Error details:', error.message, error.stack);
-        }
+                    if (categoryId) {
+                        query = query.eq('category_id', categoryId);
+                    }
+
+                    const { data, error } = await query;
+                    if (error) throw error;
+                    return data || [];
+                } catch (error) {
+                    console.error('Error fetching FAQs:', error);
+                    return [];
+                }
+            },
+
+            async create(faqData) {
+                try {
+                    const { data, error } = await supabase
+                        .from('faqs')
+                        .insert([{
+                            question: faqData.question,
+                            answer: faqData.answer,
+                            category_id: faqData.category_id,
+                            tags: faqData.tags || [],
+                            status: faqData.status || 'published',
+                            display_order: faqData.display_order || 0
+                        }])
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    return { success: true, data };
+                } catch (error) {
+                    console.error('Error creating FAQ:', error);
+                    return { success: false, error: error.message };
+                }
+            },
+
+            async update(faqId, updates) {
+                try {
+                    const { data, error } = await supabase
+                        .from('faqs')
+                        .update(updates)
+                        .eq('id', faqId)
+                        .select()
+                        .single();
+
+                    if (error) throw error;
+                    return { success: true, data };
+                } catch (error) {
+                    console.error('Error updating FAQ:', error);
+                    return { success: false, error: error.message };
+                }
+            },
+
+            async delete(faqId) {
+                try {
+                    const { error } = await supabase
+                        .from('faqs')
+                        .delete()
+                        .eq('id', faqId);
+
+                    if (error) throw error;
+                    return { success: true };
+                } catch (error) {
+                    console.error('Error deleting FAQ:', error);
+                    return { success: false, error: error.message };
+                }
+            }
+        };
+
+        console.log('✅ FAQ API initialized');
+        console.log('window.supabaseAPI:', window.supabaseAPI);
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -430,21 +515,21 @@
                 sortable: null,
 
                 async init() {
-                    // Supabase APIが利用可能になるまで待機（最大10秒）
+                    // Supabase APIが利用可能になるまで待機（最大5秒）
                     console.log('⏳ Waiting for Supabase API...');
                     let retries = 0;
-                    while (!window.supabaseAPI && retries < 100) {
+                    while ((!window.supabaseAPI || !window.supabaseAPI.faq) && retries < 50) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                         retries++;
                     }
 
-                    if (!window.supabaseAPI) {
+                    if (!window.supabaseAPI || !window.supabaseAPI.faq) {
                         console.error('❌ Supabase APIの初期化に失敗しました');
                         lifeXAPI.showToast('データの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
                         return;
                     }
 
-                    console.log('✅ Supabase API loaded');
+                    console.log('✅ Supabase FAQ API loaded');
 
                     // カテゴリデータの読み込み
                     await this.loadCategories();
