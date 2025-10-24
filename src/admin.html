@@ -589,19 +589,23 @@
                                    updatedDate.getFullYear() === thisMonth.getFullYear();
                         }).length;
                         
-                        // ルール統計
-                        const rulesData = localStorage.getItem('rules_categories_data');
-                        if (rulesData) {
-                            const rules = JSON.parse(rulesData);
-                            let totalRules = 0;
-                            let requiredRules = 0;
-                            (rules.categories || []).forEach(cat => {
-                                totalRules += (cat.rules || []).length;
-                                requiredRules += (cat.rules || []).filter(r => r.importance === '必須').length;
-                            });
-                            this.stats.rules = totalRules;
-                            this.stats.rulesRequired = requiredRules;
-                        } else {
+                        // ルール統計（Supabaseから取得）
+                        try {
+                            const { data: rulesData, error: rulesError } = await window.supabase
+                                .from('rules')
+                                .select('*');
+
+                            if (!rulesError && rulesData) {
+                                const activeRules = rulesData.filter(r => r.status === 'active');
+                                this.stats.rules = activeRules.length;
+                                // importance フィールドがある場合のみカウント
+                                this.stats.rulesRequired = activeRules.filter(r => r.importance === '必須').length;
+                            } else {
+                                this.stats.rules = 0;
+                                this.stats.rulesRequired = 0;
+                            }
+                        } catch (e) {
+                            console.error('Error loading rules stats:', e);
                             this.stats.rules = 0;
                             this.stats.rulesRequired = 0;
                         }
@@ -646,16 +650,30 @@
                             this.stats.downloads = 0;
                         }
                         
-                        // FAQ統計
-                        const faqData = localStorage.getItem('faq_data');
-                        if (faqData) {
-                            const faqs = JSON.parse(faqData);
-                            this.stats.faqs = (faqs.faqs || faqs || []).length;
-                            const faqArray = faqs.faqs || faqs || [];
-                            const uniqueCategories = new Set(faqArray.map(f => f.category).filter(c => c));
-                            this.stats.faqCategories = uniqueCategories.size;
-                            console.log('FAQ data:', faqs, 'Total FAQs:', this.stats.faqs);
-                        } else {
+                        // FAQ統計（Supabaseから取得）
+                        try {
+                            const { data: faqsData, error: faqsError } = await window.supabase
+                                .from('faqs')
+                                .select('*');
+
+                            const { data: faqCategoriesData, error: faqCatError } = await window.supabase
+                                .from('faq_categories')
+                                .select('*');
+
+                            if (!faqsError && faqsData) {
+                                this.stats.faqs = faqsData.filter(f => f.status === 'published').length;
+                                console.log('FAQ data:', faqsData, 'Total FAQs:', this.stats.faqs);
+                            } else {
+                                this.stats.faqs = 0;
+                            }
+
+                            if (!faqCatError && faqCategoriesData) {
+                                this.stats.faqCategories = faqCategoriesData.length;
+                            } else {
+                                this.stats.faqCategories = 0;
+                            }
+                        } catch (e) {
+                            console.error('Error loading FAQ stats:', e);
                             this.stats.faqs = 0;
                             this.stats.faqCategories = 0;
                         }
