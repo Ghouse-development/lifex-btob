@@ -12,13 +12,40 @@ if (!import.meta?.env?.VITE_SUPABASE_ANON_KEY) {
     console.warn('   本番環境では Vercel の Environment Variables で設定してください。');
 }
 
-// CDN版のSupabaseからcreateClientを取得
-const { createClient } = window.supabase || {};
+// CDN版のSupabaseからcreateClientを取得（読み込みを待機）
+let createClient = window.supabase?.createClient;
 
 if (!createClient) {
-    console.error('❌ Supabase CDN が読み込まれていません。HTMLに以下を追加してください:');
+    console.log('⏳ Supabase CDN読み込み待機中...');
+
+    // CDNが読み込まれるまで待機（最大15秒）
+    await new Promise((resolve) => {
+        let checkCount = 0;
+        const maxChecks = 300; // 15秒 (50ms * 300)
+
+        const checkInterval = setInterval(() => {
+            checkCount++;
+
+            if (window.supabase?.createClient) {
+                clearInterval(checkInterval);
+                createClient = window.supabase.createClient;
+                console.log('✅ Supabase CDN読み込み完了');
+                resolve();
+            } else if (checkCount >= maxChecks) {
+                clearInterval(checkInterval);
+                console.error('❌ Supabase CDN が15秒以内に読み込まれませんでした');
+                console.error('   ページをリロードしてください (Ctrl+F5 または Cmd+Shift+R)');
+                resolve(); // エラーでも続行
+            }
+        }, 50);
+    });
+}
+
+if (!createClient) {
+    console.error('❌ Supabase CDN が利用できません');
+    console.error('   HTMLに以下のスクリプトが含まれているか確認してください:');
     console.error('   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
-    throw new Error('Supabase CDN not loaded');
+    throw new Error('Supabase CDN not loaded. Please reload the page with Ctrl+F5 (or Cmd+Shift+R)');
 }
 
 // Supabaseクライアントの作成

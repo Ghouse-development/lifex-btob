@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>間取マトリックス | LIFE X 加盟店専用サイト</title>
 
+    <!-- キャッシュ無効化 - 常に最新データを表示 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -31,14 +36,33 @@
     </script>
 
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/js/common.js"></script>
+    <script src="/js/common.js?v=20251024"></script>
 
-    <!-- Supabase Integration -->
-    <script type="module" src="/js/supabase-integration.js"></script>
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase Integration - CDN待機後にロード -->
     <script type="module">
+        // CDNの読み込みを待ってからインポート
+        await new Promise(resolve => {
+            if (window.supabase?.createClient) {
+                resolve();
+            } else {
+                const checkInterval = setInterval(() => {
+                    if (window.supabase?.createClient) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+
         // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from '/js/supabase-client.js';
+        import { supabase } from '/js/supabase-client.js?v=20251024';
         window.supabase = supabase;
+
+        // Supabase Integrationも待機後にロード
+        await import('/js/supabase-integration.js?v=20251024');
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -50,7 +74,8 @@
         .plan-thumbnail {
             width: 80px;
             height: 80px;
-            object-fit: cover;
+            object-fit: contain; /* 縦横比を保持 */
+            background-color: #f9fafb; /* 余白部分の背景色 */
         }
         .axis-label {
             writing-mode: vertical-rl;
@@ -66,6 +91,7 @@
             .plan-thumbnail {
                 width: 60px;
                 height: 60px;
+                object-fit: contain; /* 縦横比を保持 */
             }
             .matrix-container {
                 font-size: 12px;
@@ -83,6 +109,7 @@
             .plan-thumbnail {
                 width: 45px;
                 height: 45px;
+                object-fit: contain; /* 縦横比を保持 */
             }
             .matrix-container {
                 font-size: 10px;
@@ -406,7 +433,9 @@
 
                 async loadPlans() {
                     try {
-                        // Supabaseからプランを取得
+                        console.log('🔄 最新のプランデータを取得中...', new Date().toLocaleTimeString());
+
+                        // Supabaseからプランを取得（キャッシュバスティング付き）
                         const { data, error } = await window.supabase
                             .from('plans')
                             .select('*')
@@ -453,12 +482,15 @@
                             };
                         });
                         
-                        // デバッグログ
-                        console.log('Matrix - Loaded plans from Supabase:', this.plans.length);
+                        // デバッグログ - 読み込み結果を表示
+                        console.log('✅ プラン読み込み完了:', this.plans.length, '件');
+                        console.log('📅 取得時刻:', new Date().toLocaleString('ja-JP'));
                         if (this.plans.length > 0) {
-                            console.log('Matrix - First plan:', this.plans[0]);
+                            console.log('📋 最新プラン:', this.plans[0].planCode, '-', this.plans[0].name);
+                        } else {
+                            console.warn('⚠️  プランが見つかりませんでした。プラン管理で登録してください。');
                         }
-                        
+
                         this.totalPlans = this.plans.length;
                         
                         // 登録されているプランから間口と奥行のオプションを自動生成（455単位で繰り上げ）

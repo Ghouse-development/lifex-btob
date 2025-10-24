@@ -8,10 +8,27 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Supabase -->
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase - CDN待機後にロード -->
     <script type="module">
+        // CDNの読み込みを待ってからインポート
+        await new Promise(resolve => {
+            if (window.supabase?.createClient) {
+                resolve();
+            } else {
+                const checkInterval = setInterval(() => {
+                    if (window.supabase?.createClient) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+
         // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from '/js/supabase-client.js';
+        import { supabase } from '/js/supabase-client.js?v=20251024';
         window.supabase = supabase;
     </script>
 

@@ -40,7 +40,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="/js/common.js"></script>
+    <script src="/js/common.js?v=20251024"></script>
 
     <!-- Supabase Client Initialization -->
     <script>
@@ -186,14 +186,11 @@
                                         <div class="flex items-start justify-between">
                                             <div class="flex-1">
                                                 <h3 class="font-medium text-gray-900" x-text="rule.title"></h3>
-                                                <div class="text-sm text-gray-600 mt-1 line-clamp-2" x-html="rule.content"></div>
+                                                <div class="text-xs text-gray-500 mt-1" x-show="rule.registered_date">
+                                                    <span>登録日: </span><span x-text="rule.registered_date"></span>
+                                                </div>
                                             </div>
                                             <div class="flex items-center gap-2 ml-4">
-                                                <span :class="{
-                                                    'bg-red-100 text-red-800': rule.importance === '必須',
-                                                    'bg-yellow-100 text-yellow-800': rule.importance === '重要',
-                                                    'bg-blue-100 text-blue-800': rule.importance === '推奨'
-                                                }" class="px-2 py-1 text-xs rounded-full flex-shrink-0" x-text="rule.importance || '推奨'"></span>
                                                 <svg class="w-5 h-5 text-gray-400 flex-shrink-0"
                                                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -240,19 +237,15 @@
                 <!-- Modal Header -->
                 <div class="flex items-start justify-between p-6 border-b border-gray-100">
                     <div class="flex-1 pr-8">
-                        <div class="flex items-center gap-3 mb-2">
-                            <h2 class="text-xl font-semibold text-gray-900" x-text="selectedRule?.title"></h2>
-                            <span :class="{
-                                'bg-red-100 text-red-800': selectedRule?.importance === '必須',
-                                'bg-yellow-100 text-yellow-800': selectedRule?.importance === '重要',
-                                'bg-blue-100 text-blue-800': selectedRule?.importance === '推奨'
-                            }" class="px-3 py-1 text-xs rounded-full" x-text="selectedRule?.importance || '推奨'"></span>
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2" x-text="selectedRule?.title"></h2>
+                        <div class="text-sm text-gray-500 space-x-3">
+                            <template x-if="selectedRule?.registered_date">
+                                <span>登録日: <span x-text="selectedRule?.registered_date"></span></span>
+                            </template>
+                            <template x-if="selectedRule?.effectiveDate">
+                                <span>施行日: <span x-text="selectedRule?.effectiveDate"></span></span>
+                            </template>
                         </div>
-                        <template x-if="selectedRule?.effectiveDate">
-                            <p class="text-sm text-gray-500">
-                                施行日：<span x-text="selectedRule?.effectiveDate"></span>
-                            </p>
-                        </template>
                     </div>
                     <button @click="closeModal()"
                             class="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0">
