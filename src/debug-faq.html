@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Debug</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .status-published { color: green; }
+        .status-draft { color: orange; }
+        .status-archived { color: gray; }
+        h2 { margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h1>FAQ Database Debug</h1>
+    <div id="loading">Loading data from Supabase...</div>
+    <div id="results" style="display:none;">
+        <h2>All FAQs in Database:</h2>
+        <div id="faqTable"></div>
+
+        <h2>FAQ Categories:</h2>
+        <div id="categoryTable"></div>
+
+        <h2>Raw JSON Data:</h2>
+        <pre id="jsonData"></pre>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script type="module">
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+
+        // Wait for CDN to load
+        await new Promise(resolve => {
+            const check = setInterval(() => {
+                if (window.supabase?.createClient) {
+                    clearInterval(check);
+                    resolve();
+                }
+            }, 50);
+        });
+
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+        async function debugFAQs() {
+            try {
+                // Get all FAQs (no status filter)
+                const { data: faqs, error: faqError } = await supabase
+                    .from('faqs')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (faqError) throw faqError;
+
+                // Get all categories
+                const { data: categories, error: catError } = await supabase
+                    .from('faq_categories')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (catError) throw catError;
+
+                // Display results
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+
+                // Create FAQ table
+                let faqHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Question</th>
+                                <th>Status</th>
+                                <th>Category ID</th>
+                                <th>Display Order</th>
+                                <th>Created At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                faqs.forEach(faq => {
+                    faqHtml += `
+                        <tr>
+                            <td>${faq.id}</td>
+                            <td>${faq.question}</td>
+                            <td class="status-${faq.status}">${faq.status}</td>
+                            <td>${faq.category_id}</td>
+                            <td>${faq.display_order}</td>
+                            <td>${new Date(faq.created_at).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+
+                faqHtml += '</tbody></table>';
+                document.getElementById('faqTable').innerHTML = faqHtml;
+
+                // Create category table
+                let catHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Display Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                categories.forEach(cat => {
+                    catHtml += `
+                        <tr>
+                            <td>${cat.id}</td>
+                            <td>${cat.name}</td>
+                            <td>${cat.display_order}</td>
+                        </tr>
+                    `;
+                });
+
+                catHtml += '</tbody></table>';
+                document.getElementById('categoryTable').innerHTML = catHtml;
+
+                // Display JSON
+                document.getElementById('jsonData').textContent = JSON.stringify({
+                    faqs,
+                    categories
+                }, null, 2);
+
+                // Log to console
+                console.log('FAQs:', faqs);
+                console.log('Categories:', categories);
+
+            } catch (error) {
+                document.getElementById('loading').innerHTML =
+                    `<p style="color: red;">Error: ${error.message}</p>
+                     <pre>${JSON.stringify(error, null, 2)}</pre>`;
+            }
+        }
+
+        debugFAQs();
+    </script>
+</body>
+</html>
