@@ -30,7 +30,9 @@ export default defineConfig({
         'admin/index': resolve(__dirname, 'src/admin/index.html'),
         ai: resolve(__dirname, 'src/ai.html'),
         design: resolve(__dirname, 'src/design.html'),
-        faq: resolve(__dirname, 'src/faq.html')
+        faq: resolve(__dirname, 'src/faq.html'),
+        'debug-faq-comprehensive': resolve(__dirname, 'src/debug-faq-comprehensive.html'),
+        'debug-faq-browser': resolve(__dirname, 'src/debug-faq-browser.html')
       }
     }
   },
