@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ管理 | LIFE X 管理画面</title>
-    <!-- Version: 2025-01-24-v3 (Direct API Init) -->
+    <!-- Version: 2025-01-24-v4 (Manual Alpine.js Control) -->
     <!-- Tailwind CSS (Production Build) -->
     <link rel="stylesheet" href="/assets/tailwind.css">
 
@@ -13,7 +13,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>console.log('🔥 admin-faq.html loaded - Version: 2025-01-24-v3');</script>
+    <script>console.log('🔥 admin-faq.html loaded - Version: 2025-01-24-v4 (Manual Alpine Control)');</script>
     <script src="/js/common.js?v=20251024"></script>
 
     <!-- Supabase Auth Guard -->
@@ -25,6 +25,7 @@
     <script type="module">
         (async () => {
             try {
+                console.log('🚀 FAQ API initialization v4 - Manual Alpine Control');
                 console.log('🚀 Starting FAQ API initialization...');
 
                 // CDNの読み込みを待つ
@@ -140,6 +141,26 @@
 
                 console.log('✅ FAQ API initialized');
                 console.log('window.supabaseAPI:', window.supabaseAPI);
+
+                // Alpine.jsの初期化準備完了を通知
+                window.supabaseAPIReady = true;
+                window.dispatchEvent(new Event('supabaseAPIReady'));
+
+                // Alpine.js を起動
+                if (window.startAlpine) {
+                    console.log('🚀 Starting Alpine.js now...');
+                    window.startAlpine();
+                } else {
+                    console.warn('⚠️ window.startAlpine not found, waiting...');
+                    // Alpine.js CDNのロードを待つ
+                    const checkAlpine = setInterval(() => {
+                        if (window.startAlpine) {
+                            clearInterval(checkAlpine);
+                            console.log('🚀 Starting Alpine.js (delayed)...');
+                            window.startAlpine();
+                        }
+                    }, 50);
+                }
             } catch (error) {
                 console.error('❌ Failed to initialize FAQ API:', error);
                 console.error('Error stack:', error.stack);
@@ -147,7 +168,19 @@
         })();
     </script>
 
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Alpine.js - 手動初期化モード -->
+    <script>
+        // Alpine.js の自動起動を防ぐ
+        window.deferLoadingAlpine = callback => {
+            console.log('🎿 Deferring Alpine.js startup...');
+            window.startAlpine = callback;
+        };
+
+        document.addEventListener('alpine:init', () => {
+            console.log('🎿 Alpine.js initialized');
+        });
+    </script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 <body class="h-full bg-gray-50">
     <!-- Header -->
@@ -526,21 +559,8 @@
                 sortable: null,
 
                 async init() {
-                    // Supabase APIが利用可能になるまで待機（最大5秒）
-                    console.log('⏳ Waiting for Supabase API...');
-                    let retries = 0;
-                    while ((!window.supabaseAPI || !window.supabaseAPI.faq) && retries < 50) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        retries++;
-                    }
-
-                    if (!window.supabaseAPI || !window.supabaseAPI.faq) {
-                        console.error('❌ Supabase APIの初期化に失敗しました');
-                        lifeXAPI.showToast('データの読み込みに失敗しました。ページを再読み込みしてください。', 'error');
-                        return;
-                    }
-
-                    console.log('✅ Supabase FAQ API loaded');
+                    console.log('🎿 Alpine init() called');
+                    console.log('✅ FAQ API already initialized (Alpine started after API ready)');
 
                     // カテゴリデータの読み込み
                     await this.loadCategories();
@@ -556,26 +576,27 @@
 
                 async loadCategories() {
                     try {
-                        // init()で既にsupabaseAPIの待機は完了しているので、ここでは不要
-                        if (window.supabaseAPI) {
-                            const categories = await window.supabaseAPI.faq.getCategories();
-                            if (categories && categories.length > 0) {
-                                this.categoryObjects = categories;
-                                this.categories = categories.map(c => c.name);
+                        // Alpine.jsはFAQ API初期化後にしか起動しないため、supabaseAPIは必ず利用可能
+                        if (!window.supabaseAPI) {
+                            console.error('❌ CRITICAL: supabaseAPI not available despite controlled startup');
+                            return;
+                        }
 
-                                // Build category map: name -> id
-                                this.categoryMap = {};
-                                categories.forEach(cat => {
-                                    this.categoryMap[cat.name] = cat.id;
-                                });
+                        const categories = await window.supabaseAPI.faq.getCategories();
+                        if (categories && categories.length > 0) {
+                            this.categoryObjects = categories;
+                            this.categories = categories.map(c => c.name);
 
-                                console.log('✅ FAQ categories loaded:', this.categories);
-                                console.log('   Category map:', this.categoryMap);
-                            } else {
-                                console.warn('⚠️ No FAQ categories found in database');
-                            }
+                            // Build category map: name -> id
+                            this.categoryMap = {};
+                            categories.forEach(cat => {
+                                this.categoryMap[cat.name] = cat.id;
+                            });
+
+                            console.log('✅ FAQ categories loaded:', this.categories);
+                            console.log('   Category map:', this.categoryMap);
                         } else {
-                            console.error('❌ window.supabaseAPI is not available after waiting');
+                            console.warn('⚠️ No FAQ categories found in database');
                         }
                     } catch (error) {
                         console.error('❌ Error loading FAQ categories:', error);
