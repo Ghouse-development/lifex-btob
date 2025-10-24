@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Debug - Browser Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .section { margin: 20px 0; padding: 15px; background: #2d2d2d; border-radius: 5px; }
+        .success { color: #4ec9b0; }
+        .error { color: #f48771; }
+        .warning { color: #ce9178; }
+        .info { color: #9cdcfe; }
+        pre { background: #1e1e1e; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { background: #0e639c; color: white; border: none; padding: 10px 20px; cursor: pointer; margin: 5px; }
+        button:hover { background: #1177bb; }
+    </style>
+</head>
+<body>
+    <h1>🔍 FAQ Data Debug - Browser Test</h1>
+
+    <div class="section">
+        <h2>Step 1: Initialize Supabase Client</h2>
+        <button onclick="initSupabase()">Initialize Supabase</button>
+        <div id="init-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 2: Check FAQ Categories</h2>
+        <button onclick="checkCategories()">Check Categories</button>
+        <div id="categories-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 3: Check FAQ Items</h2>
+        <button onclick="checkFAQs()">Check FAQs</button>
+        <div id="faqs-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 4: Test API Functions</h2>
+        <button onclick="testAPIFunctions()">Test API Functions</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 5: Check RLS Policies</h2>
+        <button onclick="checkRLS()">Check RLS</button>
+        <div id="rls-result"></div>
+    </div>
+
+    <div class="section">
+        <h2>Step 6: Insert Test Data</h2>
+        <button onclick="insertTestCategory()">Insert Test Category</button>
+        <button onclick="insertTestFAQ()">Insert Test FAQ</button>
+        <div id="insert-result"></div>
+    </div>
+
+    <script>
+        let supabase;
+        const SUPABASE_URL = 'https://yftqxmdccaadlafecjbo.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmdHF4bWRjY2FhZGxhZmVjamJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4Mjc0NzgsImV4cCI6MjA1MjQwMzQ3OH0.zVwj8s9VJO1b0TGLVNnwFPKCfW8g0K_EruQFxh5yoYc';
+
+        function log(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info';
+            el.innerHTML += `<div class="${className}">${message}</div>`;
+            console.log(message);
+        }
+
+        function logJSON(elementId, label, data) {
+            const el = document.getElementById(elementId);
+            el.innerHTML += `<div class="info"><strong>${label}:</strong></div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            console.log(label, data);
+        }
+
+        function initSupabase() {
+            const resultDiv = document.getElementById('init-result');
+            resultDiv.innerHTML = '';
+
+            try {
+                log('init-result', '🚀 Initializing Supabase client...', 'info');
+                log('init-result', `URL: ${SUPABASE_URL}`, 'info');
+                log('init-result', `Key: ${SUPABASE_KEY.substring(0, 20)}...`, 'info');
+
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+                log('init-result', '✅ Supabase client initialized successfully!', 'success');
+                logJSON('init-result', 'Supabase client', {
+                    url: supabase.supabaseUrl,
+                    hasAuth: !!supabase.auth,
+                    hasFrom: typeof supabase.from === 'function'
+                });
+            } catch (error) {
+                log('init-result', '❌ Error initializing Supabase: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function checkCategories() {
+            const resultDiv = document.getElementById('categories-result');
+            resultDiv.innerHTML = '';
+
+            if (!supabase) {
+                log('categories-result', '❌ Supabase not initialized. Click "Initialize Supabase" first.', 'error');
+                return;
+            }
+
+            try {
+                log('categories-result', '🔍 Fetching categories...', 'info');
+
+                const { data, error } = await supabase
+                    .from('faq_categories')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) {
+                    log('categories-result', '❌ Error fetching categories:', 'error');
+                    logJSON('categories-result', 'Error details', error);
+                } else {
+                    log('categories-result', `✅ Successfully fetched ${data?.length || 0} categories`, 'success');
+                    if (data && data.length > 0) {
+                        logJSON('categories-result', 'Categories', data);
+                    } else {
+                        log('categories-result', '⚠️ No categories found in database', 'warning');
+                    }
+                }
+            } catch (error) {
+                log('categories-result', '❌ Exception: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function checkFAQs() {
+            const resultDiv = document.getElementById('faqs-result');
+            resultDiv.innerHTML = '';
+
+            if (!supabase) {
+                log('faqs-result', '❌ Supabase not initialized. Click "Initialize Supabase" first.', 'error');
+                return;
+            }
+
+            try {
+                log('faqs-result', '🔍 Fetching FAQs...', 'info');
+
+                const { data, error } = await supabase
+                    .from('faqs')
+                    .select('*, faq_categories(name)')
+                    .order('display_order');
+
+                if (error) {
+                    log('faqs-result', '❌ Error fetching FAQs:', 'error');
+                    logJSON('faqs-result', 'Error details', error);
+                } else {
+                    log('faqs-result', `✅ Successfully fetched ${data?.length || 0} FAQs`, 'success');
+                    if (data && data.length > 0) {
+                        logJSON('faqs-result', 'FAQs', data);
+                    } else {
+                        log('faqs-result', '⚠️ No FAQs found in database', 'warning');
+                    }
+                }
+            } catch (error) {
+                log('faqs-result', '❌ Exception: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function testAPIFunctions() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '';
+
+            if (!supabase) {
+                log('api-result', '❌ Supabase not initialized. Click "Initialize Supabase" first.', 'error');
+                return;
+            }
+
+            try {
+                log('api-result', '🧪 Testing FAQ API functions...', 'info');
+
+                // Create FAQ API object
+                const faqAPI = {
+                    async getCategories() {
+                        const { data, error } = await supabase
+                            .from('faq_categories')
+                            .select('*')
+                            .order('display_order', { ascending: true });
+                        if (error) throw error;
+                        return data || [];
+                    },
+                    async getItems(categoryId = null) {
+                        let query = supabase
+                            .from('faqs')
+                            .select('*, faq_categories(name)')
+                            .order('display_order');
+
+                        if (categoryId) {
+                            query = query.eq('category_id', categoryId);
+                        }
+
+                        const { data, error } = await query;
+                        if (error) throw error;
+                        return data || [];
+                    }
+                };
+
+                const categories = await faqAPI.getCategories();
+                log('api-result', `✅ getCategories() returned ${categories.length} items`, 'success');
+                logJSON('api-result', 'Categories', categories);
+
+                const faqs = await faqAPI.getItems();
+                log('api-result', `✅ getItems() returned ${faqs.length} items`, 'success');
+                logJSON('api-result', 'FAQs', faqs);
+
+            } catch (error) {
+                log('api-result', '❌ API test failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function checkRLS() {
+            const resultDiv = document.getElementById('rls-result');
+            resultDiv.innerHTML = '';
+
+            if (!supabase) {
+                log('rls-result', '❌ Supabase not initialized. Click "Initialize Supabase" first.', 'error');
+                return;
+            }
+
+            try {
+                log('rls-result', '🔒 Checking RLS policies...', 'info');
+
+                // Check current session
+                const { data: sessionData } = await supabase.auth.getSession();
+                log('rls-result', 'Current session:', 'info');
+                logJSON('rls-result', 'Session', {
+                    hasSession: !!sessionData.session,
+                    user: sessionData.session?.user?.email || 'Anonymous'
+                });
+
+                // Try to read without auth
+                const { data: testRead, error: readError } = await supabase
+                    .from('faq_categories')
+                    .select('count');
+
+                if (readError) {
+                    log('rls-result', '❌ RLS is blocking anonymous reads', 'error');
+                    logJSON('rls-result', 'RLS Error', readError);
+                    log('rls-result', '💡 You may need to enable RLS policies for anonymous reads', 'warning');
+                } else {
+                    log('rls-result', '✅ RLS allows anonymous reads', 'success');
+                }
+
+            } catch (error) {
+                log('rls-result', '❌ RLS check failed: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function insertTestCategory() {
+            const resultDiv = document.getElementById('insert-result');
+
+            if (!supabase) {
+                log('insert-result', '❌ Supabase not initialized. Click "Initialize Supabase" first.', 'error');
+                return;
+            }
+
+            try {
+                log('insert-result', '➕ Inserting test category...', 'info');
+
+                const { data, error } = await supabase
+                    .from('faq_categories')
+                    .insert({
+                        name: 'テストカテゴリ',
+                        description: 'デバッグ用テストカテゴリ',
+                        display_order: 999
+                    })
+                    .select();
+
+                if (error) {
+                    log('insert-result', '❌ Failed to insert category:', 'error');
+                    logJSON('insert-result', 'Insert Error', error);
+                } else {
+                    log('insert-result', '✅ Test category inserted successfully!', 'success');
+                    logJSON('insert-result', 'Inserted Category', data);
+                }
+            } catch (error) {
+                log('insert-result', '❌ Exception: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function insertTestFAQ() {
+            const resultDiv = document.getElementById('insert-result');
+
+            if (!supabase) {
+                log('insert-result', '❌ Supabase not initialized. Click "Initialize Supabase" first.', 'error');
+                return;
+            }
+
+            try {
+                log('insert-result', '➕ Inserting test FAQ...', 'info');
+
+                // First, get a category ID
+                const { data: categories } = await supabase
+                    .from('faq_categories')
+                    .select('id')
+                    .limit(1);
+
+                if (!categories || categories.length === 0) {
+                    log('insert-result', '⚠️ No categories found. Insert a category first.', 'warning');
+                    return;
+                }
+
+                const categoryId = categories[0].id;
+
+                const { data, error } = await supabase
+                    .from('faqs')
+                    .insert({
+                        question: 'テスト質問',
+                        answer: 'テスト回答',
+                        category_id: categoryId,
+                        display_order: 999
+                    })
+                    .select();
+
+                if (error) {
+                    log('insert-result', '❌ Failed to insert FAQ:', 'error');
+                    logJSON('insert-result', 'Insert Error', error);
+                } else {
+                    log('insert-result', '✅ Test FAQ inserted successfully!', 'success');
+                    logJSON('insert-result', 'Inserted FAQ', data);
+                }
+            } catch (error) {
+                log('insert-result', '❌ Exception: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Auto-initialize on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            initSupabase();
+        });
+    </script>
+</body>
+</html>

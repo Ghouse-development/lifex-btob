@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ管理 | LIFE X 管理画面</title>
-    <!-- Version: 2025-01-24-v4 (Manual Alpine.js Control) -->
+    <!-- Version: 2025-01-24-v5 (CRITICAL: Proper Supabase createClient) -->
     <!-- Tailwind CSS (Production Build) -->
     <link rel="stylesheet" href="/assets/tailwind.css">
 
@@ -13,7 +13,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>console.log('🔥 admin-faq.html loaded - Version: 2025-01-24-v4 (Manual Alpine Control)');</script>
+    <script>console.log('🔥 admin-faq.html loaded - Version: 2025-01-24-v5 (CRITICAL FIX)');</script>
     <script src="/js/common.js?v=20251024"></script>
 
     <!-- Supabase Auth Guard -->
@@ -25,8 +25,14 @@
     <script type="module">
         (async () => {
             try {
-                console.log('🚀 FAQ API initialization v4 - Manual Alpine Control');
+                console.log('🚀 FAQ API initialization v5 - CRITICAL FIX: Proper Supabase createClient');
                 console.log('🚀 Starting FAQ API initialization...');
+
+                // Supabase接続情報（supabase-client.jsと同じ）
+                const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+
+                console.log('🔧 Supabase URL:', SUPABASE_URL);
 
                 // CDNの読み込みを待つ
                 await new Promise(resolve => {
@@ -42,20 +48,32 @@
                     }
                 });
 
-                // Supabaseクライアントを取得（common.jsで既に初期化済み）
-                const supabase = window.supabase;
-                console.log('✅ Supabase client ready');
+                console.log('✅ Supabase CDN loaded');
+
+                // Supabaseクライアントを正しく初期化してグローバルに保存
+                const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                console.log('✅ Supabase client initialized');
+                console.log('   Has auth:', !!supabaseClient.auth);
+                console.log('   Has from:', typeof supabaseClient.from === 'function');
+
+                // グローバルに保存してデバッグ可能に
+                window.supabaseClient = supabaseClient;
 
         // FAQ用のAPIを直接定義
         window.supabaseAPI = window.supabaseAPI || {};
         window.supabaseAPI.faq = {
             async getCategories() {
                 try {
-                    const { data, error } = await supabase
+                    console.log('📋 getCategories() called');
+                    const { data, error } = await supabaseClient
                         .from('faq_categories')
                         .select('*')
                         .order('display_order');
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ getCategories error:', error);
+                        throw error;
+                    }
+                    console.log('✅ getCategories success:', data?.length || 0, 'categories');
                     return data || [];
                 } catch (error) {
                     console.error('Error fetching FAQ categories:', error);
@@ -65,7 +83,8 @@
 
             async getItems(categoryId = null) {
                 try {
-                    let query = supabase
+                    console.log('📋 getItems() called, categoryId:', categoryId);
+                    let query = supabaseClient
                         .from('faqs')
                         .select('*, faq_categories(name)')
                         .order('display_order');
@@ -75,7 +94,11 @@
                     }
 
                     const { data, error } = await query;
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ getItems error:', error);
+                        throw error;
+                    }
+                    console.log('✅ getItems success:', data?.length || 0, 'items');
                     return data || [];
                 } catch (error) {
                     console.error('Error fetching FAQs:', error);
@@ -85,7 +108,8 @@
 
             async create(faqData) {
                 try {
-                    const { data, error } = await supabase
+                    console.log('➕ create() called:', faqData);
+                    const { data, error } = await supabaseClient
                         .from('faqs')
                         .insert([{
                             question: faqData.question,
@@ -108,14 +132,19 @@
 
             async update(faqId, updates) {
                 try {
-                    const { data, error } = await supabase
+                    console.log('✏️ update() called, id:', faqId, 'updates:', updates);
+                    const { data, error } = await supabaseClient
                         .from('faqs')
                         .update(updates)
                         .eq('id', faqId)
                         .select()
                         .single();
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ update error:', error);
+                        throw error;
+                    }
+                    console.log('✅ update success');
                     return { success: true, data };
                 } catch (error) {
                     console.error('Error updating FAQ:', error);
@@ -125,12 +154,17 @@
 
             async delete(faqId) {
                 try {
-                    const { error } = await supabase
+                    console.log('🗑️ delete() called, id:', faqId);
+                    const { error } = await supabaseClient
                         .from('faqs')
                         .delete()
                         .eq('id', faqId);
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ delete error:', error);
+                        throw error;
+                    }
+                    console.log('✅ delete success');
                     return { success: true };
                 } catch (error) {
                     console.error('Error deleting FAQ:', error);
