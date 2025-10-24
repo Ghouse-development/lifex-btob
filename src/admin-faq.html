@@ -21,26 +21,34 @@
 
     <!-- Supabase Integration - CDN待機後にロード -->
     <script type="module">
-        // CDNの読み込みを待ってからインポート
-        await new Promise(resolve => {
-            if (window.supabase?.createClient) {
-                resolve();
-            } else {
-                const checkInterval = setInterval(() => {
-                    if (window.supabase?.createClient) {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                }, 50);
-            }
-        });
+        try {
+            // CDNの読み込みを待ってからインポート
+            await new Promise(resolve => {
+                if (window.supabase?.createClient) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabase?.createClient) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 50);
+                }
+            });
 
-        // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from '/js/supabase-client.js?v=20251024b';
-        window.supabase = supabase;
+            // Supabaseクライアントをsupabase-client.jsからインポート
+            const { supabase } = await import('/js/supabase-client.js?v=20251024c');
+            window.supabase = supabase;
+            console.log('✅ supabase-client.js loaded');
 
-        // Supabase Integrationも待機後にロード
-        await import('/js/supabase-integration.js?v=20251024b');
+            // Supabase Integrationも待機後にロード
+            await import('/js/supabase-integration.js?v=20251024c');
+            console.log('✅ supabase-integration.js loaded');
+            console.log('window.supabaseAPI:', window.supabaseAPI);
+        } catch (error) {
+            console.error('❌ Failed to load Supabase modules:', error);
+            console.error('Error details:', error.message, error.stack);
+        }
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
