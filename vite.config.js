@@ -4,6 +4,7 @@ import { resolve } from 'path';
 export default defineConfig({
   root: 'src',
   build: {
+    target: 'esnext',
     outDir: '../dist',
     emptyOutDir: true,
     rollupOptions: {
