@@ -527,8 +527,8 @@
                     downloadsMonth: 0,
                     faqs: 0,
                     faqCategories: 0,
-                    users: 12,
-                    activeUsers: 8,
+                    users: 0,
+                    activeUsers: 0,
                     admins: 1,
                     lastBackup: '-',
                     monthlyPV: 0
@@ -677,7 +677,28 @@
                             this.stats.faqs = 0;
                             this.stats.faqCategories = 0;
                         }
-                        
+
+                        // ユーザー統計（Supabaseから取得）
+                        try {
+                            const { data: usersData, error: usersError } = await window.supabase
+                                .from('users')
+                                .select('*');
+
+                            if (!usersError && usersData) {
+                                this.stats.users = usersData.length;
+                                this.stats.activeUsers = usersData.filter(u => u.status === 'active').length;
+                                console.log('Users data:', usersData, 'Total users:', this.stats.users, 'Active users:', this.stats.activeUsers);
+                            } else {
+                                console.warn('⚠️ Users table not found or error:', usersError?.message);
+                                this.stats.users = 0;
+                                this.stats.activeUsers = 0;
+                            }
+                        } catch (e) {
+                            console.error('Error loading users stats:', e);
+                            this.stats.users = 0;
+                            this.stats.activeUsers = 0;
+                        }
+
                         // 管理者統計
                         const adminData = localStorage.getItem('admin_users_data');
                         if (adminData) {
