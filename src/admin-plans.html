@@ -2065,6 +2065,8 @@
                             this.formData.files.images = {};
                         }
                         this.formData.files.images[subtype] = fileInfo;
+                        // 画像の場合はSupabase Storageにアップロード
+                        this.uploadImageToStorage(file, subtype);
                     } else if (type === 'floorPlan' && subtype) {
                         if (!this.formData.files.floorPlans) {
                             this.formData.files.floorPlans = {};
@@ -2072,8 +2074,49 @@
                         this.formData.files.floorPlans[subtype] = fileInfo;
                     }
 
-                    // 実際のアップロード処理はここに実装
-                    console.log('File uploaded:', type, subtype, fileInfo);
+                    console.log('File processed:', type, subtype, fileInfo);
+                },
+
+                async uploadImageToStorage(file, imageType) {
+                    try {
+                        // ファイル名を生成（プランID_タイプ_タイムスタンプ）
+                        const timestamp = Date.now();
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${this.formData.id}_${imageType}_${timestamp}.${fileExt}`;
+                        const filePath = `plans/${fileName}`;
+
+                        console.log(`[UploadImage] Uploading ${imageType} to:`, filePath);
+
+                        // Supabase Storageにアップロード
+                        const { data, error } = await window.supabase.storage
+                            .from('plan-images')
+                            .upload(filePath, file, {
+                                cacheControl: '3600',
+                                upsert: false
+                            });
+
+                        if (error) {
+                            console.error('[UploadImage] Upload error:', error);
+                            showToast(`画像のアップロードに失敗しました: ${error.message}`, 'error');
+                            return;
+                        }
+
+                        // 公開URLを取得
+                        const { data: urlData } = window.supabase.storage
+                            .from('plan-images')
+                            .getPublicUrl(filePath);
+
+                        const publicUrl = urlData.publicUrl;
+                        console.log(`[UploadImage] Public URL:`, publicUrl);
+
+                        // formData.imagesに保存
+                        this.formData.images[imageType] = publicUrl;
+
+                        showToast(`${imageType === 'exterior' ? '外観パース' : '内観パース'}をアップロードしました`, 'success');
+                    } catch (err) {
+                        console.error('[UploadImage] Unexpected error:', err);
+                        showToast('画像のアップロード中にエラーが発生しました', 'error');
+                    }
                 },
 
                 removeFile(type, subtype = null) {
