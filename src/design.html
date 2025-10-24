@@ -124,74 +124,47 @@
                     </div>
                 </div>
 
-                <!-- Design Categories Grid -->
-                <div x-show="!loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="category in filteredCategories" :key="category.id">
-                        <div @click="selectCategory(category)"
+                <!-- Plans Grid -->
+                <div x-show="!loading && filteredPlans.length > 0"
+                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="plan in filteredPlans" :key="plan.id">
+                        <div @click="viewPlanDetail(plan)"
                              class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer">
                             <div class="aspect-w-16 aspect-h-9 bg-gray-200 rounded-t-lg overflow-hidden">
-                                <img :src="category.thumbnail_url || '/images/placeholder.jpg'"
-                                     :alt="category.name"
-                                     class="w-full h-48 object-cover">
+                                <template x-if="getPlanImage(plan)">
+                                    <img :src="getPlanImage(plan)"
+                                         :alt="plan.plan_code || plan.id"
+                                         class="w-full h-64 object-contain bg-white">
+                                </template>
+                                <template x-if="!getPlanImage(plan)">
+                                    <div class="w-full h-64 flex items-center justify-center bg-gray-100">
+                                        <svg class="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                </template>
                             </div>
                             <div class="p-4">
-                                <h3 class="text-lg font-semibold text-gray-900" x-text="category.name"></h3>
-                                <p class="mt-1 text-sm text-gray-600" x-text="category.description"></p>
-                                <div class="mt-3 flex items-center justify-between">
-                                    <span class="text-sm text-gray-500" x-text="`${category.plan_count || 0} プラン`"></span>
-                                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
+                                <h3 class="text-lg font-semibold text-gray-900" x-text="plan.plan_code || plan.id">プランコード</h3>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <p x-text="plan.tsubo ? `${plan.tsubo}坪` : ''"></p>
+                                    <p x-text="plan.floors ? `${plan.floors}階建て` : ''"></p>
                                 </div>
                             </div>
                         </div>
                     </template>
                 </div>
 
-                <!-- Selected Category Plans -->
-                <div x-show="selectedCategory" class="mt-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-2xl font-bold text-gray-900">
-                            <span x-text="selectedCategory?.name"></span>のプラン
-                        </h2>
-                        <button @click="selectedCategory = null; categoryPlans = []"
-                                class="text-sm text-primary-600 hover:text-primary-800">
-                            ← カテゴリ一覧に戻る
-                        </button>
+                <!-- Empty State -->
+                <div x-show="!loading && filteredPlans.length === 0"
+                     class="text-center py-12">
+                    <div class="text-gray-400 mb-4">
+                        <svg class="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
                     </div>
-
-                    <div x-show="loadingPlans" class="text-center py-8">
-                        <span class="text-gray-600">プランを読み込み中...</span>
-                    </div>
-
-                    <div x-show="!loadingPlans && categoryPlans.length > 0"
-                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="plan in categoryPlans" :key="plan.id">
-                            <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                                <div class="aspect-w-16 aspect-h-9 bg-gray-200 rounded-t-lg overflow-hidden">
-                                    <img :src="getPlanImage(plan)"
-                                         :alt="plan.name"
-                                         class="w-full h-48 object-cover">
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-900" x-text="plan.name"></h3>
-                                    <div class="mt-2 text-sm text-gray-600">
-                                        <p x-text="`${plan.tsubo}坪 / ${plan.width}m × ${plan.depth}m`"></p>
-                                        <p x-text="`¥${(plan.price / 10000).toLocaleString()}万円`"></p>
-                                    </div>
-                                    <a :href="`/plan-detail.html?id=${plan.id}`"
-                                       class="mt-3 inline-block text-primary-600 hover:text-primary-800 text-sm">
-                                       詳細を見る →
-                                    </a>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-
-                    <div x-show="!loadingPlans && categoryPlans.length === 0"
-                         class="text-center py-8 text-gray-500">
-                        このカテゴリにはプランがありません
-                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">プランがありません</h3>
+                    <p class="text-gray-600">プランを登録すると、ここに表示されます</p>
                 </div>
             </div>
         </div>
@@ -201,127 +174,83 @@
         function designExplorer() {
             return {
                 activeTab: 'exterior',
-                categories: [],
-                selectedCategory: null,
-                categoryPlans: [],
+                plans: [],
                 loading: true,
-                loadingPlans: false,
 
-                get filteredCategories() {
-                    return this.categories.filter(cat => cat.type === this.activeTab);
+                get filteredPlans() {
+                    // 外観タブでは外観パースがあるプランのみ表示
+                    // 内観タブでは間取図があるプランのみ表示
+                    return this.plans.filter(plan => {
+                        if (this.activeTab === 'exterior') {
+                            return this.getExteriorImage(plan);
+                        } else {
+                            return this.getFloorPlanImage(plan);
+                        }
+                    });
                 },
 
                 async init() {
-                    await this.loadCategories();
+                    await this.loadPlans();
                 },
 
-                async loadCategories() {
+                async loadPlans() {
                     this.loading = true;
                     try {
-                        // Supabaseからカテゴリを取得
+                        console.log('🔄 プランデータを読み込み中...');
+
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 20) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
                         if (window.supabaseAPI) {
-                            const categories = await window.supabaseAPI.design.getCategories();
-
-                            // 各カテゴリのプラン数を取得
-                            for (const category of categories) {
-                                const plans = await window.supabaseAPI.design.getPlansByCategory(category.id);
-                                category.plan_count = plans.length;
-                            }
-
-                            this.categories = categories;
+                            const data = await window.supabaseAPI.plans.getAll();
+                            console.log('✅ プラン読み込み完了:', data?.length || 0, '件');
+                            this.plans = data || [];
                         } else {
-                            // フォールバック：デモデータ
-                            this.categories = this.getDemoCategories();
+                            console.warn('⚠️ Supabase API not available');
+                            this.plans = [];
                         }
                     } catch (error) {
-                        console.error('Error loading categories:', error);
-                        // エラー時はデモデータを使用
-                        this.categories = this.getDemoCategories();
+                        console.error('❌ プラン読み込みエラー:', error);
+                        this.plans = [];
                     } finally {
                         this.loading = false;
                     }
                 },
 
-                async selectCategory(category) {
-                    this.selectedCategory = category;
-                    this.loadingPlans = true;
-
-                    try {
-                        if (window.supabaseAPI) {
-                            this.categoryPlans = await window.supabaseAPI.design.getPlansByCategory(category.id);
-                        } else {
-                            // デモデータ
-                            this.categoryPlans = [];
-                        }
-                    } catch (error) {
-                        console.error('Error loading plans:', error);
-                        this.categoryPlans = [];
-                    } finally {
-                        this.loadingPlans = false;
-                    }
-                },
-
                 getPlanImage(plan) {
-                    // プラン画像の優先順位
-                    if (plan.plan_images && plan.plan_images.length > 0) {
-                        const exteriorImage = plan.plan_images.find(img => img.type === 'exterior');
-                        if (exteriorImage) return exteriorImage.url;
-                        return plan.plan_images[0].url;
+                    if (this.activeTab === 'exterior') {
+                        return this.getExteriorImage(plan);
+                    } else {
+                        return this.getFloorPlanImage(plan);
                     }
-                    return '/images/placeholder.jpg';
                 },
 
-                getDemoCategories() {
-                    return [
-                        {
-                            id: '1',
-                            name: 'モダン',
-                            type: 'exterior',
-                            description: 'シンプルでスタイリッシュな外観デザイン',
-                            thumbnail_url: '/images/modern-exterior.jpg',
-                            plan_count: 15
-                        },
-                        {
-                            id: '2',
-                            name: '和モダン',
-                            type: 'exterior',
-                            description: '和風要素を取り入れたモダンな外観',
-                            thumbnail_url: '/images/wa-modern-exterior.jpg',
-                            plan_count: 12
-                        },
-                        {
-                            id: '3',
-                            name: 'ナチュラル',
-                            type: 'exterior',
-                            description: '自然素材を活かした温かみのある外観',
-                            thumbnail_url: '/images/natural-exterior.jpg',
-                            plan_count: 18
-                        },
-                        {
-                            id: '4',
-                            name: '北欧スタイル',
-                            type: 'interior',
-                            description: '明るく機能的な北欧風インテリア',
-                            thumbnail_url: '/images/nordic-interior.jpg',
-                            plan_count: 20
-                        },
-                        {
-                            id: '5',
-                            name: 'インダストリアル',
-                            type: 'interior',
-                            description: '工業的な要素を取り入れたインテリア',
-                            thumbnail_url: '/images/industrial-interior.jpg',
-                            plan_count: 8
-                        },
-                        {
-                            id: '6',
-                            name: 'ミニマル',
-                            type: 'interior',
-                            description: 'シンプルで洗練されたインテリア',
-                            thumbnail_url: '/images/minimal-interior.jpg',
-                            plan_count: 14
-                        }
-                    ];
+                getExteriorImage(plan) {
+                    // 外観パース画像を取得
+                    if (plan.thumbnail_url) return plan.thumbnail_url;
+                    if (plan.images?.exterior) return plan.images.exterior;
+                    if (plan.images?.外観パース) return plan.images.外観パース;
+                    if (Array.isArray(plan.images) && plan.images.length > 0) return plan.images[0];
+                    return null;
+                },
+
+                getFloorPlanImage(plan) {
+                    // 間取図を取得
+                    if (plan.drawing_file_path) return plan.drawing_file_path;
+                    if (Array.isArray(plan.floor_plans) && plan.floor_plans.length > 0) {
+                        return plan.floor_plans[0];
+                    }
+                    if (plan.images?.floorPlan) return plan.images.floorPlan;
+                    if (plan.images?.間取図) return plan.images.間取図;
+                    return null;
+                },
+
+                viewPlanDetail(plan) {
+                    window.location.href = `/plan-detail.html?id=${plan.id}`;
                 }
             }
         }

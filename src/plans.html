@@ -271,7 +271,6 @@
                             <option value="tsubo">坪数</option>
                             <option value="sell">想定販売価格</option>
                             <option value="cost">想定原価</option>
-                            <option value="gross">想定粗利</option>
                         </select>
                         <button @click="sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; applySorting()" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
                             <svg :class="sortOrder === 'desc' ? 'rotate-180' : ''" class="w-4 h-4 transform transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -344,10 +343,7 @@
                         <div class="flex-1 p-4">
                             <div class="flex justify-between items-start mb-3">
                                 <div>
-                                    <h3 class="text-xl font-bold text-primary-600 mb-1" x-text="plan.id"></h3>
-                                    <template x-if="plan.name && plan.name !== plan.id">
-                                        <p class="text-sm text-gray-500" x-text="plan.name"></p>
-                                    </template>
+                                    <h3 class="text-xl font-bold text-primary-600 mb-1" x-text="plan.planCode || plan.id">プランコード</h3>
                                 </div>
                                 <button @click="showPlanDetail(plan)" class="px-3 py-1 bg-primary-600 text-white text-sm rounded hover:bg-primary-700">
                                     詳細を見る
@@ -370,7 +366,7 @@
                                 </div>
                             </div>
                             
-                            <div class="grid grid-cols-5 gap-4 text-sm">
+                            <div class="grid grid-cols-4 gap-4 text-sm">
                                 <div>
                                     <p class="text-gray-600">坪数</p>
                                     <p class="font-semibold" x-text="(plan.tsubo || '-') + '坪'"></p>
@@ -386,10 +382,6 @@
                                 <div>
                                     <p class="text-gray-600">想定販売価格<span class="text-red-500 text-xs ml-1">(税込)</span></p>
                                     <p class="font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></p>
-                                </div>
-                                <div>
-                                    <p class="text-gray-600">想定粗利<span class="text-blue-500 text-xs ml-1">(税別)</span></p>
-                                    <p class="font-semibold text-green-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'"></p>
                                 </div>
                             </div>
                             
@@ -433,9 +425,8 @@
                         <div class="p-6">
                             <div class="flex justify-between items-start mb-3">
                                 <h3 class="text-lg font-semibold text-gray-900">
-                                    <a :href="`/plans/${plan.id}.html`" x-text="plan.name" class="hover:text-primary-600"></a>
+                                    <a :href="`/plan-detail.html?id=${plan.planId}`" x-text="plan.planCode || plan.id" class="hover:text-primary-600">プランコード</a>
                                 </h3>
-                                <span x-text="plan.id" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded"></span>
                             </div>
                             
                             <!-- Floor Information -->
@@ -471,18 +462,10 @@
                             </div>
                             
                             <!-- Prices -->
-                            <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
+                            <div class="mb-4 text-sm">
                                 <div>
                                     <div class="text-gray-500">想定販売価格<span class="text-red-500 text-xs">(税込)</span></div>
                                     <div x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'" class="price-display text-sm"></div>
-                                </div>
-                                <div>
-                                    <div class="text-gray-500">想定原価<span class="text-blue-500 text-xs">(税別)</span></div>
-                                    <div x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.cost) : '-'" class="font-semibold text-sm"></div>
-                                </div>
-                                <div>
-                                    <div class="text-gray-500">想定粗利<span class="text-blue-500 text-xs">(税別)</span></div>
-                                    <div x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'" class="font-semibold text-green-600 text-sm"></div>
                                 </div>
                             </div>
                             
@@ -551,8 +534,7 @@
                             <div class="flex-1 p-6">
                                 <div class="flex justify-between items-start mb-4">
                                     <div>
-                                        <h3 class="text-xl font-bold text-gray-900" x-text="plan.name"></h3>
-                                        <p class="text-sm text-gray-500" x-text="plan.id"></p>
+                                        <h3 class="text-xl font-bold text-gray-900" x-text="plan.planCode || plan.id">プランコード</h3>
                                     </div>
                                     <button @click="showPlanDetail(plan)" class="btn-primary">
                                         詳細を見る
@@ -575,7 +557,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="grid grid-cols-5 gap-4 mb-4">
+                                <div class="grid grid-cols-4 gap-4 mb-4">
                                     <div>
                                         <div class="text-xs text-gray-600">坪数</div>
                                         <div class="text-lg font-semibold" x-text="plan.tsubo + '坪'"></div>
@@ -591,10 +573,6 @@
                                     <div>
                                         <div class="text-xs text-gray-600">想定販売価格<span class="text-red-500 ml-1">(税込)</span></div>
                                         <div class="text-lg font-semibold text-primary-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.sell) : '-'"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs text-gray-600">想定粗利<span class="text-blue-500 ml-1">(税別)</span></div>
-                                        <div class="text-lg font-semibold text-green-600" x-text="plan.prices ? lifeXAPI.formatPrice(plan.prices.gross) : '-'"></div>
                                     </div>
                                 </div>
                                 
@@ -1091,25 +1069,59 @@
                             const data = await window.supabaseAPI.plans.getAll();
                             console.log('✅ Loaded plans from Supabase:', data?.length || 0);
 
+                            // データ確認用ログ（最初のプラン）
+                            if (data && data.length > 0) {
+                                console.log('📋 最初のプランデータ:', {
+                                    plan_code: data[0].plan_code,
+                                    floors: data[0].floors,
+                                    ldk_floor: data[0].ldk_floor,
+                                    bathroom_floor: data[0].bathroom_floor,
+                                    width: data[0].width,
+                                    depth: data[0].depth,
+                                    sell_price: data[0].sell_price
+                                });
+                            }
+
                             // Supabaseデータを既存フォーマットに変換
                             plansData = {
-                                plans: (data || []).map(plan => ({
-                                    id: plan.id,
-                                    name: plan.plan_name,
-                                    planId: plan.plan_id,
-                                    tsubo: plan.tsubo,
-                                    width: plan.maguchi,
-                                    depth: plan.oku_yuki,
-                                    category: plan.plan_category,
-                                    subCategory: plan.plan_sub_category,
-                                    totalArea: plan.total_area,
-                                    floor1Area: plan.floor1_area,
-                                    floor2Area: plan.floor2_area,
-                                    floor3Area: plan.floor3_area,
-                                    exteriorImage: plan.thumbnail_url,
-                                    drawingFile: plan.drawing_file_path,
-                                    status: 'published' // Supabaseのデータは全て公開済み
-                                }))
+                                plans: (data || []).map(plan => {
+                                    // 外観パース画像を取得
+                                    const exteriorImage = plan.images?.exterior || plan.thumbnail_url || '';
+
+                                    // 間取図を取得（floor_plansは配列）
+                                    const floorPlans = Array.isArray(plan.floor_plans) ? plan.floor_plans : [];
+                                    const floorPlan1F = floorPlans[0] || '';
+                                    const floorPlan2F = floorPlans[1] || '';
+
+                                    return {
+                                        id: plan.plan_code || plan.id, // プランコードを表示
+                                        planCode: plan.plan_code, // プランコード
+                                        name: plan.plan_name,
+                                        planId: plan.id, // UUID
+                                        tsubo: plan.tsubo,
+                                        width: plan.width, // mm単位の間口
+                                        depth: plan.depth, // mm単位の奥行
+                                        floors: plan.floors, // 建物階数
+                                        ldkFloor: plan.ldk_floor, // LDK階数
+                                        bathFloor: plan.bathroom_floor, // 水廻り階数
+                                        category: plan.plan_category,
+                                        subCategory: plan.plan_sub_category,
+                                        totalArea: plan.total_area,
+                                        floor1Area: plan.floor1_area,
+                                        floor2Area: plan.floor2_area,
+                                        floor3Area: plan.floor3_area,
+                                        exteriorImage: exteriorImage,
+                                        floorPlan1F: floorPlan1F,
+                                        floorPlan2F: floorPlan2F,
+                                        drawingFile: plan.drawing_file_path,
+                                        prices: {
+                                            sell: plan.sell_price || plan.price, // 想定販売価格
+                                            cost: plan.cost, // 想定原価
+                                            gross: plan.gross_profit // 想定粗利
+                                        },
+                                        status: plan.status || 'published'
+                                    };
+                                })
                             };
                         } else {
                             console.warn('⚠️ Supabase API not available');
@@ -1191,6 +1203,21 @@
                     
                     this.totalPlans = this.allPlans.length;
                     console.log('Filtered plans:', this.allPlans.length, 'plans');
+
+                    // マッピング後のデータ確認（最初のプラン）
+                    if (this.allPlans.length > 0) {
+                        const firstPlan = this.allPlans[0];
+                        console.log('📋 マッピング後の最初のプランデータ:', {
+                            id: firstPlan.id,
+                            planCode: firstPlan.planCode,
+                            floors: firstPlan.floors,
+                            ldkFloor: firstPlan.ldkFloor,
+                            bathFloor: firstPlan.bathFloor,
+                            width: firstPlan.width,
+                            depth: firstPlan.depth,
+                            prices: firstPlan.prices
+                        });
+                    }
                     
                     // Extract available tags with custom order
                     const tagOrder = [

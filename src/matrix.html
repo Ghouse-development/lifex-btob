@@ -43,6 +43,8 @@
 
     <!-- Supabase Integration - CDN待機後にロード -->
     <script type="module">
+        console.log('🚀 Supabase初期化開始...', new Date().toLocaleTimeString());
+
         // CDNの読み込みを待ってからインポート
         await new Promise(resolve => {
             if (window.supabase?.createClient) {
@@ -63,6 +65,10 @@
 
         // Supabase Integrationも待機後にロード
         await import('/js/supabase-integration.js?v=20251024b');
+
+        // 初期化完了フラグを設定
+        window.supabaseReady = true;
+        console.log('✅ Supabase初期化完了', new Date().toLocaleTimeString());
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -420,12 +426,30 @@
                 },
 
                 async init() {
+                    console.log('📋 Matrix初期化開始...', new Date().toLocaleTimeString());
+
                     try {
+                        // Supabase初期化完了を待機
+                        let waitCount = 0;
+                        while (!window.supabaseReady && waitCount < 100) {
+                            console.log('⏳ Supabase初期化を待機中...', waitCount);
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            waitCount++;
+                        }
+
+                        if (!window.supabaseReady) {
+                            throw new Error('Supabase初期化がタイムアウトしました');
+                        }
+
+                        console.log('🔄 プランデータ読み込み開始...', new Date().toLocaleTimeString());
+
                         // プランデータの読み込み
                         await this.loadPlans();
                         this.buildMatrix();
+
+                        console.log('✅ Matrix初期化完了', new Date().toLocaleTimeString());
                     } catch (error) {
-                        console.error('Error loading matrix data:', error);
+                        console.error('❌ Matrix初期化エラー:', error);
                     } finally {
                         this.loading = false;
                     }
@@ -435,28 +459,25 @@
                     try {
                         console.log('🔄 最新のプランデータを取得中...', new Date().toLocaleTimeString());
 
-                        // Supabaseクライアントが利用可能になるまで待機
-                        let retries = 0;
-                        while (!window.supabase?.from && retries < 50) {
-                            console.log('⏳ Supabaseクライアントを待機中...', retries);
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            retries++;
-                        }
-
+                        // Supabaseクライアントの最終確認
                         if (!window.supabase?.from) {
-                            throw new Error('Supabaseクライアントが初期化されていません');
+                            throw new Error('Supabaseクライアントが利用できません');
                         }
 
-                        // Supabaseからプランを取得（キャッシュバスティング付き）
+                        console.log('📡 Supabaseからデータ取得開始...');
+
+                        // Supabaseからプランを取得
                         const { data, error } = await window.supabase
                             .from('plans')
                             .select('*')
                             .order('created_at', { ascending: false });
 
                         if (error) {
-                            console.error('Supabase error:', error);
+                            console.error('❌ Supabaseエラー:', error);
                             throw error;
                         }
+
+                        console.log('📦 取得したデータ件数:', data?.length || 0);
 
                         // Supabaseのデータ形式をマトリックス用に変換
                         this.plans = (data || []).map(plan => {
