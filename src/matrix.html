@@ -435,6 +435,18 @@
                     try {
                         console.log('🔄 最新のプランデータを取得中...', new Date().toLocaleTimeString());
 
+                        // Supabaseクライアントが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabase?.from && retries < 50) {
+                            console.log('⏳ Supabaseクライアントを待機中...', retries);
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
+                        if (!window.supabase?.from) {
+                            throw new Error('Supabaseクライアントが初期化されていません');
+                        }
+
                         // Supabaseからプランを取得（キャッシュバスティング付き）
                         const { data, error } = await window.supabase
                             .from('plans')
