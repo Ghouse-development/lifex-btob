@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ 総合診断ツール</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; background: #0f172a; color: #e2e8f0; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { font-size: 2rem; margin-bottom: 2rem; color: #38bdf8; }
+        .test-section { background: #1e293b; border-radius: 8px; padding: 20px; margin-bottom: 20px; border-left: 4px solid #475569; }
+        .test-section.running { border-left-color: #fbbf24; }
+        .test-section.success { border-left-color: #10b981; }
+        .test-section.error { border-left-color: #ef4444; }
+        .test-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .test-title { font-size: 1.25rem; font-weight: 600; }
+        .status { padding: 4px 12px; border-radius: 4px; font-size: 0.875rem; font-weight: 500; }
+        .status.pending { background: #475569; }
+        .status.running { background: #fbbf24; color: #000; }
+        .status.success { background: #10b981; }
+        .status.error { background: #ef4444; }
+        .test-result { background: #0f172a; padding: 15px; border-radius: 6px; margin-top: 10px; }
+        .log-line { padding: 4px 0; font-family: 'Consolas', monospace; font-size: 0.875rem; }
+        .log-success { color: #10b981; }
+        .log-error { color: #ef4444; }
+        .log-warning { color: #fbbf24; }
+        .log-info { color: #38bdf8; }
+        pre { background: #000; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 0.875rem; color: #a5f3fc; }
+        button { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; font-weight: 500; }
+        button:hover { background: #2563eb; }
+        button:disabled { background: #475569; cursor: not-allowed; }
+        .summary { background: #1e293b; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .summary-item { background: #0f172a; padding: 15px; border-radius: 6px; text-align: center; }
+        .summary-value { font-size: 2rem; font-weight: bold; margin-bottom: 5px; }
+        .summary-label { color: #94a3b8; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 FAQ 総合診断ツール</h1>
+
+        <div class="summary" id="summary">
+            <h2 style="margin-bottom: 15px;">診断サマリー</h2>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-value" id="total-tests">0</div>
+                    <div class="summary-label">総テスト数</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: #10b981;" id="passed-tests">0</div>
+                    <div class="summary-label">成功</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: #ef4444;" id="failed-tests">0</div>
+                    <div class="summary-label">失敗</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value" style="color: #fbbf24;" id="warning-tests">0</div>
+                    <div class="summary-label">警告</div>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="runAllTests()" id="run-btn">全テスト実行</button>
+
+        <div style="margin-top: 20px;" id="tests-container"></div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+
+        let supabase;
+        const tests = [];
+        let stats = { total: 0, passed: 0, failed: 0, warnings: 0 };
+
+        class DiagnosticTest {
+            constructor(id, title, description, testFn) {
+                this.id = id;
+                this.title = title;
+                this.description = description;
+                this.testFn = testFn;
+                this.status = 'pending';
+                this.logs = [];
+                tests.push(this);
+            }
+
+            log(message, type = 'info') {
+                this.logs.push({ message, type, timestamp: new Date().toISOString() });
+                this.render();
+            }
+
+            async run() {
+                this.status = 'running';
+                this.logs = [];
+                this.render();
+
+                try {
+                    await this.testFn(this);
+                    if (this.status === 'running') {
+                        this.status = 'success';
+                        stats.passed++;
+                    }
+                } catch (error) {
+                    this.status = 'error';
+                    this.log(`エラー: ${error.message}`, 'error');
+                    stats.failed++;
+                }
+
+                this.render();
+                updateSummary();
+            }
+
+            render() {
+                let section = document.getElementById(`test-${this.id}`);
+                if (!section) {
+                    section = document.createElement('div');
+                    section.id = `test-${this.id}`;
+                    section.className = 'test-section';
+                    document.getElementById('tests-container').appendChild(section);
+                }
+
+                section.className = `test-section ${this.status}`;
+
+                const statusText = {
+                    pending: '待機中',
+                    running: '実行中...',
+                    success: '✅ 成功',
+                    error: '❌ 失敗',
+                    warning: '⚠️ 警告'
+                };
+
+                section.innerHTML = `
+                    <div class="test-header">
+                        <div class="test-title">${this.title}</div>
+                        <div class="status ${this.status}">${statusText[this.status]}</div>
+                    </div>
+                    <div style="color: #94a3b8; margin-bottom: 10px;">${this.description}</div>
+                    ${this.logs.length > 0 ? `
+                        <div class="test-result">
+                            ${this.logs.map(log => `
+                                <div class="log-line log-${log.type}">${log.message}</div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+            }
+        }
+
+        // テスト1: Supabase CDN読み込み
+        new DiagnosticTest('cdn', 'Supabase CDN読み込み確認',
+            'Supabase JavaScript SDKが正しく読み込まれているか確認',
+            async (test) => {
+                test.log('window.supabase の存在を確認中...');
+                if (!window.supabase) {
+                    throw new Error('window.supabase が undefined です');
+                }
+                test.log('✓ window.supabase が存在します', 'success');
+
+                test.log('createClient メソッドの存在を確認中...');
+                if (typeof window.supabase.createClient !== 'function') {
+                    throw new Error('window.supabase.createClient が関数ではありません');
+                }
+                test.log('✓ createClient メソッドが存在します', 'success');
+            }
+        );
+
+        // テスト2: Supabase接続情報
+        new DiagnosticTest('credentials', 'Supabase接続情報確認',
+            'URLとKeyが正しく設定されているか確認',
+            async (test) => {
+                test.log(`URL: ${SUPABASE_URL}`);
+                test.log(`Key (最初の30文字): ${SUPABASE_KEY.substring(0, 30)}...`);
+
+                if (!SUPABASE_URL) throw new Error('URLが未設定です');
+                if (!SUPABASE_KEY) throw new Error('Keyが未設定です');
+
+                test.log('✓ 接続情報が設定されています', 'success');
+            }
+        );
+
+        // テスト3: Supabaseクライアント初期化
+        new DiagnosticTest('client-init', 'Supabaseクライアント初期化',
+            'createClient()を使ってクライアントを正しく初期化',
+            async (test) => {
+                test.log('クライアントを初期化中...');
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+                test.log('クライアントオブジェクトを確認中...');
+                if (!supabase) throw new Error('クライアント初期化に失敗');
+                if (!supabase.from) throw new Error('supabase.from が存在しません');
+                if (!supabase.auth) throw new Error('supabase.auth が存在しません');
+
+                test.log('✓ クライアントが正しく初期化されました', 'success');
+                test.log(`  - from: ${typeof supabase.from}`);
+                test.log(`  - auth: ${typeof supabase.auth}`);
+            }
+        );
+
+        // テスト4: テーブル存在確認
+        new DiagnosticTest('tables', 'テーブル存在確認',
+            'faq_categoriesとfaqsテーブルが存在するか確認',
+            async (test) => {
+                test.log('faq_categories テーブルを確認中...');
+                const { error: catError } = await supabase
+                    .from('faq_categories')
+                    .select('count');
+
+                if (catError) {
+                    test.log(`❌ faq_categories: ${catError.message}`, 'error');
+                    throw catError;
+                }
+                test.log('✓ faq_categories テーブルが存在します', 'success');
+
+                test.log('faqs テーブルを確認中...');
+                const { error: faqError } = await supabase
+                    .from('faqs')
+                    .select('count');
+
+                if (faqError) {
+                    test.log(`❌ faqs: ${faqError.message}`, 'error');
+                    throw faqError;
+                }
+                test.log('✓ faqs テーブルが存在します', 'success');
+            }
+        );
+
+        // テスト5: データ取得テスト
+        new DiagnosticTest('data-fetch', 'データ取得テスト',
+            '実際にデータベースからデータを取得できるか確認',
+            async (test) => {
+                test.log('FAQ カテゴリを取得中...');
+                const { data: categories, error: catError } = await supabase
+                    .from('faq_categories')
+                    .select('*')
+                    .order('display_order');
+
+                if (catError) {
+                    test.log(`❌ カテゴリ取得エラー: ${catError.message}`, 'error');
+                    throw catError;
+                }
+
+                test.log(`✓ カテゴリ数: ${categories?.length || 0}`, 'success');
+                if (categories && categories.length > 0) {
+                    test.log('カテゴリ一覧:');
+                    categories.forEach(cat => {
+                        test.log(`  - ${cat.name} (ID: ${cat.id}, Order: ${cat.display_order})`);
+                    });
+                } else {
+                    test.status = 'warning';
+                    stats.warnings++;
+                    test.log('⚠️ カテゴリが0件です', 'warning');
+                }
+
+                test.log('FAQ アイテムを取得中...');
+                const { data: faqs, error: faqError } = await supabase
+                    .from('faqs')
+                    .select('*, faq_categories(name)')
+                    .order('display_order');
+
+                if (faqError) {
+                    test.log(`❌ FAQ取得エラー: ${faqError.message}`, 'error');
+                    throw faqError;
+                }
+
+                test.log(`✓ FAQ数: ${faqs?.length || 0}`, 'success');
+                if (faqs && faqs.length > 0) {
+                    test.log('FAQ一覧（最大5件）:');
+                    faqs.slice(0, 5).forEach(faq => {
+                        test.log(`  - "${faq.question?.substring(0, 50)}..." (カテゴリ: ${faq.faq_categories?.name || 'N/A'})`);
+                    });
+                } else {
+                    if (categories && categories.length > 0) {
+                        test.status = 'warning';
+                        stats.warnings++;
+                        test.log('⚠️ FAQが0件です（カテゴリは存在）', 'warning');
+                    }
+                }
+            }
+        );
+
+        // テスト6: RLSポリシー確認
+        new DiagnosticTest('rls', 'RLSポリシー確認',
+            '匿名ユーザーでの読み取り権限を確認',
+            async (test) => {
+                test.log('匿名での faq_categories 読み取りテスト...');
+                const { data, error } = await supabase
+                    .from('faq_categories')
+                    .select('id')
+                    .limit(1);
+
+                if (error) {
+                    if (error.code === '42501' || error.message.includes('permission')) {
+                        test.status = 'error';
+                        test.log('❌ RLSポリシーにより読み取りがブロックされています', 'error');
+                        test.log('対処方法: Supabase Dashboardで以下のポリシーを追加:', 'warning');
+                        test.log('  1. faq_categories: SELECT を全員に許可', 'warning');
+                        test.log('  2. faqs: SELECT を全員に許可', 'warning');
+                        throw error;
+                    }
+                    throw error;
+                }
+
+                test.log('✓ 匿名ユーザーで読み取り可能です', 'success');
+            }
+        );
+
+        // テスト7: common.js統合確認
+        new DiagnosticTest('commonjs', 'common.js 統合確認',
+            'common.jsでFAQ APIが正しく初期化されているか確認',
+            async (test) => {
+                test.log('window.supabaseClient の存在確認...');
+                if (window.supabaseClient) {
+                    test.log('✓ window.supabaseClient が存在します', 'success');
+                } else {
+                    test.log('⚠️ window.supabaseClient が存在しません', 'warning');
+                }
+
+                test.log('window.supabaseAPI の存在確認...');
+                if (!window.supabaseAPI) {
+                    test.log('⚠️ window.supabaseAPI が存在しません', 'warning');
+                    test.log('common.jsがまだ実行されていない可能性があります', 'warning');
+                    test.status = 'warning';
+                    stats.warnings++;
+                    return;
+                }
+                test.log('✓ window.supabaseAPI が存在します', 'success');
+
+                test.log('window.supabaseAPI.faq の存在確認...');
+                if (!window.supabaseAPI.faq) {
+                    test.log('❌ window.supabaseAPI.faq が存在しません', 'error');
+                    throw new Error('FAQ APIが初期化されていません');
+                }
+                test.log('✓ window.supabaseAPI.faq が存在します', 'success');
+
+                const methods = ['getCategories', 'getItems', 'create', 'update', 'delete'];
+                test.log('APIメソッドの確認...');
+                for (const method of methods) {
+                    if (typeof window.supabaseAPI.faq[method] === 'function') {
+                        test.log(`  ✓ ${method}`, 'success');
+                    } else {
+                        test.log(`  ❌ ${method} が存在しません`, 'error');
+                        throw new Error(`${method} メソッドが見つかりません`);
+                    }
+                }
+            }
+        );
+
+        // テスト8: テーブル構造確認
+        new DiagnosticTest('schema', 'テーブル構造確認',
+            'テーブルのカラム構造が正しいか確認',
+            async (test) => {
+                test.log('faq_categories のサンプルレコードを取得...');
+                const { data: catSample } = await supabase
+                    .from('faq_categories')
+                    .select('*')
+                    .limit(1)
+                    .single();
+
+                if (catSample) {
+                    test.log('faq_categories のカラム:');
+                    test.log(`  ${Object.keys(catSample).join(', ')}`);
+                } else {
+                    test.log('⚠️ カテゴリのサンプルデータがありません', 'warning');
+                }
+
+                test.log('faqs のサンプルレコードを取得...');
+                const { data: faqSample } = await supabase
+                    .from('faqs')
+                    .select('*')
+                    .limit(1)
+                    .single();
+
+                if (faqSample) {
+                    test.log('faqs のカラム:');
+                    test.log(`  ${Object.keys(faqSample).join(', ')}`);
+
+                    // 必須カラムのチェック
+                    const required = ['id', 'question', 'answer', 'category_id'];
+                    const missing = required.filter(col => !(col in faqSample));
+                    if (missing.length > 0) {
+                        test.log(`❌ 必須カラムが不足: ${missing.join(', ')}`, 'error');
+                        throw new Error('テーブル構造が不正です');
+                    }
+                    test.log('✓ 必須カラムが全て存在します', 'success');
+                } else {
+                    test.log('⚠️ FAQのサンプルデータがありません', 'warning');
+                }
+            }
+        );
+
+        async function runAllTests() {
+            const btn = document.getElementById('run-btn');
+            btn.disabled = true;
+            btn.textContent = '実行中...';
+
+            stats = { total: tests.length, passed: 0, failed: 0, warnings: 0 };
+            updateSummary();
+
+            for (const test of tests) {
+                test.render();
+                await test.run();
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            btn.disabled = false;
+            btn.textContent = '再実行';
+
+            // 最終サマリー
+            const allPassed = stats.failed === 0 && stats.warnings === 0;
+            if (allPassed) {
+                alert('✅ 全テスト成功！\n\nSupabaseとの接続・データ取得に問題はありません。\nadmin-faq.htmlで問題が発生している場合は、ブラウザキャッシュをクリアして再度お試しください。');
+            } else if (stats.failed > 0) {
+                alert(`❌ ${stats.failed}件のテストが失敗しました。\n\n失敗した項目を確認して修正してください。`);
+            } else {
+                alert(`⚠️ ${stats.warnings}件の警告があります。\n\nデータが登録されていない可能性があります。`);
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('total-tests').textContent = stats.total;
+            document.getElementById('passed-tests').textContent = stats.passed;
+            document.getElementById('failed-tests').textContent = stats.failed;
+            document.getElementById('warning-tests').textContent = stats.warnings;
+        }
+
+        // 初期化
+        updateSummary();
+        tests.forEach(test => test.render());
+    </script>
+</body>
+</html>
