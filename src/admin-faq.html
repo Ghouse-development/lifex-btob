@@ -436,6 +436,13 @@
 
                 async loadCategories() {
                     try {
+                        // Supabase APIが利用可能になるまで待機
+                        let retries = 0;
+                        while (!window.supabaseAPI && retries < 50) {
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                            retries++;
+                        }
+
                         if (window.supabaseAPI) {
                             const categories = await window.supabaseAPI.faq.getCategories();
                             if (categories && categories.length > 0) {
@@ -450,7 +457,11 @@
 
                                 console.log('✅ FAQ categories loaded:', this.categories);
                                 console.log('   Category map:', this.categoryMap);
+                            } else {
+                                console.warn('⚠️ No FAQ categories found in database');
                             }
+                        } else {
+                            console.error('❌ window.supabaseAPI is not available after waiting');
                         }
                     } catch (error) {
                         console.error('❌ Error loading FAQ categories:', error);
