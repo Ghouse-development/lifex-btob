@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>レポート | LIFE X 管理画面</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        'card': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link href="./styles/main.css" rel="stylesheet">
+    <script src="/js/common.js"></script>
+
+    <!-- Supabase Auth Guard -->
+    <script type="module" src="/js/auth-guard.js"></script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X</a>
+                    <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8 items-center">
+                    <a href="/admin.html" class="nav-link">管理ホーム</a>
+                    <a href="/admin-plans.html" class="nav-link">プラン管理</a>
+                    <a href="/admin-rules.html" class="nav-link">ルール管理</a>
+                    <a href="/admin-downloads.html" class="nav-link">ダウンロード管理</a>
+                    <a href="/admin-faq.html" class="nav-link">FAQ管理</a>
+                    <a href="/admin-notifications.html" class="nav-link">お知らせ管理</a>
+                    <a href="/admin-users.html" class="nav-link">ユーザー管理</a>
+                    <a href="/admin-profile.html" class="nav-link">プロフィール</a>
+                    <a href="/admin-system.html" class="nav-link">システム管理</a>
+                    <a href="/admin-report.html" class="nav-link active">レポート</a>
+                    <a href="/" class="nav-link">サイトに戻る</a>
+                    <button onclick="logout()" type="button" class="nav-link text-red-600 hover:text-red-800">ログアウト</button>
+                </nav>
+
+                <!-- Mobile Menu -->
+                <div class="md:hidden" x-data="{ mobileMenuOpen: false }">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="text-gray-500 hover:text-gray-600">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+
+                    <div x-show="mobileMenuOpen" class="absolute top-16 right-4 bg-white shadow-lg rounded-lg border border-gray-200 p-4 z-50 min-w-48" style="display: none;">
+                        <a href="/admin.html" class="block py-2 text-sm text-gray-600">管理ホーム</a>
+                        <a href="/admin-plans.html" class="block py-2 text-sm text-gray-600">プラン管理</a>
+                        <a href="/admin-rules.html" class="block py-2 text-sm text-gray-600">ルール管理</a>
+                        <a href="/admin-downloads.html" class="block py-2 text-sm text-gray-600">ダウンロード管理</a>
+                        <a href="/admin-faq.html" class="block py-2 text-sm text-gray-600">FAQ管理</a>
+                        <a href="/admin-notifications.html" class="block py-2 text-sm text-gray-600">お知らせ管理</a>
+                        <a href="/admin-users.html" class="block py-2 text-sm text-gray-600">ユーザー管理</a>
+                        <a href="/admin-profile.html" class="block py-2 text-sm text-gray-600">プロフィール</a>
+                        <a href="/admin-system.html" class="block py-2 text-sm text-gray-600">システム管理</a>
+                        <a href="/admin-report.html" class="block py-2 text-sm text-gray-900 font-medium">レポート</a>
+                        <div class="border-t border-gray-200 mt-3 pt-3">
+                            <a href="/" class="block py-2 text-sm text-gray-600">サイトに戻る</a>
+                            <button onclick="logout()" type="button" class="block py-2 text-sm text-red-600 hover:text-red-800 text-left w-full">ログアウト</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="userInfo" class="hidden md:block text-sm"></div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="reportPage()" x-init="init()">
+        <!-- Page Header -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">統計レポート</h1>
+                <p class="text-gray-600 mt-2">システムの利用状況と統計情報</p>
+            </div>
+
+            <!-- 統計カード -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- プラン数 -->
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">登録プラン数</p>
+                            <p class="text-3xl font-bold text-gray-900" x-text="stats.totalPlans"></p>
+                            <p class="text-sm text-green-600 mt-1">
+                                <span x-text="stats.plansThisMonth"></span> 件（今月）
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ数 -->
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">FAQ数</p>
+                            <p class="text-3xl font-bold text-gray-900" x-text="stats.totalFaqs"></p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <span x-text="stats.faqCategories"></span> カテゴリ
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ルール数 -->
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">ルール数</p>
+                            <p class="text-3xl font-bold text-gray-900" x-text="stats.totalRules"></p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                <span x-text="stats.requiredRules"></span> 件（必須）
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ダウンロード数 -->
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">ダウンロード資料</p>
+                            <p class="text-3xl font-bold text-gray-900" x-text="stats.totalDownloads"></p>
+                            <p class="text-sm text-gray-500 mt-1">
+                                全カテゴリ合計
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最新更新情報 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- 最近の更新 -->
+                <div class="card">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">最近の更新</h2>
+                    <div class="space-y-4">
+                        <template x-if="recentUpdates.length === 0">
+                            <p class="text-gray-500 text-sm">更新情報はありません</p>
+                        </template>
+                        <template x-for="update in recentUpdates" :key="update.id">
+                            <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-900" x-text="update.title"></p>
+                                    <p class="text-xs text-gray-500" x-text="update.date"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- システム情報 -->
+                <div class="card">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">システム情報</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                            <span class="text-sm text-gray-600">データベース</span>
+                            <span class="text-sm font-medium text-gray-900">Supabase (Pro)</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                            <span class="text-sm text-gray-600">ホスティング</span>
+                            <span class="text-sm font-medium text-gray-900">Vercel (Pro)</span>
+                        </div>
+                        <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                            <span class="text-sm text-gray-600">最終バックアップ</span>
+                            <span class="text-sm font-medium text-gray-900" x-text="stats.lastBackup"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">データ容量</span>
+                            <span class="text-sm font-medium text-gray-900">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function reportPage() {
+            return {
+                stats: {
+                    totalPlans: 0,
+                    plansThisMonth: 0,
+                    totalFaqs: 0,
+                    faqCategories: 0,
+                    totalRules: 0,
+                    requiredRules: 0,
+                    totalDownloads: 0,
+                    lastBackup: '-'
+                },
+                recentUpdates: [],
+                loading: false,
+
+                async init() {
+                    // Supabaseの読み込みを待つ
+                    let attempts = 0;
+                    while (!window.supabase && attempts < 50) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+
+                    if (!window.supabase) {
+                        console.error('❌ Supabase failed to load');
+                        return;
+                    }
+
+                    await this.loadStats();
+                },
+
+                async loadStats() {
+                    try {
+                        // プラン統計
+                        const { data: plans, error: plansError } = await window.supabase
+                            .from('plans')
+                            .select('*', { count: 'exact' });
+
+                        if (!plansError && plans) {
+                            this.stats.totalPlans = plans.length;
+
+                            // 今月のプラン数を計算
+                            const now = new Date();
+                            const thisMonth = plans.filter(p => {
+                                const created = new Date(p.created_at);
+                                return created.getMonth() === now.getMonth() &&
+                                       created.getFullYear() === now.getFullYear();
+                            });
+                            this.stats.plansThisMonth = thisMonth.length;
+
+                            // 最近の更新を追加
+                            plans.slice(0, 5).forEach(plan => {
+                                this.recentUpdates.push({
+                                    id: plan.id,
+                                    title: `プラン「${plan.plan_name || plan.name || 'unnamed'}」が更新されました`,
+                                    date: new Date(plan.updated_at || plan.created_at).toLocaleDateString('ja-JP')
+                                });
+                            });
+                        }
+
+                        // FAQ統計
+                        const { data: faqs, error: faqsError } = await window.supabase
+                            .from('faq')
+                            .select('*');
+
+                        if (!faqsError && faqs) {
+                            this.stats.totalFaqs = faqs.length;
+                            const categories = [...new Set(faqs.map(f => f.category))];
+                            this.stats.faqCategories = categories.length;
+                        }
+
+                        // ルール統計
+                        const { data: rules, error: rulesError } = await window.supabase
+                            .from('rules')
+                            .select('*');
+
+                        if (!rulesError && rules) {
+                            this.stats.totalRules = rules.length;
+                            this.stats.requiredRules = rules.filter(r => r.required === true).length;
+                        }
+
+                        // ダウンロード統計
+                        const { data: downloads, error: downloadsError } = await window.supabase
+                            .from('downloads')
+                            .select('*');
+
+                        if (!downloadsError && downloads) {
+                            this.stats.totalDownloads = downloads.length;
+                        }
+
+                        console.log('✅ Stats loaded:', this.stats);
+                    } catch (error) {
+                        console.error('Failed to load stats:', error);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

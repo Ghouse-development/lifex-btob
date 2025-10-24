@@ -31,7 +31,41 @@
     </script>
 
     <link href="./styles/main.css" rel="stylesheet">
-    <script src="/js/common.js"></script>
+    <script src="/js/common.js?v=20251024"></script>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase Integration - CDN待機後にロード -->
+    <script type="module">
+        console.log('🚀 Supabase初期化開始...', new Date().toLocaleTimeString());
+
+        // CDNの読み込みを待ってからインポート
+        await new Promise(resolve => {
+            if (window.supabase?.createClient) {
+                resolve();
+            } else {
+                const checkInterval = setInterval(() => {
+                    if (window.supabase?.createClient) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+
+        // Supabaseクライアントをsupabase-client.jsからインポート
+        import { supabase } from '/js/supabase-client.js?v=20251024b';
+        window.supabase = supabase;
+
+        // Supabase Integrationも待機後にロード
+        await import('/js/supabase-integration.js?v=20251024b');
+
+        // 初期化完了フラグを設定
+        window.supabaseReady = true;
+        console.log('✅ Supabase初期化完了', new Date().toLocaleTimeString());
+    </script>
+
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="h-full bg-gray-50">
