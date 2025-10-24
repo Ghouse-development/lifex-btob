@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ管理 | LIFE X 管理画面</title>
-    <!-- Version: 2025-01-24-v6 (FAQ API in common.js) -->
+    <!-- Version: 2025-01-24-v7 (FAQ API sync initialization) -->
     <!-- Tailwind CSS (Production Build) -->
     <link rel="stylesheet" href="/assets/tailwind.css">
 
@@ -13,7 +13,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>console.log('🔥 admin-faq.html loaded - Version: 2025-01-24-v6 (FAQ API in common.js)');</script>
+    <script>console.log('🔥 admin-faq.html loaded - Version: 2025-01-24-v7 (FAQ API sync initialization)');</script>
     <script src="/js/common.js?v=20251024b"></script>
 
     <!-- Supabase Auth Guard -->
@@ -21,43 +21,36 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 
-    <!-- Supabase Integration - 直接初期化 -->
-    <script type="module">
-        (async () => {
-            try {
-                console.log('🚀 FAQ API initialization v5 - CRITICAL FIX: Proper Supabase createClient');
-                console.log('🚀 Starting FAQ API initialization...');
+    <!-- Supabase Integration - 同期初期化に変更 -->
+    <script>
+        console.log('🚀 FAQ API initialization v6 - SYNC FIX: Initialize before Alpine.js');
+        console.log('🚀 Starting FAQ API initialization...');
 
-                // Supabase接続情報（supabase-client.jsと同じ）
-                const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+        // Supabase接続情報（supabase-client.jsと同じ）
+        const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
 
-                console.log('🔧 Supabase URL:', SUPABASE_URL);
+        console.log('🔧 Supabase URL:', SUPABASE_URL);
 
-                // CDNの読み込みを待つ
-                await new Promise(resolve => {
-                    if (window.supabase?.createClient) {
-                        resolve();
-                    } else {
-                        const checkInterval = setInterval(() => {
-                            if (window.supabase?.createClient) {
-                                clearInterval(checkInterval);
-                                resolve();
-                            }
-                        }, 50);
-                    }
-                });
+        // Supabase CDNの読み込みを待つ関数を定義
+        window.initFAQAPI = function() {
+            // Supabase CDNが読み込まれているか確認
+            if (!window.supabase?.createClient) {
+                console.warn('⚠️ Supabase CDN not loaded yet, retrying...');
+                setTimeout(window.initFAQAPI, 50);
+                return;
+            }
 
-                console.log('✅ Supabase CDN loaded');
+            console.log('✅ Supabase CDN loaded');
 
-                // Supabaseクライアントを正しく初期化してグローバルに保存
-                const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                console.log('✅ Supabase client initialized');
-                console.log('   Has auth:', !!supabaseClient.auth);
-                console.log('   Has from:', typeof supabaseClient.from === 'function');
+            // Supabaseクライアントを正しく初期化してグローバルに保存
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('✅ Supabase client initialized');
+            console.log('   Has auth:', !!supabaseClient.auth);
+            console.log('   Has from:', typeof supabaseClient.from === 'function');
 
-                // グローバルに保存してデバッグ可能に
-                window.supabaseClient = supabaseClient;
+            // グローバルに保存してデバッグ可能に
+            window.supabaseClient = supabaseClient;
 
         // FAQ用のAPIを直接定義
         window.supabaseAPI = window.supabaseAPI || {};
@@ -173,43 +166,25 @@
             }
         };
 
-                console.log('✅ FAQ API initialized');
-                console.log('window.supabaseAPI:', window.supabaseAPI);
+            console.log('✅ FAQ API initialized');
+            console.log('window.supabaseAPI:', window.supabaseAPI);
 
-                // Alpine.jsの初期化準備完了を通知
-                window.supabaseAPIReady = true;
-                window.dispatchEvent(new Event('supabaseAPIReady'));
-
-                // Alpine.js を起動
-                if (window.startAlpine) {
-                    console.log('🚀 Starting Alpine.js now...');
-                    window.startAlpine();
-                } else {
-                    console.warn('⚠️ window.startAlpine not found, waiting...');
-                    // Alpine.js CDNのロードを待つ
-                    const checkAlpine = setInterval(() => {
-                        if (window.startAlpine) {
-                            clearInterval(checkAlpine);
-                            console.log('🚀 Starting Alpine.js (delayed)...');
-                            window.startAlpine();
-                        }
-                    }, 50);
-                }
-            } catch (error) {
-                console.error('❌ Failed to initialize FAQ API:', error);
-                console.error('Error stack:', error.stack);
-            }
-        })();
-    </script>
-
-    <!-- Alpine.js - 手動初期化モード -->
-    <script>
-        // Alpine.js の自動起動を防ぐ
-        window.deferLoadingAlpine = callback => {
-            console.log('🎿 Deferring Alpine.js startup...');
-            window.startAlpine = callback;
+            // Alpine.jsの初期化準備完了を通知
+            window.supabaseAPIReady = true;
+            window.dispatchEvent(new Event('supabaseAPIReady'));
         };
 
+        // ページ読み込み完了後に初期化を開始
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', window.initFAQAPI);
+        } else {
+            // すでにDOMが読み込まれている場合は即座に実行
+            window.initFAQAPI();
+        }
+    </script>
+
+    <!-- Alpine.js - 通常モード（自動起動） -->
+    <script>
         document.addEventListener('alpine:init', () => {
             console.log('🎿 Alpine.js initialized');
         });
@@ -594,7 +569,15 @@
 
                 async init() {
                     console.log('🎿 Alpine init() called');
-                    console.log('✅ FAQ API already initialized (Alpine started after API ready)');
+
+                    // FAQ APIの初期化を待つ（念のため）
+                    if (!window.supabaseAPIReady) {
+                        console.log('⏳ Waiting for FAQ API to be ready...');
+                        await new Promise(resolve => {
+                            window.addEventListener('supabaseAPIReady', resolve, { once: true });
+                        });
+                    }
+                    console.log('✅ FAQ API ready, proceeding with initialization');
 
                     // カテゴリデータの読み込み
                     await this.loadCategories();
@@ -610,21 +593,10 @@
 
                 async loadCategories() {
                     try {
-                        // common.jsで初期化されたFAQ APIを使用
-                        if (!window.supabaseAPI || !window.supabaseAPI.faq) {
+                        // FAQ APIが初期化されていることを確認（init()で既に待機済み）
+                        if (!window.supabaseAPI?.faq) {
                             console.error('❌ CRITICAL: supabaseAPI.faq not available');
-                            console.log('   Waiting for common.js to initialize FAQ API...');
-
-                            // common.jsの初期化を待つ
-                            await new Promise(resolve => {
-                                if (window.supabaseAPIReady) {
-                                    resolve();
-                                } else {
-                                    window.addEventListener('supabaseAPIReady', resolve, { once: true });
-                                }
-                            });
-
-                            console.log('✅ FAQ API is now ready');
+                            throw new Error('FAQ API not initialized');
                         }
 
                         const categories = await window.supabaseAPI.faq.getCategories();

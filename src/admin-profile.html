@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="/assets/tailwind.css">
 
     <link href="./styles/main.css" rel="stylesheet">
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="/js/common.js"></script>
 
     <!-- Supabase Auth Guard -->
@@ -256,7 +260,7 @@
     </div>
 
     <script type="module">
-        import { getCurrentUser, updateUserProfile, updatePassword } from '/js/supabase-auth.js';
+        import { getCurrentUser, updatePassword } from '/js/supabase-auth.js';
 
         function profileManager() {
             return {
@@ -342,14 +346,16 @@
                     }
 
                     try {
-                        const { error } = await updatePassword(this.passwordData.newPassword);
-                        if (error) throw error;
+                        const result = await updatePassword(this.passwordData.newPassword);
+                        if (!result.success) {
+                            throw new Error(result.error || 'パスワードの変更に失敗しました');
+                        }
 
                         this.passwordData = { newPassword: '', confirmPassword: '' };
                         lifeXAPI.showToast('パスワードを変更しました', 'success');
                     } catch (error) {
                         console.error('Error changing password:', error);
-                        lifeXAPI.showToast('パスワードの変更に失敗しました', 'error');
+                        lifeXAPI.showToast(error.message || 'パスワードの変更に失敗しました', 'error');
                     }
                 },
 

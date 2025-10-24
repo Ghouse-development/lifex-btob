@@ -1386,7 +1386,7 @@ window.lifeXAPI = {
 
     // Base64画像の段階的圧縮
     async compressBase64Image(base64String, initialQuality = 0.9, maxWidth = 2400) {
-        return new Promise(async (resolve) => {
+        return new Promise((resolve) => {
             console.log('compressBase64Image called with data length:', base64String ? base64String.length : 0);
             if (!base64String) {
                 console.error('compressBase64Image: no data provided');

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ 総合診断ツール</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/common.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; padding: 20px; background: #0f172a; color: #e2e8f0; }
@@ -114,6 +115,12 @@
                 updateSummary();
             }
 
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
             render() {
                 let section = document.getElementById(`test-${this.id}`);
                 if (!section) {
@@ -135,14 +142,14 @@
 
                 section.innerHTML = `
                     <div class="test-header">
-                        <div class="test-title">${this.title}</div>
+                        <div class="test-title">${this.escapeHtml(this.title)}</div>
                         <div class="status ${this.status}">${statusText[this.status]}</div>
                     </div>
-                    <div style="color: #94a3b8; margin-bottom: 10px;">${this.description}</div>
+                    <div style="color: #94a3b8; margin-bottom: 10px;">${this.escapeHtml(this.description)}</div>
                     ${this.logs.length > 0 ? `
                         <div class="test-result">
                             ${this.logs.map(log => `
-                                <div class="log-line log-${log.type}">${log.message}</div>
+                                <div class="log-line log-${log.type}">${this.escapeHtml(log.message)}</div>
                             `).join('')}
                         </div>
                     ` : ''}
@@ -312,9 +319,18 @@
         new DiagnosticTest('commonjs', 'common.js 統合確認',
             'common.jsでFAQ APIが正しく初期化されているか確認',
             async (test) => {
+                test.log('window.supabaseAPIReady フラグの確認...');
+                if (window.supabaseAPIReady) {
+                    test.log('✓ window.supabaseAPIReady = true', 'success');
+                } else {
+                    test.log('⚠️ window.supabaseAPIReady が設定されていません', 'warning');
+                }
+
                 test.log('window.supabaseClient の存在確認...');
                 if (window.supabaseClient) {
                     test.log('✓ window.supabaseClient が存在します', 'success');
+                    test.log(`  - from: ${typeof window.supabaseClient.from}`);
+                    test.log(`  - auth: ${typeof window.supabaseClient.auth}`);
                 } else {
                     test.log('⚠️ window.supabaseClient が存在しません', 'warning');
                 }
@@ -323,6 +339,10 @@
                 if (!window.supabaseAPI) {
                     test.log('⚠️ window.supabaseAPI が存在しません', 'warning');
                     test.log('common.jsがまだ実行されていない可能性があります', 'warning');
+                    test.log('対処方法:', 'info');
+                    test.log('  1. ページを再読み込みしてください', 'info');
+                    test.log('  2. ブラウザのキャッシュをクリアしてください', 'info');
+                    test.log('  3. /js/common.js が正しく読み込まれているか確認してください', 'info');
                     test.status = 'warning';
                     stats.warnings++;
                     return;
@@ -332,19 +352,39 @@
                 test.log('window.supabaseAPI.faq の存在確認...');
                 if (!window.supabaseAPI.faq) {
                     test.log('❌ window.supabaseAPI.faq が存在しません', 'error');
+                    test.log('利用可能なプロパティ:', 'info');
+                    test.log(`  ${Object.keys(window.supabaseAPI).join(', ') || 'なし'}`, 'info');
                     throw new Error('FAQ APIが初期化されていません');
                 }
                 test.log('✓ window.supabaseAPI.faq が存在します', 'success');
 
                 const methods = ['getCategories', 'getItems', 'create', 'update', 'delete'];
                 test.log('APIメソッドの確認...');
+                let allMethodsExist = true;
                 for (const method of methods) {
                     if (typeof window.supabaseAPI.faq[method] === 'function') {
                         test.log(`  ✓ ${method}`, 'success');
                     } else {
                         test.log(`  ❌ ${method} が存在しません`, 'error');
-                        throw new Error(`${method} メソッドが見つかりません`);
+                        allMethodsExist = false;
                     }
+                }
+
+                if (!allMethodsExist) {
+                    throw new Error('一部のAPIメソッドが見つかりません');
+                }
+
+                test.log('✓ 全てのAPIメソッドが利用可能です', 'success');
+
+                // 実際にAPIを呼び出してテスト
+                test.log('API実動作テスト（カテゴリ取得）...');
+                try {
+                    const categories = await window.supabaseAPI.faq.getCategories();
+                    test.log(`✓ API呼び出し成功: ${categories.length}件のカテゴリを取得`, 'success');
+                } catch (apiError) {
+                    test.log(`⚠️ API呼び出しエラー: ${apiError.message}`, 'warning');
+                    test.status = 'warning';
+                    stats.warnings++;
                 }
             }
         );
@@ -399,6 +439,26 @@
 
             stats = { total: tests.length, passed: 0, failed: 0, warnings: 0 };
             updateSummary();
+
+            // common.jsの初期化を待機（最大3秒）
+            const waitForCommonJS = async () => {
+                let attempts = 0;
+                const maxAttempts = 30; // 30 * 100ms = 3秒
+
+                while (attempts < maxAttempts) {
+                    if (window.supabaseAPIReady) {
+                        console.log('common.js initialization confirmed');
+                        return true;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+
+                console.warn('common.js may not be fully initialized');
+                return false;
+            };
+
+            await waitForCommonJS();
 
             for (const test of tests) {
                 test.render();

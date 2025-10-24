@@ -1,16 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node scripts/utilities/list-all-plan-files.js:*)",
-      "Bash(node scripts/utilities/match-image-to-plan.js:*)",
-      "Bash(node scripts/utilities/fix-missing-image-urls.js:*)",
-      "Bash(node scripts/utilities/check-width-depth.js:*)",
+      "Bash(node replace-tailwind-cdn.js:*)",
+      "Bash(node debug-faq-data.js:*)",
+      "Bash(vercel ls)",
+      "mcp__ide__getDiagnostics",
+      "Bash(for file in src/*.html src/admin/*.html)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(then if ! grep -q \"</html>\" \"$file\")",
+      "Bash(then echo \"Missing closing html tag: $file\")",
+      "Bash(awk:*)",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "Bash(vercel --prod:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)",
-      "Bash(for file in admin-faq.html admin-downloads.html admin-plans-manager.html index.html matrix.html plans-simple.html design.html downloads.html admin-rules.html rules.html)",
-      "Bash(do sed -i \"s|supabase-client\\.js?v=20251024|supabase-client.js?v=20251024b|g\" \"$file\")",
-      "Bash(done)"
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
