@@ -23,23 +23,27 @@
 
     <!-- Supabase Integration - 直接初期化 -->
     <script type="module">
-        // CDNの読み込みを待つ
-        await new Promise(resolve => {
-            if (window.supabase?.createClient) {
-                resolve();
-            } else {
-                const checkInterval = setInterval(() => {
-                    if (window.supabase?.createClient) {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                }, 50);
-            }
-        });
+        (async () => {
+            try {
+                console.log('🚀 Starting FAQ API initialization...');
 
-        // Supabaseクライアントを取得（common.jsで既に初期化済み）
-        const supabase = window.supabase;
-        console.log('✅ Supabase client ready');
+                // CDNの読み込みを待つ
+                await new Promise(resolve => {
+                    if (window.supabase?.createClient) {
+                        resolve();
+                    } else {
+                        const checkInterval = setInterval(() => {
+                            if (window.supabase?.createClient) {
+                                clearInterval(checkInterval);
+                                resolve();
+                            }
+                        }, 50);
+                    }
+                });
+
+                // Supabaseクライアントを取得（common.jsで既に初期化済み）
+                const supabase = window.supabase;
+                console.log('✅ Supabase client ready');
 
         // FAQ用のAPIを直接定義
         window.supabaseAPI = window.supabaseAPI || {};
@@ -134,8 +138,13 @@
             }
         };
 
-        console.log('✅ FAQ API initialized');
-        console.log('window.supabaseAPI:', window.supabaseAPI);
+                console.log('✅ FAQ API initialized');
+                console.log('window.supabaseAPI:', window.supabaseAPI);
+            } catch (error) {
+                console.error('❌ Failed to initialize FAQ API:', error);
+                console.error('Error stack:', error.stack);
+            }
+        })();
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
