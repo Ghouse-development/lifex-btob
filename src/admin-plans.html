@@ -2038,6 +2038,9 @@
 
                     if (type === 'presentation') {
                         this.formData.files.presentation = fileInfo;
+                        // Storageにアップロード
+                        const url = await this.uploadFileToStorage(file, 'presentation');
+                        if (url) this.formData.files.presentation.url = url;
                     } else if (type === 'drawing' && subtype) {
                         if (!this.formData.files.drawings) {
                             this.formData.files.drawings = {};
@@ -2049,6 +2052,9 @@
                         if (!Array.isArray(this.formData.files.drawings[subtype])) {
                             this.formData.files.drawings[subtype] = [this.formData.files.drawings[subtype]];
                         }
+                        // Storageにアップロード
+                        const url = await this.uploadFileToStorage(file, 'drawing', subtype);
+                        if (url) fileInfo.url = url;
                         this.formData.files.drawings[subtype].push(fileInfo);
                     } else if (type === 'document' && subtype) {
                         if (!this.formData.files.documents) {
@@ -2061,6 +2067,9 @@
                         if (!Array.isArray(this.formData.files.documents[subtype])) {
                             this.formData.files.documents[subtype] = [this.formData.files.documents[subtype]];
                         }
+                        // Storageにアップロード
+                        const url = await this.uploadFileToStorage(file, 'document', subtype);
+                        if (url) fileInfo.url = url;
                         this.formData.files.documents[subtype].push(fileInfo);
                     } else if (type === 'image' && subtype) {
                         if (!this.formData.files.images) {
@@ -2074,6 +2083,9 @@
                             this.formData.files.floorPlans = {};
                         }
                         this.formData.files.floorPlans[subtype] = fileInfo;
+                        // Storageにアップロード
+                        const url = await this.uploadFileToStorage(file, 'floorPlan', subtype);
+                        if (url) fileInfo.url = url;
                     }
 
                     console.log('File processed:', type, subtype, fileInfo);
@@ -2118,6 +2130,50 @@
                     } catch (err) {
                         console.error('[UploadImage] Unexpected error:', err);
                         showToast('画像のアップロード中にエラーが発生しました', 'error');
+                    }
+                },
+
+                async uploadFileToStorage(file, fileType, subType = null) {
+                    try {
+                        const timestamp = Date.now();
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = subType
+                            ? `${this.formData.id}_${fileType}_${subType}_${timestamp}.${fileExt}`
+                            : `${this.formData.id}_${fileType}_${timestamp}.${fileExt}`;
+                        const filePath = `plans/${fileName}`;
+
+                        console.log(`[UploadFile] Uploading ${fileType} to:`, filePath);
+
+                        // 適切なバケットを選択
+                        const bucket = fileType === 'presentation' || fileType === 'drawing' || fileType === 'document'
+                            ? 'plan-drawings'
+                            : 'plan-images';
+
+                        // Supabase Storageにアップロード
+                        const { data, error } = await window.supabase.storage
+                            .from(bucket)
+                            .upload(filePath, file, {
+                                cacheControl: '3600',
+                                upsert: false
+                            });
+
+                        if (error) {
+                            console.error('[UploadFile] Upload error:', error);
+                            showToast(`ファイルのアップロードに失敗しました: ${error.message}`, 'error');
+                            return null;
+                        }
+
+                        // 公開URLを取得
+                        const { data: urlData } = window.supabase.storage
+                            .from(bucket)
+                            .getPublicUrl(filePath);
+
+                        console.log(`[UploadFile] Public URL:`, urlData.publicUrl);
+                        return urlData.publicUrl;
+                    } catch (err) {
+                        console.error('[UploadFile] Unexpected error:', err);
+                        showToast('ファイルのアップロード中にエラーが発生しました', 'error');
+                        return null;
                     }
                 },
 
