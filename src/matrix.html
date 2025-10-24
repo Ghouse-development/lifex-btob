@@ -299,18 +299,6 @@
                                                             </template>
                                                             <!-- プランID表示 -->
                                                             <div class="text-xs font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].id.substring(0, 8) + '...'"></div>
-                                                            <!-- 階数情報表示 -->
-                                                            <div class="text-xs text-gray-600 mt-1 flex flex-col">
-                                                                <div x-text="`建物${getCellPlans(width, depth)[0].floors || 2}階`"></div>
-                                                                <div x-text="`LDK${getCellPlans(width, depth)[0].ldkFloor || 1}階`"></div>
-                                                                <div x-text="`水廻り${getCellPlans(width, depth)[0].bathroomFloor || 1}階`"></div>
-                                                            </div>
-                                                            <!-- 複数プラン表示 -->
-                                                            <template x-if="getCellPlans(width, depth).length > 1">
-                                                                <div class="text-xs text-gray-600 mt-1">
-                                                                    他<span x-text="getCellPlans(width, depth).length - 1"></span>プラン
-                                                                </div>
-                                                            </template>
                                                         </div>
                                                     </template>
                                                     
