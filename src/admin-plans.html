@@ -1982,28 +1982,30 @@
                     }
                 },
                 
-                handleFileSelect(event, type, subtype = null) {
+                async handleFileSelect(event, type, subtype = null) {
                     const files = event.target.files;
                     if (files.length > 0) {
                         // 複数ファイル対応
                         if (files.length > 1) {
-                            this.processFile(Array.from(files), type, subtype);
+                            await this.processFile(Array.from(files), type, subtype);
                         } else {
-                            this.processFile(files[0], type, subtype);
+                            await this.processFile(files[0], type, subtype);
                         }
                     }
                 },
                 
-                processFile(file, type, subtype = null) {
+                async processFile(file, type, subtype = null) {
                     // 複数ファイル対応
                     if (Array.isArray(file)) {
-                        file.forEach(f => this.processSingleFile(f, type, subtype));
+                        for (const f of file) {
+                            await this.processSingleFile(f, type, subtype);
+                        }
                     } else {
-                        this.processSingleFile(file, type, subtype);
+                        await this.processSingleFile(file, type, subtype);
                     }
                 },
                 
-                processSingleFile(file, type, subtype = null) {
+                async processSingleFile(file, type, subtype = null) {
                     // ファイルサイズチェック（5MB制限）
                     const maxSize = 5 * 1024 * 1024; // 5MB
                     if (file.size > maxSize) {
@@ -2065,8 +2067,8 @@
                             this.formData.files.images = {};
                         }
                         this.formData.files.images[subtype] = fileInfo;
-                        // 画像の場合はSupabase Storageにアップロード
-                        this.uploadImageToStorage(file, subtype);
+                        // 画像の場合はSupabase Storageにアップロード（完了を待つ）
+                        await this.uploadImageToStorage(file, subtype);
                     } else if (type === 'floorPlan' && subtype) {
                         if (!this.formData.files.floorPlans) {
                             this.formData.files.floorPlans = {};
