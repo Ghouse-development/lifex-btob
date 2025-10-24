@@ -188,22 +188,24 @@
                 <div class="card">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">最近の更新</h2>
                     <div class="space-y-4">
-                        <template x-if="recentUpdates.length === 0">
+                        <div x-show="recentUpdates.length === 0">
                             <p class="text-gray-500 text-sm">更新情報はありません</p>
-                        </template>
-                        <template x-for="update in recentUpdates" :key="update.id">
-                            <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                        </div>
+                        <div x-show="recentUpdates.length > 0">
+                            <template x-for="update in recentUpdates" :key="update.id">
+                                <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                                        <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-sm font-medium text-gray-900" x-text="update.title"></p>
+                                        <p class="text-xs text-gray-500" x-text="update.date"></p>
+                                    </div>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-medium text-gray-900" x-text="update.title"></p>
-                                    <p class="text-xs text-gray-500" x-text="update.date"></p>
-                                </div>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                     </div>
                 </div>
 
@@ -296,13 +298,20 @@
 
                         // FAQ統計
                         const { data: faqs, error: faqsError } = await window.supabase
-                            .from('faq')
+                            .from('faqs')
                             .select('*');
 
                         if (!faqsError && faqs) {
                             this.stats.totalFaqs = faqs.length;
-                            const categories = [...new Set(faqs.map(f => f.category))];
-                            this.stats.faqCategories = categories.length;
+
+                            // カテゴリ数を取得
+                            const { data: categories, error: catError } = await window.supabase
+                                .from('faq_categories')
+                                .select('*');
+
+                            if (!catError && categories) {
+                                this.stats.faqCategories = categories.length;
+                            }
                         }
 
                         // ルール統計
@@ -320,13 +329,16 @@
                             .from('downloads')
                             .select('*');
 
-                        if (!downloadsError && downloads) {
+                        if (downloadsError) {
+                            console.warn('⚠️ Downloads table not found or not accessible:', downloadsError.message);
+                            this.stats.totalDownloads = 0;
+                        } else if (downloads) {
                             this.stats.totalDownloads = downloads.length;
                         }
 
                         console.log('✅ Stats loaded:', this.stats);
                     } catch (error) {
-                        console.error('Failed to load stats:', error);
+                        console.error('❌ Failed to load stats:', error);
                     }
                 }
             }
