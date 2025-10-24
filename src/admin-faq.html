@@ -512,12 +512,46 @@
                                     };
                                 });
                             }
+
+                            // テストデータを完全に除外（2度と表示させない）
+                            this.faqs = this.faqs.filter(faq => {
+                                const question = (faq.question || '').toLowerCase();
+                                const answer = (faq.answer || '').toLowerCase();
+                                const isTestData =
+                                    question.includes('てすと') ||
+                                    question.includes('テスト') ||
+                                    question.includes('test') ||
+                                    answer.includes('てすと') ||
+                                    answer.includes('テスト') ||
+                                    answer.includes('test');
+
+                                if (isTestData) {
+                                    console.warn('⚠️ Test data filtered out:', faq.question);
+                                }
+                                return !isTestData;
+                            });
+
                             console.log('Loaded FAQs from Supabase:', this.faqs.length);
+
+                            // Supabaseから正常にロードできた場合、localStorageをクリア（古いキャッシュを削除）
+                            localStorage.removeItem('faq_data');
                         } else {
                             // LocalStorageから取得を試みる
                             const localData = localStorage.getItem('faq_data');
                             if (localData) {
                                 this.faqs = JSON.parse(localData).faqs || [];
+
+                                // LocalStorageからロードした場合もテストデータを除外
+                                this.faqs = this.faqs.filter(faq => {
+                                    const question = (faq.question || '').toLowerCase();
+                                    const answer = (faq.answer || '').toLowerCase();
+                                    return !question.includes('てすと') &&
+                                           !question.includes('テスト') &&
+                                           !question.includes('test') &&
+                                           !answer.includes('てすと') &&
+                                           !answer.includes('テスト') &&
+                                           !answer.includes('test');
+                                });
                             } else {
                                 this.faqs = [];
                             }
@@ -598,7 +632,17 @@
                     if (this.saving) {
                         return;
                     }
-                    
+
+                    // カテゴリデータの確認
+                    if (!this.categoryMap || Object.keys(this.categoryMap).length === 0) {
+                        lifeXAPI.showToast('カテゴリデータが読み込まれていません。ページを再読み込みしてください。', 'error');
+                        // カテゴリを再読み込み
+                        await this.loadCategories();
+                        if (!this.categoryMap || Object.keys(this.categoryMap).length === 0) {
+                            return;
+                        }
+                    }
+
                     // フォームバリデーション
                     const validationResult = this.validateForm();
                     if (!validationResult.isValid) {
@@ -607,9 +651,15 @@
                     }
 
                     // 新規カテゴリの処理
-                    const category = this.processCategory();
+                    const category = await this.processCategory();
                     if (!category) {
                         lifeXAPI.showToast('有効なカテゴリを入力してください', 'error');
+                        return;
+                    }
+
+                    // カテゴリの存在確認
+                    if (!this.categoryMap[category]) {
+                        lifeXAPI.showToast(`カテゴリ「${category}」が見つかりません。カテゴリを追加してから再度お試しください。`, 'error');
                         return;
                     }
                     
@@ -700,24 +750,67 @@
                     return this.formData.category;
                 },
                 
-                processCategory() {
+                async processCategory() {
                     if (this.formData.category === 'new' && this.newCategory) {
                         const trimmedCategory = this.newCategory.trim();
                         if (trimmedCategory.length === 0) {
                             return null;
                         }
-                        
-                        // 新しいカテゴリを追加
-                        if (!this.categories.includes(trimmedCategory)) {
-                            this.categories.push(trimmedCategory);
-                            this.categories.sort(); // アルファベット順にソート
+
+                        // 重複チェック
+                        if (this.categories.includes(trimmedCategory)) {
+                            // フォームをリセット
+                            this.newCategory = '';
+                            return trimmedCategory;
                         }
-                        
+
+                        try {
+                            // Supabaseに新規カテゴリを作成
+                            if (window.supabase && window.supabase.from) {
+                                // 新しい表示順を計算
+                                const maxOrder = this.categoryObjects.reduce((max, cat) =>
+                                    Math.max(max, cat.display_order || 0), 0);
+
+                                // カテゴリを作成
+                                const { data, error } = await window.supabase
+                                    .from('faq_categories')
+                                    .insert([{
+                                        name: trimmedCategory,
+                                        display_order: maxOrder + 1,
+                                        created_at: new Date().toISOString(),
+                                        updated_at: new Date().toISOString()
+                                    }])
+                                    .select();
+
+                                if (error) {
+                                    console.error('カテゴリ作成エラー:', error);
+                                    lifeXAPI.showToast('カテゴリの作成に失敗しました', 'error');
+                                    return null;
+                                }
+
+                                if (data && data.length > 0) {
+                                    // ローカルのカテゴリリストに追加
+                                    const newCategory = data[0];
+                                    this.categoryObjects.push(newCategory);
+                                    this.categories.push(newCategory.name);
+
+                                    // カテゴリマップを更新
+                                    this.categoryMap[newCategory.name] = newCategory.id;
+
+                                    console.log('✅ New category created:', newCategory);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('カテゴリ作成エラー:', error);
+                            lifeXAPI.showToast('カテゴリの作成に失敗しました', 'error');
+                            return null;
+                        }
+
                         // フォームをリセット
                         this.newCategory = '';
                         return trimmedCategory;
                     }
-                    
+
                     return this.formData.category;
                 },
                 
@@ -737,24 +830,14 @@
                 getCategoryIdByName(categoryName) {
                     // カテゴリ名からcategory_idを取得
                     if (!categoryName) {
-                        console.warn('⚠️ Category name is empty, using "その他"');
-                        const otherId = this.categoryMap['その他'];
-                        if (!otherId) {
-                            console.error('❌ categoryMap is empty or missing "その他"!', this.categoryMap);
-                            throw new Error('カテゴリデータが読み込まれていません。ページを再読み込みしてください。');
-                        }
-                        return otherId;
+                        console.error('❌ Category name is empty!');
+                        throw new Error('カテゴリ名が指定されていません');
                     }
 
                     const categoryId = this.categoryMap[categoryName];
                     if (!categoryId) {
-                        console.warn(`⚠️ Category "${categoryName}" not found in map, using "その他"`);
-                        const otherId = this.categoryMap['その他'];
-                        if (!otherId) {
-                            console.error('❌ categoryMap is empty or missing "その他"!', this.categoryMap);
-                            throw new Error('カテゴリデータが読み込まれていません。ページを再読み込みしてください。');
-                        }
-                        return otherId;
+                        console.error(`❌ Category "${categoryName}" not found in categoryMap:`, this.categoryMap);
+                        throw new Error(`カテゴリ「${categoryName}」が見つかりません`);
                     }
 
                     return categoryId;
