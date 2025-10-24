@@ -298,7 +298,7 @@
                                                                 </div>
                                                             </template>
                                                             <!-- プランID表示 -->
-                                                            <div class="text-xs font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].id.substring(0, 8) + '...'"></div>
+                                                            <div class="text-xs font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].planCode || getCellPlans(width, depth)[0].id.substring(0, 8) + '...'"></div>
                                                         </div>
                                                     </template>
                                                     
