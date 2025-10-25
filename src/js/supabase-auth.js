@@ -11,7 +11,7 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 // Supabaseクライアントの初期化
 // ブラウザ環境で直接使用するため、値を直接指定
 const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1OTU0NDAsImV4cCI6MjA1MjE3MTQ0MH0.Lbk3uC6YI99rn5j1oXGd8gNE3C8OxJVMymUKG_x_puw';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
