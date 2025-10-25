@@ -122,14 +122,15 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <!-- Plan Image -->
                         <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center">
-                            <template x-if="plan?.floorPlan">
-                                <img :src="plan.floorPlan" :alt="plan.name" class="w-full h-full object-cover rounded-lg">
+                            <template x-if="plan?.exteriorImage">
+                                <img :src="plan.exteriorImage" :alt="plan.name + ' 外観'" class="w-full h-full object-cover rounded-lg">
                             </template>
-                            <template x-if="!plan?.floorPlan">
-                                <div class="text-gray-400">
-                                    <svg class="w-16 h-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <template x-if="!plan?.exteriorImage">
+                                <div class="text-gray-400 text-center">
+                                    <svg class="w-16 h-16 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-6m-4 0H3m2-5l2-2m0 0l2 2m-2-2v6" />
                                     </svg>
+                                    <p class="text-sm">外観パース画像なし</p>
                                 </div>
                             </template>
                         </div>
@@ -496,6 +497,7 @@
                             bathroomFloor: data.bathroom_floor ? `${data.bathroom_floor}階` : '1階',
                             version: data.version || '1.0',
                             floorPlan: data.thumbnail_url,
+                            exteriorImage: data.images?.exterior || null,
                             prices: {
                                 sell: data.sell_price || data.price,
                                 cost: data.cost,
