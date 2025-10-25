@@ -36,8 +36,11 @@
         });
 
         // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from './js/supabase-client.js?v=20251024b';
-        window.supabase = supabase;
+        const { supabase } = await import('./js/supabase-client.js?v=20251024b');
+        window.supabaseClient = supabase;
+
+        // window.sbReady Promiseを作成（他のページとの一貫性）
+        window.sbReady = Promise.resolve(supabase);
 
         // Supabase Integrationも待機後にロード
         await import('./js/supabase-integration.js?v=20251024b');
@@ -612,7 +615,8 @@
                         }
 
                         // Supabase or LocalStorage
-                        if (window.supabaseAPI && window.supabaseAPI.downloads && window.supabase) {
+                        const sb = await window.sbReady;
+                        if (window.supabaseAPI && window.supabaseAPI.downloads && sb) {
                             console.log('✅ Supabase Downloads API ready. Loading downloads from Supabase...');
 
                             // カテゴリとダウンロード資料を取得
