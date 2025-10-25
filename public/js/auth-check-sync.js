@@ -17,7 +17,9 @@
 
     if (!hasSession) {
         console.log('❌ セッションなし - 即座にリダイレクト');
-        window.location.href = '/admin-login.html';
+        // ページ読み込みを停止してからリダイレクト（ERR_ABORTEDエラーを防ぐ）
+        if (window.stop) window.stop();
+        window.location.replace('/admin-login.html');
         // リダイレクト後のコードは実行されないが、念のためreturn
         return;
     }
