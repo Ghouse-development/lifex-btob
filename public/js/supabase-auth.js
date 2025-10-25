@@ -15,6 +15,12 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// グローバルに露出（HTMLページから直接アクセス可能にする）
+window.supabase = supabase;
+window.__supabaseReady = true;
+
+console.log('✅ Supabase client initialized and exposed to window.supabase');
+
 /**
  * ログイン処理
  * @param {string} email - メールアドレス

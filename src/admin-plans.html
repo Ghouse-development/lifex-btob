@@ -104,7 +104,7 @@
                     }
                 },
                 async update(planId, updates) {
-                    const { data, error } = await window.supabaseClient.from('plans').update(updates).eq('id', planId).select('*').single();
+                    const { data, error } = await window.supabase.from('plans').update(updates).eq('id', planId).select('*').single();
                     if (error) {
                         console.error('[update] Supabase error:', error);
                         throw error;
@@ -112,7 +112,7 @@
                     return { success: true, data };
                 },
                 async delete(planId) {
-                    const { data, error } = await window.supabaseClient.from('plans').update({ status: 'deleted', updated_at: new Date().toISOString() }).eq('id', planId).select('*').single();
+                    const { data, error } = await window.supabase.from('plans').update({ status: 'deleted', updated_at: new Date().toISOString() }).eq('id', planId).select('*').single();
                     if (error) {
                         console.error('[delete] Supabase error:', error);
                         throw error;

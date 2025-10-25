@@ -325,16 +325,16 @@
 
                 async loadCategories() {
                     try {
-                        // window.supabaseが利用可能になるまで待機
+                        // window.supabaseが利用可能になるまで待機（最大5秒）
                         let retries = 0;
-                        while ((!window.supabase || !window.supabaseClient.from) && retries < 50) {
+                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
                         }
 
                         // 直接Supabaseクライアントを使用
-                        if (window.supabase && window.supabaseClient.from) {
-                            console.log('Loading rule categories from Supabase...');
+                        if (window.supabase && window.supabase.from) {
+                            console.log('✅ Supabase client ready. Loading rule categories...');
 
                             // カテゴリとルールを取得
                             const { data: categories, error: catError } = await window.supabase
@@ -698,7 +698,7 @@
 
                 async saveToSupabase() {
                     try {
-                        if (window.supabase && window.supabaseClient.from) {
+                        if (window.supabase && window.supabase.from) {
                             // 直接Supabaseクライアントを使用
                             for (const category of this.categories) {
                                 if (category.id && typeof category.id === 'string' && category.id.includes('-')) {

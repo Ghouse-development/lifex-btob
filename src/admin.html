@@ -514,12 +514,12 @@
                 async init() {
                     // Supabaseクライアントの読み込みを待つ（最大5秒）
                     let attempts = 0;
-                    while (!window.supabaseClient && attempts < 50) {
+                    while (!window.supabase && attempts < 50) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                         attempts++;
                     }
 
-                    if (!window.supabaseClient) {
+                    if (!window.supabase) {
                         console.error('❌ Supabase client failed to load after 5 seconds');
                         return;
                     }
@@ -549,7 +549,7 @@
                 async loadStats() {
                     try {
                         // プラン統計（公開中のプランのみカウント - ホームページと一致させる）
-                        const { data, error } = await window.supabaseClient
+                        const { data, error } = await window.supabase
                             .from('plans')
                             .select('*');
 
@@ -565,7 +565,7 @@
                         
                         // ルール統計（Supabaseから取得）
                         try {
-                            const { data: rulesData, error: rulesError } = await window.supabaseClient
+                            const { data: rulesData, error: rulesError } = await window.supabase
                                 .from('rules')
                                 .select('*');
 
@@ -626,11 +626,11 @@
                         
                         // FAQ統計（Supabaseから取得）
                         try {
-                            const { data: faqsData, error: faqsError } = await window.supabaseClient
+                            const { data: faqsData, error: faqsError } = await window.supabase
                                 .from('faqs')
                                 .select('*');
 
-                            const { data: faqCategoriesData, error: faqCatError } = await window.supabaseClient
+                            const { data: faqCategoriesData, error: faqCatError } = await window.supabase
                                 .from('faq_categories')
                                 .select('*');
 
