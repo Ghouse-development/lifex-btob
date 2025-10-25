@@ -21,7 +21,10 @@
       "Bash(vercel login)",
       "Bash(vercel link:*)",
       "Bash(vercel deploy:*)",
-      "Read(//c/**)"
+      "Read(//c/**)",
+      "Bash(for file in src/admin-{downloads,faq,plans,plans-manager,plans-new,report,rules,system}.html)",
+      "Bash(if ! grep -q \"auth-check-sync\" \"$file\")",
+      "Bash(else)"
     ],
     "deny": [],
     "ask": []
