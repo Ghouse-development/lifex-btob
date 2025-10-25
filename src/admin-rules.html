@@ -367,26 +367,18 @@
                                 }));
 
                                 console.log('✅ Loaded rule categories from Supabase:', this.categories.length);
+
+                                // Supabaseから正常に取得できた場合、古いlocalStorageデータを削除
+                                localStorage.removeItem('rules_categories_data');
+                                console.log('🗑️ Removed old localStorage data');
                             }
                         } else {
-                            console.warn('⚠️ Supabase client not available, using localStorage');
-                            // LocalStorageから取得（フォールバック）
-                            const localData = localStorage.getItem('rules_categories_data');
-                            if (localData) {
-                                this.categories = JSON.parse(localData).categories || [];
-                            } else {
-                                this.categories = [];
-                            }
+                            console.warn('⚠️ Supabase client not available');
+                            this.categories = [];
                         }
                     } catch (error) {
                         console.error('❌ Error loading rule categories:', error);
-                        // エラー時はLocalStorageフォールバック
-                        const localData = localStorage.getItem('rules_categories_data');
-                        if (localData) {
-                            this.categories = JSON.parse(localData).categories || [];
-                        } else {
-                            this.categories = [];
-                        }
+                        this.categories = [];
                     }
                 },
 
@@ -819,18 +811,15 @@
                             }
                             console.log('✅ Rules saved to Supabase');
                         } else {
-                            // LocalStorageに保存（フォールバック）
-                            localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
-                            console.log('⚠️ Saved to localStorage (fallback)');
+                            console.error('❌ Supabase client not available');
+                            alert('データベース接続エラーが発生しました。ページをリロードしてください。');
                         }
 
                         // 統計更新イベントを発火
                         window.dispatchEvent(new CustomEvent('stats-updated'));
                     } catch (error) {
                         console.error('❌ Error saving rules:', error);
-                        // エラー時はLocalStorageにフォールバック
-                        localStorage.setItem('rules_categories_data', JSON.stringify({ categories: this.categories }));
-                        console.log('⚠️ Saved to localStorage due to error');
+                        alert('ルールの保存に失敗しました。もう一度お試しください。');
                     }
                 }
             };
