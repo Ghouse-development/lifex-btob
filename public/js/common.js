@@ -1386,7 +1386,7 @@ window.lifeXAPI = {
 
     // Base64画像の段階的圧縮
     async compressBase64Image(base64String, initialQuality = 0.9, maxWidth = 2400) {
-        return new Promise(async (resolve) => {
+        return new Promise((resolve) => {
             console.log('compressBase64Image called with data length:', base64String ? base64String.length : 0);
             if (!base64String) {
                 console.error('compressBase64Image: no data provided');
@@ -1593,27 +1593,143 @@ function logout() {
     }
 }
 
-// Supabase初期化（即座に実行）
-(function initializeSupabase() {
+// Supabase FAQ API初期化（admin-faq.html用）
+(function initFAQAPI() {
     const SUPABASE_URL = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2Nzk5MjYsImV4cCI6MjA3NjI1NTkyNn0.uLCJvgKDOWpTxRjt39DVyqUotQcSam3v4lItofWeDws';
 
-    // Supabase CDNライブラリを動的に読み込み
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js';
-    script.onload = function() {
-        if (typeof supabase !== 'undefined' && supabase.createClient) {
-            window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase initialized in common.js');
-            window.dispatchEvent(new CustomEvent('supabase-ready'));
-        } else {
-            console.error('❌ Supabase library loaded but createClient not found');
+    // Supabase CDNが読み込まれるまで待機してから初期化
+    const initInterval = setInterval(() => {
+        if (window.supabase && window.supabase.createClient) {
+            clearInterval(initInterval);
+
+            console.log('🔧 Initializing Supabase FAQ API in common.js');
+
+            // Supabaseクライアントを作成
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            window.supabaseClient = supabaseClient;
+
+            // FAQ APIを定義
+            window.supabaseAPI = window.supabaseAPI || {};
+            window.supabaseAPI.faq = {
+                async getCategories() {
+                    try {
+                        console.log('📋 [common.js] getCategories() called');
+                        const { data, error } = await supabaseClient
+                            .from('faq_categories')
+                            .select('*')
+                            .order('display_order');
+                        if (error) {
+                            console.error('❌ getCategories error:', error);
+                            throw error;
+                        }
+                        console.log('✅ getCategories success:', data?.length || 0, 'categories');
+                        return data || [];
+                    } catch (error) {
+                        console.error('Error fetching FAQ categories:', error);
+                        return [];
+                    }
+                },
+
+                async getItems(categoryId = null) {
+                    try {
+                        console.log('📋 [common.js] getItems() called, categoryId:', categoryId);
+                        let query = supabaseClient
+                            .from('faqs')
+                            .select('*, faq_categories(name)')
+                            .order('display_order');
+
+                        if (categoryId) {
+                            query = query.eq('category_id', categoryId);
+                        }
+
+                        const { data, error } = await query;
+                        if (error) {
+                            console.error('❌ getItems error:', error);
+                            throw error;
+                        }
+                        console.log('✅ getItems success:', data?.length || 0, 'items');
+                        return data || [];
+                    } catch (error) {
+                        console.error('Error fetching FAQs:', error);
+                        return [];
+                    }
+                },
+
+                async create(faqData) {
+                    try {
+                        console.log('➕ [common.js] create() called:', faqData);
+                        const { data, error } = await supabaseClient
+                            .from('faqs')
+                            .insert([{
+                                question: faqData.question,
+                                answer: faqData.answer,
+                                category_id: faqData.category_id,
+                                display_order: faqData.display_order || 0
+                            }])
+                            .select()
+                            .single();
+
+                        if (error) {
+                            console.error('❌ create error:', error);
+                            throw error;
+                        }
+                        console.log('✅ create success');
+                        return { success: true, data };
+                    } catch (error) {
+                        console.error('Error creating FAQ:', error);
+                        return { success: false, error: error.message };
+                    }
+                },
+
+                async update(faqId, updates) {
+                    try {
+                        console.log('✏️ [common.js] update() called, id:', faqId, 'updates:', updates);
+                        const { data, error } = await supabaseClient
+                            .from('faqs')
+                            .update(updates)
+                            .eq('id', faqId)
+                            .select()
+                            .single();
+
+                        if (error) {
+                            console.error('❌ update error:', error);
+                            throw error;
+                        }
+                        console.log('✅ update success');
+                        return { success: true, data };
+                    } catch (error) {
+                        console.error('Error updating FAQ:', error);
+                        return { success: false, error: error.message };
+                    }
+                },
+
+                async delete(faqId) {
+                    try {
+                        console.log('🗑️ [common.js] delete() called, id:', faqId);
+                        const { error } = await supabaseClient
+                            .from('faqs')
+                            .delete()
+                            .eq('id', faqId);
+
+                        if (error) {
+                            console.error('❌ delete error:', error);
+                            throw error;
+                        }
+                        console.log('✅ delete success');
+                        return { success: true };
+                    } catch (error) {
+                        console.error('Error deleting FAQ:', error);
+                        return { success: false, error: error.message };
+                    }
+                }
+            };
+
+            console.log('✅ Supabase FAQ API initialized in common.js');
+            window.supabaseAPIReady = true;
+            window.dispatchEvent(new Event('supabaseAPIReady'));
         }
-    };
-    script.onerror = function() {
-        console.error('❌ Failed to load Supabase library from CDN');
-    };
-    document.head.appendChild(script);
+    }, 50);
 })();
 
 // DOM読み込み完了時の初期化
