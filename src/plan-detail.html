@@ -489,16 +489,16 @@
                             id: data.id,
                             name: data.plan_name,
                             tsubo: data.tsubo,
-                            width: data.maguchi ? data.maguchi.toFixed(2) : '0',
-                            depth: data.oku_yuki ? data.oku_yuki.toFixed(2) : '0',
-                            floors: data.building_floors || '-',
-                            ldkFloor: data.ldk_floor || '1階',
-                            bathroomFloor: data.bathroom_floor || '1階',
+                            width: data.width ? (data.width / 1000).toFixed(2) : '0',
+                            depth: data.depth ? (data.depth / 1000).toFixed(2) : '0',
+                            floors: data.floors || '-',
+                            ldkFloor: data.ldk_floor ? `${data.ldk_floor}階` : '1階',
+                            bathroomFloor: data.bathroom_floor ? `${data.bathroom_floor}階` : '1階',
                             version: data.version || '1.0',
                             floorPlan: data.thumbnail_url,
                             prices: {
-                                sell: data.sell_price,
-                                cost: data.cost_price,
+                                sell: data.sell_price || data.price,
+                                cost: data.cost,
                                 gross: data.gross_profit
                             },
                             tags: [],  // TODO: タグ機能が実装されたら対応

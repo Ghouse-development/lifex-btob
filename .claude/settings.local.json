@@ -34,7 +34,12 @@
       "Bash(node scripts/test-local-plan-detail.cjs:*)",
       "Bash(npm install:*)",
       "Bash(node scripts/test-with-puppeteer.cjs:*)",
-      "Bash(timeout 5 bash:*)"
+      "Bash(timeout 5 bash:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(timeout 2 bash:*)",
+      "Bash(node scripts/check-plan-schema.cjs:*)"
     ],
     "deny": [],
     "ask": []
