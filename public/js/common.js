@@ -1612,6 +1612,9 @@ function logout() {
             // 後方互換のため window.supabase も同じインスタンスに上書き
             window.supabase = supabaseClient;
 
+            // window.sbReady Promise用に window.sb も設定
+            window.sb = supabaseClient;
+
             // APIを定義
             window.supabaseAPI = window.supabaseAPI || {};
 
