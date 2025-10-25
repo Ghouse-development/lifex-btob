@@ -19,6 +19,9 @@
     </script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body class="h-full bg-gray-50">
     <!-- Header -->
@@ -75,7 +78,7 @@
         </div>
     </header>
 
-    <div x-data="notificationsManager" x-init="init">
+    <div x-data="notificationsManager" x-init="init" x-cloak>
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-8">
