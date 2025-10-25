@@ -12,7 +12,16 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(while read file)",
-      "Bash(do echo \"=== $file ===\" grep -n \"import.*from.*[''''\"\"]/\" \"$file\")"
+      "Bash(do echo \"=== $file ===\" grep -n \"import.*from.*[''''\"\"]/\" \"$file\")",
+      "Bash(for file in supabase-api.js supabase-auth.js supabase-integration.js)",
+      "Bash(node scripts/comprehensive-system-check.cjs:*)",
+      "Bash(node scripts/check-supabase-rls.cjs:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:lifex-btob.vercel.app)",
+      "Bash(vercel login)",
+      "Bash(vercel link:*)",
+      "Bash(vercel deploy:*)",
+      "Read(//c/**)"
     ],
     "deny": [],
     "ask": []
