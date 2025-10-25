@@ -9,14 +9,9 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 // Supabaseクライアントの初期化
-// Vite環境変数から取得（Vercelで設定した値を使用）
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://hegpxvyziovlfxdfsrsv.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseKey) {
-    console.error('❌ VITE_SUPABASE_ANON_KEY が設定されていません');
-    throw new Error('Supabase API key is not configured');
-}
+// ブラウザ環境で直接使用するため、値を直接指定
+const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY1OTU0NDAsImV4cCI6MjA1MjE3MTQ0MH0.Lbk3uC6YI99rn5j1oXGd8gNE3C8OxJVMymUKG_x_puw';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

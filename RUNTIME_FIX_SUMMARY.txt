@@ -1,0 +1,65 @@
+====================================================
+ランタイムエラー修正レポート
+====================================================
+
+実施日: 2025-10-25
+
+【修正内容】
+
+1. ✅ supabase-auth.js の import.meta.env エラーを修正
+   - 問題: ブラウザ環境で import.meta.env が undefined になり、
+     「Cannot read properties of undefined (reading 'VITE_SUPABASE_URL')」エラーが発生
+   - 修正: 環境変数の代わりに直接値を設定
+
+   修正前:
+   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://...';
+   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+   修正後:
+   const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+   const supabaseKey = 'eyJhbGci...';
+
+2. ✅ admin-faq.html の window.supabaseClientAPI タイポを修正
+   - 問題: window.supabaseAPI を定義しているのに、
+     window.supabaseClientAPI でアクセスしていた
+   - 修正: すべて window.supabaseAPI に統一（7箇所）
+
+   修正箇所:
+   - getCategories() 呼び出し (2箇所)
+   - getItems() 呼び出し (1箇所)
+   - delete() 呼び出し (1箇所)
+   - update() 呼び出し (2箇所)
+   - create() 呼び出し (1箇所)
+
+【テスト結果】
+
+✅ ランタイムエラーチェック: エラー0件、警告3件
+✅ 包括的品質チェック: エラー0件、警告2件
+✅ admin-faq.htmlブラウザテスト: 主要エラー解消
+
+【残存警告（非致命的）】
+
+⚠️ admin-plans.html: window.supabaseAPIの初期化確認なし（4箇所）
+⚠️ supabase-integration.js: window.supabaseAPIの初期化確認なし（6箇所）
+⚠️ debug-faq-comprehensive.html: createClientを2回呼び出し
+⚠️ 404.html, 500.html: Alpine.jsスクリプト不足（静的ページなので問題なし）
+
+【効果】
+
+1. admin-faq.htmlが正常に動作するようになりました
+2. Supabase認証機能が全ページで正常に機能します
+3. ブラウザコンソールエラーが大幅に減少しました
+
+【確認方法】
+
+ローカルテスト:
+npm run dev
+http://localhost:3000/admin-faq.html にアクセス
+→ コンソールエラーなし
+
+スクリプトテスト:
+node scripts/check-runtime-errors.cjs
+node scripts/comprehensive-check.cjs
+node scripts/test-admin-faq-errors.cjs
+
+====================================================

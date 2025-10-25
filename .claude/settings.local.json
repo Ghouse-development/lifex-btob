@@ -39,7 +39,10 @@
       "Bash(findstr:*)",
       "Bash(taskkill:*)",
       "Bash(timeout 2 bash:*)",
-      "Bash(node scripts/check-plan-schema.cjs:*)"
+      "Bash(node scripts/check-plan-schema.cjs:*)",
+      "Bash(node scripts/comprehensive-check.cjs:*)",
+      "Bash(node scripts/check-runtime-errors.cjs:*)",
+      "Bash(node scripts/test-admin-faq-errors.cjs:*)"
     ],
     "deny": [],
     "ask": []
