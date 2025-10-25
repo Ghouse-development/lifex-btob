@@ -1,0 +1,64 @@
+{
+  "totalFiles": 23,
+  "filesWithIssues": 8,
+  "totalIssues": 8,
+  "results": [
+    {
+      "file": "plans.html",
+      "path": "src/plans.html",
+      "issues": [
+        "⚠️  window.supabaseAPIを使用しているが、初期化待機がない"
+      ]
+    },
+    {
+      "file": "rules.html",
+      "path": "src/rules.html",
+      "issues": [
+        "⚠️  window.supabaseAPIを使用しているが、初期化待機がない"
+      ]
+    },
+    {
+      "file": "faq.html",
+      "path": "src/faq.html",
+      "issues": [
+        "⚠️  window.supabaseAPIを使用しているが、初期化待機がない"
+      ]
+    },
+    {
+      "file": "design.html",
+      "path": "src/design.html",
+      "issues": [
+        "⚠️  window.supabaseAPIを使用しているが、初期化待機がない"
+      ]
+    },
+    {
+      "file": "admin-plans.html",
+      "path": "src/admin-plans.html",
+      "issues": [
+        "⚠️  window.supabaseAPIを使用しているが、初期化待機がない"
+      ]
+    },
+    {
+      "file": "admin-downloads.html",
+      "path": "src/admin-downloads.html",
+      "issues": [
+        "⚠️  window.supabaseAPIを使用しているが、初期化待機がない"
+      ]
+    },
+    {
+      "file": "index.html",
+      "path": "src/admin/index.html",
+      "issues": [
+        "❌ common.jsが読み込まれていません"
+      ]
+    },
+    {
+      "file": "debug-faq-comprehensive.html",
+      "path": "src/debug-faq-comprehensive.html",
+      "issues": [
+        "⚠️  環境変数を直接参照している（フォールバック値推奨）"
+      ]
+    }
+  ],
+  "timestamp": "2025-10-25T01:52:17.091Z"
+}

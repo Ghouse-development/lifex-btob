@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>サーバーエラー | LIFE X 加盟店専用サイト</title>
+    <link rel="stylesheet" href="/assets/tailwind.css">
+    <link href="./styles/main.css" rel="stylesheet">
+</head>
+<body class="h-full bg-gray-50">
+    <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="text-center">
+                <h1 class="text-9xl font-bold text-red-600">500</h1>
+                <h2 class="mt-2 text-3xl font-bold text-gray-900">サーバーエラー</h2>
+                <p class="mt-2 text-base text-gray-600">
+                    申し訳ございません。サーバーで問題が発生しました。
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+                <div class="rounded-md bg-yellow-50 p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">
+                                一時的な問題の可能性があります
+                            </h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p>しばらく時間をおいてから、再度お試しください。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 space-y-4">
+                    <button
+                        onclick="window.location.reload()"
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        ページを再読み込み
+                    </button>
+
+                    <a
+                        href="/"
+                        class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        トップページへ戻る
+                    </a>
+                </div>
+
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-gray-300"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-gray-500">問題が解決しない場合</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 text-center">
+                        <p class="text-sm text-gray-600">
+                            システム管理者までご連絡ください
+                        </p>
+                        <p class="mt-2 text-sm text-gray-600">
+                            お問い合わせ:
+                            <a href="tel:06-6954-0648" class="font-medium text-red-600 hover:text-red-500">
+                                06-6954-0648
+                            </a>
+                        </p>
+                        <p class="mt-1 text-sm text-gray-600">
+                            <a href="mailto:admin@ghouse.co.jp" class="font-medium text-red-600 hover:text-red-500">
+                                admin@ghouse.co.jp
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

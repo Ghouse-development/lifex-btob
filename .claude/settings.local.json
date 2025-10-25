@@ -15,7 +15,13 @@
       "Bash(vercel --prod:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push)"
+      "Bash(git push)",
+      "Bash(tree:*)",
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(node scripts/check-supabase-errors.js:*)",
+      "Bash(node scripts/check-supabase-errors.cjs:*)",
+      "Bash(node scripts/test-production-pages.cjs:*)"
     ],
     "deny": [],
     "ask": []

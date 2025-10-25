@@ -5,6 +5,9 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": null,
+  "error404": {
+    "page": "/404.html"
+  },
   "functions": {
     "api/**/*.js": {
       "memory": 1024,
