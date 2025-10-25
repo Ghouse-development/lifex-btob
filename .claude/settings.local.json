@@ -21,7 +21,9 @@
       "Bash(curl:*)",
       "Bash(node scripts/check-supabase-errors.js:*)",
       "Bash(node scripts/check-supabase-errors.cjs:*)",
-      "Bash(node scripts/test-production-pages.cjs:*)"
+      "Bash(node scripts/test-production-pages.cjs:*)",
+      "Bash(tee:*)",
+      "Bash(node scripts/test-supabase-actual-errors.cjs:*)"
     ],
     "deny": [],
     "ask": []

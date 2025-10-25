@@ -1,0 +1,39 @@
+🔍 Supabaseエラー検出スクリプト開始
+
+📊 チェック結果
+
+⚠️  8個のファイルで8個の問題を検出
+
+📄 plans.html
+   パス: src/plans.html
+   ⚠️  window.supabaseAPIを使用しているが、初期化待機がない
+
+📄 rules.html
+   パス: src/rules.html
+   ⚠️  window.supabaseAPIを使用しているが、初期化待機がない
+
+📄 faq.html
+   パス: src/faq.html
+   ⚠️  window.supabaseAPIを使用しているが、初期化待機がない
+
+📄 design.html
+   パス: src/design.html
+   ⚠️  window.supabaseAPIを使用しているが、初期化待機がない
+
+📄 admin-plans.html
+   パス: src/admin-plans.html
+   ⚠️  window.supabaseAPIを使用しているが、初期化待機がない
+
+📄 admin-downloads.html
+   パス: src/admin-downloads.html
+   ⚠️  window.supabaseAPIを使用しているが、初期化待機がない
+
+📄 index.html
+   パス: src/admin/index.html
+   ❌ common.jsが読み込まれていません
+
+📄 debug-faq-comprehensive.html
+   パス: src/debug-faq-comprehensive.html
+   ⚠️  環境変数を直接参照している（フォールバック値推奨）
+
+📝 詳細レポートを docs/reports/supabase-errors-report.json に保存しました
