@@ -12,44 +12,7 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="/js/common.js"></script>
-
-    <!-- Supabase Client Initialization -->
-    <script>
-        // common.jsのSupabaseクライアントを使用してAPIを初期化
-        (function() {
-            let retries = 0;
-            const checkInterval = setInterval(() => {
-                if (typeof window.supabaseClient !== 'undefined') {
-                    clearInterval(checkInterval);
-
-                    const client = window.supabaseClient;
-
-                    window.supabaseAPI = {
-                        plans: {
-                            async getAll() {
-                                const { data, error } = await client
-                                    .from('plans')
-                                    .select('*')
-                                    .eq('status', 'published')
-                                    .order('created_at', { ascending: false });
-                                if (error) {
-                                    console.error('Error fetching plans:', error);
-                                    return [];
-                                }
-                                return data || [];
-                            }
-                        }
-                    };
-
-                    console.log('✅ Supabase API initialized for plans');
-                } else if (retries++ > 50) {
-                    clearInterval(checkInterval);
-                    console.error('❌ common.js Supabase client not available');
-                }
-            }, 100);
-        })();
-    </script>
+    <script src="/js/common.js?v=20251024"></script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
@@ -1018,76 +981,98 @@
                     let plansData = { plans: [] };
 
                     try {
-                        // Supabase APIが利用可能になるまで待機
-                        let retries = 0;
-                        while (!window.supabaseAPI && retries < 20) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            retries++;
+                        // Supabase初期化完了を待つ（common.jsが設定）
+                        if (!window.supabaseClient || typeof window.supabaseClient.from !== 'function') {
+                            await new Promise((resolve) => {
+                                if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+                                    resolve();
+                                } else {
+                                    window.addEventListener('supabase:ready', resolve, { once: true });
+                                    setTimeout(() => {
+                                        window.removeEventListener('supabase:ready', resolve);
+                                        resolve();
+                                    }, 5000);
+                                }
+                            });
                         }
 
-                        if (window.supabaseAPI) {
-                            // Supabase APIを使用してプランを取得
-                            const data = await window.supabaseAPI.plans.getAll();
-                            console.log('✅ Loaded plans from Supabase:', data?.length || 0);
-
-                            // データ確認用ログ（最初のプラン）
-                            if (data && data.length > 0) {
-                                console.log('📋 最初のプランデータ:', {
-                                    plan_code: data[0].plan_code,
-                                    floors: data[0].floors,
-                                    ldk_floor: data[0].ldk_floor,
-                                    bathroom_floor: data[0].bathroom_floor,
-                                    width: data[0].width,
-                                    depth: data[0].depth,
-                                    sell_price: data[0].sell_price
-                                });
-                            }
-
-                            // Supabaseデータを既存フォーマットに変換
-                            plansData = {
-                                plans: (data || []).map(plan => {
-                                    // 外観パース画像を取得
-                                    const exteriorImage = plan.images?.exterior || plan.thumbnail_url || '';
-
-                                    // 間取図を取得（floor_plansは配列）
-                                    const floorPlans = Array.isArray(plan.floor_plans) ? plan.floor_plans : [];
-                                    const floorPlan1F = floorPlans[0] || '';
-                                    const floorPlan2F = floorPlans[1] || '';
-
-                                    return {
-                                        id: plan.plan_code || plan.id, // プランコードを表示
-                                        planCode: plan.plan_code, // プランコード
-                                        name: plan.plan_name,
-                                        planId: plan.id, // UUID
-                                        tsubo: plan.tsubo,
-                                        width: plan.width, // mm単位の間口
-                                        depth: plan.depth, // mm単位の奥行
-                                        floors: plan.floors, // 建物階数
-                                        ldkFloor: plan.ldk_floor, // LDK階数
-                                        bathFloor: plan.bathroom_floor, // 水廻り階数
-                                        category: plan.plan_category,
-                                        subCategory: plan.plan_sub_category,
-                                        totalArea: plan.total_area,
-                                        floor1Area: plan.floor1_area,
-                                        floor2Area: plan.floor2_area,
-                                        floor3Area: plan.floor3_area,
-                                        exteriorImage: exteriorImage,
-                                        floorPlan1F: floorPlan1F,
-                                        floorPlan2F: floorPlan2F,
-                                        drawingFile: plan.drawing_file_path,
-                                        prices: {
-                                            sell: plan.sell_price || plan.price, // 想定販売価格
-                                            cost: plan.cost, // 想定原価
-                                            gross: plan.gross_profit // 想定粗利
-                                        },
-                                        status: plan.status || 'published'
-                                    };
-                                })
-                            };
+                        // Plans APIを使用（フォールバック内蔵）
+                        let data;
+                        if (window.supabaseAPI?.plans?.getAll) {
+                            data = await window.supabaseAPI.plans.getAll();
                         } else {
-                            console.warn('⚠️ Supabase API not available');
-                            plansData = { plans: [] };
+                            // フォールバック: 直接Supabaseへアクセス
+                            console.warn('⚠️ Plans API not available, using fallback');
+                            const sb = window.supabaseClient || window.supabase;
+                            if (sb && typeof sb.from === 'function') {
+                                const { data: fallbackData, error } = await sb
+                                    .from('plans')
+                                    .select('*')
+                                    .eq('status', '公開')
+                                    .order('created_at', { ascending: false });
+                                if (error) throw error;
+                                data = fallbackData || [];
+                            } else {
+                                throw new Error('Supabase client not available');
+                            }
                         }
+
+                        console.log('✅ Loaded plans from Supabase:', data?.length || 0);
+
+                        // データ確認用ログ（最初のプラン）
+                        if (data && data.length > 0) {
+                            console.log('📋 最初のプランデータ:', {
+                                plan_code: data[0].plan_code,
+                                floors: data[0].floors,
+                                ldk_floor: data[0].ldk_floor,
+                                bathroom_floor: data[0].bathroom_floor,
+                                width: data[0].width,
+                                depth: data[0].depth,
+                                sell_price: data[0].sell_price
+                            });
+                        }
+
+                        // Supabaseデータを既存フォーマットに変換
+                        plansData = {
+                            plans: (data || []).map(plan => {
+                                // 外観パース画像を取得
+                                const exteriorImage = plan.images?.exterior || plan.thumbnail_url || '';
+
+                                // 間取図を取得（floor_plansは配列）
+                                const floorPlans = Array.isArray(plan.floor_plans) ? plan.floor_plans : [];
+                                const floorPlan1F = floorPlans[0] || '';
+                                const floorPlan2F = floorPlans[1] || '';
+
+                                return {
+                                    id: plan.plan_code || plan.id, // プランコードを表示
+                                    planCode: plan.plan_code, // プランコード
+                                    name: plan.plan_name,
+                                    planId: plan.id, // UUID
+                                    tsubo: plan.tsubo,
+                                    width: plan.width, // mm単位の間口
+                                    depth: plan.depth, // mm単位の奥行
+                                    floors: plan.floors, // 建物階数
+                                    ldkFloor: plan.ldk_floor, // LDK階数
+                                    bathFloor: plan.bathroom_floor, // 水廻り階数
+                                    category: plan.plan_category,
+                                    subCategory: plan.plan_sub_category,
+                                    totalArea: plan.total_area,
+                                    floor1Area: plan.floor1_area,
+                                    floor2Area: plan.floor2_area,
+                                    floor3Area: plan.floor3_area,
+                                    exteriorImage: exteriorImage,
+                                    floorPlan1F: floorPlan1F,
+                                    floorPlan2F: floorPlan2F,
+                                    drawingFile: plan.drawing_file_path,
+                                    prices: {
+                                        sell: plan.sell_price || plan.price, // 想定販売価格
+                                        cost: plan.cost, // 想定原価
+                                        gross: plan.gross_profit // 想定粗利
+                                    },
+                                    status: plan.status || 'published'
+                                };
+                            })
+                        };
                     } catch (error) {
                         console.error('Failed to load from Supabase:', error);
                         // フォールバック: LocalStorageから読み込み
