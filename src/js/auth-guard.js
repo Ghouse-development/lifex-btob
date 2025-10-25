@@ -196,8 +196,14 @@ async function initialize() {
         return;
     }
 
+    // meta tagから認証要件を読み取る
+    const requireAdminMeta = document.querySelector('meta[name="auth-require-admin"]');
+    const requireAdmin = requireAdminMeta?.content === 'true';
+
+    console.log(`ℹ️ 管理者権限要求: ${requireAdmin}`);
+
     // ページを保護
-    const authResult = await protectPage();
+    const authResult = await protectPage({ requireAdmin });
 
     if (authResult) {
         // ユーザー情報を初期化
