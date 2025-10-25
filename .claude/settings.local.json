@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(node scripts/check-all-admin-pages.cjs:*)"
     ],
     "deny": [],
     "ask": []
