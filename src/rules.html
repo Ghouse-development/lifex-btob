@@ -22,10 +22,10 @@
             let retries = 0;
             const checkInterval = setInterval(() => {
                 // window.supabase が既にクライアントとして初期化されているかチェック
-                if (typeof window.supabase !== 'undefined' && window.supabase.from) {
+                if (typeof window.supabaseClient !== 'undefined') {
                     clearInterval(checkInterval);
 
-                    const client = window.supabase;
+                    const client = window.supabaseClient;
 
                     // supabaseAPI互換のオブジェクトを作成
                     window.supabaseAPI = {

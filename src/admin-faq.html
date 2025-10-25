@@ -599,7 +599,7 @@
                             throw new Error('FAQ API not initialized');
                         }
 
-                        const categories = await window.supabaseAPI.faq.getCategories();
+                        const categories = await window.supabaseClientAPI.faq.getCategories();
                         if (categories && categories.length > 0) {
                             this.categoryObjects = categories;
                             this.categories = categories.map(c => c.name);
@@ -625,8 +625,8 @@
                         // init()で既にsupabaseAPIの待機は完了しているので、ここでは不要
                         if (window.supabaseAPI && window.supabase) {
                             console.log('Loading FAQs from Supabase...');
-                            this.faqs = await window.supabaseAPI.faq.getItems();
-                            const categories = await window.supabaseAPI.faq.getCategories();
+                            this.faqs = await window.supabaseClientAPI.faq.getItems();
+                            const categories = await window.supabaseClientAPI.faq.getCategories();
 
                             // カテゴリ名のリストを更新
                             if (categories && categories.length > 0) {
@@ -903,13 +903,13 @@
 
                         try {
                             // Supabaseに新規カテゴリを作成
-                            if (window.supabase && window.supabase.from) {
+                            if (window.supabaseClient) {
                                 // 新しい表示順を計算
                                 const maxOrder = this.categoryObjects.reduce((max, cat) =>
                                     Math.max(max, cat.display_order || 0), 0);
 
                                 // カテゴリを作成
-                                const { data, error } = await window.supabase
+                                const { data, error } = await window.supabaseClient
                                     .from('faq_categories')
                                     .insert([{
                                         name: trimmedCategory,
@@ -985,7 +985,7 @@
                         try {
                             // Supabaseから削除
                             if (window.supabaseAPI && faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
-                                const result = await window.supabaseAPI.faq.delete(faq.id);
+                                const result = await window.supabaseClientAPI.faq.delete(faq.id);
                                 if (!result.success) {
                                     throw new Error(result.error || 'Delete failed');
                                 }
@@ -1073,7 +1073,7 @@
                                     // UUIDを持つ既存のFAQ（Supabaseから取得したもの）→ 更新
                                     const categoryId = this.getCategoryIdByName(faq.category);
 
-                                    const result = await window.supabaseAPI.faq.update(faq.id, {
+                                    const result = await window.supabaseClientAPI.faq.update(faq.id, {
                                         question: faq.question,
                                         answer: faq.answer,
                                         category_id: categoryId,
@@ -1090,7 +1090,7 @@
                                     // 新規FAQ - Supabaseに作成
                                     const categoryId = this.getCategoryIdByName(faq.category);
 
-                                    const result = await window.supabaseAPI.faq.create({
+                                    const result = await window.supabaseClientAPI.faq.create({
                                         question: faq.question,
                                         answer: faq.answer,
                                         category_id: categoryId,
@@ -1132,7 +1132,7 @@
                             // Supabaseで順序を更新
                             for (const faq of this.faqs) {
                                 if (faq.id && typeof faq.id === 'string' && faq.id.includes('-')) {
-                                    const result = await window.supabaseAPI.faq.update(faq.id, {
+                                    const result = await window.supabaseClientAPI.faq.update(faq.id, {
                                         display_order: faq.order || 0
                                     });
 
@@ -1194,14 +1194,14 @@
                     try {
                         // window.supabaseが利用可能になるまで待機
                         let retries = 0;
-                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                        while (!window.supabaseClient && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
                         }
 
-                        if (window.supabase && window.supabase.from) {
+                        if (window.supabaseClient) {
                             // 直接Supabaseを使用してカテゴリを更新
-                            const { data, error } = await window.supabase
+                            const { data, error } = await window.supabaseClient
                                 .from('faq_categories')
                                 .update({
                                     name: trimmedName,
@@ -1267,14 +1267,14 @@
                     try {
                         // window.supabaseが利用可能になるまで待機
                         let retries = 0;
-                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                        while (!window.supabaseClient && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
                         }
 
-                        if (window.supabase && window.supabase.from) {
+                        if (window.supabaseClient) {
                             // 直接Supabaseを使用してカテゴリを削除
-                            const { error } = await window.supabase
+                            const { error } = await window.supabaseClient
                                 .from('faq_categories')
                                 .delete()
                                 .eq('id', category.id);
@@ -1321,18 +1321,18 @@
                     try {
                         // window.supabaseが利用可能になるまで待機
                         let retries = 0;
-                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                        while (!window.supabaseClient && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
                         }
 
-                        if (window.supabase && window.supabase.from) {
+                        if (window.supabaseClient) {
                             // 新しい表示順を計算
                             const maxOrder = this.categoryObjects.reduce((max, cat) =>
                                 Math.max(max, cat.display_order || 0), 0);
 
                             // 直接Supabaseを使用してカテゴリを作成
-                            const { data, error } = await window.supabase
+                            const { data, error } = await window.supabaseClient
                                 .from('faq_categories')
                                 .insert([{
                                     name: trimmedName,

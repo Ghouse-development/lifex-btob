@@ -20,10 +20,10 @@
         (function() {
             let retries = 0;
             const checkInterval = setInterval(() => {
-                if (typeof window.supabase !== 'undefined' && window.supabase.from) {
+                if (typeof window.supabaseClient !== 'undefined') {
                     clearInterval(checkInterval);
 
-                    const client = window.supabase;
+                    const client = window.supabaseClient;
 
                     window.supabaseAPI = {
                         plans: {
