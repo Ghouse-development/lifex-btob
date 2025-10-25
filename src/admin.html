@@ -679,7 +679,7 @@
                         try {
                             const sb = await window.sbReady;
                             const usersCount = await this.safeCountFirstExists(sb, [
-                                'profiles', 'site_users', 'admins', 'users'
+                                'user_profiles', 'profiles', 'site_users', 'admins', 'users'
                             ]);
 
                             if (usersCount !== null) {
