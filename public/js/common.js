@@ -1659,9 +1659,9 @@ function logout() {
                             query = query.eq('status', 'published');
                         }
 
-                        const { data, error } = await query;
+                        const { data, error} = await query;
                         if (error) {
-                            console.error('❌ plans.getAll error:', error);
+                            console.warn('⚠️ plans.getAll error:', error.message);
                             throw error;
                         }
                         console.log('✅ plans.getAll success:', data?.length || 0, 'plans');
@@ -1671,7 +1671,7 @@ function logout() {
                             'sort_order','display_order','order','priority','position','seq','created_at','id'
                         ]);
                     } catch (error) {
-                        console.error('Error fetching plans:', error);
+                        console.warn('⚠️ Error fetching plans:', error.message);
                         return [];
                     }
                 }
@@ -1687,13 +1687,13 @@ function logout() {
                             .select('*')
                             .order('display_order');
                         if (error) {
-                            console.error('❌ getCategories error:', error);
+                            console.warn('⚠️ getCategories error:', error.message);
                             throw error;
                         }
                         console.log('✅ getCategories success:', data?.length || 0, 'categories');
                         return data || [];
                     } catch (error) {
-                        console.error('Error fetching FAQ categories:', error);
+                        console.warn('⚠️ Error fetching FAQ categories:', error.message);
                         return [];
                     }
                 },
@@ -1712,13 +1712,13 @@ function logout() {
 
                         const { data, error } = await query;
                         if (error) {
-                            console.error('❌ getItems error:', error);
+                            console.warn('⚠️ getItems error:', error.message);
                             throw error;
                         }
                         console.log('✅ getItems success:', data?.length || 0, 'items');
                         return data || [];
                     } catch (error) {
-                        console.error('Error fetching FAQs:', error);
+                        console.warn('⚠️ Error fetching FAQs:', error.message);
                         return [];
                     }
                 },
@@ -1738,13 +1738,13 @@ function logout() {
                             .single();
 
                         if (error) {
-                            console.error('❌ create error:', error);
+                            console.warn('⚠️ create error:', error.message);
                             throw error;
                         }
                         console.log('✅ create success');
                         return { success: true, data };
                     } catch (error) {
-                        console.error('Error creating FAQ:', error);
+                        console.warn('⚠️ Error creating FAQ:', error.message);
                         return { success: false, error: error.message };
                     }
                 },
@@ -1760,13 +1760,13 @@ function logout() {
                             .single();
 
                         if (error) {
-                            console.error('❌ update error:', error);
+                            console.warn('⚠️ update error:', error.message);
                             throw error;
                         }
                         console.log('✅ update success');
                         return { success: true, data };
                     } catch (error) {
-                        console.error('Error updating FAQ:', error);
+                        console.warn('⚠️ Error updating FAQ:', error.message);
                         return { success: false, error: error.message };
                     }
                 },
@@ -1780,13 +1780,13 @@ function logout() {
                             .eq('id', faqId);
 
                         if (error) {
-                            console.error('❌ delete error:', error);
+                            console.warn('⚠️ delete error:', error.message);
                             throw error;
                         }
                         console.log('✅ delete success');
                         return { success: true };
                     } catch (error) {
-                        console.error('Error deleting FAQ:', error);
+                        console.warn('⚠️ Error deleting FAQ:', error.message);
                         return { success: false, error: error.message };
                     }
                 }
@@ -1884,13 +1884,13 @@ function logout() {
                             .single();
 
                         if (error) {
-                            console.error('❌ downloads.create error:', error);
+                            console.warn('⚠️ downloads.create error:', error.message);
                             throw error;
                         }
                         console.log('✅ downloads.create success');
                         return { success: true, data };
                     } catch (error) {
-                        console.error('Error creating download:', error);
+                        console.warn('⚠️ Error creating download:', error.message);
                         return { success: false, error: error.message };
                     }
                 },
@@ -1906,13 +1906,13 @@ function logout() {
                             .single();
 
                         if (error) {
-                            console.error('❌ downloads.update error:', error);
+                            console.warn('⚠️ downloads.update error:', error.message);
                             throw error;
                         }
                         console.log('✅ downloads.update success');
                         return { success: true, data };
                     } catch (error) {
-                        console.error('Error updating download:', error);
+                        console.warn('⚠️ Error updating download:', error.message);
                         return { success: false, error: error.message };
                     }
                 },
@@ -1926,13 +1926,13 @@ function logout() {
                             .eq('id', downloadId);
 
                         if (error) {
-                            console.error('❌ downloads.delete error:', error);
+                            console.warn('⚠️ downloads.delete error:', error.message);
                             throw error;
                         }
                         console.log('✅ downloads.delete success');
                         return { success: true };
                     } catch (error) {
-                        console.error('Error deleting download:', error);
+                        console.warn('⚠️ Error deleting download:', error.message);
                         return { success: false, error: error.message };
                     }
                 }

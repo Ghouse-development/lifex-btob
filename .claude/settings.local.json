@@ -24,7 +24,10 @@
       "Read(//c/**)",
       "Bash(for file in src/admin-{downloads,faq,plans,plans-manager,plans-new,report,rules,system}.html)",
       "Bash(if ! grep -q \"auth-check-sync\" \"$file\")",
-      "Bash(else)"
+      "Bash(else)",
+      "Bash(vercel inspect:*)",
+      "Bash(for shell_id in d74df7 baa1f2 4a2af2)",
+      "Bash(do echo \"Killing shell $shell_id\")"
     ],
     "deny": [],
     "ask": []

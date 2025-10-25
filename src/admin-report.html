@@ -249,7 +249,11 @@
                             .from('plans')
                             .select('*', { count: 'exact' });
 
-                        if (!plansError && plans) {
+                        if (plansError) {
+                            console.warn('⚠️ Plans table error:', plansError.message);
+                            this.stats.totalPlans = 0;
+                            this.stats.plansThisMonth = 0;
+                        } else if (plans) {
                             this.stats.totalPlans = plans.length;
 
                             // 今月のプラン数を計算
@@ -276,7 +280,10 @@
                             .from('faqs')
                             .select('*');
 
-                        if (!faqsError && faqs) {
+                        if (faqsError) {
+                            console.warn('⚠️ FAQs table error:', faqsError.message);
+                            this.stats.totalFaqs = 0;
+                        } else if (faqs) {
                             this.stats.totalFaqs = faqs.length;
 
                             // カテゴリ数を取得
@@ -284,7 +291,10 @@
                                 .from('faq_categories')
                                 .select('*');
 
-                            if (!catError && categories) {
+                            if (catError) {
+                                console.warn('⚠️ FAQ categories table error:', catError.message);
+                                this.stats.faqCategories = 0;
+                            } else if (categories) {
                                 this.stats.faqCategories = categories.length;
                             }
                         }
@@ -294,7 +304,11 @@
                             .from('rules')
                             .select('*');
 
-                        if (!rulesError && rules) {
+                        if (rulesError) {
+                            console.warn('⚠️ Rules table error:', rulesError.message);
+                            this.stats.totalRules = 0;
+                            this.stats.requiredRules = 0;
+                        } else if (rules) {
                             this.stats.totalRules = rules.length;
                             this.stats.requiredRules = rules.filter(r => r.required === true).length;
                         }
@@ -305,7 +319,7 @@
                             .select('*');
 
                         if (downloadsError) {
-                            console.warn('⚠️ Downloads table not found or not accessible:', downloadsError.message);
+                            console.warn('⚠️ Downloads table error:', downloadsError.message);
                             this.stats.totalDownloads = 0;
                         } else if (downloads) {
                             this.stats.totalDownloads = downloads.length;
