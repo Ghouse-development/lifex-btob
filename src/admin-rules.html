@@ -327,13 +327,13 @@
                     try {
                         // window.supabaseが利用可能になるまで待機
                         let retries = 0;
-                        while ((!window.supabase || !window.supabase.from) && retries < 50) {
+                        while ((!window.supabase || !window.supabaseClient.from) && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
                         }
 
                         // 直接Supabaseクライアントを使用
-                        if (window.supabase && window.supabase.from) {
+                        if (window.supabase && window.supabaseClient.from) {
                             console.log('Loading rule categories from Supabase...');
 
                             // カテゴリとルールを取得
@@ -706,7 +706,7 @@
 
                 async saveToSupabase() {
                     try {
-                        if (window.supabase && window.supabase.from) {
+                        if (window.supabase && window.supabaseClient.from) {
                             // 直接Supabaseクライアントを使用
                             for (const category of this.categories) {
                                 if (category.id && typeof category.id === 'string' && category.id.includes('-')) {
