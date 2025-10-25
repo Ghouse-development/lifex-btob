@@ -194,7 +194,11 @@ async function initialize() {
     if (window.location.pathname.includes('admin-login.html')) {
         console.log('ℹ️ ログインページのため認証チェックをスキップ');
         // Alpine.jsを起動（ログインページではAlpineが必要）
-        if (window.Alpine && !window.Alpine.started) {
+        if (typeof window.startAlpine === 'function') {
+            console.log('🚀 Alpine.js を起動します (login/deferred)...');
+            window.startAlpine();
+        } else if (window.Alpine && !window.Alpine.started) {
+            console.log('🚀 Alpine.js を起動します (login/direct)...');
             window.Alpine.start();
         }
         return;
@@ -220,8 +224,11 @@ async function initialize() {
         monitorAuthState();
 
         // 認証成功後にAlpine.jsを起動
-        if (window.Alpine && !window.Alpine.started) {
-            console.log('🚀 Alpine.js を起動します...');
+        if (typeof window.startAlpine === 'function') {
+            console.log('🚀 Alpine.js を起動します (deferred)...');
+            window.startAlpine();
+        } else if (window.Alpine && !window.Alpine.started) {
+            console.log('🚀 Alpine.js を起動します (direct)...');
             window.Alpine.start();
         }
 
