@@ -2353,8 +2353,8 @@
         }
 
         // モーダルドラッグ機能
-        function modalDraggable() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('modalDraggable', () => ({
                 isDragging: false,
                 dragPosition: { x: 0, y: 0 },
                 dragStart: { x: 0, y: 0 },
