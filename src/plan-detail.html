@@ -32,11 +32,11 @@
         });
 
         // Supabaseクライアントをsupabase-client.jsからインポート
-        import { supabase } from '/js/supabase-client.js?v=20251024b';
+        import { supabase } from './js/supabase-client.js?v=20251024b';
         window.supabase = supabase;
 
         // Supabase Integrationも待機後にロード
-        await import('/js/supabase-integration.js?v=20251024b');
+        await import('./js/supabase-integration.js?v=20251024b');
 
         // 初期化完了フラグを設定
         window.supabaseReady = true;

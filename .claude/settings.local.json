@@ -26,7 +26,15 @@
       "Bash(node scripts/test-supabase-actual-errors.cjs:*)",
       "Bash(node scripts/comprehensive-page-test.cjs:*)",
       "Bash(node scripts/verify-supabase-connection.cjs:*)",
-      "Bash(node scripts/check-browser-console-errors.cjs:*)"
+      "Bash(node scripts/check-browser-console-errors.cjs:*)",
+      "Bash(vercel ls:*)",
+      "Bash(node scripts/test-plan-detail.cjs:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout 3 bash:*)",
+      "Bash(node scripts/test-local-plan-detail.cjs:*)",
+      "Bash(npm install:*)",
+      "Bash(node scripts/test-with-puppeteer.cjs:*)",
+      "Bash(timeout 5 bash:*)"
     ],
     "deny": [],
     "ask": []
