@@ -319,6 +319,41 @@ npm run build
 1. Vercelで環境変数を変更した場合、**必ず再デプロイ**が必要
 2. Deployments → 最新のデプロイ → Redeploy
 
+### GitHubへのプッシュ後、Vercelが自動デプロイしない
+
+**確認すべきこと:**
+1. Vercel Dashboard → プロジェクト → Settings → Git
+   - GitHubリポジトリが正しく連携されているか確認
+   - ブランチが正しいか確認（通常は `main` または `master`）
+
+2. 最新のコミットがデプロイされているか確認:
+   - Vercel Dashboard → Deployments
+   - 最新のデプロイのコミットハッシュを確認
+   - `git log --oneline -5` と比較
+
+**手動で再デプロイする方法:**
+
+**方法1: Vercel Dashboard から（推奨）**
+```
+1. https://vercel.com/dashboard にアクセス
+2. プロジェクトを選択
+3. 最新のデプロイをクリック
+4. 右上の「︙」メニュー → 「Redeploy」
+5. 「Use existing Build Cache」のチェックを外す
+6. 「Redeploy」をクリック
+```
+
+**方法2: Vercel CLI から**
+```bash
+# 注意: ローカルディレクトリがVercelプロジェクトにリンクされている必要がある
+
+# プロジェクトをリンク（初回のみ）
+vercel link
+
+# 本番環境にデプロイ
+vercel --prod --yes
+```
+
 ### Supabase接続エラー
 1. `.env.local` の値が正しいか確認
 2. Vercelの環境変数が正しいか確認
@@ -384,15 +419,39 @@ VITE_SUPABASE_ANON_KEY=eyJhbG...
 - Vercel Dashboard: https://vercel.com/dashboard
 - Supabase Dashboard: https://supabase.com/dashboard
 - GitHub Repository: https://github.com/Ghouse-development/lifex-btob
+- 本番URL: https://lifex-btob.vercel.app
+
+### ログイン情報
+
+**GitHub（Vercel連携用）:**
+- Username: `Ghouse-development`
+- Password: `Ghouse0648`
+
+**Vercel CLI ログイン:**
+```bash
+# Vercel CLIにログイン（GitHub経由）
+vercel login
+
+# ブラウザでログインURLが表示される
+# → GitHubアカウントでログイン
+# → Vercel へのアクセスを許可
+```
+
+**注意:** Vercel CLIはGitHubアカウントを使用してログインします。上記のGitHubアカウント情報を使用してください。
 
 ### サポートコマンド
+
+**開発・ビルド:**
 ```bash
 # 開発サーバー起動
 npm run dev
 
 # ビルド
 npm run build
+```
 
+**ローカルチェック:**
+```bash
 # ローカル環境チェック
 node scripts/comprehensive-system-check.cjs
 
@@ -401,7 +460,20 @@ node scripts/test-all-pages-console.cjs
 
 # ページ別チェック（詳細）
 node scripts/comprehensive-self-check.cjs
+```
 
+**本番環境:**
+```bash
 # 本番環境コンソールエラーチェック（必須）
 node scripts/test-production-console.cjs
+
+# Vercel CLIでログイン
+vercel login
+
+# Vercel Dashboard から再デプロイ（推奨）
+# 1. https://vercel.com/dashboard にアクセス
+# 2. プロジェクトを選択 → 最新のデプロイをクリック
+# 3. 右上の「︙」→「Redeploy」
+# 4. 「Use existing Build Cache」のチェックを外す
+# 5. 「Redeploy」をクリック
 ```
