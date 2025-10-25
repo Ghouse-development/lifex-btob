@@ -254,58 +254,84 @@
     </div>
 
     <script>
-        function rulesPage() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('rulesPage', () => ({
                 categories: [],
                 expandedCategories: [],
                 showModal: false,
                 selectedRule: null,
+                loading: false,
+                errorMsg: '',
 
-                async init() {
-                    await this.loadRules();
+                async fetchCategories() {
+                    const api = window.lifeX?.apis?.rules || window.api?.rules;
+                    if (api?.getCategories) return await api.getCategories();
+                    const sb = window.supabaseClient || window.supabase;
+                    if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
+                    const { data, error } = await sb.from('rule_categories').select('*').order('sort_order', { ascending: true });
+                    if (error) throw error;
+                    return data || [];
+                },
+
+                async fetchRules() {
+                    const api = window.lifeX?.apis?.rules || window.api?.rules;
+                    if (api?.getRules) return await api.getRules();
+                    const sb = window.supabaseClient || window.supabase;
+                    if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
+                    const { data, error } = await sb.from('rules').select('*').eq('status', '公開').order('sort_order', { ascending: true });
+                    if (error) throw error;
+                    return data || [];
                 },
 
                 async loadRules() {
+                    this.loading = true;
+                    this.errorMsg = '';
                     try {
-                        // Supabase APIが利用可能になるまで待機
-                        let retries = 0;
-                        while (!window.supabaseAPI && retries < 20) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            retries++;
-                        }
+                        const [categories, rules] = await Promise.all([this.fetchCategories(), this.fetchRules()]);
 
-                        if (window.supabaseAPI) {
-                            // カテゴリとルールを両方取得
-                            const [categories, rules] = await Promise.all([
-                                window.supabaseAPI.rules.getCategories(),
-                                window.supabaseAPI.rules.getAll()
-                            ]);
+                        console.log('✅ Loaded categories:', categories?.length || 0);
+                        console.log('✅ Loaded rules:', rules?.length || 0);
 
-                            console.log('✅ Loaded categories:', categories?.length || 0);
-                            console.log('✅ Loaded rules:', rules?.length || 0);
+                        // カテゴリにルールを紐づける（ルールが0件のカテゴリは非表示）
+                        this.categories = (categories || [])
+                            .map(cat => ({
+                                ...cat,
+                                rules: (rules || []).filter(rule => rule.category_id === cat.id)
+                            }))
+                            .filter(cat => cat.rules && cat.rules.length > 0);
 
-                            // カテゴリにルールを紐づける（ルールが0件のカテゴリは非表示）
-                            this.categories = (categories || [])
-                                .map(cat => ({
-                                    ...cat,
-                                    rules: (rules || []).filter(rule => rule.category_id === cat.id)
-                                }))
-                                .filter(cat => cat.rules && cat.rules.length > 0);
-
-                            console.log('✅ Categories with rules:', this.categories);
-                        } else {
-                            console.warn('⚠️ Supabase API not available');
-                            this.categories = [];
-                        }
+                        console.log('✅ Categories with rules:', this.categories);
 
                         // 最初のカテゴリーを展開
                         if (this.categories.length > 0) {
                             this.expandedCategories.push(this.categories[0].id);
                         }
-                    } catch (error) {
-                        console.error('❌ Error loading rules:', error);
+                    } catch (e) {
+                        console.error('❌ Error loading rules:', e);
+                        this.errorMsg = e?.message || 'ルールの読み込みに失敗しました';
                         this.categories = [];
+                    } finally {
+                        this.loading = false;
                     }
+                },
+
+                async init() {
+                    const sb = window.supabaseClient || window.supabase;
+                    if (sb?.from) return this.loadRules();
+
+                    const onReady = () => {
+                        window.removeEventListener('supabase:ready', onReady);
+                        this.loadRules();
+                    };
+                    window.addEventListener('supabase:ready', onReady, { once: true });
+
+                    setTimeout(() => {
+                        window.removeEventListener('supabase:ready', onReady);
+                        if (!((window.supabaseClient || window.supabase)?.from)) {
+                            console.warn('⚠️ supabase:ready 未着 → フォールバック実行');
+                            this.loadRules();
+                        }
+                    }, 5000);
                 },
 
                 toggleCategory(categoryId) {
@@ -330,8 +356,8 @@
                     // Restore body scroll
                     document.body.style.overflow = '';
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
 </html>

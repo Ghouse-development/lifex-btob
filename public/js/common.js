@@ -1881,8 +1881,56 @@ function logout() {
                 }
             };
 
+            // === Rules API: Global, idempotent ===
+            (function exposeRulesAPI(){
+                window.lifeX = window.lifeX || {};
+                window.lifeX.apis = window.lifeX.apis || {};
+
+                if (!window.lifeX.apis.rules) {
+                    window.lifeX.apis.rules = {
+                        async getCategories(params = {}) {
+                            const sb = window.supabaseClient || window.supabase;
+                            if (!sb || typeof sb.from !== 'function') {
+                                throw new Error('Supabase client not ready');
+                            }
+                            const table   = params.table   || 'rule_categories';
+                            const columns = params.columns || '*';
+                            let q = sb.from(table).select(columns);
+                            try { q = q.order('sort_order', { ascending: true }); } catch(_e) {}
+                            const { data, error } = await q;
+                            if (error) throw error;
+                            return data || [];
+                        },
+                        async getRules(params = {}) {
+                            const sb = window.supabaseClient || window.supabase;
+                            if (!sb || typeof sb.from !== 'function') {
+                                throw new Error('Supabase client not ready');
+                            }
+                            const table   = params.table   || 'rules';
+                            const columns = params.columns || '*';
+                            let q = sb.from(table).select(columns);
+                            if (params.onlyPublic !== false) {
+                                try { q = q.eq('status', '公開'); } catch(_e) {}
+                            }
+                            try { q = q.order('sort_order', { ascending: true }); } catch(_e) {}
+                            const { data, error } = await q;
+                            if (error) throw error;
+                            return data || [];
+                        }
+                    };
+                }
+
+                // 後方互換
+                window.api = window.api || {};
+                if (!window.api.rules) window.api.rules = window.lifeX.apis.rules;
+
+                // 既に supabase が用意済みのケースでも取りこぼさないため通知
+                try { window.dispatchEvent(new Event('supabase:ready')); } catch(e) {}
+            })();
+
             console.log('✅ Supabase FAQ API initialized in common.js');
             console.log('✅ Supabase Downloads API initialized in common.js');
+            console.log('✅ Supabase Rules API initialized in common.js');
 
             // 後方互換フラグ（古いページ用）
             window.supabaseReady = true;
