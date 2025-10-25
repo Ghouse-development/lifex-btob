@@ -661,11 +661,11 @@
                         
                         // FAQ統計（Supabaseから取得）
                         try {
-                            const { data: faqsData, error: faqsError } = await window.supabase
+                            const { data: faqsData, error: faqsError } = await sb
                                 .from('faqs')
                                 .select('*');
 
-                            const { data: faqCategoriesData, error: faqCatError } = await window.supabase
+                            const { data: faqCategoriesData, error: faqCatError } = await sb
                                 .from('faq_categories')
                                 .select('*');
 
@@ -754,7 +754,8 @@
                         lifeXAPI.showToast('バックアップを開始しました', 'info');
 
                         // Supabaseからプランデータを取得
-                        const { data: plans } = await window.supabase
+                        const sb = await window.sbReady;
+                        const { data: plans } = await sb
                             .from('plans')
                             .select('*');
 
@@ -800,7 +801,8 @@
                         lifeXAPI.showToast('データエクスポートを開始しました', 'info');
 
                         // CSVエクスポート用のプランデータを取得
-                        const { data: plans, error } = await window.supabase
+                        const sb = await window.sbReady;
+                        const { data: plans, error } = await sb
                             .from('plans')
                             .select('*');
 
