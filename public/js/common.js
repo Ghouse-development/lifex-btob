@@ -1615,25 +1615,45 @@ function logout() {
             // APIを定義
             window.supabaseAPI = window.supabaseAPI || {};
 
+            // === 共通ユーティリティ ===
+
+            // Supabase 取得ユーティリティ（初期化完了を保証）
+            async function requireSupabase() {
+                if (window.supabaseClient?.from) return window.supabaseClient;
+                await new Promise((resolve, reject) => {
+                    const t = setTimeout(() => reject(new Error('supabase:ready timeout')), 8000);
+                    window.addEventListener('supabase:ready', () => { clearTimeout(t); resolve(); }, { once: true });
+                });
+                return window.supabaseClient;
+            }
+
+            // 共通クライアントソート（存在する最初のキーで昇順、null/undefinedは後ろ）
+            function sortClientSide(list, keyCandidates) {
+                if (!Array.isArray(list)) return [];
+                const sample = list[0] || {};
+                const key = keyCandidates.find(k => k in sample) || null;
+                if (!key) return list; // 並びは不定だが UI は崩れない
+                return [...list].sort((a, b) => {
+                    const av = a?.[key]; const bv = b?.[key];
+                    if (av == null && bv == null) return 0;
+                    if (av == null) return 1;
+                    if (bv == null) return -1;
+                    if (typeof av === 'number' && typeof bv === 'number') return av - bv;
+                    return String(av).localeCompare(String(bv), 'ja');
+                });
+            }
+
             // Plans API
             window.supabaseAPI.plans = {
                 async getAll(params = {}) {
                     try {
                         console.log('📋 [common.js] plans.getAll() called');
-                        let query = supabaseClient
-                            .from('plans')
-                            .select('*');
+                        const sb = await requireSupabase();
+                        let query = sb.from('plans').select('*');
 
                         // 公開プランのみ取得（params で制御可能）
                         if (params.onlyPublic !== false) {
                             query = query.eq('status', '公開');
-                        }
-
-                        // 並び順（デフォルトは作成日時降順）
-                        if (params.orderBy) {
-                            query = query.order(params.orderBy, { ascending: params.ascending || false });
-                        } else {
-                            query = query.order('created_at', { ascending: false });
                         }
 
                         const { data, error } = await query;
@@ -1642,7 +1662,11 @@ function logout() {
                             throw error;
                         }
                         console.log('✅ plans.getAll success:', data?.length || 0, 'plans');
-                        return data || [];
+
+                        // クライアント側でソート
+                        return sortClientSide(data || [], [
+                            'sort_order','display_order','order','priority','position','seq','created_at','id'
+                        ]);
                     } catch (error) {
                         console.error('Error fetching plans:', error);
                         return [];
@@ -1886,28 +1910,10 @@ function logout() {
                 window.lifeX = window.lifeX || {};
                 window.lifeX.apis = window.lifeX.apis || {};
 
-                // 汎用クライアントソート（存在する最初のキーで昇順、null/undefinedは後ろ）
-                function sortClientSide(list, keyCandidates) {
-                    if (!Array.isArray(list)) return [];
-                    const key = (list[0] && keyCandidates.find(k => k in list[0])) || null;
-                    if (!key) return list; // 並びは不定だが UI は崩れない
-                    return [...list].sort((a, b) => {
-                        const av = a?.[key]; const bv = b?.[key];
-                        if (av == null && bv == null) return 0;
-                        if (av == null) return 1;
-                        if (bv == null) return -1;
-                        if (typeof av === 'number' && typeof bv === 'number') return av - bv;
-                        return String(av).localeCompare(String(bv), 'ja');
-                    });
-                }
-
                 if (!window.lifeX.apis.rules) {
                     window.lifeX.apis.rules = {
                         async getCategories(params = {}) {
-                            const sb = window.supabaseClient || window.supabase;
-                            if (!sb || typeof sb.from !== 'function') {
-                                throw new Error('Supabase client not ready');
-                            }
+                            const sb = await requireSupabase();
                             const table   = params.table   || 'rule_categories';
                             const columns = params.columns || '*';
                             const { data, error } = await sb.from(table).select(columns);
@@ -1916,10 +1922,7 @@ function logout() {
                             return sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                         },
                         async getRules(params = {}) {
-                            const sb = window.supabaseClient || window.supabase;
-                            if (!sb || typeof sb.from !== 'function') {
-                                throw new Error('Supabase client not ready');
-                            }
+                            const sb = await requireSupabase();
                             const table   = params.table   || 'rules';
                             const columns = params.columns || '*';
                             let q = sb.from(table).select(columns);

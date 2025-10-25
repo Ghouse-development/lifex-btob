@@ -948,6 +948,22 @@
                     { value: 13650, label: '13650 (15P)' }
                 ],
 
+                // 汎用クライアントソート（存在する最初のキーで昇順、null/undefinedは後ろ）
+                sortClientSide(list, keyCandidates) {
+                    if (!Array.isArray(list)) return [];
+                    const sample = list[0] || {};
+                    const key = keyCandidates.find(k => k in sample) || null;
+                    if (!key) return list; // 並びは不定だが UI は崩れない
+                    return [...list].sort((a, b) => {
+                        const av = a?.[key]; const bv = b?.[key];
+                        if (av == null && bv == null) return 0;
+                        if (av == null) return 1;
+                        if (bv == null) return -1;
+                        if (typeof av === 'number' && typeof bv === 'number') return av - bv;
+                        return String(av).localeCompare(String(bv), 'ja');
+                    });
+                },
+
                 async init() {
                     try {
                         await this.loadPlans();
@@ -1008,10 +1024,12 @@
                                 const { data: fallbackData, error } = await sb
                                     .from('plans')
                                     .select('*')
-                                    .eq('status', '公開')
-                                    .order('created_at', { ascending: false });
+                                    .eq('status', '公開');
                                 if (error) throw error;
-                                data = fallbackData || [];
+                                // クライアント側でソート（存在するキーを自動選択）
+                                const keyCandidates = ['sort_order','display_order','order','priority','position','seq','created_at','id'];
+                                const sorted = this.sortClientSide(fallbackData || [], keyCandidates);
+                                data = sorted;
                             } else {
                                 throw new Error('Supabase client not available');
                             }
