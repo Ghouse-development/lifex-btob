@@ -31,8 +31,6 @@ export default defineConfig({
         ai: resolve(__dirname, 'src/ai.html'),
         design: resolve(__dirname, 'src/design.html'),
         faq: resolve(__dirname, 'src/faq.html'),
-        'debug-faq-comprehensive': resolve(__dirname, 'src/debug-faq-comprehensive.html'),
-        'debug-faq-browser': resolve(__dirname, 'src/debug-faq-browser.html'),
         '404': resolve(__dirname, 'src/404.html'),
         '500': resolve(__dirname, 'src/500.html'),
         'admin-password-reset': resolve(__dirname, 'src/admin-password-reset.html'),
