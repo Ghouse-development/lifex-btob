@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(git checkout:*)",
-      "Bash(node scripts/check-all-admin-pages.cjs:*)"
+      "Bash(node scripts/check-all-admin-pages.cjs:*)",
+      "Bash(node scripts/comprehensive-self-check.cjs:*)",
+      "Bash(for file in src/admin.html src/admin-downloads.html src/admin-faq.html src/admin-plans.html src/admin-plans-new.html src/admin-profile.html src/admin-report.html src/admin-rules.html)",
+      "Bash(do)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(then)",
+      "Bash(echo:*)",
+      "Bash(fi)",
+      "Bash(done)",
+      "Bash(while read file)",
+      "Bash(do echo \"=== $file ===\" grep -n \"import.*from.*[''''\"\"]/\" \"$file\")"
     ],
     "deny": [],
     "ask": []

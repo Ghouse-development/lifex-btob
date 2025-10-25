@@ -5,12 +5,12 @@
  * 作成日: 2025-01-21
  * 使用方法: 管理ページのHTMLの<head>セクションに以下を追加
  *
- * <script type="module" src="/js/auth-guard.js"></script>
+ * <script type="module" src="./js/auth-guard.js"></script>
  *
  * または、特定の権限が必要な場合:
  *
  * <script type="module">
- *   import { protectPage } from '/js/auth-guard.js';
+ *   import { protectPage } from './js/auth-guard.js';
  *   await protectPage({ requireAdmin: true });
  * </script>
  */

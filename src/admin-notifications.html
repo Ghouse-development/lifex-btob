@@ -12,7 +12,7 @@
 
     <!-- Supabase Auth Guard (Admin Only) -->
     <script type="module">
-        import { protectPage } from '/js/auth-guard.js';
+        import { protectPage } from './js/auth-guard.js';
         (async () => {
             await protectPage({ requireAdmin: true });
         })();
