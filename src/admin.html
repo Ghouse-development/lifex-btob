@@ -17,6 +17,10 @@
     <!-- Supabase Auth Guard -->
     <script type="module" src="./js/auth-guard.js"></script>
 
+    <script>
+        // Alpine.jsの自動起動を防止（auth-guardが手動で起動する）
+        window.deferLoadingAlpine = callback => { window.Alpine = callback; };
+    </script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }

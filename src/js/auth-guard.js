@@ -193,6 +193,10 @@ async function initialize() {
     // ログインページでは認証チェックをスキップ
     if (window.location.pathname.includes('admin-login.html')) {
         console.log('ℹ️ ログインページのため認証チェックをスキップ');
+        // Alpine.jsを起動（ログインページではAlpineが必要）
+        if (window.Alpine && !window.Alpine.started) {
+            window.Alpine.start();
+        }
         return;
     }
 
@@ -214,6 +218,12 @@ async function initialize() {
 
         // 認証状態を監視
         monitorAuthState();
+
+        // 認証成功後にAlpine.jsを起動
+        if (window.Alpine && !window.Alpine.started) {
+            console.log('🚀 Alpine.js を起動します...');
+            window.Alpine.start();
+        }
 
         console.log('✅ Authentication Guard 初期化完了');
     }
