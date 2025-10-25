@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="/assets/tailwind.css">
 
     <link href="./styles/main.css" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- common.jsでSupabaseを初期化 -->
     <script src="/js/common.js"></script>
 
@@ -510,19 +512,19 @@
                 statusMessage: null,
 
                 async init() {
-                    // Supabaseの読み込みを待つ（最大5秒）
+                    // Supabaseクライアントの読み込みを待つ（最大5秒）
                     let attempts = 0;
-                    while (!window.supabase && attempts < 50) {
+                    while (!window.supabaseClient && attempts < 50) {
                         await new Promise(resolve => setTimeout(resolve, 100));
                         attempts++;
                     }
 
-                    if (!window.supabase) {
-                        console.error('❌ Supabase failed to load after 5 seconds');
+                    if (!window.supabaseClient) {
+                        console.error('❌ Supabase client failed to load after 5 seconds');
                         return;
                     }
 
-                    console.log('✅ Supabase ready, loading stats...');
+                    console.log('✅ Supabase client ready, loading stats...');
 
                     // Load stats from API or localStorage
                     await this.loadStats();
@@ -547,7 +549,7 @@
                 async loadStats() {
                     try {
                         // プラン統計（公開中のプランのみカウント - ホームページと一致させる）
-                        const { data, error } = await window.supabase
+                        const { data, error } = await window.supabaseClient
                             .from('plans')
                             .select('*');
 
@@ -563,7 +565,7 @@
                         
                         // ルール統計（Supabaseから取得）
                         try {
-                            const { data: rulesData, error: rulesError } = await window.supabase
+                            const { data: rulesData, error: rulesError } = await window.supabaseClient
                                 .from('rules')
                                 .select('*');
 
@@ -624,11 +626,11 @@
                         
                         // FAQ統計（Supabaseから取得）
                         try {
-                            const { data: faqsData, error: faqsError } = await window.supabase
+                            const { data: faqsData, error: faqsError } = await window.supabaseClient
                                 .from('faqs')
                                 .select('*');
 
-                            const { data: faqCategoriesData, error: faqCatError } = await window.supabase
+                            const { data: faqCategoriesData, error: faqCatError } = await window.supabaseClient
                                 .from('faq_categories')
                                 .select('*');
 

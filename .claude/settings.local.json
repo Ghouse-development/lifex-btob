@@ -42,7 +42,13 @@
       "Bash(node scripts/check-plan-schema.cjs:*)",
       "Bash(node scripts/comprehensive-check.cjs:*)",
       "Bash(node scripts/check-runtime-errors.cjs:*)",
-      "Bash(node scripts/test-admin-faq-errors.cjs:*)"
+      "Bash(node scripts/test-admin-faq-errors.cjs:*)",
+      "Bash(node scripts/test-admin-stats.cjs:*)",
+      "Bash(node scripts/delete-old-rules.cjs:*)",
+      "Bash(node scripts/check-all-console-errors.cjs:*)",
+      "Bash(node scripts/delete-test-data.cjs:*)",
+      "Bash(node scripts/view-all-data.cjs:*)",
+      "Bash(node scripts/check-and-delete-old-rules.cjs:*)"
     ],
     "deny": [],
     "ask": []
