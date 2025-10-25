@@ -1793,9 +1793,21 @@ function logout() {
             };
 
             // Downloads APIを定義
+            // テーブル存在フラグ（404エラーを1回だけ発生させる）
+            let downloadTablesExist = {
+                categories: true,
+                items: true
+            };
+
             window.supabaseAPI.downloads = {
                 async getCategories() {
                     try {
+                        // テーブルが存在しないことが判明している場合はリクエストしない
+                        if (!downloadTablesExist.categories) {
+                            console.log('ℹ️ download_categories table not available, using localStorage');
+                            return [];
+                        }
+
                         console.log('📦 [common.js] downloads.getCategories() called');
                         const { data, error } = await supabaseClient
                             .from('download_categories')
@@ -1804,6 +1816,7 @@ function logout() {
                         if (error) {
                             // テーブルが存在しない場合は警告のみ
                             if (error.code === 'PGRST205') {
+                                downloadTablesExist.categories = false;
                                 console.warn('⚠️ download_categories table not found, using fallback');
                             } else {
                                 console.warn('⚠️ downloads.getCategories error:', error.message);
@@ -1820,6 +1833,12 @@ function logout() {
 
                 async getItems(categoryId = null) {
                     try {
+                        // テーブルが存在しないことが判明している場合はリクエストしない
+                        if (!downloadTablesExist.items) {
+                            console.log('ℹ️ downloads table not available, using localStorage');
+                            return [];
+                        }
+
                         console.log('📦 [common.js] downloads.getItems() called, categoryId:', categoryId);
                         let query = supabaseClient
                             .from('downloads')
@@ -1834,6 +1853,7 @@ function logout() {
                         if (error) {
                             // テーブルが存在しない場合は警告のみ
                             if (error.code === 'PGRST205') {
+                                downloadTablesExist.items = false;
                                 console.warn('⚠️ downloads table not found, using fallback');
                             } else {
                                 console.warn('⚠️ downloads.getItems error:', error.message);
