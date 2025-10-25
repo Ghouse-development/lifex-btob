@@ -2,16 +2,26 @@
 
 ## 🎯 使い方
 
-このチェックリストは、デプロイ前に確認すべき全ての項目を網羅しています。
+このチェックリストは、デプロイ前後に確認すべき全ての項目を網羅しています。
 
 ### クイックチェック（自動）
+
+**デプロイ前:**
 ```bash
 # 包括的システムチェック（15秒）
 node scripts/comprehensive-system-check.cjs
 
-# ページ別チェック（60秒）
-node scripts/comprehensive-self-check.cjs
+# ローカルコンソールエラーチェック（60秒）
+node scripts/test-all-pages-console.cjs
 ```
+
+**デプロイ後（必須）:**
+```bash
+# 本番環境コンソールエラーチェック（60秒）
+node scripts/test-production-console.cjs
+```
+
+**❗ 重要:** デプロイ後は必ず `test-production-console.cjs` を実行してください。ローカルで問題がなくても、本番環境でエラーが発生する可能性があります。
 
 ---
 
@@ -211,18 +221,37 @@ GitHub Repository → Settings → Secrets and variables → Actions
 - [ ] /matrix が読み込まれる
 
 #### コンソールエラー
-各ページで開発者ツールを開いて確認:
 
+**❗ 重要: 本番環境でエラーが発生した場合、必ずPuppeteerで全ページのコンソールエラーチェックを実行してください。**
+
+**自動チェック（推奨）:**
+```bash
+# 本番環境の全ページでコンソールエラーをチェック（60秒）
+node scripts/test-production-console.cjs
+```
+
+このスクリプトは以下を自動的にチェックします:
+- [ ] 全ページのコンソールエラー（console.error）
+- [ ] JavaScriptランタイムエラー（PageError）
+- [ ] ネットワークエラー（RequestFailed）
+- [ ] HTTPステータスエラー（404, 500等）
+
+**チェック項目:**
 - [ ] Supabase接続エラーがない
 - [ ] 404エラーがない
 - [ ] JavaScript実行エラーがない
 - [ ] CORS エラーがない
 
-**確認方法:**
+**手動確認方法（サブセット）:**
 1. ブラウザで本番URLを開く
 2. F12で開発者ツールを開く
 3. Consoleタブでエラーを確認
 4. Networkタブで404エラーを確認
+
+**注意:**
+- 手動確認では一部のページしかチェックできません
+- 本番環境特有のエラー（環境変数未設定、パス解決の違い等）を見逃す可能性があります
+- **必ずPuppeteerによる自動チェックを実行してください**
 
 #### 機能テスト
 - [ ] プラン一覧が表示される
@@ -233,6 +262,50 @@ GitHub Repository → Settings → Secrets and variables → Actions
 ---
 
 ## 🚨 トラブルシューティング
+
+### 本番環境でエラーが発生した場合（必須手順）
+
+**1. Puppeteerで本番環境の全ページをチェック:**
+```bash
+node scripts/test-production-console.cjs
+```
+
+このコマンドで以下が確認できます:
+- どのページでエラーが発生しているか
+- エラーの種類（404, JavaScript実行エラー、ネットワークエラー等）
+- エラーの詳細メッセージ
+
+**2. エラーの種類別の対処法:**
+
+**404エラーの場合:**
+- `vercel.json` の rewrites 設定を確認
+- 該当ページの rewrite ルールが設定されているか確認
+- 設定後は必ず再デプロイが必要
+
+**JavaScript実行エラーの場合:**
+- ローカルで同じエラーが発生するか確認（`npm run dev` で確認）
+- 環境変数が本番環境で設定されているか確認（Vercel Dashboard）
+- ビルド時の警告を確認（`npm run build`）
+
+**環境変数関連エラーの場合:**
+- Vercel Dashboard → Environment Variables で設定を確認
+- Production, Preview, Development すべてに設定されているか確認
+- 設定変更後は必ず再デプロイが必要
+
+**3. 修正後の確認:**
+```bash
+# 修正をコミット・プッシュ
+git add .
+git commit -m "fix: 本番環境エラーを修正"
+git push
+
+# デプロイ完了まで2-3分待つ
+
+# 再度テスト
+node scripts/test-production-console.cjs
+```
+
+---
 
 ### ビルドが失敗する
 ```bash
@@ -262,13 +335,29 @@ npm run build
 
 ### デプロイ前（毎回）
 ```bash
+# ローカル環境チェック
 node scripts/comprehensive-system-check.cjs
+
+# ローカルコンソールエラーチェック
+node scripts/test-all-pages-console.cjs
 ```
+
+### デプロイ後（毎回・必須）
+```bash
+# 本番環境コンソールエラーチェック（必須）
+node scripts/test-production-console.cjs
+```
+
+**❗ 重要:** デプロイ後は必ず本番環境のコンソールエラーチェックを実行してください。ローカルで問題がなくても、本番環境で以下のエラーが発生する可能性があります:
+- 環境変数の設定漏れ
+- vercel.json の rewrites 設定不足
+- ファイルパスの解決の違い
+- ビルド時の最適化による問題
 
 ### 週次
 - [ ] Vercelの環境変数を確認
 - [ ] Supabase RLSポリシーを確認
-- [ ] 本番環境で全ページをテスト
+- [ ] 本番環境で全ページをPuppeteerでテスト（`node scripts/test-production-console.cjs`）
 
 ### 月次
 - [ ] npm パッケージの更新確認
@@ -304,9 +393,15 @@ npm run dev
 # ビルド
 npm run build
 
-# 包括的チェック
+# ローカル環境チェック
 node scripts/comprehensive-system-check.cjs
 
-# ページ別チェック
+# ローカルコンソールエラーチェック
+node scripts/test-all-pages-console.cjs
+
+# ページ別チェック（詳細）
 node scripts/comprehensive-self-check.cjs
+
+# 本番環境コンソールエラーチェック（必須）
+node scripts/test-production-console.cjs
 ```
