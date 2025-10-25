@@ -167,6 +167,21 @@
                 },
 
                 async init() {
+                    // Supabase初期化完了を待つ（common.jsが設定）
+                    if (!window.supabaseClient || typeof window.supabaseClient.from !== 'function') {
+                        await new Promise((resolve) => {
+                            if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+                                resolve();
+                            } else {
+                                window.addEventListener('supabase:ready', resolve, { once: true });
+                                setTimeout(() => {
+                                    window.removeEventListener('supabase:ready', resolve);
+                                    resolve();
+                                }, 5000);
+                            }
+                        });
+                    }
+
                     await this.loadPlans();
                 },
 
@@ -175,20 +190,26 @@
                     try {
                         console.log('🔄 プランデータを読み込み中...');
 
-                        // Supabase APIが利用可能になるまで待機
-                        let retries = 0;
-                        while (!window.supabaseAPI && retries < 20) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                            retries++;
-                        }
-
-                        if (window.supabaseAPI) {
+                        // Plans APIを使用（フォールバック内蔵）
+                        if (window.supabaseAPI?.plans?.getAll) {
                             const data = await window.supabaseAPI.plans.getAll();
                             console.log('✅ プラン読み込み完了:', data?.length || 0, '件');
                             this.plans = data || [];
                         } else {
-                            console.warn('⚠️ Supabase API not available');
-                            this.plans = [];
+                            // フォールバック: 直接Supabaseへアクセス
+                            console.warn('⚠️ Plans API not available, using fallback');
+                            const sb = window.supabaseClient || window.supabase;
+                            if (sb && typeof sb.from === 'function') {
+                                const { data, error } = await sb
+                                    .from('plans')
+                                    .select('*')
+                                    .eq('status', '公開')
+                                    .order('created_at', { ascending: false });
+                                if (error) throw error;
+                                this.plans = data || [];
+                            } else {
+                                throw new Error('Supabase client not available');
+                            }
                         }
                     } catch (error) {
                         console.error('❌ プラン読み込みエラー:', error);

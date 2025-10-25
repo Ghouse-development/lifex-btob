@@ -1612,8 +1612,45 @@ function logout() {
             // 後方互換のため window.supabase も同じインスタンスに上書き
             window.supabase = supabaseClient;
 
-            // FAQ APIを定義
+            // APIを定義
             window.supabaseAPI = window.supabaseAPI || {};
+
+            // Plans API
+            window.supabaseAPI.plans = {
+                async getAll(params = {}) {
+                    try {
+                        console.log('📋 [common.js] plans.getAll() called');
+                        let query = supabaseClient
+                            .from('plans')
+                            .select('*');
+
+                        // 公開プランのみ取得（params で制御可能）
+                        if (params.onlyPublic !== false) {
+                            query = query.eq('status', '公開');
+                        }
+
+                        // 並び順（デフォルトは作成日時降順）
+                        if (params.orderBy) {
+                            query = query.order(params.orderBy, { ascending: params.ascending || false });
+                        } else {
+                            query = query.order('created_at', { ascending: false });
+                        }
+
+                        const { data, error } = await query;
+                        if (error) {
+                            console.error('❌ plans.getAll error:', error);
+                            throw error;
+                        }
+                        console.log('✅ plans.getAll success:', data?.length || 0, 'plans');
+                        return data || [];
+                    } catch (error) {
+                        console.error('Error fetching plans:', error);
+                        return [];
+                    }
+                }
+            };
+
+            // FAQ APIを定義
             window.supabaseAPI.faq = {
                 async getCategories() {
                     try {
