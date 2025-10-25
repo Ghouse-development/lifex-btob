@@ -59,6 +59,26 @@
     {
       "source": "/design",
       "destination": "/design.html"
+    },
+    {
+      "source": "/admin-profile",
+      "destination": "/admin-profile.html"
+    },
+    {
+      "source": "/admin-users",
+      "destination": "/admin-users.html"
+    },
+    {
+      "source": "/admin-notifications",
+      "destination": "/admin-notifications.html"
+    },
+    {
+      "source": "/admin-faq",
+      "destination": "/admin-faq.html"
+    },
+    {
+      "source": "/faq",
+      "destination": "/faq.html"
     }
   ],
   "headers": [
