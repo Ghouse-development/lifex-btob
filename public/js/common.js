@@ -1609,6 +1609,9 @@ function logout() {
             const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             window.supabaseClient = supabaseClient;
 
+            // 後方互換のため window.supabase も同じインスタンスに上書き
+            window.supabase = supabaseClient;
+
             // FAQ APIを定義
             window.supabaseAPI = window.supabaseAPI || {};
             window.supabaseAPI.faq = {
@@ -1845,6 +1848,7 @@ function logout() {
             console.log('✅ Supabase Downloads API initialized in common.js');
             window.supabaseAPIReady = true;
             window.dispatchEvent(new Event('supabaseAPIReady'));
+            window.dispatchEvent(new Event('supabase:ready'));
         }
     }, 50);
 })();
