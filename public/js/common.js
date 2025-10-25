@@ -1802,13 +1802,18 @@ function logout() {
                             .select('*')
                             .order('display_order');
                         if (error) {
-                            console.error('❌ downloads.getCategories error:', error);
-                            throw error;
+                            // テーブルが存在しない場合は警告のみ
+                            if (error.code === 'PGRST205') {
+                                console.warn('⚠️ download_categories table not found, using fallback');
+                            } else {
+                                console.warn('⚠️ downloads.getCategories error:', error.message);
+                            }
+                            return [];
                         }
                         console.log('✅ downloads.getCategories success:', data?.length || 0, 'categories');
                         return data || [];
                     } catch (error) {
-                        console.error('Error fetching download categories:', error);
+                        console.warn('⚠️ download categories fetch failed:', error.message);
                         return [];
                     }
                 },
@@ -1827,13 +1832,18 @@ function logout() {
 
                         const { data, error } = await query;
                         if (error) {
-                            console.error('❌ downloads.getItems error:', error);
-                            throw error;
+                            // テーブルが存在しない場合は警告のみ
+                            if (error.code === 'PGRST205') {
+                                console.warn('⚠️ downloads table not found, using fallback');
+                            } else {
+                                console.warn('⚠️ downloads.getItems error:', error.message);
+                            }
+                            return [];
                         }
                         console.log('✅ downloads.getItems success:', data?.length || 0, 'items');
                         return data || [];
                     } catch (error) {
-                        console.error('Error fetching downloads:', error);
+                        console.warn('⚠️ downloads fetch failed:', error.message);
                         return [];
                     }
                 },
