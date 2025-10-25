@@ -75,7 +75,7 @@
         </div>
     </header>
 
-    <div x-data="notificationsManager()" x-init="init()">
+    <div x-data="notificationsManager" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-8">
@@ -227,8 +227,8 @@
     <script type="module">
         import { getCurrentUser } from '/js/supabase-auth.js';
 
-        function notificationsManager() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('notificationsManager', () => ({
                 notifications: [],
                 showModal: false,
                 editingId: null,
@@ -396,10 +396,8 @@
                         day: '2-digit'
                     });
                 }
-            };
-        }
-
-        window.notificationsManager = notificationsManager;
+            }));
+        });
     </script>
 </body>
 </html>

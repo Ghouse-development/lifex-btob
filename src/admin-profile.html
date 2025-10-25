@@ -74,7 +74,7 @@
         </div>
     </header>
 
-    <div x-data="profileManager()" x-init="init()">
+    <div x-data="profileManager" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-8">
@@ -262,8 +262,8 @@
     <script type="module">
         import { getCurrentUser, updatePassword } from '/js/supabase-auth.js';
 
-        function profileManager() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('profileManager', () => ({
                 profile: {},
                 editMode: false,
                 editData: {},
@@ -370,10 +370,8 @@
                         minute: '2-digit'
                     });
                 }
-            };
-        }
-
-        window.profileManager = profileManager;
+            }));
+        });
     </script>
 </body>
 </html>

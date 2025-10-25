@@ -76,7 +76,7 @@
         </div>
     </header>
 
-    <div x-data="adminUsers()" x-init="init()">
+    <div x-data="adminUsers" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-8">
@@ -241,8 +241,8 @@
     <script type="module">
         import { getCurrentUser } from '/js/supabase-auth.js';
 
-        function adminUsers() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminUsers', () => ({
                 currentUser: null,
                 users: [],
                 updateHistory: [],
@@ -390,10 +390,8 @@
                         minute: '2-digit'
                     });
                 }
-            };
-        }
-
-        window.adminUsers = adminUsers;
+            }));
+        });
     </script>
 </body>
 </html>
