@@ -601,16 +601,16 @@
                 
                 async loadFromSupabase() {
                     try {
-                        // Supabase APIが利用可能になるまで待機
+                        // Supabase APIが利用可能になるまで待機（最大5秒）
                         let retries = 0;
-                        while (!window.supabaseAPI && retries < 10) {
+                        while ((!window.supabaseAPI || !window.supabaseAPI.downloads || typeof window.supabaseAPI.downloads.getCategories !== 'function') && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
                         }
 
                         // Supabase or LocalStorage
-                        if (window.supabaseAPI && window.supabase) {
-                            console.log('Loading downloads from Supabase...');
+                        if (window.supabaseAPI && window.supabaseAPI.downloads && window.supabase) {
+                            console.log('✅ Supabase Downloads API ready. Loading downloads from Supabase...');
 
                             // カテゴリとダウンロード資料を取得
                             const downloadCategories = await window.supabaseAPI.downloads.getCategories();
@@ -668,6 +668,12 @@
                         }
                     } catch (error) {
                         console.error('❌ Error loading downloads:', error);
+                        console.error('Error details:', {
+                            message: error.message,
+                            supabaseAPI: !!window.supabaseAPI,
+                            downloads: !!window.supabaseAPI?.downloads,
+                            getCategories: typeof window.supabaseAPI?.downloads?.getCategories
+                        });
                         // エラー時はLocalStorageフォールバック
                         const data = localStorage.getItem('downloads_data');
                         if (data) {

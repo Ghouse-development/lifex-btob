@@ -1725,7 +1725,124 @@ function logout() {
                 }
             };
 
+            // Downloads APIを定義
+            window.supabaseAPI.downloads = {
+                async getCategories() {
+                    try {
+                        console.log('📦 [common.js] downloads.getCategories() called');
+                        const { data, error } = await supabaseClient
+                            .from('download_categories')
+                            .select('*')
+                            .order('display_order');
+                        if (error) {
+                            console.error('❌ downloads.getCategories error:', error);
+                            throw error;
+                        }
+                        console.log('✅ downloads.getCategories success:', data?.length || 0, 'categories');
+                        return data || [];
+                    } catch (error) {
+                        console.error('Error fetching download categories:', error);
+                        return [];
+                    }
+                },
+
+                async getItems(categoryId = null) {
+                    try {
+                        console.log('📦 [common.js] downloads.getItems() called, categoryId:', categoryId);
+                        let query = supabaseClient
+                            .from('downloads')
+                            .select('*, download_categories(name)')
+                            .order('display_order');
+
+                        if (categoryId) {
+                            query = query.eq('category_id', categoryId);
+                        }
+
+                        const { data, error } = await query;
+                        if (error) {
+                            console.error('❌ downloads.getItems error:', error);
+                            throw error;
+                        }
+                        console.log('✅ downloads.getItems success:', data?.length || 0, 'items');
+                        return data || [];
+                    } catch (error) {
+                        console.error('Error fetching downloads:', error);
+                        return [];
+                    }
+                },
+
+                async create(downloadData) {
+                    try {
+                        console.log('➕ [common.js] downloads.create() called:', downloadData);
+                        const { data, error } = await supabaseClient
+                            .from('downloads')
+                            .insert([{
+                                title: downloadData.title,
+                                description: downloadData.description,
+                                file_url: downloadData.file_url,
+                                category_id: downloadData.category_id,
+                                display_order: downloadData.display_order || 0
+                            }])
+                            .select()
+                            .single();
+
+                        if (error) {
+                            console.error('❌ downloads.create error:', error);
+                            throw error;
+                        }
+                        console.log('✅ downloads.create success');
+                        return { success: true, data };
+                    } catch (error) {
+                        console.error('Error creating download:', error);
+                        return { success: false, error: error.message };
+                    }
+                },
+
+                async update(downloadId, updates) {
+                    try {
+                        console.log('✏️ [common.js] downloads.update() called, id:', downloadId, 'updates:', updates);
+                        const { data, error } = await supabaseClient
+                            .from('downloads')
+                            .update(updates)
+                            .eq('id', downloadId)
+                            .select()
+                            .single();
+
+                        if (error) {
+                            console.error('❌ downloads.update error:', error);
+                            throw error;
+                        }
+                        console.log('✅ downloads.update success');
+                        return { success: true, data };
+                    } catch (error) {
+                        console.error('Error updating download:', error);
+                        return { success: false, error: error.message };
+                    }
+                },
+
+                async delete(downloadId) {
+                    try {
+                        console.log('🗑️ [common.js] downloads.delete() called, id:', downloadId);
+                        const { error } = await supabaseClient
+                            .from('downloads')
+                            .delete()
+                            .eq('id', downloadId);
+
+                        if (error) {
+                            console.error('❌ downloads.delete error:', error);
+                            throw error;
+                        }
+                        console.log('✅ downloads.delete success');
+                        return { success: true };
+                    } catch (error) {
+                        console.error('Error deleting download:', error);
+                        return { success: false, error: error.message };
+                    }
+                }
+            };
+
             console.log('✅ Supabase FAQ API initialized in common.js');
+            console.log('✅ Supabase Downloads API initialized in common.js');
             window.supabaseAPIReady = true;
             window.dispatchEvent(new Event('supabaseAPIReady'));
         }
