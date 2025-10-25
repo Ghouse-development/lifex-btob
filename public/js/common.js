@@ -1653,7 +1653,7 @@ function logout() {
 
                         // 公開プランのみ取得（params で制御可能）
                         if (params.onlyPublic !== false) {
-                            query = query.eq('status', '公開');
+                            query = query.eq('status', 'published');
                         }
 
                         const { data, error } = await query;
@@ -1927,7 +1927,7 @@ function logout() {
                             const columns = params.columns || '*';
                             let q = sb.from(table).select(columns);
                             if (params.onlyPublic !== false) {
-                                try { q = q.eq('status', '公開'); } catch(_e) {}
+                                try { q = q.eq('status', 'active'); } catch(_e) {}
                             }
                             const { data, error } = await q;
                             if (error) throw error;
