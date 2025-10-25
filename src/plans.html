@@ -1024,7 +1024,7 @@
                                 const { data: fallbackData, error } = await sb
                                     .from('plans')
                                     .select('*')
-                                    .eq('status', '公開');
+                                    .eq('status', 'published');
                                 if (error) throw error;
                                 // クライアント側でソート（存在するキーを自動選択）
                                 const keyCandidates = ['sort_order','display_order','order','priority','position','seq','created_at','id'];

@@ -295,7 +295,7 @@
                     // await window.sbReady で初期化完了を保証
                     const sb = await window.sbReady;
                     if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
-                    const { data, error } = await sb.from('rules').select('*').eq('status', '公開');
+                    const { data, error } = await sb.from('rules').select('*').eq('status', 'active');
                     if (error) throw error;
                     return this.sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                 },
