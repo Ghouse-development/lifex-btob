@@ -591,7 +591,7 @@
                         // 統計更新イベントを発火
                         window.dispatchEvent(new CustomEvent('stats-updated'));
                     } catch (error) {
-                        console.error('❌ Error saving downloads:', error);
+                        console.warn('⚠️ Supabase save failed, using localStorage:', error.message);
                         // エラー時はLocalStorageにフォールバック
                         const data = {
                             categories: this.categories.map(cat => ({
@@ -601,7 +601,7 @@
                             }))
                         };
                         localStorage.setItem('downloads_data', JSON.stringify(data));
-                        console.log('⚠️ Saved to localStorage due to error');
+                        console.log('✅ Saved to localStorage');
                     }
                 },
                 
@@ -612,6 +612,13 @@
                         while ((!window.supabaseAPI || !window.supabaseAPI.downloads || typeof window.supabaseAPI.downloads.getCategories !== 'function') && retries < 50) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                             retries++;
+                        }
+
+                        // タイムアウトチェック
+                        if (!window.supabaseAPI || !window.supabaseAPI.downloads) {
+                            console.warn('⚠️ Supabase API not ready, falling back to localStorage');
+                            this.loadFromLocalStorage();
+                            return;
                         }
 
                         // Supabase or LocalStorage
@@ -674,17 +681,19 @@
                             console.log('⚠️ Loaded from localStorage (fallback)');
                         }
                     } catch (error) {
-                        console.error('❌ Error loading downloads:', error);
-                        console.error('Error details:', {
-                            message: error.message,
-                            supabaseAPI: !!window.supabaseAPI,
-                            downloads: !!window.supabaseAPI?.downloads,
-                            getCategories: typeof window.supabaseAPI?.downloads?.getCategories
-                        });
+                        // Supabaseエラーの場合は警告レベルでログ出力（本番環境のコンソールエラーを削減）
+                        console.warn('⚠️ Supabase loading failed, using localStorage:', error.message);
                         // エラー時はLocalStorageフォールバック
+                        this.loadFromLocalStorage();
+                    }
+                },
+
+                loadFromLocalStorage() {
+                    try {
                         const data = localStorage.getItem('downloads_data');
                         if (data) {
                             const parsed = JSON.parse(data);
+                            // 新形式（配列）のチェック
                             if (parsed.categories && Array.isArray(parsed.categories)) {
                                 this.categories = parsed.categories.map(cat => ({
                                     ...cat,
@@ -692,7 +701,20 @@
                                     files: cat.files || []
                                 }));
                             }
+                            // 古い形式（オブジェクト）のチェック
+                            else if (parsed.categories && typeof parsed.categories === 'object') {
+                                this.categories = Object.entries(parsed.categories).map(([key, value], index) => ({
+                                    id: index + 1,
+                                    name: value.name || key,
+                                    expanded: true,
+                                    files: value.files || value.items || []
+                                }));
+                            }
+                            console.log('✅ Loaded from localStorage');
                         }
+                    } catch (error) {
+                        console.warn('⚠️ localStorage loading failed:', error.message);
+                        this.categories = [];
                     }
                 },
 
