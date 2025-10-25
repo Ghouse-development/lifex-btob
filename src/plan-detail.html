@@ -479,10 +479,26 @@
                             .eq('id', planId)
                             .single();
 
-                        if (error) throw error;
-                        if (!data) {
+                        if (error) {
+                            console.warn('プランが見つかりませんでした:', error.message);
                             this.error = true;
                             return;
+                        }
+
+                        if (!data) {
+                            console.warn('プランデータが空です');
+                            this.error = true;
+                            return;
+                        }
+
+                        // imagesフィールドがJSON文字列の場合はパース
+                        let imagesData = null;
+                        if (data.images) {
+                            try {
+                                imagesData = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
+                            } catch (e) {
+                                console.warn('画像データのパースに失敗:', e);
+                            }
                         }
 
                         // Map Supabase data to plan format
@@ -497,7 +513,7 @@
                             bathroomFloor: data.bathroom_floor ? `${data.bathroom_floor}階` : '1階',
                             version: data.version || '1.0',
                             floorPlan: data.thumbnail_url,
-                            exteriorImage: data.images?.exterior || null,
+                            exteriorImage: imagesData?.exterior || null,
                             prices: {
                                 sell: data.sell_price || data.price,
                                 cost: data.cost,
@@ -517,9 +533,8 @@
                             }
                         };
                     } catch (error) {
-                        console.error('Error loading plan from Supabase:', error);
+                        console.error('プランの読み込み中にエラーが発生しました:', error);
                         this.error = true;
-                        throw error;
                     }
                 },
 
@@ -532,14 +547,22 @@
                             .neq('id', currentPlanId)
                             .order('created_at', { ascending: false });
 
-                        if (error) throw error;
-                        if (!this.plan || !data) return;
+                        if (error) {
+                            console.warn('関連プランの読み込みに失敗:', error.message);
+                            this.relatedPlans = [];
+                            return;
+                        }
+
+                        if (!this.plan || !data) {
+                            this.relatedPlans = [];
+                            return;
+                        }
 
                         // Map Supabase data to plan format
                         const allPlans = data.map(p => ({
                             id: p.id,
                             name: p.plan_name,
-                            tsubo: p.tsubo,
+                            tsubo: p.tsubo || 0,
                             width: p.maguchi ? p.maguchi.toFixed(2) : '0',
                             depth: p.oku_yuki ? p.oku_yuki.toFixed(2) : '0',
                             tags: [],  // TODO: タグ機能実装後に対応
@@ -551,20 +574,21 @@
                         // Find plans with similar characteristics
                         const similarPlans = allPlans.filter(p => {
                             // Similar size (±5 tsubo)
-                            const sizeDiff = Math.abs(p.tsubo - this.plan.tsubo);
+                            const sizeDiff = Math.abs(p.tsubo - (this.plan.tsubo || 0));
                             return sizeDiff <= 5;
                         });
 
                         // Sort by relevance and take top 3
                         this.relatedPlans = similarPlans
                             .sort((a, b) => {
-                                const aSizeDiff = Math.abs(a.tsubo - this.plan.tsubo);
-                                const bSizeDiff = Math.abs(b.tsubo - this.plan.tsubo);
+                                const aSizeDiff = Math.abs(a.tsubo - (this.plan.tsubo || 0));
+                                const bSizeDiff = Math.abs(b.tsubo - (this.plan.tsubo || 0));
                                 return aSizeDiff - bSizeDiff;
                             })
                             .slice(0, 3);
                     } catch (error) {
-                        console.error('Error loading related plans from Supabase:', error);
+                        console.warn('関連プランの読み込み中にエラーが発生しました:', error);
+                        this.relatedPlans = [];
                     }
                 },
 
