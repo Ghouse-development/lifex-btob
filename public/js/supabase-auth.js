@@ -420,7 +420,7 @@ export async function getCurrentCompanyCode() {
 export { supabase };
 
 // デフォルトエクスポート
-export default {
+const SupabaseAuth = {
     signIn,
     signOut,
     getCurrentUser,
@@ -432,3 +432,9 @@ export default {
     getCurrentCompanyCode,
     supabase
 };
+
+// グローバルに露出（HTMLページから直接アクセス可能にする）
+window.SupabaseAuth = SupabaseAuth;
+console.log('✅ SupabaseAuth exposed to window.SupabaseAuth');
+
+export default SupabaseAuth;
