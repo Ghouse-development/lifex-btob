@@ -75,7 +75,7 @@
         </div>
     </header>
 
-    <div x-data="systemManagement()" x-init="init()">
+    <div x-data="systemManagement" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h1 class="text-3xl font-bold text-gray-900">システム管理</h1>
@@ -410,8 +410,8 @@
     </div>
 
     <script>
-        function systemManagement() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('systemManagement', () => ({
                 activeTab: 'users',
                 showAddUserModal: false,
                 showEditUserModal: false,
@@ -686,8 +686,8 @@
                 saveBackupsToLocalStorage() {
                     localStorage.setItem('system_backups', JSON.stringify({ backups: this.backups }));
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
 </html>

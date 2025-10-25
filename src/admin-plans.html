@@ -313,7 +313,7 @@
         </div>
     </header>
 
-    <div x-data="adminPlans()" x-init="init()">
+    <div x-data="adminPlans" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex justify-between items-center mb-8">
@@ -1225,8 +1225,8 @@
             }
         }
 
-        function adminPlans() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminPlans', () => ({
                 plans: [],
                 loading: true,
                 filteredPlans: [],
@@ -2426,13 +2426,13 @@
                 resetPosition() {
                     this.dragPosition = { x: 0, y: 0 };
                 }
-            }
-        }
+            }));
+        });
 
         // ページ離脱時のクリーンアップ
         window.addEventListener('beforeunload', () => {
             if (typeof Alpine !== 'undefined' && Alpine.$data) {
-                const component = Alpine.$data(document.querySelector('[x-data="adminPlans()"]'));
+                const component = Alpine.$data(document.querySelector('[x-data="adminPlans"]'));
                 if (component && component.cleanup) {
                     component.cleanup();
                 }

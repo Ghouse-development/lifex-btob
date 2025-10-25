@@ -71,7 +71,7 @@
         </div>
     </header>
 
-    <div x-data="reportPage()" x-init="init()">
+    <div x-data="reportPage" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="mb-8">
@@ -208,8 +208,8 @@
     </div>
 
     <script>
-        function reportPage() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('reportPage', () => ({
                 stats: {
                     totalPlans: 0,
                     plansThisMonth: 0,
@@ -313,8 +313,8 @@
                         console.error('❌ Failed to load stats:', error);
                     }
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
 </html>

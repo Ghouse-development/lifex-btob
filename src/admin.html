@@ -74,7 +74,7 @@
         </div>
     </header>
 
-    <div x-data="adminMenu()" x-init="init()">
+    <div x-data="adminMenu" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div class="text-center mb-12">
@@ -490,8 +490,8 @@
     </div>
 
     <script>
-        function adminMenu() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminMenu', () => ({
                 stats: {
                     plans: 0,
                     plansUpdated: 0,
@@ -875,8 +875,8 @@
                         event.target.value = '';
                     }
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
 </html>

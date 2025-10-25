@@ -246,7 +246,7 @@
         </div>
     </header>
 
-    <div x-data="adminFAQ()" x-init="init()">
+    <div x-data="adminFAQ" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex justify-between items-center mb-8">
@@ -532,8 +532,8 @@
             }
         };
 
-        function adminFAQ() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminFAQ', () => ({
                 faqs: [],
                 filteredFAQs: [],
                 categories: [],
@@ -1370,8 +1370,8 @@
                         lifeXAPI.showToast('カテゴリの作成に失敗しました', 'error');
                     }
                 }
-            };
-        }
+            }));
+        });
     </script>
 </body>
 </html>

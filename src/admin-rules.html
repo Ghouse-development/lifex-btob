@@ -72,7 +72,7 @@
         </div>
     </header>
 
-    <div x-data="adminRules()" x-init="init()">
+    <div x-data="adminRules" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex justify-between items-center mb-8">
@@ -289,8 +289,8 @@
     </div>
 
     <script>
-        function adminRules() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminRules', () => ({
                 categories: [],
                 showCategoryModal: false,
                 showRuleModal: false,
@@ -822,8 +822,8 @@
                         alert('ルールの保存に失敗しました。もう一度お試しください。');
                     }
                 }
-            };
-        }
+            }));
+        });
     </script>
 </body>
 </html>

@@ -106,7 +106,7 @@
         </div>
     </header>
 
-    <div x-data="adminDownloads()" x-init="init()">
+    <div x-data="adminDownloads" x-init="init">
         <!-- Page Header -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex justify-between items-center mb-8">
@@ -303,10 +303,10 @@
     </div>
 
     <script>
-        function adminDownloads() {
-            return {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('adminDownloads', () => ({
                 categories: [],
-                
+
                 showFileModal: false,
                 showCategoryModal: false,
                 editingFile: null,
@@ -690,8 +690,8 @@
                         category.files.splice(newIndex, 0, item);
                     }
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
 </html>
