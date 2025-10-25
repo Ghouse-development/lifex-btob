@@ -1846,7 +1846,12 @@ function logout() {
 
             console.log('✅ Supabase FAQ API initialized in common.js');
             console.log('✅ Supabase Downloads API initialized in common.js');
+
+            // 後方互換フラグ（古いページ用）
+            window.supabaseReady = true;
             window.supabaseAPIReady = true;
+
+            // イベントdispatch（新しいページ用）
             window.dispatchEvent(new Event('supabaseAPIReady'));
             window.dispatchEvent(new Event('supabase:ready'));
         }
