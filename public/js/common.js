@@ -1615,20 +1615,20 @@ function logout() {
             // APIを定義
             window.supabaseAPI = window.supabaseAPI || {};
 
-            // === 共通ユーティリティ ===
+            // === 共通ユーティリティ（グローバルに公開）===
 
             // Supabase 取得ユーティリティ（初期化完了を保証）
-            async function requireSupabase() {
+            window.requireSupabase = async function() {
                 if (window.supabaseClient?.from) return window.supabaseClient;
                 await new Promise((resolve, reject) => {
                     const t = setTimeout(() => reject(new Error('supabase:ready timeout')), 8000);
                     window.addEventListener('supabase:ready', () => { clearTimeout(t); resolve(); }, { once: true });
                 });
                 return window.supabaseClient;
-            }
+            };
 
             // 共通クライアントソート（存在する最初のキーで昇順、null/undefinedは後ろ）
-            function sortClientSide(list, keyCandidates) {
+            window.sortClientSide = function(list, keyCandidates) {
                 if (!Array.isArray(list)) return [];
                 const sample = list[0] || {};
                 const key = keyCandidates.find(k => k in sample) || null;
@@ -1641,14 +1641,14 @@ function logout() {
                     if (typeof av === 'number' && typeof bv === 'number') return av - bv;
                     return String(av).localeCompare(String(bv), 'ja');
                 });
-            }
+            };
 
             // Plans API
             window.supabaseAPI.plans = {
                 async getAll(params = {}) {
                     try {
                         console.log('📋 [common.js] plans.getAll() called');
-                        const sb = await requireSupabase();
+                        const sb = await window.requireSupabase();
                         let query = sb.from('plans').select('*');
 
                         // 公開プランのみ取得（params で制御可能）
@@ -1664,7 +1664,7 @@ function logout() {
                         console.log('✅ plans.getAll success:', data?.length || 0, 'plans');
 
                         // クライアント側でソート
-                        return sortClientSide(data || [], [
+                        return window.sortClientSide(data || [], [
                             'sort_order','display_order','order','priority','position','seq','created_at','id'
                         ]);
                     } catch (error) {
@@ -1913,16 +1913,16 @@ function logout() {
                 if (!window.lifeX.apis.rules) {
                     window.lifeX.apis.rules = {
                         async getCategories(params = {}) {
-                            const sb = await requireSupabase();
+                            const sb = await window.requireSupabase();
                             const table   = params.table   || 'rule_categories';
                             const columns = params.columns || '*';
                             const { data, error } = await sb.from(table).select(columns);
                             if (error) throw error;
                             // 候補: sort_order, display_order, order, priority, position, seq, created_at, id
-                            return sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
+                            return window.sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                         },
                         async getRules(params = {}) {
-                            const sb = await requireSupabase();
+                            const sb = await window.requireSupabase();
                             const table   = params.table   || 'rules';
                             const columns = params.columns || '*';
                             let q = sb.from(table).select(columns);
@@ -1931,7 +1931,7 @@ function logout() {
                             }
                             const { data, error } = await q;
                             if (error) throw error;
-                            return sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
+                            return window.sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                         }
                     };
                 }
