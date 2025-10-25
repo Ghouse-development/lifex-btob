@@ -16,10 +16,11 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // グローバルに露出（HTMLページから直接アクセス可能にする）
-window.supabase = supabase;
+// window.sb に統一（window.supabase は競合防止のため使用禁止）
+window.sb = supabase;
 window.__supabaseReady = true;
 
-console.log('✅ Supabase client initialized and exposed to window.supabase');
+console.log('✅ Supabase client initialized and exposed to window.sb');
 
 /**
  * ログイン処理

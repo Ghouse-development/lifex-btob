@@ -516,20 +516,15 @@
                     if (this._inited) return; // ✅ 二重実行を防ぐ
                     this._inited = true;
 
-                    // Supabaseクライアントの読み込みを待つ（最大5秒）
-                    let attempts = 0;
-                    while (!window.supabase && attempts < 50) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        attempts++;
-                    }
-
-                    if (!window.supabase) {
-                        console.error('❌ Supabase client failed to load after 5 seconds');
+                    // await window.sbReady で初期化完了を保証
+                    try {
+                        await window.sbReady;
+                        console.log('✅ Supabase client ready, loading stats...');
+                    } catch (e) {
+                        console.error('❌ Supabase initialization failed:', e);
                         this.showStatus('Supabase初期化に失敗しました', false);
                         return;
                     }
-
-                    console.log('✅ Supabase client ready, loading stats...');
 
                     // Load stats from API or localStorage
                     try {
@@ -574,8 +569,10 @@
 
                 async loadStats() {
                     try {
+                        const sb = await window.sbReady;
+
                         // プラン統計（公開中のプランのみカウント - ホームページと一致させる）
-                        const { data, error } = await window.supabase
+                        const { data, error } = await sb
                             .from('plans')
                             .select('*');
 
@@ -588,10 +585,10 @@
                             return updatedDate.getMonth() === thisMonth.getMonth() &&
                                    updatedDate.getFullYear() === thisMonth.getFullYear();
                         }).length;
-                        
+
                         // ルール統計（Supabaseから取得）
                         try {
-                            const { data: rulesData, error: rulesError } = await window.supabase
+                            const { data: rulesData, error: rulesError } = await sb
                                 .from('rules')
                                 .select('*');
 
@@ -680,7 +677,8 @@
 
                         // ユーザー統計（Supabaseから取得 - テーブル名候補を試行）
                         try {
-                            const usersCount = await this.safeCountFirstExists(window.supabase, [
+                            const sb = await window.sbReady;
+                            const usersCount = await this.safeCountFirstExists(sb, [
                                 'profiles', 'site_users', 'admins', 'users'
                             ]);
 
@@ -836,7 +834,7 @@
                 // 新しいバックアップ機能（IndexedDB対応）
                 async createBackup() {
                     this.loading = true;
-                    this.statusMessage = null;
+                    this.statusMessage = { success: false, text: '' };
                     
                     try {
                         const result = await lifeXAPI.createBackup();
@@ -875,7 +873,7 @@
                     }
 
                     this.loading = true;
-                    this.statusMessage = null;
+                    this.statusMessage = { success: false, text: '' };
 
                     try {
                         const result = await lifeXAPI.restoreFromBackup(file);

@@ -1959,6 +1959,16 @@ function logout() {
     }, 50);
 })();
 
+// === グローバル Promise: window.sbReady ===
+// すべてのページで await window.sbReady してから Supabase を使用
+// window.sb が準備完了するまで待機し、完了後に window.sb を返す
+if (!window.sbReady) {
+  window.sbReady = new Promise((resolve) => {
+    const check = () => (window.sb?.from ? resolve(window.sb) : setTimeout(check, 50));
+    check();
+  });
+}
+
 // DOM読み込み完了時の初期化
 document.addEventListener('DOMContentLoaded', function() {
     console.log('LIFE X Common JS loaded');

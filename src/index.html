@@ -277,8 +277,9 @@
                 
                 async loadStats() {
                     try {
+                        const sb = await window.sbReady;
                         // Supabaseからプランデータを取得
-                        const { data: plans, error } = await window.supabase
+                        const { data: plans, error } = await sb
                             .from('plans')
                             .select('*');
 
@@ -351,7 +352,8 @@
 
                 async loadNotifications() {
                     try {
-                        const { data, error } = await window.supabase
+                        const sb = await window.sbReady;
+                        const { data, error } = await sb
                             .from('notifications')
                             .select('*')
                             .eq('status', 'published')
@@ -379,12 +381,13 @@
 
                 async updateUnreadBadge() {
                     try {
+                        const sb = await window.sbReady;
                         // 現在のユーザーを取得
-                        const { data: { user } } = await window.supabase.auth.getUser();
+                        const { data: { user } } = await sb.auth.getUser();
 
                         if (!user) {
                             // 未認証の場合は全てのお知らせを未読とカウント
-                            const { data, error } = await window.supabase
+                            const { data, error } = await sb
                                 .from('notifications')
                                 .select('id')
                                 .eq('status', 'published')
@@ -403,7 +406,7 @@
                         }
 
                         // 認証済みユーザーの場合、既読テーブルをチェック
-                        const { data: allNotifications, error: notifError } = await window.supabase
+                        const { data: allNotifications, error: notifError } = await sb
                             .from('notifications')
                             .select('id')
                             .eq('status', 'published')
@@ -415,7 +418,7 @@
                             return;
                         }
 
-                        const { data: readNotifications, error: readError } = await window.supabase
+                        const { data: readNotifications, error: readError } = await sb
                             .from('notification_reads')
                             .select('notification_id')
                             .eq('user_id', user.id);
@@ -459,17 +462,8 @@
                 },
 
                 async init() {
-                    // Supabase初期化完了を待つ（common.jsが設定）
-                    if (!window.supabaseClient || typeof window.supabaseClient.from !== 'function') {
-                        // まだ初期化されていない場合、イベントを待つ
-                        await new Promise(resolve => {
-                            if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
-                                resolve();
-                            } else {
-                                window.addEventListener('supabase:ready', resolve, { once: true });
-                            }
-                        });
-                    }
+                    // await window.sbReady で初期化完了を保証
+                    await window.sbReady;
 
                     // プランデータはSupabaseで管理されているため、LocalStorageの初期化は不要
 
@@ -735,11 +729,12 @@ function aibotComponent() {
             };
 
             try {
+                const sb = await window.sbReady;
                 const lowerQuestion = question.toLowerCase();
 
                 // プラン検索（プランに関する質問の場合）
                 if (lowerQuestion.includes('プラン') || lowerQuestion.includes('間取') || lowerQuestion.includes('坪')) {
-                    const { data: plans } = await window.supabase
+                    const { data: plans } = await sb
                         .from('plans')
                         .select('plan_name, tsubo, plan_category, plan_sub_category')
                         .limit(5);
@@ -747,7 +742,7 @@ function aibotComponent() {
                 }
 
                 // 最新のお知らせを検索
-                const { data: notifications } = await window.supabase
+                const { data: notifications } = await sb
                     .from('notifications')
                     .select('title, content, category')
                     .eq('status', 'published')
@@ -756,7 +751,7 @@ function aibotComponent() {
                 if (notifications) results.notifications = notifications;
 
                 // 人気ページを検索（最近のアクセス傾向）
-                const { data: popular } = await window.supabase
+                const { data: popular } = await sb
                     .from('popular_pages')
                     .select('page_path, page_title, view_count')
                     .limit(5);

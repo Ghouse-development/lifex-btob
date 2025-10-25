@@ -384,29 +384,8 @@
                     console.log('📋 Matrix初期化開始...', new Date().toLocaleTimeString());
 
                     try {
-                        // Supabase初期化完了を待つ（common.jsが設定）
-                        // 即時判定 + イベント待機で取りこぼしを防止
-                        if (!window.supabaseClient || typeof window.supabaseClient.from !== 'function') {
-                            console.log('⏳ Supabase初期化を待機中...');
-
-                            await new Promise((resolve) => {
-                                // 既に初期化済みの場合は即座に解決
-                                if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
-                                    resolve();
-                                } else {
-                                    // イベントを待つ（once: trueで自動削除）
-                                    window.addEventListener('supabase:ready', resolve, { once: true });
-
-                                    // セーフティタイムアウト（5秒）
-                                    setTimeout(() => {
-                                        window.removeEventListener('supabase:ready', resolve);
-                                        console.error('❌ Supabase初期化がタイムアウトしました');
-                                        resolve(); // 続行を試みる
-                                    }, 5000);
-                                }
-                            });
-                        }
-
+                        // await window.sbReady で初期化完了を保証
+                        await window.sbReady;
                         console.log('🔄 プランデータ読み込み開始...', new Date().toLocaleTimeString());
 
                         // プランデータの読み込み
@@ -425,15 +404,11 @@
                     try {
                         console.log('🔄 最新のプランデータを取得中...', new Date().toLocaleTimeString());
 
-                        // Supabaseクライアントの最終確認
-                        if (!window.supabase?.from) {
-                            throw new Error('Supabaseクライアントが利用できません');
-                        }
-
+                        const sb = await window.sbReady;
                         console.log('📡 Supabaseからデータ取得開始...');
 
                         // Supabaseからプランを取得
-                        const { data, error } = await window.supabase
+                        const { data, error } = await sb
                             .from('plans')
                             .select('*')
                             .order('created_at', { ascending: false });
