@@ -263,14 +263,29 @@
                 loading: false,
                 errorMsg: '',
 
+                // 汎用クライアントソート（存在する最初のキーで昇順、null/undefinedは後ろ）
+                sortClientSide(list, keyCandidates) {
+                    if (!Array.isArray(list)) return [];
+                    const key = (list[0] && keyCandidates.find(k => k in list[0])) || null;
+                    if (!key) return list; // 並びは不定だが UI は崩れない
+                    return [...list].sort((a, b) => {
+                        const av = a?.[key]; const bv = b?.[key];
+                        if (av == null && bv == null) return 0;
+                        if (av == null) return 1;
+                        if (bv == null) return -1;
+                        if (typeof av === 'number' && typeof bv === 'number') return av - bv;
+                        return String(av).localeCompare(String(bv), 'ja');
+                    });
+                },
+
                 async fetchCategories() {
                     const api = window.lifeX?.apis?.rules || window.api?.rules;
                     if (api?.getCategories) return await api.getCategories();
                     const sb = window.supabaseClient || window.supabase;
                     if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
-                    const { data, error } = await sb.from('rule_categories').select('*').order('sort_order', { ascending: true });
+                    const { data, error } = await sb.from('rule_categories').select('*');
                     if (error) throw error;
-                    return data || [];
+                    return this.sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                 },
 
                 async fetchRules() {
@@ -278,9 +293,9 @@
                     if (api?.getRules) return await api.getRules();
                     const sb = window.supabaseClient || window.supabase;
                     if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
-                    const { data, error } = await sb.from('rules').select('*').eq('status', '公開').order('sort_order', { ascending: true });
+                    const { data, error } = await sb.from('rules').select('*').eq('status', '公開');
                     if (error) throw error;
-                    return data || [];
+                    return this.sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                 },
 
                 async loadRules() {

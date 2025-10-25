@@ -1886,6 +1886,21 @@ function logout() {
                 window.lifeX = window.lifeX || {};
                 window.lifeX.apis = window.lifeX.apis || {};
 
+                // 汎用クライアントソート（存在する最初のキーで昇順、null/undefinedは後ろ）
+                function sortClientSide(list, keyCandidates) {
+                    if (!Array.isArray(list)) return [];
+                    const key = (list[0] && keyCandidates.find(k => k in list[0])) || null;
+                    if (!key) return list; // 並びは不定だが UI は崩れない
+                    return [...list].sort((a, b) => {
+                        const av = a?.[key]; const bv = b?.[key];
+                        if (av == null && bv == null) return 0;
+                        if (av == null) return 1;
+                        if (bv == null) return -1;
+                        if (typeof av === 'number' && typeof bv === 'number') return av - bv;
+                        return String(av).localeCompare(String(bv), 'ja');
+                    });
+                }
+
                 if (!window.lifeX.apis.rules) {
                     window.lifeX.apis.rules = {
                         async getCategories(params = {}) {
@@ -1895,11 +1910,10 @@ function logout() {
                             }
                             const table   = params.table   || 'rule_categories';
                             const columns = params.columns || '*';
-                            let q = sb.from(table).select(columns);
-                            try { q = q.order('sort_order', { ascending: true }); } catch(_e) {}
-                            const { data, error } = await q;
+                            const { data, error } = await sb.from(table).select(columns);
                             if (error) throw error;
-                            return data || [];
+                            // 候補: sort_order, display_order, order, priority, position, seq, created_at, id
+                            return sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                         },
                         async getRules(params = {}) {
                             const sb = window.supabaseClient || window.supabase;
@@ -1912,10 +1926,9 @@ function logout() {
                             if (params.onlyPublic !== false) {
                                 try { q = q.eq('status', '公開'); } catch(_e) {}
                             }
-                            try { q = q.order('sort_order', { ascending: true }); } catch(_e) {}
                             const { data, error } = await q;
                             if (error) throw error;
-                            return data || [];
+                            return sortClientSide(data || [], ['sort_order','display_order','order','priority','position','seq','created_at','id']);
                         }
                     };
                 }
