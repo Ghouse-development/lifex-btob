@@ -281,7 +281,8 @@
                 async fetchCategories() {
                     const api = window.lifeX?.apis?.rules || window.api?.rules;
                     if (api?.getCategories) return await api.getCategories();
-                    const sb = window.supabaseClient || window.supabase;
+                    // await window.sbReady で初期化完了を保証
+                    const sb = await window.sbReady;
                     if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
                     const { data, error } = await sb.from('rule_categories').select('*');
                     if (error) throw error;
@@ -291,7 +292,8 @@
                 async fetchRules() {
                     const api = window.lifeX?.apis?.rules || window.api?.rules;
                     if (api?.getRules) return await api.getRules();
-                    const sb = window.supabaseClient || window.supabase;
+                    // await window.sbReady で初期化完了を保証
+                    const sb = await window.sbReady;
                     if (!sb?.from) throw new Error('Supabase client not ready (fallback)');
                     const { data, error } = await sb.from('rules').select('*').eq('status', '公開');
                     if (error) throw error;
@@ -331,22 +333,9 @@
                 },
 
                 async init() {
-                    const sb = window.supabaseClient || window.supabase;
-                    if (sb?.from) return this.loadRules();
-
-                    const onReady = () => {
-                        window.removeEventListener('supabase:ready', onReady);
-                        this.loadRules();
-                    };
-                    window.addEventListener('supabase:ready', onReady, { once: true });
-
-                    setTimeout(() => {
-                        window.removeEventListener('supabase:ready', onReady);
-                        if (!((window.supabaseClient || window.supabase)?.from)) {
-                            console.warn('⚠️ supabase:ready 未着 → フォールバック実行');
-                            this.loadRules();
-                        }
-                    }, 5000);
+                    // await window.sbReady で初期化完了を保証
+                    await window.sbReady;
+                    this.loadRules();
                 },
 
                 toggleCategory(categoryId) {
