@@ -1,0 +1,179 @@
+{
+  "timestamp": "2025-10-25T02:21:00.076Z",
+  "totalPages": 26,
+  "passed": 17,
+  "warnings": 9,
+  "errors": 0,
+  "passedPages": [
+    "トップページ",
+    "プラン一覧",
+    "プラン詳細",
+    "間取マトリックス",
+    "ルール一覧",
+    "FAQ",
+    "ダウンロード",
+    "デザイン",
+    "AI機能",
+    "管理者ログイン",
+    "Googleログイン",
+    "パスワードリセット",
+    "パスワード更新",
+    "管理ダッシュボード",
+    "FAQ管理",
+    "404エラー",
+    "500エラー"
+  ],
+  "warningDetails": [
+    "⚠️  旧管理画面 (src/admin.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  プラン管理 (src/admin-plans.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  ルール管理 (src/admin-rules.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  ダウンロード管理 (src/admin-downloads.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  ユーザー管理 (src/admin-users.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  システム設定 (src/admin-system.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  プロフィール (src/admin-profile.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  お知らせ管理 (src/admin-notifications.html):",
+    "   - 認証チェックロジックが見つかりません",
+    "⚠️  レポート (src/admin-report.html):",
+    "   - 認証チェックロジックが見つかりません"
+  ],
+  "errorDetails": [],
+  "pageResults": [
+    {
+      "name": "トップページ",
+      "path": "src/index.html",
+      "status": "passed"
+    },
+    {
+      "name": "プラン一覧",
+      "path": "src/plans.html",
+      "status": "passed"
+    },
+    {
+      "name": "プラン詳細",
+      "path": "src/plan-detail.html",
+      "status": "passed"
+    },
+    {
+      "name": "間取マトリックス",
+      "path": "src/matrix.html",
+      "status": "passed"
+    },
+    {
+      "name": "ルール一覧",
+      "path": "src/rules.html",
+      "status": "passed"
+    },
+    {
+      "name": "FAQ",
+      "path": "src/faq.html",
+      "status": "passed"
+    },
+    {
+      "name": "ダウンロード",
+      "path": "src/downloads.html",
+      "status": "warning"
+    },
+    {
+      "name": "デザイン",
+      "path": "src/design.html",
+      "status": "passed"
+    },
+    {
+      "name": "AI機能",
+      "path": "src/ai.html",
+      "status": "passed"
+    },
+    {
+      "name": "管理者ログイン",
+      "path": "src/admin-login.html",
+      "status": "passed"
+    },
+    {
+      "name": "Googleログイン",
+      "path": "src/admin-login-google.html",
+      "status": "passed"
+    },
+    {
+      "name": "パスワードリセット",
+      "path": "src/admin-password-reset.html",
+      "status": "passed"
+    },
+    {
+      "name": "パスワード更新",
+      "path": "src/admin-password-update.html",
+      "status": "passed"
+    },
+    {
+      "name": "旧管理画面",
+      "path": "src/admin.html",
+      "status": "warning"
+    },
+    {
+      "name": "管理ダッシュボード",
+      "path": "src/admin/index.html",
+      "status": "passed"
+    },
+    {
+      "name": "プラン管理",
+      "path": "src/admin-plans.html",
+      "status": "warning"
+    },
+    {
+      "name": "ルール管理",
+      "path": "src/admin-rules.html",
+      "status": "warning"
+    },
+    {
+      "name": "FAQ管理",
+      "path": "src/admin-faq.html",
+      "status": "passed"
+    },
+    {
+      "name": "ダウンロード管理",
+      "path": "src/admin-downloads.html",
+      "status": "warning"
+    },
+    {
+      "name": "ユーザー管理",
+      "path": "src/admin-users.html",
+      "status": "warning"
+    },
+    {
+      "name": "システム設定",
+      "path": "src/admin-system.html",
+      "status": "warning"
+    },
+    {
+      "name": "プロフィール",
+      "path": "src/admin-profile.html",
+      "status": "warning"
+    },
+    {
+      "name": "お知らせ管理",
+      "path": "src/admin-notifications.html",
+      "status": "warning"
+    },
+    {
+      "name": "レポート",
+      "path": "src/admin-report.html",
+      "status": "warning"
+    },
+    {
+      "name": "404エラー",
+      "path": "src/404.html",
+      "status": "passed"
+    },
+    {
+      "name": "500エラー",
+      "path": "src/500.html",
+      "status": "passed"
+    }
+  ]
+}

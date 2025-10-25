@@ -557,7 +557,7 @@
                         // パスワードが変更された場合の処理（実際の実装では暗号化が必要）
                         if (this.editingUser.newPassword) {
                             // パスワード変更処理
-                            console.log('Password updated for user:', this.editingUser.id);
+                            // TODO: パスワード更新処理を実装
                         }
                     }
 
@@ -593,8 +593,8 @@
                     }
                     
                     // パスワード変更処理（実際にはAPI呼び出し）
-                    console.log('Changing password');
-                    
+                    // TODO: API呼び出しを実装
+
                     // フォームをリセット
                     this.passwordForm = {
                         current: '',
@@ -607,7 +607,6 @@
 
                 saveSettings() {
                     localStorage.setItem('system_settings', JSON.stringify(this.settings));
-                    console.log('Saved settings:', this.settings);
                     lifeXAPI.showToast('設定を保存しました', 'success');
                 },
 
@@ -627,12 +626,13 @@
                 },
 
                 downloadBackup(backup) {
-                    console.log('Downloading backup:', backup);
+                    // TODO: バックアップダウンロード処理を実装
+                    lifeXAPI.showToast(`${backup.filename} をダウンロード中...`, 'info');
                 },
 
                 restoreBackup(backup) {
                     if (confirm('このバックアップから復元してもよろしいですか？現在のデータは失われます。')) {
-                        console.log('Restoring backup:', backup);
+                        // TODO: バックアップ復元処理を実装
                         lifeXAPI.showToast('バックアップから復元中...', 'info');
                     }
                 },

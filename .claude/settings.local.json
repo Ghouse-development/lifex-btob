@@ -23,7 +23,8 @@
       "Bash(node scripts/check-supabase-errors.cjs:*)",
       "Bash(node scripts/test-production-pages.cjs:*)",
       "Bash(tee:*)",
-      "Bash(node scripts/test-supabase-actual-errors.cjs:*)"
+      "Bash(node scripts/test-supabase-actual-errors.cjs:*)",
+      "Bash(node scripts/comprehensive-page-test.cjs:*)"
     ],
     "deny": [],
     "ask": []
