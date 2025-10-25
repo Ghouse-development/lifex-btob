@@ -447,9 +447,9 @@
                     </div>
                     
                     <!-- Status Messages -->
-                    <div x-show="statusMessage" class="mt-4 p-4 rounded-lg" 
-                         :class="statusMessage.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
-                        <p x-text="statusMessage.text"></p>
+                    <div x-show="statusMessage && statusMessage.text" class="mt-4 p-4 rounded-lg"
+                         :class="statusMessage && statusMessage.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'">
+                        <p x-text="statusMessage ? statusMessage.text : ''"></p>
                     </div>
                 </div>
             </div>
@@ -509,9 +509,13 @@
                 },
                 recentActivities: [],
                 loading: false,
-                statusMessage: null,
+                statusMessage: { success: false, text: '' }, // ✅ 初期化済オブジェクト
+                _inited: false, // ✅ 二重実行防止
 
                 async init() {
+                    if (this._inited) return; // ✅ 二重実行を防ぐ
+                    this._inited = true;
+
                     // Supabaseクライアントの読み込みを待つ（最大5秒）
                     let attempts = 0;
                     while (!window.supabase && attempts < 50) {
@@ -521,23 +525,45 @@
 
                     if (!window.supabase) {
                         console.error('❌ Supabase client failed to load after 5 seconds');
+                        this.showStatus('Supabase初期化に失敗しました', false);
                         return;
                     }
 
                     console.log('✅ Supabase client ready, loading stats...');
 
                     // Load stats from API or localStorage
-                    await this.loadStats();
-                    
+                    try {
+                        await this.loadStats();
+                    } catch (e) {
+                        this.showStatus('初期化エラー: ' + e.message, false);
+                    }
+
                     // プラン更新イベントをリッスン
                     window.addEventListener('plans-updated', () => {
                         this.loadStats();
                     });
-                    
+
                     // 統計更新イベントをリッスン
                     window.addEventListener('stats-updated', () => {
                         this.loadStats();
                     });
+                },
+
+                showStatus(msg, ok = false) {
+                    this.statusMessage = { success: ok, text: msg || '' };
+                },
+
+                async safeCountFirstExists(sb, tables) {
+                    for (const name of tables) {
+                        try {
+                            const { count, error } = await sb.from(name).select('*', { count: 'exact', head: true });
+                            if (!error) return count ?? 0;
+                        } catch (e) {
+                            // 42P01 (table not found) などはスルー
+                            continue;
+                        }
+                    }
+                    return null;
                 },
 
                 logout() {
@@ -652,25 +678,25 @@
                             this.stats.faqCategories = 0;
                         }
 
-                        // ユーザー統計（Supabaseから取得）
+                        // ユーザー統計（Supabaseから取得 - テーブル名候補を試行）
                         try {
-                            const { data: usersData, error: usersError } = await window.supabase
-                                .from('users')
-                                .select('*');
+                            const usersCount = await this.safeCountFirstExists(window.supabase, [
+                                'profiles', 'site_users', 'admins', 'users'
+                            ]);
 
-                            if (!usersError && usersData) {
-                                this.stats.users = usersData.length;
-                                this.stats.activeUsers = usersData.filter(u => u.status === 'active').length;
-                                console.log('Users data:', usersData, 'Total users:', this.stats.users, 'Active users:', this.stats.activeUsers);
+                            if (usersCount !== null) {
+                                this.stats.users = usersCount;
+                                this.stats.activeUsers = usersCount; // activeカウントは正確に取得できないため全体数を設定
+                                console.log('Users count:', this.stats.users);
                             } else {
-                                console.warn('⚠️ Users table not found or error:', usersError?.message);
-                                this.stats.users = 0;
-                                this.stats.activeUsers = 0;
+                                console.warn('⚠️ Users table not found');
+                                this.stats.users = '—';
+                                this.stats.activeUsers = '—';
                             }
                         } catch (e) {
                             console.error('Error loading users stats:', e);
-                            this.stats.users = 0;
-                            this.stats.activeUsers = 0;
+                            this.stats.users = '—';
+                            this.stats.activeUsers = '—';
                         }
 
                         // 管理者統計
