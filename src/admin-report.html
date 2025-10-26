@@ -227,15 +227,12 @@
                 loading: false,
 
                 async init() {
-                    // Supabaseの読み込みを待つ
-                    let attempts = 0;
-                    while (!window.supabase && attempts < 50) {
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                        attempts++;
-                    }
-
-                    if (!window.supabase) {
-                        console.error('❌ Supabase failed to load');
+                    // await window.sbReady で初期化完了を保証
+                    try {
+                        await window.sbReady;
+                        console.log('✅ Supabase client ready, loading stats...');
+                    } catch (e) {
+                        console.error('❌ Supabase initialization failed:', e);
                         return;
                     }
 
@@ -244,8 +241,10 @@
 
                 async loadStats() {
                     try {
+                        const sb = await window.sbReady;
+
                         // プラン統計
-                        const { data: plans, error: plansError } = await window.supabase
+                        const { data: plans, error: plansError } = await sb
                             .from('plans')
                             .select('*', { count: 'exact' });
 
@@ -276,7 +275,7 @@
                         }
 
                         // FAQ統計
-                        const { data: faqs, error: faqsError } = await window.supabase
+                        const { data: faqs, error: faqsError } = await sb
                             .from('faqs')
                             .select('*');
 
@@ -287,7 +286,7 @@
                             this.stats.totalFaqs = faqs.length;
 
                             // カテゴリ数を取得
-                            const { data: categories, error: catError } = await window.supabase
+                            const { data: categories, error: catError } = await sb
                                 .from('faq_categories')
                                 .select('*');
 
@@ -300,7 +299,7 @@
                         }
 
                         // ルール統計
-                        const { data: rules, error: rulesError } = await window.supabase
+                        const { data: rules, error: rulesError } = await sb
                             .from('rules')
                             .select('*');
 
@@ -314,7 +313,7 @@
                         }
 
                         // ダウンロード統計
-                        const { data: downloads, error: downloadsError } = await window.supabase
+                        const { data: downloads, error: downloadsError } = await sb
                             .from('downloads')
                             .select('*');
 
