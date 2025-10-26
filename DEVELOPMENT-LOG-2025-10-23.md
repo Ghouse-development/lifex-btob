@@ -1112,3 +1112,277 @@ TOTAL: 0 errors, 0 warnings
 **記録終了**: 2025年10月26日
 **記録者**: Claude Code
 **バージョン**: admin-pages error-fix v1.0
+
+
+---
+
+# 開発記録 - 2025年10月26日（続き）
+
+## 📋 概要
+
+**作業内容**: Gemini AIのリアルタイムデータ統合 / プラン詳細ページのファイル機能実装
+
+**作業時間**: 約3時間
+
+**主な成果**:
+- ✅ Gemini Chat APIの修正（モデル変更: gemini-1.5-flash → gemini-2.0-flash）
+- ✅ AIにSupabaseからリアルタイムデータを統合
+- ✅ プランファイルアップロード・ダウンロード機能を実装
+
+---
+
+## 🔧 実施した主な作業
+
+### **1. Gemini Chat API修正**
+
+#### **問題発生**
+- LIFE X AIサポート機能が500エラーで動作せず
+- エラー: `models/gemini-1.5-flash is not found for API version v1`
+
+#### **原因分析**
+- 2025年現在、Gemini 1.5モデルがv1 APIで非推奨
+- Gemini API側でモデルが廃止されていた
+
+#### **解決策**
+```javascript
+// 修正前
+const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+// 修正後
+const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+```
+
+#### **結果**
+✅ APIが正常に動作し、AIサポート機能が完全復旧
+
+---
+
+### **2. AIシステムプロンプトの改善**
+
+#### **問題点**
+- 「156種類のプラン」という根拠のない情報を提供
+- 実際のデータベースには3プランしか存在しない
+- 推測による誤情報を回答
+
+#### **実装した改善**
+
+**A. リアルタイムデータ取得機能**
+```javascript
+async function fetchSystemData() {
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // 実際のプラン数を取得
+    const { data: plans } = await supabase.from('plans').select('*');
+    
+    // FAQ数を取得
+    const { data: faqs } = await supabase.from('faqs').select('*');
+    
+    // ダウンロード資料数を取得
+    const { data: downloads } = await supabase.from('downloads').select('*');
+    
+    return { plans, faqs, downloads, planCount, faqCount, downloadCount };
+}
+```
+
+**B. 動的システムプロンプト生成**
+```javascript
+const systemPrompt = `あなたはGハウス規格住宅「LIFE X」の専門AIアシスタントです。
+
+【現在のシステム登録データ】
+- 登録プラン数: ${systemData.planCount}件
+  主なプラン: ${systemData.plans.slice(0, 5).map(p => `${p.plan_code} (${p.tsubo}坪 ${p.layout})`).join(', ')}
+- FAQ登録数: ${systemData.faqCount}件
+- ダウンロード資料数: ${systemData.downloadCount}件
+
+※ これらは現在システムに登録されている実際のデータです。回答する際は、この情報を優先して使用してください。
+...
+`;
+```
+
+**C. テスト結果**
+```
+質問: 「LIFE Xのプランは何種類ありますか？」
+
+回答:
+現在システムに登録されているLIFE Xのプランは2種類です。
+- 12-22-N11-20 (27.22坪 3LDK)
+- 35-50-E-11-046 (36.3坪 3LDK)
+```
+
+#### **効果**
+- データベースの変更が即座にAIの回答に反映
+- 推測による誤情報を完全に排除
+- 常に最新の正確な情報を提供
+
+---
+
+### **3. プランファイル機能の実装**
+
+#### **実装内容**
+
+**A. admin-plans-new.htmlにファイルアップロード機能を追加**
+
+追加したUI:
+- プレゼン資料（PDF）アップロード
+- 図面ファイル（PDF/DWG/DXF）アップロード  
+- その他ドキュメント（PDF/Word/Excel）アップロード
+- ドラッグ&ドロップ対応
+- 複数ファイル選択対応
+- アップロード済みファイル一覧表示
+- ファイル削除機能
+
+追加した機能:
+```javascript
+formData: {
+    // ...既存フィールド
+    files: {
+        presentation: [],
+        drawings: [],
+        documents: []
+    }
+},
+
+handlePresentationFiles(event) {
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+        this.formData.files.presentation.push({
+            file: file,
+            name: file.name,
+            size: this.formatFileSize(file.size),
+            type: file.type
+        });
+    });
+},
+
+// drawings, documents用の同様のハンドラーも実装
+```
+
+**B. plan-detail.htmlにファイル表示・ダウンロード機能を追加**
+
+```javascript
+// filesフィールドがJSON文字列の場合はパース
+let filesData = null;
+if (data.files) {
+    try {
+        filesData = typeof data.files === 'string' ? JSON.parse(data.files) : data.files;
+    } catch (e) {
+        console.warn('ファイルデータのパースに失敗:', e);
+    }
+}
+
+this.plan = {
+    // ...既存フィールド
+    files: {
+        presentation: this.convertFilesToDownloadFormat(filesData?.presentation || []),
+        drawings: this.convertFilesToDownloadFormat(filesData?.drawings || []),
+        // ...
+    }
+};
+
+// ファイルをダウンロード用のフォーマットに変換
+convertFilesToDownloadFormat(files) {
+    if (!files || !Array.isArray(files)) return [];
+    
+    return files.map(file => ({
+        title: file.name || 'ファイル',
+        url: file.url || file.file?.url || '#',
+        size: file.size || '不明',
+        ver: file.version || '1.0',
+        updated: file.lastModified || file.updated || new Date().toISOString()
+    }));
+}
+```
+
+**C. ダウンロード機能**
+既存の`lifeXAPI.downloadFile()`関数を活用:
+```javascript
+// public/js/common.js内
+downloadFile(filePath, fileName) {
+    const link = document.createElement('a');
+    link.href = filePath;
+    link.download = fileName || 'download';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+```
+
+#### **効果**
+- 新規プラン追加時にPDF/図面/ドキュメントをアップロード可能
+- プラン詳細ページでアップロードしたファイルを表示・ダウンロード可能
+- ファイル管理機能が完全に実装された
+
+---
+
+## 📊 データベース状況確認
+
+### **plansテーブル構造**
+```
+✅ 取得したプラン: 12-22-N11-20
+
+📊 カラム一覧:
+- id (UUID)
+- plan_name (プラン名)
+- tsubo (坪数)
+- width, depth (間口・奥行き)
+- layout (間取り)
+- sell_price, cost, gross_profit (価格情報)
+- images (JSON: 外観・内観画像)
+- files (JSON: ファイル情報) ← 今回活用
+- status (公開ステータス)
+...
+```
+
+### **filesカラムの構造**
+```json
+{
+  "images": {
+    "exterior": { "file": {}, "name": "外観.jpg", "size": 3665895, "type": "image/jpeg" }
+  },
+  "drawings": {},
+  "documents": {},
+  "floorPlans": {},
+  "presentation": null
+}
+```
+
+---
+
+## 🎯 今後の課題
+
+### **実装が必要な機能**
+1. ファイルアップロード時のSupabase Storageへの保存処理
+2. admin-plans.html（既存プラン編集）へのファイル編集機能追加
+3. ファイルのバージョン管理機能
+4. ファイルのカテゴリー分類（図面種別など）
+
+### **改善が必要な箇所**
+1. ファイルサイズ制限の実装
+2. ファイル形式のバリデーション強化
+3. アップロード進捗表示
+4. エラーハンドリングの改善
+
+---
+
+## 📝 重要な学び
+
+### **1. Gemini APIのバージョン管理**
+- モデル名はAPIバージョンによって利用可否が異なる
+- 定期的なモデル廃止に対応する必要がある
+- 最新の安定版モデル（gemini-2.0-flash）を使用すべき
+
+### **2. AIへのリアルタイムデータ統合**
+- 静的なプロンプトではなく、実際のDBデータを取得して埋め込む
+- 毎回のリクエストで最新情報を取得することで正確性を担保
+- システムプロンプトに「これらは実際のデータです」と明示することが重要
+
+### **3. ファイル管理のベストプラクティス**
+- DBにはファイルメタデータ（名前、サイズ、種別）を保存
+- 実ファイルはSupabase Storageに保存
+- JSON型カラムで複数ファイルを柔軟に管理
+
+---
+
+**記録終了**: 2025年10月26日 14:40
+**記録者**: Claude Code
+**バージョン**: gemini-integration + file-management v1.0

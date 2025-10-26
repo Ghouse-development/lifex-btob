@@ -520,6 +520,16 @@
                             }
                         }
 
+                        // filesフィールドがJSON文字列の場合はパース
+                        let filesData = null;
+                        if (data.files) {
+                            try {
+                                filesData = typeof data.files === 'string' ? JSON.parse(data.files) : data.files;
+                            } catch (e) {
+                                console.warn('ファイルデータのパースに失敗:', e);
+                            }
+                        }
+
                         // Map Supabase data to plan format
                         this.plan = {
                             id: data.id,
@@ -541,8 +551,8 @@
                             tags: [],  // TODO: タグ機能が実装されたら対応
                             updatedAt: data.updated_at || data.created_at,
                             files: {
-                                presentation: [],  // TODO: ファイル管理機能が実装されたら対応
-                                drawings: {},
+                                presentation: this.convertFilesToDownloadFormat(filesData?.presentation || []),
+                                drawings: this.convertFilesToDownloadFormat(filesData?.drawings || []),
                                 excel: {},
                                 doors: [],
                                 sashes: [],
@@ -609,6 +619,18 @@
                         console.warn('関連プランの読み込み中にエラーが発生しました:', error);
                         this.relatedPlans = [];
                     }
+                },
+
+                convertFilesToDownloadFormat(files) {
+                    if (!files || !Array.isArray(files)) return [];
+
+                    return files.map(file => ({
+                        title: file.name || 'ファイル',
+                        url: file.url || file.file?.url || '#',
+                        size: file.size || '不明',
+                        ver: file.version || '1.0',
+                        updated: file.lastModified || file.updated || new Date().toISOString()
+                    }));
                 },
 
                 getCategoryName(category) {

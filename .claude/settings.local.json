@@ -29,7 +29,13 @@
       "Bash(for shell_id in d74df7 baa1f2 4a2af2)",
       "Bash(do echo \"Killing shell $shell_id\")",
       "Bash(vercel env:*)",
-      "Bash(for shell_id in d74df7 baa1f2 4a2af2 323c52)"
+      "Bash(for shell_id in d74df7 baa1f2 4a2af2 323c52)",
+      "Bash(vercel ls:*)",
+      "Bash(vercel logs:*)",
+      "WebSearch",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(vercel --prod:*)"
     ],
     "deny": [],
     "ask": []

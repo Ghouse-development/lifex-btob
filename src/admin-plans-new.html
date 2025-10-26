@@ -197,6 +197,93 @@
                         </div>
                     </section>
 
+                    <!-- PDF・図面アップロード -->
+                    <section class="bg-white rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-bold mb-4">PDF・図面ファイル</h3>
+
+                        <!-- プレゼン資料 -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">プレゼン資料（PDF）</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                <input type="file" accept=".pdf" multiple class="hidden" id="presentation-files" @change="handlePresentationFiles($event)">
+                                <label for="presentation-files" class="cursor-pointer block text-center">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    <p class="text-gray-500">PDFファイルをドラッグ&ドロップ または クリックして選択</p>
+                                    <p class="text-xs text-gray-400 mt-1">複数ファイル選択可能</p>
+                                </label>
+                                <!-- アップロード済みファイル一覧 -->
+                                <div x-show="formData.files.presentation.length > 0" class="mt-4 space-y-2">
+                                    <template x-for="(file, index) in formData.files.presentation" :key="index">
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                            <span class="text-sm" x-text="file.name"></span>
+                                            <button @click="removeFile('presentation', index)" class="text-red-500 hover:text-red-700">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 図面ファイル -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">図面（PDF・DWG）</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                <input type="file" accept=".pdf,.dwg,.dxf" multiple class="hidden" id="drawing-files" @change="handleDrawingFiles($event)">
+                                <label for="drawing-files" class="cursor-pointer block text-center">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <p class="text-gray-500">図面ファイルをドラッグ&ドロップ または クリックして選択</p>
+                                    <p class="text-xs text-gray-400 mt-1">PDF, DWG, DXF形式対応 / 複数ファイル選択可能</p>
+                                </label>
+                                <div x-show="formData.files.drawings.length > 0" class="mt-4 space-y-2">
+                                    <template x-for="(file, index) in formData.files.drawings" :key="index">
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                            <span class="text-sm" x-text="file.name"></span>
+                                            <button @click="removeFile('drawings', index)" class="text-red-500 hover:text-red-700">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- その他ドキュメント -->
+                        <div>
+                            <label class="block text-sm font-medium mb-2">その他ドキュメント</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                                <input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple class="hidden" id="document-files" @change="handleDocumentFiles($event)">
+                                <label for="document-files" class="cursor-pointer block text-center">
+                                    <svg class="w-12 h-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <p class="text-gray-500">ドキュメントをドラッグ&ドロップ または クリックして選択</p>
+                                    <p class="text-xs text-gray-400 mt-1">PDF, Word, Excel形式対応 / 複数ファイル選択可能</p>
+                                </label>
+                                <div x-show="formData.files.documents.length > 0" class="mt-4 space-y-2">
+                                    <template x-for="(file, index) in formData.files.documents" :key="index">
+                                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                            <span class="text-sm" x-text="file.name"></span>
+                                            <button @click="removeFile('documents', index)" class="text-red-500 hover:text-red-700">
+                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
                     <!-- 長いコンテンツを追加（スクロール確認用） -->
                     <section class="bg-white rounded-lg p-6 mb-6">
                         <h3 class="text-lg font-bold mb-4">その他情報</h3>
@@ -239,7 +326,12 @@
                     tsubo: '',
                     layout: '',
                     sellPrice: '',
-                    cost: ''
+                    cost: '',
+                    files: {
+                        presentation: [],
+                        drawings: [],
+                        documents: []
+                    }
                 },
 
                 openModal() {
@@ -253,8 +345,70 @@
                     }
                 },
 
+                handlePresentationFiles(event) {
+                    const files = Array.from(event.target.files);
+                    files.forEach(file => {
+                        this.formData.files.presentation.push({
+                            file: file,
+                            name: file.name,
+                            size: this.formatFileSize(file.size),
+                            type: file.type
+                        });
+                    });
+                    console.log('Presentation files added:', this.formData.files.presentation);
+                },
+
+                handleDrawingFiles(event) {
+                    const files = Array.from(event.target.files);
+                    files.forEach(file => {
+                        this.formData.files.drawings.push({
+                            file: file,
+                            name: file.name,
+                            size: this.formatFileSize(file.size),
+                            type: file.type
+                        });
+                    });
+                    console.log('Drawing files added:', this.formData.files.drawings);
+                },
+
+                handleDocumentFiles(event) {
+                    const files = Array.from(event.target.files);
+                    files.forEach(file => {
+                        this.formData.files.documents.push({
+                            file: file,
+                            name: file.name,
+                            size: this.formatFileSize(file.size),
+                            type: file.type
+                        });
+                    });
+                    console.log('Document files added:', this.formData.files.documents);
+                },
+
+                removeFile(category, index) {
+                    this.formData.files[category].splice(index, 1);
+                    console.log(`File removed from ${category}:`, index);
+                },
+
+                formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+                },
+
                 saveForm() {
-                    alert('保存機能は未実装です。データ: ' + JSON.stringify(this.formData));
+                    console.log('保存データ:', this.formData);
+                    const fileCount =
+                        this.formData.files.presentation.length +
+                        this.formData.files.drawings.length +
+                        this.formData.files.documents.length;
+                    alert(`保存機能は未実装です。\nプラン情報: ${JSON.stringify({
+                        planCode: this.formData.planCode,
+                        floors: this.formData.floors,
+                        tsubo: this.formData.tsubo,
+                        layout: this.formData.layout
+                    })}\n添付ファイル数: ${fileCount}件`);
                 }
             };
         }
