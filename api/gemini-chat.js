@@ -95,6 +95,11 @@ export default async function handler(req, res) {
 
         // Supabaseから実際のシステムデータを取得
         const systemData = await fetchSystemData();
+        console.log('📊 System Data Retrieved:', {
+            planCount: systemData?.planCount,
+            faqCount: systemData?.faqCount,
+            downloadCount: systemData?.downloadCount
+        });
 
         // システムデータを整形
         let dataSection = '';
