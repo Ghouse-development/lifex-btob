@@ -583,19 +583,21 @@
                     try {
                         const sb = await window.sbReady;
 
-                        // プラン統計（公開中のプランのみカウント - ホームページと一致させる）
+                        // プラン統計
                         const { data, error } = await sb
                             .from('plans')
                             .select('*');
 
-                        const publishedPlans = (data || []);
-                        this.stats.plans = publishedPlans.length;
-                        this.stats.plansUpdated = publishedPlans.filter(plan => {
-                            if (!plan.updated_at) return false;
-                            const updatedDate = new Date(plan.updated_at);
-                            const thisMonth = new Date();
-                            return updatedDate.getMonth() === thisMonth.getMonth() &&
-                                   updatedDate.getFullYear() === thisMonth.getFullYear();
+                        const plans = (data || []);
+                        this.stats.plans = plans.length;
+
+                        // 今月作成されたプラン数を計算
+                        const now = new Date();
+                        this.stats.plansUpdated = plans.filter(plan => {
+                            if (!plan.created_at) return false;
+                            const createdDate = new Date(plan.created_at);
+                            return createdDate.getMonth() === now.getMonth() &&
+                                   createdDate.getFullYear() === now.getFullYear();
                         }).length;
 
                         // ルール統計（Supabaseから取得）
@@ -605,10 +607,8 @@
                                 .select('*');
 
                             if (!rulesError && rulesData) {
-                                const activeRules = rulesData.filter(r => r.status === 'active');
-                                this.stats.rules = activeRules.length;
-                                // importance フィールドがある場合のみカウント
-                                this.stats.rulesRequired = activeRules.filter(r => r.importance === '必須').length;
+                                this.stats.rules = rulesData.length;
+                                this.stats.rulesRequired = rulesData.filter(r => r.required === true).length;
                             } else {
                                 this.stats.rules = 0;
                                 this.stats.rulesRequired = 0;
@@ -619,43 +619,20 @@
                             this.stats.rulesRequired = 0;
                         }
                         
-                        // ダウンロード統計（ホームページと同じロジックに統一）
-                        const downloadsData = localStorage.getItem('downloads_data');
-                        if (downloadsData && downloadsData !== '{"categories":{}}') {
-                            try {
-                                const downloads = JSON.parse(downloadsData);
-                                let totalFiles = 0;
-                                
-                                // 新しい形式（配列）のチェック
-                                if (downloads.categories && Array.isArray(downloads.categories)) {
-                                    downloads.categories.forEach(category => {
-                                        if (category.files && Array.isArray(category.files)) {
-                                            totalFiles += category.files.length;
-                                        }
-                                    });
-                                }
-                                // 古い形式（オブジェクト）のチェック（互換性のため）
-                                else if (downloads.categories && typeof downloads.categories === 'object') {
-                                    Object.keys(downloads.categories).forEach(categoryKey => {
-                                        const cat = downloads.categories[categoryKey];
-                                        // 新しい形式のfilesフィールド
-                                        if (cat.files && Array.isArray(cat.files)) {
-                                            totalFiles += cat.files.length;
-                                        }
-                                        // 古い形式のitemsフィールド
-                                        else if (cat.items && Array.isArray(cat.items)) {
-                                            totalFiles += cat.items.length;
-                                        }
-                                    });
-                                }
-                                
-                                this.stats.downloads = totalFiles;
-                                console.log('Downloads data:', downloads, 'Total files:', totalFiles);
-                            } catch (e) {
-                                console.error('Error parsing downloads data:', e);
+                        // ダウンロード統計（Supabaseから取得）
+                        try {
+                            const { data: downloadsData, error: downloadsError } = await sb
+                                .from('downloads')
+                                .select('*');
+
+                            if (!downloadsError && downloadsData) {
+                                this.stats.downloads = downloadsData.length;
+                                console.log('Downloads count:', this.stats.downloads);
+                            } else {
                                 this.stats.downloads = 0;
                             }
-                        } else {
+                        } catch (e) {
+                            console.error('Error loading downloads stats:', e);
                             this.stats.downloads = 0;
                         }
                         

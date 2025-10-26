@@ -274,7 +274,7 @@
                             });
                         }
 
-                        // FAQ統計
+                        // FAQ統計（公開中のみカウント）
                         const { data: faqs, error: faqsError } = await sb
                             .from('faqs')
                             .select('*');
@@ -283,7 +283,7 @@
                             console.warn('⚠️ FAQs table error:', faqsError.message);
                             this.stats.totalFaqs = 0;
                         } else if (faqs) {
-                            this.stats.totalFaqs = faqs.length;
+                            this.stats.totalFaqs = faqs.filter(f => f.status === 'published').length;
 
                             // カテゴリ数を取得
                             const { data: categories, error: catError } = await sb
