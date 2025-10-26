@@ -92,7 +92,7 @@ export default async function handler(req, res) {
 - 競合他社との比較（LIFE Xの特徴のみを説明）`;
 
         // Gemini APIエンドポイント
-        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         // 会話履歴を構築
         const contents = [
@@ -158,7 +158,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
             success: true,
             response: aiResponse,
-            model: 'gemini-1.5-flash'
+            model: 'gemini-2.0-flash'
         });
 
     } catch (error) {
