@@ -219,7 +219,7 @@
             </div>
 
             <!-- Matrix Container -->
-            <div x-show="!loading && (widthOptions.length > 0 || depthOptions.length > 0)" class="card overflow-x-auto matrix-container">
+            <div x-show="!loading && (widthOptions.length > 0 || depthOptions.length > 0)" class="card overflow-auto max-h-[80vh] matrix-container">
                 <div class="flex">
                     <!-- 縦軸ラベル（建物奥行） -->
                     <div class="flex items-center justify-center pr-4">
@@ -239,11 +239,11 @@
                             <!-- Header Row -->
                             <thead>
                                 <tr>
-                                    <th class="p-3 bg-gray-100 border-2 border-gray-300 text-sm font-bold text-gray-700 sticky left-0 z-10">
+                                    <th class="p-3 bg-gray-100 border-2 border-gray-300 text-sm font-bold text-gray-700 sticky left-0 top-0 z-20">
                                         間口→<br/>↓奥行
                                     </th>
                                     <template x-for="width in widthOptions" :key="width">
-                                        <th class="p-3 bg-blue-50 border border-gray-300 text-sm font-bold text-blue-800 min-w-[180px]">
+                                        <th class="p-3 bg-blue-50 border border-gray-300 text-sm font-bold text-blue-800 min-w-[180px] sticky top-0 z-10">
                                             <div x-text="width" class="text-base"></div>
                                             <div x-text="`(${Math.round(width/455)/2}P)`" class="text-blue-600 text-sm mt-1"></div>
                                         </th>
