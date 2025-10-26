@@ -12,6 +12,28 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- Supabase Client初期化 -->
+    <script type="module">
+        // CDNの読み込みを待ってからインポート
+        await new Promise(resolve => {
+            if (window.supabase?.createClient) {
+                resolve();
+            } else {
+                const checkInterval = setInterval(() => {
+                    if (window.supabase?.createClient) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+            }
+        });
+
+        // Supabaseクライアントをsupabase-client.jsからインポート
+        // これにより window.sbReady が設定されます
+        await import('./js/supabase-client.js?v=20251024c');
+        console.log('✅ Supabase初期化完了（plans.html）', new Date().toLocaleTimeString());
+    </script>
+
     <script src="/js/common.js?v=20251024"></script>
 
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>

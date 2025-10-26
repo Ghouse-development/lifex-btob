@@ -27,6 +27,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     }
 });
 
+// グローバルアクセス用の設定（await window.sbReady パターン対応）
+if (typeof window !== 'undefined') {
+    window.supabase = supabase;
+    window.sbReady = Promise.resolve(supabase);
+    console.log('✅ Supabase client initialized and exposed to window.sbReady');
+}
+
 // 認証状態の管理
 export const auth = {
     // 現在のユーザー取得
