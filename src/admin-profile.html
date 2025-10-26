@@ -19,7 +19,8 @@
     <script src="/js/common.js"></script>
 
     <!-- Supabase Auth Guard (Admin Only) -->
-    <script type="module" src="./js/auth-guard.js"></script>
+    <script type="module" src="./js/supabase-auth.js"></script>
+    <script type="module" src="./js/auth-guard.js?v=20251024"></script>
 
     <script>
         // Alpine.jsの自動起動を防止（auth-guardが手動で起動する）
@@ -270,8 +271,22 @@
         </div>
     </div>
 
-    <script type="module">
-        import { getCurrentUser, updatePassword } from '/js/supabase-auth.js';
+    <script>
+        // Supabaseの読み込みを待つ
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabase) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 50);
+                }
+            });
+        }
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('profileManager', () => ({
@@ -291,13 +306,23 @@
 
                 async loadProfile() {
                     try {
-                        const { user, profile } = await getCurrentUser();
-                        if (profile) {
-                            this.profile = profile;
-                            this.editData = { ...profile };
+                        // Supabaseの読み込みを待つ
+                        await waitForSupabase();
+
+                        const { data: { session } } = await window.supabase.auth.getSession();
+                        if (session) {
+                            const { data: profile } = await window.supabase
+                                .from('user_profiles')
+                                .select('*')
+                                .eq('id', session.user.id)
+                                .single();
+                            if (profile) {
+                                this.profile = profile;
+                                this.editData = { ...profile };
+                            }
                         }
                     } catch (error) {
-                        console.error('Error loading profile:', error);
+                        console.warn('Error loading profile:', error.message || error);
                         lifeXAPI.showToast('プロファイル情報の読み込みに失敗しました', 'error');
                     }
                 },
@@ -314,7 +339,7 @@
                         if (error) throw error;
                         this.loginHistory = data || [];
                     } catch (error) {
-                        console.error('Error loading login history:', error);
+                        console.warn('Error loading login history:', error.message || error);
                         // エラーは表示しない（テーブルがまだ作成されていない可能性があるため）
                     }
                 },
@@ -357,9 +382,12 @@
                     }
 
                     try {
-                        const result = await updatePassword(this.passwordData.newPassword);
-                        if (!result.success) {
-                            throw new Error(result.error || 'パスワードの変更に失敗しました');
+                        const { error } = await window.supabase.auth.updateUser({
+                            password: this.passwordData.newPassword
+                        });
+
+                        if (error) {
+                            throw new Error(error.message || 'パスワードの変更に失敗しました');
                         }
 
                         this.passwordData = { newPassword: '', confirmPassword: '' };

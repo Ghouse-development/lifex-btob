@@ -475,9 +475,20 @@ export const rulesAPI = {
 // ===========================================
 // ダウンロード関連API
 // ===========================================
+// Downloads APIのテーブル存在チェックキャッシュ（LocalStorageから復元）
+const downloadsTableCache = {
+    downloads: localStorage.getItem('downloads_table_exists') === 'false' ? false : null,
+    download_categories: localStorage.getItem('download_categories_table_exists') === 'false' ? false : null
+};
+
 export const downloadsAPI = {
     // ダウンロード資料取得
     async getDownloads(categoryId = null) {
+        // テーブルが存在しないことが確認済みの場合、リクエストを送らない
+        if (downloadsTableCache.downloads === false) {
+            return [];
+        }
+
         try {
             let query = supabase
                 .from('downloads')
@@ -494,26 +505,73 @@ export const downloadsAPI = {
 
             const { data, error } = await query;
 
-            if (error) throw error;
+            if (error) {
+                // デバッグ: エラーの詳細をログ出力
+                console.log('Downloads error details:', {
+                    code: error.code,
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint
+                });
+
+                // テーブルが存在しない場合をキャッシュ
+                if (error.code === 'PGRST116' || error.code === '42P01' || error.message?.includes('not find the table') || error.message?.includes('does not exist')) {
+                    console.log('Caching downloads table as non-existent');
+                    downloadsTableCache.downloads = false;
+                    localStorage.setItem('downloads_table_exists', 'false');
+                    return [];
+                }
+                throw error;
+            }
+
+            // テーブルが存在することをキャッシュ
+            downloadsTableCache.downloads = true;
+            localStorage.setItem('downloads_table_exists', 'true');
             return data;
         } catch (error) {
-            console.error('Error fetching downloads:', handleError(error));
+            console.warn('Error fetching downloads:', handleError(error));
             return [];
         }
     },
 
     // ダウンロードカテゴリ取得
     async getDownloadCategories() {
+        // テーブルが存在しないことが確認済みの場合、リクエストを送らない
+        if (downloadsTableCache.download_categories === false) {
+            return [];
+        }
+
         try {
             const { data, error } = await supabase
                 .from('download_categories')
                 .select('*')
                 .order('display_order');
 
-            if (error) throw error;
+            if (error) {
+                // デバッグ: エラーの詳細をログ出力
+                console.log('Download categories error details:', {
+                    code: error.code,
+                    message: error.message,
+                    details: error.details,
+                    hint: error.hint
+                });
+
+                // テーブルが存在しない場合をキャッシュ
+                if (error.code === 'PGRST116' || error.code === '42P01' || error.message?.includes('not find the table') || error.message?.includes('does not exist')) {
+                    console.log('Caching download_categories table as non-existent');
+                    downloadsTableCache.download_categories = false;
+                    localStorage.setItem('download_categories_table_exists', 'false');
+                    return [];
+                }
+                throw error;
+            }
+
+            // テーブルが存在することをキャッシュ
+            downloadsTableCache.download_categories = true;
+            localStorage.setItem('download_categories_table_exists', 'true');
             return data;
         } catch (error) {
-            console.error('Error fetching download categories:', handleError(error));
+            console.warn('Error fetching download categories:', handleError(error));
             return [];
         }
     },

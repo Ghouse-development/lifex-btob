@@ -16,7 +16,8 @@
     <script src="/js/common.js"></script>
 
     <!-- Supabase Auth Guard (Admin Only) -->
-    <script type="module" src="./js/auth-guard.js"></script>
+    <script type="module" src="./js/supabase-auth.js"></script>
+    <script type="module" src="./js/auth-guard.js?v=20251024"></script>
 
     <script>
         // Alpine.jsの自動起動を防止（auth-guardが手動で起動する）
@@ -231,8 +232,22 @@
         </div>
     </div>
 
-    <script type="module">
-        import { getCurrentUser } from '/js/supabase-auth.js';
+    <script>
+        // Supabaseの読み込みを待つ
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabase) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 50);
+                }
+            });
+        }
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('notificationsManager', () => ({
@@ -250,8 +265,19 @@
                 },
 
                 async init() {
-                    const { user, profile } = await getCurrentUser();
-                    this.currentUserId = profile.id;
+                    // Supabaseの読み込みを待つ
+                    await waitForSupabase();
+
+                    // Get current user directly from supabase
+                    const { data: { session } } = await window.supabase.auth.getSession();
+                    if (session) {
+                        const { data: profile } = await window.supabase
+                            .from('user_profiles')
+                            .select('*')
+                            .eq('id', session.user.id)
+                            .single();
+                        this.currentUserId = profile?.id;
+                    }
                     await this.loadNotifications();
                 },
 

@@ -1793,11 +1793,16 @@ function logout() {
             };
 
             // Downloads APIを定義
-            // テーブル存在フラグ（404エラーを1回だけ発生させる）
+            // テーブル存在フラグ（LocalStorageから復元、404エラーを防ぐ）
+            const categoriesValue = localStorage.getItem('download_categories_exists');
+            const itemsValue = localStorage.getItem('downloads_exists');
+            console.log('LocalStorage check - categories:', categoriesValue, 'items:', itemsValue);
+
             let downloadTablesExist = {
-                categories: true,
-                items: true
+                categories: categoriesValue !== 'false',
+                items: itemsValue !== 'false'
             };
+            console.log('downloadTablesExist initialized:', downloadTablesExist);
 
             window.supabaseAPI.downloads = {
                 async getCategories() {
@@ -1814,9 +1819,15 @@ function logout() {
                             .select('*')
                             .order('display_order');
                         if (error) {
+                            // デバッグ: エラーの詳細をログ出力
+                            console.log('Download categories error - code:', error.code);
+                            console.log('Download categories error - message:', error.message);
+
                             // テーブルが存在しない場合は警告のみ
-                            if (error.code === 'PGRST205') {
+                            if (error.code === 'PGRST116' || error.code === 'PGRST205' || error.code === '42P01' ||
+                                error.message?.includes('not find the table') || error.message?.includes('does not exist')) {
                                 downloadTablesExist.categories = false;
+                                localStorage.setItem('download_categories_exists', 'false');
                                 console.warn('⚠️ download_categories table not found, using fallback');
                             } else {
                                 console.warn('⚠️ downloads.getCategories error:', error.message);
@@ -1851,9 +1862,15 @@ function logout() {
 
                         const { data, error } = await query;
                         if (error) {
+                            // デバッグ: エラーの詳細をログ出力
+                            console.log('Downloads error - code:', error.code);
+                            console.log('Downloads error - message:', error.message);
+
                             // テーブルが存在しない場合は警告のみ
-                            if (error.code === 'PGRST205') {
+                            if (error.code === 'PGRST116' || error.code === 'PGRST205' || error.code === '42P01' ||
+                                error.message?.includes('not find the table') || error.message?.includes('does not exist')) {
                                 downloadTablesExist.items = false;
+                                localStorage.setItem('downloads_exists', 'false');
                                 console.warn('⚠️ downloads table not found, using fallback');
                             } else {
                                 console.warn('⚠️ downloads.getItems error:', error.message);

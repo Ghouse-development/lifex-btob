@@ -16,7 +16,8 @@
     <script src="/js/common.js"></script>
 
     <!-- Supabase Auth Guard (Admin Only) -->
-    <script type="module" src="./js/auth-guard.js"></script>
+    <script type="module" src="./js/supabase-auth.js"></script>
+    <script type="module" src="./js/auth-guard.js?v=20251024"></script>
 
     <script src="/utils/google-auth.js"></script>
     <script>
@@ -245,8 +246,22 @@
         </div>
     </div>
 
-    <script type="module">
-        import { getCurrentUser } from '/js/supabase-auth.js';
+    <script>
+        // Supabaseの読み込みを待つ
+        function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabase) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 50);
+                }
+            });
+        }
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('adminUsers', () => ({
@@ -263,9 +278,19 @@
                 },
 
                 async init() {
+                    // Supabaseの読み込みを待つ
+                    await waitForSupabase();
+
                     // 現在のユーザー情報を取得
-                    const { user, profile } = await getCurrentUser();
-                    this.currentUser = profile;
+                    const { data: { session } } = await window.supabase.auth.getSession();
+                    if (session) {
+                        const { data: profile } = await window.supabase
+                            .from('user_profiles')
+                            .select('*')
+                            .eq('id', session.user.id)
+                            .single();
+                        this.currentUser = profile;
+                    }
 
                     // ユーザーリストを読み込み
                     await this.loadUsers();

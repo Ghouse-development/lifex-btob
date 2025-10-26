@@ -27,7 +27,9 @@
       "Bash(else)",
       "Bash(vercel inspect:*)",
       "Bash(for shell_id in d74df7 baa1f2 4a2af2)",
-      "Bash(do echo \"Killing shell $shell_id\")"
+      "Bash(do echo \"Killing shell $shell_id\")",
+      "Bash(vercel env:*)",
+      "Bash(for shell_id in d74df7 baa1f2 4a2af2 323c52)"
     ],
     "deny": [],
     "ask": []
