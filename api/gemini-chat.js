@@ -12,6 +12,56 @@
  * }
  */
 
+import { createClient } from '@supabase/supabase-js';
+
+// Supabaseから実際のシステムデータを取得
+async function fetchSystemData() {
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+        console.error('Supabase credentials not found');
+        return null;
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    try {
+        // プラン数を取得
+        const { data: plans, error: plansError } = await supabase
+            .from('plans')
+            .select('id, plan_code, tsubo, layout', { count: 'exact' });
+
+        // FAQ数を取得
+        const { data: faqs, error: faqsError } = await supabase
+            .from('faqs')
+            .select('id, question, category', { count: 'exact' });
+
+        // ダウンロードカテゴリーを取得
+        const { data: downloadCategories, error: dlCatError } = await supabase
+            .from('download_categories')
+            .select('id, name');
+
+        // ダウンロードファイル数を取得
+        const { data: downloads, error: dlError } = await supabase
+            .from('downloads')
+            .select('id, title, category_id', { count: 'exact' });
+
+        return {
+            plans: plans || [],
+            planCount: plans?.length || 0,
+            faqs: faqs || [],
+            faqCount: faqs?.length || 0,
+            downloadCategories: downloadCategories || [],
+            downloads: downloads || [],
+            downloadCount: downloads?.length || 0
+        };
+    } catch (error) {
+        console.error('Error fetching system data:', error);
+        return null;
+    }
+}
+
 export default async function handler(req, res) {
     // CORSヘッダー設定
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -43,7 +93,26 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Server configuration error' });
         }
 
-        // システムプロンプト
+        // Supabaseから実際のシステムデータを取得
+        const systemData = await fetchSystemData();
+
+        // システムデータを整形
+        let dataSection = '';
+        if (systemData) {
+            dataSection = `
+【現在のシステム登録データ】
+- 登録プラン数: ${systemData.planCount}件
+${systemData.planCount > 0 ? `  主なプラン: ${systemData.plans.slice(0, 5).map(p => `${p.plan_code || p.id} (${p.tsubo}坪 ${p.layout})`).join(', ')}${systemData.planCount > 5 ? '...' : ''}` : ''}
+- FAQ登録数: ${systemData.faqCount}件
+${systemData.faqCount > 0 ? `  主なカテゴリー: ${[...new Set(systemData.faqs.map(f => f.category))].filter(Boolean).join(', ')}` : ''}
+- ダウンロード資料数: ${systemData.downloadCount}件
+${systemData.downloadCategories.length > 0 ? `  カテゴリー: ${systemData.downloadCategories.map(c => c.name).join(', ')}` : ''}
+
+※ これらは現在システムに登録されている実際のデータです。回答する際は、この情報を優先して使用してください。
+`;
+        }
+
+        // システムプロンプト（動的データを含む）
         const systemPrompt = `あなたはGハウス規格住宅「LIFE X」の専門AIアシスタントです。
 
 【あなたの役割】
@@ -51,9 +120,9 @@ export default async function handler(req, res) {
 - プラン、仕様、設計、施工に関する質問に正確に回答
 - 専門的かつ分かりやすい説明を提供
 - 不確実な情報は推測せず、必ず担当者への確認を案内する
-
+${dataSection}
 【LIFE Xの基本情報】
-- 規格住宅: 複数の標準プランを提供（詳細なプラン数は担当者にお問い合わせください）
+- 規格住宅: 標準プランを複数提供（具体的なプラン数は上記の登録データを参照）
 - 坪数: 約25〜50坪の範囲で多様なプラン
 - 構造: 木造軸組工法（在来工法）
 - 耐震性能: 標準仕様で耐震等級3（最高等級）
