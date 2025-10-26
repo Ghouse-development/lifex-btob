@@ -345,9 +345,10 @@
                                                         <div class="text-center p-2">
                                                             <!-- 外観パース表示 -->
                                                             <template x-if="getCellPlans(width, depth)[0].exteriorImage">
-                                                                <img 
-                                                                    :src="getCellPlans(width, depth)[0].exteriorImage" 
+                                                                <img
+                                                                    :src="getCellPlans(width, depth)[0].exteriorImage"
                                                                     :alt="getCellPlans(width, depth)[0].id"
+                                                                    loading="lazy"
                                                                     class="plan-thumbnail rounded mb-1">
                                                             </template>
                                                             <template x-if="!getCellPlans(width, depth)[0].exteriorImage">

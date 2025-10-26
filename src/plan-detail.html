@@ -487,11 +487,10 @@
                     const planId = urlParams.get('id');
                     console.log('Getting plan ID from URL:', planId);
 
-                    // UUID形式の検証
-                    if (planId && !this.isValidUUID(planId)) {
-                        console.warn('Invalid UUID format:', planId);
-                        lifeXAPI.showToast('無効なプランIDです', 'error');
-                        // プラン一覧にリダイレクト
+                    // IDの存在チェックのみ（UUID, プランコード両方に対応）
+                    if (!planId || planId.trim() === '') {
+                        console.warn('プランIDが指定されていません');
+                        lifeXAPI.showToast('プランIDが指定されていません', 'error');
                         setTimeout(() => {
                             window.location.href = '/plans.html';
                         }, 1500);
@@ -499,12 +498,6 @@
                     }
 
                     return planId;
-                },
-
-                isValidUUID(uuid) {
-                    // UUID v4 形式の正規表現
-                    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-                    return uuidPattern.test(uuid);
                 },
 
                 async loadPlan(planId) {
