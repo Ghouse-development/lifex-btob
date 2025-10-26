@@ -13,7 +13,7 @@ async function testProductionInit() {
     });
 
     try {
-        const baseUrl = 'https://lifex-btob-flioq3t6m-ghouse-developments-projects.vercel.app';
+        const baseUrl = 'https://lifex-btob.vercel.app';
 
         const testPages = [
             { url: `${baseUrl}/plans.html`, name: 'プラン一覧' },
