@@ -307,8 +307,11 @@
                         キャンセル
                     </button>
                     <button @click="saveForm()"
+                            :disabled="loading"
+                            :class="loading ? 'opacity-50 cursor-not-allowed' : ''"
                             class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        保存
+                        <span x-show="!loading">保存</span>
+                        <span x-show="loading">保存中...</span>
                     </button>
                 </div>
             </div>
@@ -320,6 +323,7 @@
         function plansManager() {
             return {
                 showModal: false,
+                loading: false,
                 formData: {
                     planCode: '',
                     floors: '2',
@@ -397,18 +401,93 @@
                     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
                 },
 
-                saveForm() {
-                    console.log('保存データ:', this.formData);
-                    const fileCount =
-                        this.formData.files.presentation.length +
-                        this.formData.files.drawings.length +
-                        this.formData.files.documents.length;
-                    alert(`保存機能は未実装です。\nプラン情報: ${JSON.stringify({
-                        planCode: this.formData.planCode,
-                        floors: this.formData.floors,
-                        tsubo: this.formData.tsubo,
-                        layout: this.formData.layout
-                    })}\n添付ファイル数: ${fileCount}件`);
+                async saveForm() {
+                    // バリデーション
+                    if (!this.formData.planCode) {
+                        lifeXAPI.showToast('プランコードを入力してください', 'error');
+                        return;
+                    }
+                    if (!this.formData.tsubo) {
+                        lifeXAPI.showToast('坪数を入力してください', 'error');
+                        return;
+                    }
+
+                    this.loading = true;
+
+                    try {
+                        console.log('💾 プラン保存開始...', this.formData);
+
+                        // Supabaseの初期化を待つ
+                        await window.sbReady;
+                        const sb = await window.sbReady;
+
+                        // ファイル情報を準備（実際のアップロードは後で実装）
+                        const filesMetadata = {
+                            presentation: this.formData.files.presentation.map(f => ({
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                uploaded: new Date().toISOString()
+                            })),
+                            drawings: this.formData.files.drawings.map(f => ({
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                uploaded: new Date().toISOString()
+                            })),
+                            documents: this.formData.files.documents.map(f => ({
+                                name: f.name,
+                                size: f.size,
+                                type: f.type,
+                                uploaded: new Date().toISOString()
+                            }))
+                        };
+
+                        // プランデータを作成
+                        const planData = {
+                            plan_code: this.formData.planCode,
+                            plan_name: this.formData.layout,
+                            building_floors: parseInt(this.formData.floors),
+                            tsubo: parseFloat(this.formData.tsubo),
+                            layout: this.formData.layout,
+                            sell_price: this.formData.sellPrice ? parseFloat(this.formData.sellPrice) : null,
+                            cost_price: this.formData.cost ? parseFloat(this.formData.cost) : null,
+                            gross_profit: this.formData.sellPrice && this.formData.cost
+                                ? parseFloat(this.formData.sellPrice) - parseFloat(this.formData.cost)
+                                : null,
+                            files: filesMetadata,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        };
+
+                        console.log('📝 保存データ:', planData);
+
+                        // Supabaseに保存
+                        const { data, error } = await sb
+                            .from('plans')
+                            .insert(planData)
+                            .select();
+
+                        if (error) {
+                            console.error('❌ Supabase保存エラー:', error);
+                            throw error;
+                        }
+
+                        console.log('✅ プラン保存成功:', data);
+
+                        lifeXAPI.showToast('プランを作成しました', 'success');
+
+                        // プラン一覧にリダイレクト
+                        setTimeout(() => {
+                            window.location.href = '/admin-plans.html';
+                        }, 1500);
+
+                    } catch (error) {
+                        console.error('❌ 保存エラー:', error);
+                        lifeXAPI.showToast('保存に失敗しました: ' + error.message, 'error');
+                    } finally {
+                        this.loading = false;
+                    }
                 }
             };
         }
