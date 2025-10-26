@@ -997,20 +997,9 @@
                     let plansData = { plans: [] };
 
                     try {
-                        // Supabase初期化完了を待つ（common.jsが設定）
-                        if (!window.supabaseClient || typeof window.supabaseClient.from !== 'function') {
-                            await new Promise((resolve) => {
-                                if (window.supabaseClient && typeof window.supabaseClient.from === 'function') {
-                                    resolve();
-                                } else {
-                                    window.addEventListener('supabase:ready', resolve, { once: true });
-                                    setTimeout(() => {
-                                        window.removeEventListener('supabase:ready', resolve);
-                                        resolve();
-                                    }, 5000);
-                                }
-                            });
-                        }
+                        // Supabase初期化完了を待つ
+                        await window.sbReady;
+                        const sb = await window.sbReady;
 
                         // Plans APIを使用（フォールバック内蔵）
                         let data;
@@ -1019,7 +1008,6 @@
                         } else {
                             // フォールバック: 直接Supabaseへアクセス
                             console.warn('⚠️ Plans API not available, using fallback');
-                            const sb = window.supabaseClient || window.supabase;
                             if (sb && typeof sb.from === 'function') {
                                 const { data: fallbackData, error } = await sb
                                     .from('plans')

@@ -429,22 +429,6 @@
     </div>
 
     <script>
-        // window.supabaseが利用可能になるまで待機
-        async function waitForSupabase() {
-            return new Promise((resolve) => {
-                if (window.supabase) {
-                    resolve();
-                } else {
-                    const checkInterval = setInterval(() => {
-                        if (window.supabase) {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 50);
-                }
-            });
-        }
-
         function planDetailPage() {
             return {
                 loading: true,
@@ -455,8 +439,8 @@
 
                 async init() {
                     try {
-                        // window.supabaseが利用可能になるまで待機
-                        await waitForSupabase();
+                        // Supabase初期化完了を待つ
+                        await window.sbReady;
 
                         const planId = this.getPlanIdFromURL();
                         if (!planId) {
@@ -503,7 +487,8 @@
                 async loadPlan(planId) {
                     try {
                         // Load plan from Supabase
-                        const { data, error } = await window.supabase
+                        const sb = await window.sbReady;
+                        const { data, error } = await sb
                             .from('plans')
                             .select('*')
                             .eq('id', planId)
@@ -581,7 +566,8 @@
                 async loadRelatedPlans(currentPlanId) {
                     try {
                         // Load all plans from Supabase
-                        const { data, error } = await window.supabase
+                        const sb = await window.sbReady;
+                        const { data, error } = await sb
                             .from('plans')
                             .select('*')
                             .neq('id', currentPlanId)
