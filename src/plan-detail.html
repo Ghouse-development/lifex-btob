@@ -148,7 +148,7 @@
                             </div>
 
                             <!-- Basic Specs -->
-                            <div class="grid grid-cols-3 gap-6 mb-6">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6">
                                 <div>
                                     <div class="text-gray-500 text-sm mb-1">坪数</div>
                                     <div x-text="plan?.tsubo + '坪'" class="text-xl font-semibold text-gray-900"></div>
@@ -164,7 +164,7 @@
                             </div>
 
                             <!-- Floor Information -->
-                            <div class="grid grid-cols-3 gap-6 mb-6">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6">
                                 <div>
                                     <div class="text-gray-500 text-sm mb-1">階数</div>
                                     <div x-text="plan?.floors || '-'" class="text-xl font-semibold text-gray-900"></div>
@@ -180,7 +180,7 @@
                             </div>
 
                             <!-- Prices -->
-                            <div class="grid grid-cols-3 gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-6 p-4 bg-gray-50 rounded-lg">
                                 <div>
                                     <div class="text-gray-500 text-sm mb-1">想定販売価格</div>
                                     <div x-text="lifeXAPI.formatPrice(plan?.prices?.sell)" class="text-xl font-bold text-primary-600"></div>
