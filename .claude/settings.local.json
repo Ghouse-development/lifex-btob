@@ -35,7 +35,19 @@
       "WebSearch",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(vercel --prod:*)"
+      "Bash(vercel --prod:*)",
+      "Bash(for shell_id in d74df7 baa1f2 4a2af2 323c52 35a819)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout 5 bash:*)",
+      "mcp__ide__getDiagnostics",
+      "WebFetch(domain:lifex-btob-flioq3t6m-ghouse-developments-projects.vercel.app)",
+      "WebFetch(domain:lifex-btob-9noixxmnn-ghouse-developments-projects.vercel.app)",
+      "Bash(curl -s https://lifex-btob-9noixxmnn-ghouse-developments-projects.vercel.app/js/supabase-client.js)",
+      "Bash(curl -s https://lifex-btob.vercel.app/js/supabase-client.js)",
+      "Bash(awk:*)",
+      "Bash(for pid in d74df7 baa1f2 4a2af2 323c52 35a819 3fe6f1 b40b99 44d004 a60ce8 8fcb8b 6b2415 64ae90)",
+      "Bash(do echo \"Killing $pid\")",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []

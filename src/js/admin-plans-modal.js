@@ -172,7 +172,7 @@ function planModalComponent() {
         },
 
         // プランコードバリデーション
-        validatePlanCode() {
+        async validatePlanCode() {
             const code = this.formData.planCode;
 
             if (!code) {
@@ -185,11 +185,44 @@ function planModalComponent() {
                 return false;
             }
 
-            // TODO: 重複チェック (APIコール)
-            // this.checkDuplicatePlanCode(code);
+            // 重複チェック (Supabase APIコール)
+            await this.checkDuplicatePlanCode(code);
+
+            if (this.formErrors.planCode) {
+                return false;
+            }
 
             delete this.formErrors.planCode;
             return true;
+        },
+
+        // プランコード重複チェック
+        async checkDuplicatePlanCode(code) {
+            try {
+                const sb = await window.sbReady;
+
+                // Supabaseでプランコードを検索
+                const { data, error } = await sb
+                    .from('plans')
+                    .select('id, plan_code')
+                    .eq('plan_code', code)
+                    .limit(1);
+
+                if (error) {
+                    console.error('重複チェックエラー:', error);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    // 重複が見つかった場合
+                    this.formErrors.planCode = 'このプランコードは既に使用されています';
+                } else {
+                    // 重複なし
+                    delete this.formErrors.planCode;
+                }
+            } catch (err) {
+                console.error('重複チェック例外:', err);
+            }
         },
 
         // 階数変更時の処理

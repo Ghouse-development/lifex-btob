@@ -557,10 +557,22 @@
                             status: this.editingUser.status
                         };
                         
-                        // パスワードが変更された場合の処理（実際の実装では暗号化が必要）
+                        // パスワードが変更された場合の処理
                         if (this.editingUser.newPassword) {
-                            // パスワード変更処理
-                            // TODO: パスワード更新処理を実装
+                            try {
+                                const sb = await window.sbReady;
+                                // Supabase Authでパスワード更新
+                                const { error } = await sb.auth.admin.updateUserById(
+                                    user.id,
+                                    { password: this.editingUser.newPassword }
+                                );
+                                if (error) {
+                                    console.warn('パスワード更新エラー:', error.message);
+                                    lifeXAPI.showToast('パスワード更新に失敗しました', 'warning');
+                                }
+                            } catch (err) {
+                                console.error('パスワード更新エラー:', err);
+                            }
                         }
                     }
 
@@ -595,17 +607,39 @@
                         return;
                     }
                     
-                    // パスワード変更処理（実際にはAPI呼び出し）
-                    // TODO: API呼び出しを実装
+                    // パスワード変更処理（Supabase Auth API使用）
+                    try {
+                        const sb = await window.sbReady;
 
-                    // フォームをリセット
-                    this.passwordForm = {
-                        current: '',
-                        new: '',
-                        confirm: ''
-                    };
-                    
-                    lifeXAPI.showToast('パスワードを変更しました', 'success');
+                        // 現在のパスワードで再認証
+                        const { data: { user } } = await sb.auth.getUser();
+                        if (!user) {
+                            lifeXAPI.showToast('ログインしていません', 'error');
+                            return;
+                        }
+
+                        // パスワード更新
+                        const { error } = await sb.auth.updateUser({
+                            password: this.passwordForm.new
+                        });
+
+                        if (error) {
+                            lifeXAPI.showToast('パスワード変更に失敗しました: ' + error.message, 'error');
+                            return;
+                        }
+
+                        // フォームをリセット
+                        this.passwordForm = {
+                            current: '',
+                            new: '',
+                            confirm: ''
+                        };
+
+                        lifeXAPI.showToast('パスワードを変更しました', 'success');
+                    } catch (err) {
+                        console.error('パスワード変更エラー:', err);
+                        lifeXAPI.showToast('パスワード変更中にエラーが発生しました', 'error');
+                    }
                 },
 
                 saveSettings() {
@@ -628,16 +662,113 @@
                     lifeXAPI.showToast('バックアップを作成しました', 'success');
                 },
 
-                downloadBackup(backup) {
-                    // TODO: バックアップダウンロード処理を実装
-                    lifeXAPI.showToast(`${backup.filename} をダウンロード中...`, 'info');
+                async downloadBackup(backup) {
+                    try {
+                        const sb = await window.sbReady;
+
+                        // 全データを取得
+                        const backupData = {
+                            timestamp: new Date().toISOString(),
+                            version: '1.0',
+                            data: {}
+                        };
+
+                        // プランデータ
+                        const { data: plans } = await sb.from('plans').select('*');
+                        backupData.data.plans = plans || [];
+
+                        // ルールデータ
+                        const { data: rules } = await sb.from('rules').select('*');
+                        backupData.data.rules = rules || [];
+
+                        // FAQデータ
+                        const { data: faqs } = await sb.from('faqs').select('*');
+                        backupData.data.faqs = faqs || [];
+
+                        // ダウンロード用データデータ
+                        const { data: downloads } = await sb.from('downloads').select('*');
+                        backupData.data.downloads = downloads || [];
+
+                        // JSONファイルとしてダウンロード
+                        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = backup.filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+
+                        lifeXAPI.showToast(`${backup.filename} をダウンロードしました`, 'success');
+                    } catch (err) {
+                        console.error('バックアップダウンロードエラー:', err);
+                        lifeXAPI.showToast('バックアップのダウンロードに失敗しました', 'error');
+                    }
                 },
 
-                restoreBackup(backup) {
-                    if (confirm('このバックアップから復元してもよろしいですか？現在のデータは失われます。')) {
-                        // TODO: バックアップ復元処理を実装
-                        lifeXAPI.showToast('バックアップから復元中...', 'info');
+                async restoreBackup(backup) {
+                    if (!confirm('このバックアップから復元してもよろしいですか？現在のデータは失われます。')) {
+                        return;
                     }
+
+                    // ファイル選択ダイアログを表示
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.onchange = async (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        try {
+                            const text = await file.text();
+                            const backupData = JSON.parse(text);
+
+                            if (!backupData.data) {
+                                lifeXAPI.showToast('無効なバックアップファイルです', 'error');
+                                return;
+                            }
+
+                            const sb = await window.sbReady;
+
+                            // データを復元（テーブルごとに処理）
+                            if (backupData.data.plans) {
+                                // 既存データを削除してから挿入
+                                await sb.from('plans').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                                for (const plan of backupData.data.plans) {
+                                    await sb.from('plans').insert(plan);
+                                }
+                            }
+
+                            if (backupData.data.rules) {
+                                await sb.from('rules').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                                for (const rule of backupData.data.rules) {
+                                    await sb.from('rules').insert(rule);
+                                }
+                            }
+
+                            if (backupData.data.faqs) {
+                                await sb.from('faqs').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                                for (const faq of backupData.data.faqs) {
+                                    await sb.from('faqs').insert(faq);
+                                }
+                            }
+
+                            if (backupData.data.downloads) {
+                                await sb.from('downloads').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+                                for (const download of backupData.data.downloads) {
+                                    await sb.from('downloads').insert(download);
+                                }
+                            }
+
+                            lifeXAPI.showToast('バックアップから復元しました', 'success');
+                            setTimeout(() => location.reload(), 1500);
+                        } catch (err) {
+                            console.error('バックアップ復元エラー:', err);
+                            lifeXAPI.showToast('バックアップの復元に失敗しました', 'error');
+                        }
+                    };
+                    input.click();
                 },
 
                 deleteBackup(backup) {

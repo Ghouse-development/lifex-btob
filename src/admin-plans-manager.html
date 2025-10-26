@@ -296,7 +296,7 @@
     <script>
         function adminPlanApp() {
             return {
-                isAuthenticated: true, // TODO: 実際の認証チェックを実装
+                isAuthenticated: false,
                 loading: true,
                 saving: false,
                 plans: [],
@@ -325,13 +325,25 @@
 
                 async init() {
                     try {
-                        // TODO: 認証チェックを実装
-                        // const { data: { user } } = await window.supabase.auth.getUser();
-                        // this.isAuthenticated = user && user.role === 'admin';
+                        // Supabase認証チェック
+                        await window.sbReady;
+                        const sb = await window.sbReady;
 
-                        if (this.isAuthenticated) {
-                            await this.loadPlans();
+                        const { data: { user }, error } = await sb.auth.getUser();
+
+                        if (error || !user) {
+                            console.warn('認証エラー:', error?.message || 'ユーザーが見つかりません');
+                            this.isAuthenticated = false;
+                            // ログインページにリダイレクト
+                            setTimeout(() => {
+                                window.location.href = '/admin-login.html';
+                            }, 1500);
+                            return;
                         }
+
+                        // 認証成功
+                        this.isAuthenticated = true;
+                        await this.loadPlans();
                     } catch (error) {
                         console.error('Error during init:', error);
                         alert('初期化エラーが発生しました');

@@ -526,6 +526,30 @@
                             }
                         }
 
+                        // feature_tagsフィールドがJSON文字列の場合はパース
+                        let featureTags = null;
+                        if (data.feature_tags) {
+                            try {
+                                featureTags = typeof data.feature_tags === 'string' ? JSON.parse(data.feature_tags) : data.feature_tags;
+                            } catch (e) {
+                                console.warn('特徴タグデータのパースに失敗:', e);
+                            }
+                        }
+
+                        // タグを配列にフラット化
+                        const tags = [];
+                        if (featureTags) {
+                            if (featureTags.living && Array.isArray(featureTags.living)) {
+                                tags.push(...featureTags.living);
+                            }
+                            if (featureTags.storage && Array.isArray(featureTags.storage)) {
+                                tags.push(...featureTags.storage);
+                            }
+                            if (featureTags.exterior && Array.isArray(featureTags.exterior)) {
+                                tags.push(...featureTags.exterior);
+                            }
+                        }
+
                         // Map Supabase data to plan format
                         this.plan = {
                             id: data.id,
@@ -544,7 +568,7 @@
                                 cost: data.cost,
                                 gross: data.gross_profit
                             },
-                            tags: [],  // TODO: タグ機能が実装されたら対応
+                            tags: tags,
                             updatedAt: data.updated_at || data.created_at,
                             files: {
                                 presentation: this.convertFilesToDownloadFormat(filesData?.presentation || []),
@@ -585,17 +609,43 @@
                         }
 
                         // Map Supabase data to plan format
-                        const allPlans = data.map(p => ({
-                            id: p.id,
-                            name: p.plan_name,
-                            tsubo: p.tsubo || 0,
-                            width: p.maguchi ? p.maguchi.toFixed(2) : '0',
-                            depth: p.oku_yuki ? p.oku_yuki.toFixed(2) : '0',
-                            tags: [],  // TODO: タグ機能実装後に対応
-                            prices: {
-                                sell: p.sell_price
+                        const allPlans = data.map(p => {
+                            // Parse feature_tags if it exists
+                            let featureTags = null;
+                            if (p.feature_tags) {
+                                try {
+                                    featureTags = typeof p.feature_tags === 'string' ? JSON.parse(p.feature_tags) : p.feature_tags;
+                                } catch (e) {
+                                    console.warn('特徴タグデータのパースに失敗:', e);
+                                }
                             }
-                        }));
+
+                            // Flatten tags array
+                            const tags = [];
+                            if (featureTags) {
+                                if (featureTags.living && Array.isArray(featureTags.living)) {
+                                    tags.push(...featureTags.living);
+                                }
+                                if (featureTags.storage && Array.isArray(featureTags.storage)) {
+                                    tags.push(...featureTags.storage);
+                                }
+                                if (featureTags.exterior && Array.isArray(featureTags.exterior)) {
+                                    tags.push(...featureTags.exterior);
+                                }
+                            }
+
+                            return {
+                                id: p.id,
+                                name: p.plan_name,
+                                tsubo: p.tsubo || 0,
+                                width: p.maguchi ? p.maguchi.toFixed(2) : '0',
+                                depth: p.oku_yuki ? p.oku_yuki.toFixed(2) : '0',
+                                tags: tags,
+                                prices: {
+                                    sell: p.sell_price
+                                }
+                            };
+                        });
 
                         // Find plans with similar characteristics
                         const similarPlans = allPlans.filter(p => {
