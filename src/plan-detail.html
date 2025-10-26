@@ -429,6 +429,22 @@
     </div>
 
     <script>
+        // window.supabaseが利用可能になるまで待機
+        async function waitForSupabase() {
+            return new Promise((resolve) => {
+                if (window.supabase) {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (window.supabase) {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 50);
+                }
+            });
+        }
+
         function planDetailPage() {
             return {
                 loading: true,
@@ -439,6 +455,9 @@
 
                 async init() {
                     try {
+                        // window.supabaseが利用可能になるまで待機
+                        await waitForSupabase();
+
                         const planId = this.getPlanIdFromURL();
                         if (!planId) {
                             this.error = true;
