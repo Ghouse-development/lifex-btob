@@ -295,7 +295,7 @@
                                 </button>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <template x-for="file in plan?.files?.presentation" :key="file.url">
+                                <template x-for="(file, index) in plan?.files?.presentation" :key="`presentation-${index}`">
                                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
                                         <div class="flex items-start justify-between mb-2">
                                             <h4 x-text="file.title" class="font-medium text-gray-900"></h4>
@@ -334,7 +334,7 @@
                                     <div>
                                         <h4 x-text="getCategoryName(category)" class="font-medium text-gray-900 mb-3"></h4>
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <template x-for="file in files" :key="file.url">
+                                            <template x-for="(file, index) in files" :key="`${category}-drawing-${index}`">
                                                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
                                                     <div class="flex items-start justify-between mb-2">
                                                         <h5 x-text="file.title" class="font-medium text-gray-900 text-sm"></h5>
@@ -376,7 +376,7 @@
                                     <div>
                                         <h4 x-text="getCategoryName(category)" class="font-medium text-gray-900 mb-3"></h4>
                                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            <template x-for="file in files" :key="file.url">
+                                            <template x-for="(file, index) in files" :key="`${category}-excel-${index}`">
                                                 <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
                                                     <div class="flex items-start justify-between mb-2">
                                                         <h5 x-text="file.title" class="font-medium text-gray-900 text-sm"></h5>
@@ -418,7 +418,7 @@
                                 <div>
                                     <h4 class="font-medium text-gray-900 mb-3">建具・サッシ</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <template x-for="file in plan?.files?.doors || []" :key="file.url">
+                                        <template x-for="(file, index) in plan?.files?.doors || []" :key="`doors-${index}`">
                                             <div class="border border-gray-200 rounded-lg p-4">
                                                 <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
                                                 <div class="text-sm text-gray-600 mb-3">
@@ -434,7 +434,7 @@
                                                 </div>
                                             </div>
                                         </template>
-                                        <template x-for="file in plan?.files?.sashes || []" :key="file.url">
+                                        <template x-for="(file, index) in plan?.files?.sashes || []" :key="`sashes-${index}`">
                                             <div class="border border-gray-200 rounded-lg p-4">
                                                 <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
                                                 <div class="text-sm text-gray-600 mb-3">
@@ -457,7 +457,7 @@
                                 <div>
                                     <h4 class="font-medium text-gray-900 mb-3">資金計画・予算</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <template x-for="file in [...(plan?.files?.budget || []), ...(plan?.files?.estimate || [])]" :key="file.url">
+                                        <template x-for="(file, index) in [...(plan?.files?.budget || []), ...(plan?.files?.estimate || [])]" :key="`budget-${index}`">
                                             <div class="border border-gray-200 rounded-lg p-4">
                                                 <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
                                                 <div class="text-sm text-gray-600 mb-3">
@@ -480,7 +480,7 @@
                                 <div x-show="plan?.files?.wih?.length > 0">
                                     <h4 class="font-medium text-gray-900 mb-3">Walk in Home</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <template x-for="file in plan?.files?.wih || []" :key="file.url">
+                                        <template x-for="(file, index) in plan?.files?.wih || []" :key="`wih-${index}`">
                                             <div class="border border-gray-200 rounded-lg p-4">
                                                 <h5 x-text="file.title" class="font-medium text-gray-900 text-sm mb-2"></h5>
                                                 <div class="text-sm text-gray-600 mb-3">
@@ -708,7 +708,7 @@
                         const { data, error } = await sb
                             .from('plans')
                             .select('*')
-                            .neq('id', currentPlanId)
+                            .neq('plan_code', currentPlanId)
                             .order('created_at', { ascending: false });
 
                         if (error) {
