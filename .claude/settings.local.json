@@ -48,7 +48,8 @@
       "Bash(for pid in d74df7 baa1f2 4a2af2 323c52 35a819 3fe6f1 b40b99 44d004 a60ce8 8fcb8b 6b2415 64ae90)",
       "Bash(do echo \"Killing $pid\")",
       "Bash(git push)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

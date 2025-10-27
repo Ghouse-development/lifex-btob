@@ -704,11 +704,19 @@ window.lifeXAPI = {
     },
 
     // ファイルダウンロード
-    downloadFile(filePath, fileName) {
+    downloadFile(filePath, fileName, forceDownload = true) {
         try {
             const link = document.createElement('a');
             link.href = filePath;
-            link.download = fileName || 'download';
+
+            // forceDownloadがtrueの場合、download属性を設定（ブラウザで開かずにダウンロード）
+            if (forceDownload) {
+                link.download = fileName || 'download';
+            } else {
+                // download属性を設定しない場合、ブラウザで開く
+                link.target = '_blank';
+            }
+
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

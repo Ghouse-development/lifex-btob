@@ -251,7 +251,15 @@
                     <div class="min-h-64">
                         <!-- Presentation Tab -->
                         <div x-show="activeTab === 'presentation'">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">プレゼン資料</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">プレゼン資料</h3>
+                                <button
+                                    x-show="plan?.files?.presentation?.length > 0"
+                                    @click="downloadAllFiles(plan.files.presentation, 'プレゼン資料')"
+                                    class="btn-secondary text-sm">
+                                    📦 一括ダウンロード
+                                </button>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <template x-for="file in plan?.files?.presentation" :key="file.url">
                                     <div class="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow duration-200">
@@ -263,9 +271,14 @@
                                             <div>サイズ: <span x-text="file.size"></span></div>
                                             <div>更新: <span x-text="lifeXAPI.formatDate(file.updated)"></span></div>
                                         </div>
-                                        <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                            📥 ダウンロード
-                                        </button>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                👁️ 閲覧
+                                            </button>
+                                            <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                📥 DL
+                                            </button>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
@@ -273,7 +286,15 @@
 
                         <!-- Drawings Tab -->
                         <div x-show="activeTab === 'drawings'">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">図面</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">図面</h3>
+                                <button
+                                    x-show="Object.keys(plan?.files?.drawings || {}).length > 0"
+                                    @click="downloadAllDrawings()"
+                                    class="btn-secondary text-sm">
+                                    📦 一括ダウンロード
+                                </button>
+                            </div>
                             <div class="space-y-6">
                                 <template x-for="[category, files] in Object.entries(plan?.files?.drawings || {})" :key="category">
                                     <div>
@@ -289,9 +310,14 @@
                                                         <div>サイズ: <span x-text="file.size"></span></div>
                                                         <div>更新: <span x-text="lifeXAPI.formatDate(file.updated)"></span></div>
                                                     </div>
-                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                                        📥 ダウンロード
-                                                    </button>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                            👁️ 閲覧
+                                                        </button>
+                                                        <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                            📥 DL
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </template>
                                         </div>
@@ -302,7 +328,15 @@
 
                         <!-- Excel Tab -->
                         <div x-show="activeTab === 'excel'">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Excel資料</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">Excel資料</h3>
+                                <button
+                                    x-show="Object.keys(plan?.files?.excel || {}).length > 0"
+                                    @click="downloadAllExcel()"
+                                    class="btn-secondary text-sm">
+                                    📦 一括ダウンロード
+                                </button>
+                            </div>
                             <div class="space-y-6">
                                 <template x-for="[category, files] in Object.entries(plan?.files?.excel || {})" :key="category">
                                     <div>
@@ -318,9 +352,14 @@
                                                         <div>サイズ: <span x-text="file.size"></span></div>
                                                         <div>更新: <span x-text="lifeXAPI.formatDate(file.updated)"></span></div>
                                                     </div>
-                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                                        📥 ダウンロード
-                                                    </button>
+                                                    <div class="grid grid-cols-2 gap-2">
+                                                        <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                            👁️ 閲覧
+                                                        </button>
+                                                        <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                            📥 DL
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </template>
                                         </div>
@@ -331,7 +370,15 @@
 
                         <!-- Others Tab -->
                         <div x-show="activeTab === 'others'">
-                            <h3 class="text-lg font-semibold text-gray-900 mb-4">その他の資料</h3>
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">その他の資料</h3>
+                                <button
+                                    x-show="hasOtherFiles()"
+                                    @click="downloadAllOthers()"
+                                    class="btn-secondary text-sm">
+                                    📦 一括ダウンロード
+                                </button>
+                            </div>
                             <div class="space-y-6">
                                 <!-- 建具・サッシ -->
                                 <div>
@@ -343,9 +390,14 @@
                                                 <div class="text-sm text-gray-600 mb-3">
                                                     <div>サイズ: <span x-text="file.size"></span></div>
                                                 </div>
-                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                                    📥 ダウンロード
-                                                </button>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                        👁️ 閲覧
+                                                    </button>
+                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                        📥 DL
+                                                    </button>
+                                                </div>
                                             </div>
                                         </template>
                                         <template x-for="file in plan?.files?.sashes || []" :key="file.url">
@@ -354,9 +406,14 @@
                                                 <div class="text-sm text-gray-600 mb-3">
                                                     <div>サイズ: <span x-text="file.size"></span></div>
                                                 </div>
-                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                                    📥 ダウンロード
-                                                </button>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                        👁️ 閲覧
+                                                    </button>
+                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                        📥 DL
+                                                    </button>
+                                                </div>
                                             </div>
                                         </template>
                                     </div>
@@ -372,9 +429,14 @@
                                                 <div class="text-sm text-gray-600 mb-3">
                                                     <div>サイズ: <span x-text="file.size"></span></div>
                                                 </div>
-                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                                    📥 ダウンロード
-                                                </button>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                        👁️ 閲覧
+                                                    </button>
+                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                        📥 DL
+                                                    </button>
+                                                </div>
                                             </div>
                                         </template>
                                     </div>
@@ -390,9 +452,14 @@
                                                 <div class="text-sm text-gray-600 mb-3">
                                                     <div>サイズ: <span x-text="file.size"></span></div>
                                                 </div>
-                                                <button @click="lifeXAPI.downloadFile(file.url, file.title)" class="btn-primary w-full text-sm">
-                                                    📥 ダウンロード
-                                                </button>
+                                                <div class="grid grid-cols-2 gap-2">
+                                                    <button @click="window.open(file.url, '_blank')" class="btn-secondary text-sm">
+                                                        👁️ 閲覧
+                                                    </button>
+                                                    <button @click="lifeXAPI.downloadFile(file.url, file.title, true)" class="btn-primary text-sm">
+                                                        📥 DL
+                                                    </button>
+                                                </div>
                                             </div>
                                         </template>
                                     </div>
@@ -710,6 +777,73 @@
                         windowDrawing: 'PDF'
                     };
                     return categoryNames[category] || category;
+                },
+
+                // 一括ダウンロード - 配列形式
+                async downloadAllFiles(files, categoryName = 'ファイル') {
+                    if (!files || files.length === 0) {
+                        lifeXAPI.showToast('ダウンロードするファイルがありません', 'warning');
+                        return;
+                    }
+
+                    lifeXAPI.showToast(`${files.length}件の${categoryName}をダウンロードしています...`, 'info');
+
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        // 各ファイルのダウンロード間に少し遅延を入れる
+                        await new Promise(resolve => setTimeout(resolve, i * 500));
+                        lifeXAPI.downloadFile(file.url, file.title, true);
+                    }
+
+                    lifeXAPI.showToast(`${files.length}件のダウンロードを開始しました`, 'success');
+                },
+
+                // 一括ダウンロード - 図面（オブジェクト形式）
+                async downloadAllDrawings() {
+                    const allFiles = [];
+                    if (this.plan?.files?.drawings) {
+                        Object.values(this.plan.files.drawings).forEach(files => {
+                            if (Array.isArray(files)) {
+                                allFiles.push(...files);
+                            }
+                        });
+                    }
+                    await this.downloadAllFiles(allFiles, '図面');
+                },
+
+                // 一括ダウンロード - Excel資料（オブジェクト形式）
+                async downloadAllExcel() {
+                    const allFiles = [];
+                    if (this.plan?.files?.excel) {
+                        Object.values(this.plan.files.excel).forEach(files => {
+                            if (Array.isArray(files)) {
+                                allFiles.push(...files);
+                            }
+                        });
+                    }
+                    await this.downloadAllFiles(allFiles, 'Excel資料');
+                },
+
+                // 一括ダウンロード - その他の資料
+                async downloadAllOthers() {
+                    const allFiles = [
+                        ...(this.plan?.files?.doors || []),
+                        ...(this.plan?.files?.sashes || []),
+                        ...(this.plan?.files?.budget || []),
+                        ...(this.plan?.files?.estimate || []),
+                        ...(this.plan?.files?.wih || [])
+                    ];
+                    await this.downloadAllFiles(allFiles, 'その他の資料');
+                },
+
+                // その他タブにファイルがあるかチェック
+                hasOtherFiles() {
+                    const doorFiles = this.plan?.files?.doors?.length || 0;
+                    const sashFiles = this.plan?.files?.sashes?.length || 0;
+                    const budgetFiles = this.plan?.files?.budget?.length || 0;
+                    const estimateFiles = this.plan?.files?.estimate?.length || 0;
+                    const wihFiles = this.plan?.files?.wih?.length || 0;
+                    return (doorFiles + sashFiles + budgetFiles + estimateFiles + wihFiles) > 0;
                 }
             }
         }
