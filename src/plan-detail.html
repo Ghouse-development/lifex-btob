@@ -571,8 +571,8 @@
                             tags: tags,
                             updatedAt: data.updated_at || data.created_at,
                             files: {
-                                presentation: this.convertFilesToDownloadFormat(filesData?.presentation || []),
-                                drawings: this.convertFilesToDownloadFormat(filesData?.drawings || []),
+                                presentation: this.normalizeFilesData(filesData?.presentation),
+                                drawings: this.normalizeFilesData(filesData?.drawings),
                                 excel: {},
                                 doors: [],
                                 sashes: [],
@@ -666,6 +666,16 @@
                         console.warn('関連プランの読み込み中にエラーが発生しました:', error);
                         this.relatedPlans = [];
                     }
+                },
+
+                normalizeFilesData(filesData) {
+                    // filesDataが未定義または空の場合は空配列を返す
+                    if (!filesData) return [];
+
+                    // オブジェクトの場合は配列に変換
+                    let filesArray = Array.isArray(filesData) ? filesData : [filesData];
+
+                    return this.convertFilesToDownloadFormat(filesArray);
                 },
 
                 convertFilesToDownloadFormat(files) {
