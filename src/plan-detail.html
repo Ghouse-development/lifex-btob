@@ -558,11 +558,24 @@
                     try {
                         // Load plan from Supabase
                         const sb = await window.sbReady;
-                        const { data, error } = await sb
-                            .from('plans')
-                            .select('*')
-                            .eq('id', planId)
-                            .single();
+
+                        // UUIDかplan_codeかを判定して検索
+                        // UUIDは8-4-4-4-12の形式（ハイフンを含めて36文字）
+                        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(planId);
+
+                        let query = sb.from('plans').select('*');
+
+                        if (isUUID) {
+                            // UUIDの場合はidで検索
+                            console.log('UUID形式で検索:', planId);
+                            query = query.eq('id', planId);
+                        } else {
+                            // plan_codeで検索
+                            console.log('plan_code形式で検索:', planId);
+                            query = query.eq('plan_code', planId);
+                        }
+
+                        const { data, error } = await query.single();
 
                         if (error) {
                             console.warn('プランが見つかりませんでした:', error.message);
