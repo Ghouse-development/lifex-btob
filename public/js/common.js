@@ -704,10 +704,14 @@ window.lifeXAPI = {
     },
 
     // ファイルダウンロード
+    // 注意: ダウンロード後にファイルが自動的に開くかどうかは、ブラウザの設定に依存します。
+    // Chrome: 設定 > ダウンロード > 「ダウンロード後に特定の種類のファイルを自動的に開く」をオフにする
+    // Edge: 設定 > ダウンロード > 「ダウンロード後に特定の種類のファイルを自動的に開く」をオフにする
     async downloadFile(filePath, fileName, forceDownload = true) {
         try {
             if (forceDownload) {
                 // 確実にダウンロードするため、fetchでBlobを取得してからダウンロード
+                // この方法により、ブラウザで開かずにダウンロードする可能性が高まる
                 const response = await fetch(filePath);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -718,8 +722,16 @@ window.lifeXAPI = {
                 const link = document.createElement('a');
                 link.href = url;
                 link.download = fileName || 'download';
+
+                // download属性を確実に設定
+                link.setAttribute('download', fileName || 'download');
+
                 document.body.appendChild(link);
                 link.click();
+
+                // クリック後、少し待機してからクリーンアップ
+                await new Promise(resolve => setTimeout(resolve, 100));
+
                 document.body.removeChild(link);
 
                 // メモリ解放
@@ -737,6 +749,7 @@ window.lifeXAPI = {
                 link.href = filePath;
                 if (forceDownload) {
                     link.download = fileName || 'download';
+                    link.setAttribute('download', fileName || 'download');
                 } else {
                     link.target = '_blank';
                 }
@@ -762,21 +775,95 @@ window.lifeXAPI = {
             'bg-blue-500'
         }`;
         toast.textContent = message;
-        
+
         document.body.appendChild(toast);
-        
+
         // アニメーション
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateX(100%)';
             toast.style.transition = 'all 0.3s ease-out';
         }, 3000);
-        
+
         setTimeout(() => {
             if (document.body.contains(toast)) {
                 document.body.removeChild(toast);
             }
         }, 3300);
+    },
+
+    // 複数ファイルをZIPでダウンロード
+    async downloadFilesAsZip(files, zipFileName = 'download.zip') {
+        try {
+            if (!window.JSZip) {
+                throw new Error('JSZip library not loaded');
+            }
+
+            if (!files || files.length === 0) {
+                this.showToast('ダウンロードするファイルがありません', 'warning');
+                return;
+            }
+
+            this.showToast(`${files.length}件のファイルをZIP圧縮しています...`, 'info');
+
+            const zip = new JSZip();
+            let successCount = 0;
+            let failCount = 0;
+
+            // 各ファイルを取得してZIPに追加
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                try {
+                    const response = await fetch(file.url);
+                    if (!response.ok) {
+                        console.warn(`Failed to fetch: ${file.title}`);
+                        failCount++;
+                        continue;
+                    }
+
+                    const blob = await response.blob();
+                    // ファイル名の重複を避けるため、インデックスを付与
+                    const fileName = `${i + 1}_${file.title}`;
+                    zip.file(fileName, blob);
+                    successCount++;
+                } catch (error) {
+                    console.warn(`Error fetching file ${file.title}:`, error);
+                    failCount++;
+                }
+            }
+
+            if (successCount === 0) {
+                this.showToast('ファイルの取得に失敗しました', 'error');
+                return;
+            }
+
+            // ZIPファイルを生成
+            this.showToast('ZIPファイルを生成しています...', 'info');
+            const zipBlob = await zip.generateAsync({
+                type: 'blob',
+                compression: 'DEFLATE',
+                compressionOptions: { level: 6 }
+            });
+
+            // ZIPファイルをダウンロード
+            const url = window.URL.createObjectURL(zipBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = zipFileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            const message = failCount > 0
+                ? `${successCount}件をダウンロードしました（${failCount}件失敗）`
+                : `${successCount}件をZIPでダウンロードしました`;
+            this.showToast(message, 'success');
+
+        } catch (error) {
+            console.error('ZIP download error:', error);
+            this.showToast('ZIP圧縮に失敗しました', 'error');
+        }
     },
     
     // ダウンロード取得

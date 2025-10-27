@@ -49,7 +49,8 @@
       "Bash(do echo \"Killing $pid\")",
       "Bash(git push)",
       "Bash(npm run build:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

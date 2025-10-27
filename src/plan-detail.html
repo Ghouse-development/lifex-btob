@@ -13,6 +13,9 @@
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <!-- JSZip CDN for bulk download -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
     <!-- Supabase Integration - CDN待機後にロード -->
     <script type="module">
         console.log('🚀 Supabase初期化開始...', new Date().toLocaleTimeString());
@@ -779,23 +782,21 @@
                     return categoryNames[category] || category;
                 },
 
-                // 一括ダウンロード - 配列形式
+                // 一括ダウンロード - 配列形式（ZIP圧縮）
                 async downloadAllFiles(files, categoryName = 'ファイル') {
                     if (!files || files.length === 0) {
                         lifeXAPI.showToast('ダウンロードするファイルがありません', 'warning');
                         return;
                     }
 
-                    lifeXAPI.showToast(`${files.length}件の${categoryName}をダウンロードしています...`, 'info');
+                    // プラン名とカテゴリ名でZIPファイル名を生成
+                    const planName = this.plan?.name || 'プラン';
+                    const sanitizedPlanName = planName.replace(/[/\\?%*:|"<>]/g, '-');
+                    const sanitizedCategory = categoryName.replace(/[/\\?%*:|"<>]/g, '-');
+                    const zipFileName = `${sanitizedPlanName}_${sanitizedCategory}.zip`;
 
-                    for (let i = 0; i < files.length; i++) {
-                        const file = files[i];
-                        // 各ファイルのダウンロード間に少し遅延を入れる
-                        await new Promise(resolve => setTimeout(resolve, i * 500));
-                        lifeXAPI.downloadFile(file.url, file.title, true);
-                    }
-
-                    lifeXAPI.showToast(`${files.length}件のダウンロードを開始しました`, 'success');
+                    // ZIPでダウンロード
+                    await lifeXAPI.downloadFilesAsZip(files, zipFileName);
                 },
 
                 // 一括ダウンロード - 図面（オブジェクト形式）
