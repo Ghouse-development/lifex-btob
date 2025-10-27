@@ -704,25 +704,50 @@ window.lifeXAPI = {
     },
 
     // ファイルダウンロード
-    downloadFile(filePath, fileName, forceDownload = true) {
+    async downloadFile(filePath, fileName, forceDownload = true) {
         try {
-            const link = document.createElement('a');
-            link.href = filePath;
-
-            // forceDownloadがtrueの場合、download属性を設定（ブラウザで開かずにダウンロード）
             if (forceDownload) {
-                link.download = fileName || 'download';
-            } else {
-                // download属性を設定しない場合、ブラウザで開く
-                link.target = '_blank';
-            }
+                // 確実にダウンロードするため、fetchでBlobを取得してからダウンロード
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName || 'download';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // メモリ解放
+                window.URL.revokeObjectURL(url);
+            } else {
+                // 閲覧モード: 新しいタブで開く
+                window.open(filePath, '_blank');
+            }
         } catch (error) {
             console.error('Download error:', error);
-            alert('ダウンロードに失敗しました');
+
+            // フォールバック: CORS等のエラーの場合は従来の方法を試す
+            try {
+                const link = document.createElement('a');
+                link.href = filePath;
+                if (forceDownload) {
+                    link.download = fileName || 'download';
+                } else {
+                    link.target = '_blank';
+                }
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (fallbackError) {
+                console.error('Fallback download error:', fallbackError);
+                alert('ダウンロードに失敗しました。URLを直接開きます。');
+                window.open(filePath, '_blank');
+            }
         }
     },
 

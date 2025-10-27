@@ -335,12 +335,19 @@
                                         
                                         <!-- Matrix Cells -->
                                         <template x-for="width in widthOptions" :key="`${width}-${depth}`">
-                                            <td class="border border-gray-300 p-1 matrix-cell">
-                                                <div 
+                                            <td class="border border-gray-300 p-1 matrix-cell relative">
+                                                <div
                                                     class="w-full h-full flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all duration-300"
                                                     :class="getCellClass(width, depth)"
                                                     @click="handleCellClick(width, depth)">
-                                                    
+
+                                                    <!-- プラン数バッジ（複数プランの場合のみ表示） -->
+                                                    <template x-if="getCellPlans(width, depth).length > 1">
+                                                        <div class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md z-10">
+                                                            <span x-text="getCellPlans(width, depth).length"></span>件
+                                                        </div>
+                                                    </template>
+
                                                     <template x-if="getCellPlans(width, depth).length > 0">
                                                         <div class="text-center p-2">
                                                             <!-- 外観パース表示 -->
@@ -362,7 +369,7 @@
                                                             <div class="text-sm font-bold text-primary-700" x-text="getCellPlans(width, depth)[0].planCode || getCellPlans(width, depth)[0].id.substring(0, 8) + '...'"></div>
                                                         </div>
                                                     </template>
-                                                    
+
                                                     <template x-if="getCellPlans(width, depth).length === 0">
                                                         <div class="text-gray-400 text-xs">-</div>
                                                     </template>
