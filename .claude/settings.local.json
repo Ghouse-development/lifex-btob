@@ -51,7 +51,8 @@
       "Bash(npm run build:*)",
       "Bash(curl:*)",
       "Bash(npm install:*)",
-      "WebFetch(domain:lifex-btob-90jtyteh9-ghouse-developments-projects.vercel.app)"
+      "WebFetch(domain:lifex-btob-90jtyteh9-ghouse-developments-projects.vercel.app)",
+      "WebFetch(domain:lifex-btob-iiegbg1n6-ghouse-developments-projects.vercel.app)"
     ],
     "deny": [],
     "ask": []
