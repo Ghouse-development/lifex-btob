@@ -204,8 +204,8 @@
                             <div class="space-y-3">
                                 <template x-for="update in updates.slice(0, 5)" :key="update.id">
                                 <div class="bg-white p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                                     :class="update.planId ? 'cursor-pointer' : ''"
-                                     @click="update.planId ? window.location.href = `/plan-detail.html?id=${update.planId}` : null">
+                                     :class="update.plan_id ? 'cursor-pointer' : ''"
+                                     @click="update.plan_id ? window.location.href = `/plan-detail.html?id=${update.plan_id}` : null">
                                     <div class="flex items-start justify-between">
                                         <div class="flex-1">
                                             <div class="flex items-center gap-3 mb-2">
@@ -216,13 +216,13 @@
                                                           'bg-purple-100 text-purple-600': update.category === 'ルール',
                                                           'bg-orange-100 text-orange-600': update.category === 'FAQ'
                                                       }"></span>
-                                                <span x-text="formatDate(update.date)" class="text-xs text-gray-500"></span>
+                                                <span x-text="formatDate(update.created_at || update.date)" class="text-xs text-gray-500"></span>
                                             </div>
                                             <h3 x-text="update.title" class="text-sm font-medium text-gray-900 mb-1"></h3>
                                             <p x-text="update.description" class="text-sm text-gray-600"></p>
-                                            
+
                                             <!-- プラン関連の更新の場合はリンク表示 -->
-                                            <div x-show="update.planId" class="mt-2">
+                                            <div x-show="update.plan_id" class="mt-2">
                                                 <span class="text-xs text-blue-600">クリックして詳細を表示 →</span>
                                             </div>
                                         </div>
@@ -514,18 +514,18 @@
                     await this.loadNotifications();
 
                     // 最新情報を読み込み
-                    this.loadUpdates();
-                    
+                    await this.loadUpdates();
+
                     // リアルタイム更新のイベントリスナーを設定
-                    window.addEventListener('updates-changed', (event) => {
-                        this.updates = event.detail || [];
-                        console.log('Updates refreshed:', this.updates);
+                    window.addEventListener('updates-changed', async (event) => {
+                        // Supabaseから最新データを再読み込み
+                        await this.loadUpdates();
                     });
                 },
-                
-                loadUpdates() {
+
+                async loadUpdates() {
                     try {
-                        this.updates = lifeXAPI.getLatestUpdates();
+                        this.updates = await lifeXAPI.getLatestUpdates();
                         console.log('Updates loaded:', this.updates);
                     } catch (error) {
                         console.error('Error loading updates:', error);

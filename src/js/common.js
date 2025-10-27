@@ -1045,45 +1045,114 @@ window.lifeXAPI = {
         }
     },
 
-    // 最新情報の管理
-    addLatestUpdate(updateData) {
+    // 最新情報の管理（Supabase版）
+    async addLatestUpdate(updateData) {
         try {
-            const updates = this.getLatestUpdates();
+            // Supabaseに保存
+            if (window.supabase) {
+                const { data, error } = await window.supabase
+                    .from('system_updates')
+                    .insert([{
+                        title: updateData.title,
+                        description: updateData.description,
+                        category: updateData.category,
+                        update_type: updateData.type,
+                        plan_id: updateData.planId || null,
+                        related_id: updateData.relatedId || null,
+                        status: 'active'
+                    }])
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Error adding system update to Supabase:', error);
+                    // フォールバック: localStorageに保存
+                    this.addLatestUpdateLocal(updateData);
+                    return;
+                }
+
+                console.log('✅ System update added to Supabase:', data);
+
+                // カスタムイベントを発火してホーム画面に通知
+                window.dispatchEvent(new CustomEvent('updates-changed'));
+            } else {
+                // Supabaseが利用できない場合はlocalStorageに保存
+                this.addLatestUpdateLocal(updateData);
+            }
+        } catch (error) {
+            console.error('Error adding latest update:', error);
+            // エラー時もlocalStorageにフォールバック
+            this.addLatestUpdateLocal(updateData);
+        }
+    },
+
+    // localStorage版（フォールバック）
+    addLatestUpdateLocal(updateData) {
+        try {
+            const updates = this.getLatestUpdatesLocal();
             const newUpdate = {
                 id: Date.now().toString(),
                 title: updateData.title,
                 description: updateData.description,
                 category: updateData.category,
-                date: new Date().toISOString(),
-                type: updateData.type,
-                planId: updateData.planId || null
+                created_at: new Date().toISOString(),
+                update_type: updateData.type,
+                plan_id: updateData.planId || null
             };
-            
-            updates.unshift(newUpdate); // 最新を先頭に追加
-            
-            // 最大20件まで保持
+
+            updates.unshift(newUpdate);
             const limitedUpdates = updates.slice(0, 20);
-            
+
             localStorage.setItem('latest_updates', JSON.stringify(limitedUpdates));
-            
-            // カスタムイベントを発火してホーム画面に通知
-            window.dispatchEvent(new CustomEvent('updates-changed', { 
-                detail: limitedUpdates 
+
+            window.dispatchEvent(new CustomEvent('updates-changed', {
+                detail: limitedUpdates
             }));
-            
-            console.log('Latest update added:', newUpdate);
+
+            console.log('⚠️ Update saved to localStorage (fallback):', newUpdate);
         } catch (error) {
-            console.error('Error adding latest update:', error);
+            console.error('Error adding latest update to localStorage:', error);
         }
     },
 
-    // 最新情報の取得
-    getLatestUpdates() {
+    // 最新情報の取得（Supabase版）
+    async getLatestUpdates(limit = 20) {
+        try {
+            // Supabaseから取得
+            if (window.supabase) {
+                const { data, error } = await window.supabase
+                    .from('system_updates')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false })
+                    .limit(limit);
+
+                if (error) {
+                    console.error('Error loading system updates from Supabase:', error);
+                    // フォールバック: localStorageから取得
+                    return this.getLatestUpdatesLocal();
+                }
+
+                console.log('✅ System updates loaded from Supabase:', data?.length || 0, 'items');
+                return data || [];
+            } else {
+                // Supabaseが利用できない場合はlocalStorageから取得
+                return this.getLatestUpdatesLocal();
+            }
+        } catch (error) {
+            console.error('Error getting latest updates:', error);
+            // エラー時もlocalStorageにフォールバック
+            return this.getLatestUpdatesLocal();
+        }
+    },
+
+    // localStorage版（フォールバック）
+    getLatestUpdatesLocal() {
         try {
             const data = localStorage.getItem('latest_updates');
             return data ? JSON.parse(data) : [];
         } catch (error) {
-            console.error('Error getting latest updates:', error);
+            console.error('Error getting latest updates from localStorage:', error);
             return [];
         }
     },

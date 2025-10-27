@@ -8,6 +8,7 @@ const { defineConfig, devices } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: './tests/e2e',
+  testMatch: '**/*.spec.cjs',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
@@ -15,7 +16,7 @@ module.exports = defineConfig({
   reporter: 'html',
 
   use: {
-    baseURL: process.env.BASE_URL || 'https://lifex-btob.vercel.app',
+    baseURL: 'https://lifex-btob.vercel.app',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -44,9 +45,5 @@ module.exports = defineConfig({
     },
   ],
 
-  webServer: process.env.CI ? undefined : {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-  },
+  // webServer configuration removed - testing against production
 });
