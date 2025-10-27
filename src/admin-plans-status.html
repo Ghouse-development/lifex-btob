@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プラン入力整備状況 | LIFE X 管理画面</title>
+
+    <!-- キャッシュ無効化 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="/assets/tailwind.css">
+    <link href="./styles/main.css" rel="stylesheet">
+
+    <!-- 同期認証チェック -->
+    <script src="/js/auth-check-sync.js"></script>
+    <script src="/js/common.js"></script>
+
+    <!-- Supabase Auth Guard -->
+    <script type="module" src="./js/auth-guard.js"></script>
+
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Supabase Client Initialization -->
+    <script>
+        const supabaseUrl = 'https://hegpxvyziovlfxdfsrsv.supabase.co';
+        const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhlZ3B4dnl6aW92bGZ4ZGZzcnN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MDY3OTkyNiwiZXhwIjoyMDc2MjU1OTI2fQ.OYB1WmG_xWsAVJQZFQ4fToCR6AXcFYHYNH-1QDOS8uM';
+
+        if (window.supabase && window.supabase.createClient) {
+            window.supabase = window.supabase.createClient(supabaseUrl, supabaseServiceKey, {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true
+                },
+                db: { schema: 'public' },
+                global: { headers: { 'x-application-name': 'LIFE-X' } }
+            });
+            console.log('✅ Supabase client initialized');
+        }
+    </script>
+
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="h-full bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin.html" class="text-xl font-bold text-gray-900 hover:text-gray-700">LIFE X 管理画面</a>
+                    <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">管理者専用</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/admin.html" class="text-gray-600 hover:text-gray-900 text-sm">ダッシュボード</a>
+                    <a href="/admin-plans.html" class="text-gray-600 hover:text-gray-900 text-sm">プラン管理</a>
+                    <a href="/admin-plans-status.html" class="text-gray-900 hover:text-gray-600 text-sm font-medium">入力整備状況</a>
+                    <a href="/admin-rules.html" class="text-gray-600 hover:text-gray-900 text-sm">ルール管理</a>
+                    <a href="/admin-faq.html" class="text-gray-600 hover:text-gray-900 text-sm">FAQ管理</a>
+                </nav>
+                <div class="flex items-center gap-4">
+                    <button onclick="window.location.href='/'" class="text-sm text-gray-600 hover:text-gray-900">
+                        公開サイトへ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div x-data="planStatusPage()" x-init="init()">
+        <!-- Page Header -->
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">プラン入力整備状況</h1>
+                <p class="text-gray-600 mt-2">各プランのデータ入力状況を確認できます</p>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-600">総プラン数</div>
+                    <div class="text-2xl font-bold text-gray-900" x-text="plans.length"></div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-600">完全入力済み</div>
+                    <div class="text-2xl font-bold text-green-600" x-text="completeCount"></div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-600">一部入力済み</div>
+                    <div class="text-2xl font-bold text-yellow-600" x-text="partialCount"></div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-4">
+                    <div class="text-sm text-gray-600">未入力項目あり</div>
+                    <div class="text-2xl font-bold text-red-600" x-text="incompleteCount"></div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div x-show="loading" class="bg-white rounded-lg shadow p-8 text-center">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                <p class="mt-2 text-gray-600">読み込み中...</p>
+            </div>
+
+            <!-- Status Table -->
+            <div x-show="!loading" class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-10">
+                                    プラン名
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    基本情報
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    面積
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    価格
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    画像
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    図面
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    資料
+                                </th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    完成度
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <template x-for="plan in plans" :key="plan.id">
+                                <tr class="hover:bg-gray-50">
+                                    <!-- プラン名 -->
+                                    <td class="px-4 py-4 whitespace-nowrap sticky left-0 bg-white">
+                                        <div class="text-sm font-medium text-gray-900" x-text="plan.plan_name || '未設定'"></div>
+                                        <div class="text-xs text-gray-500" x-text="plan.plan_code || '-'"></div>
+                                    </td>
+
+                                    <!-- 基本情報 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.plan_name)"></span>
+                                                <span class="text-xs text-gray-600">名前</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.plan_code)"></span>
+                                                <span class="text-xs text-gray-600">コード</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.plan_category)"></span>
+                                                <span class="text-xs text-gray-600">カテゴリ</span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 面積 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.tsubo)"></span>
+                                                <span class="text-xs text-gray-600">坪数</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.total_area)"></span>
+                                                <span class="text-xs text-gray-600">延床</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.maguchi)"></span>
+                                                <span class="text-xs text-gray-600">間口</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.oku_yuki)"></span>
+                                                <span class="text-xs text-gray-600">奥行</span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 価格 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.sell_price)"></span>
+                                                <span class="text-xs text-gray-600">販売価格</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.cost_price)"></span>
+                                                <span class="text-xs text-gray-600">原価</span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 画像 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.exterior_image)"></span>
+                                                <span class="text-xs text-gray-600">外観</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getArrayStatusIcon(plan.images)"></span>
+                                                <span class="text-xs text-gray-600">
+                                                    その他<span x-show="plan.images?.length" x-text="`(${plan.images.length})`"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 図面 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getStatusIcon(plan.floor_plan_image)"></span>
+                                                <span class="text-xs text-gray-600">間取図</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getArrayStatusIcon(plan.drawing_files)"></span>
+                                                <span class="text-xs text-gray-600">
+                                                    図面<span x-show="plan.drawing_files?.length" x-text="`(${plan.drawing_files.length})`"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 資料 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getArrayStatusIcon(plan.presentation_files)"></span>
+                                                <span class="text-xs text-gray-600">
+                                                    プレゼン<span x-show="plan.presentation_files?.length" x-text="`(${plan.presentation_files.length})`"></span>
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span x-html="getArrayStatusIcon(plan.document_files)"></span>
+                                                <span class="text-xs text-gray-600">
+                                                    文書<span x-show="plan.document_files?.length" x-text="`(${plan.document_files.length})`"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- 完成度 -->
+                                    <td class="px-4 py-4 whitespace-nowrap text-center">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <div class="text-2xl font-bold"
+                                                 :class="getCompletionClass(plan)"
+                                                 x-text="getCompletionRate(plan) + '%'">
+                                            </div>
+                                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                                <div class="h-2 rounded-full transition-all"
+                                                     :class="getCompletionBarClass(plan)"
+                                                     :style="`width: ${getCompletionRate(plan)}%`">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+
+                    <!-- No Data -->
+                    <div x-show="plans.length === 0" class="text-center py-12 text-gray-500">
+                        プランが登録されていません
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function planStatusPage() {
+            return {
+                plans: [],
+                loading: true,
+
+                get completeCount() {
+                    return this.plans.filter(plan => this.getCompletionRate(plan) === 100).length;
+                },
+
+                get partialCount() {
+                    return this.plans.filter(plan => {
+                        const rate = this.getCompletionRate(plan);
+                        return rate > 0 && rate < 100;
+                    }).length;
+                },
+
+                get incompleteCount() {
+                    return this.plans.filter(plan => this.getCompletionRate(plan) === 0).length;
+                },
+
+                async init() {
+                    await window.sbReady;
+                    await this.loadPlans();
+                },
+
+                async loadPlans() {
+                    this.loading = true;
+                    try {
+                        const sb = await window.sbReady;
+                        const { data, error } = await sb
+                            .from('plans')
+                            .select('*')
+                            .neq('status', 'deleted')
+                            .order('plan_code', { ascending: true });
+
+                        if (error) throw error;
+                        this.plans = data || [];
+                        console.log('✅ Loaded plans:', this.plans.length);
+                    } catch (error) {
+                        console.error('❌ Error loading plans:', error);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                getStatusIcon(value) {
+                    if (value !== null && value !== undefined && value !== '') {
+                        return '<svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+                    } else {
+                        return '<svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+                    }
+                },
+
+                getArrayStatusIcon(value) {
+                    if (Array.isArray(value) && value.length > 0) {
+                        return '<svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>';
+                    } else {
+                        return '<svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>';
+                    }
+                },
+
+                getCompletionRate(plan) {
+                    // チェック対象のフィールド
+                    const fields = [
+                        plan.plan_name,
+                        plan.plan_code,
+                        plan.plan_category,
+                        plan.tsubo,
+                        plan.total_area,
+                        plan.maguchi,
+                        plan.oku_yuki,
+                        plan.sell_price,
+                        plan.cost_price,
+                        plan.exterior_image,
+                        Array.isArray(plan.images) && plan.images.length > 0,
+                        plan.floor_plan_image,
+                        Array.isArray(plan.drawing_files) && plan.drawing_files.length > 0,
+                        Array.isArray(plan.presentation_files) && plan.presentation_files.length > 0,
+                        Array.isArray(plan.document_files) && plan.document_files.length > 0
+                    ];
+
+                    const filledCount = fields.filter(field => {
+                        if (typeof field === 'boolean') return field;
+                        return field !== null && field !== undefined && field !== '';
+                    }).length;
+
+                    return Math.round((filledCount / fields.length) * 100);
+                },
+
+                getCompletionClass(plan) {
+                    const rate = this.getCompletionRate(plan);
+                    if (rate === 100) return 'text-green-600';
+                    if (rate >= 50) return 'text-yellow-600';
+                    return 'text-red-600';
+                },
+
+                getCompletionBarClass(plan) {
+                    const rate = this.getCompletionRate(plan);
+                    if (rate === 100) return 'bg-green-500';
+                    if (rate >= 50) return 'bg-yellow-500';
+                    return 'bg-red-500';
+                }
+            };
+        }
+    </script>
+</body>
+</html>
