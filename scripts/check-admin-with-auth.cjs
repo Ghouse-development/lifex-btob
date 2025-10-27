@@ -27,6 +27,7 @@ if (!password) {
 }
 
 const pages = [
+  { path: '/admin-rules.html', name: 'ルール管理' },
   { path: '/admin.html', name: '管理ホーム' },
   { path: '/admin-downloads.html', name: 'ダウンロード管理' },
   { path: '/admin-faq.html', name: 'FAQ管理' },

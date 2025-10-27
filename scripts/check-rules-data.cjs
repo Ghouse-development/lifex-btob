@@ -59,8 +59,8 @@ async function checkRulesData() {
   console.log('\n🔍 === rule_categoriesテーブルのデータチェック ===\n');
   const { data: categories, error: catError } = await supabase
     .from('rule_categories')
-    .select('id, name, order_index')
-    .order('order_index', { ascending: true });
+    .select('id, name, display_order')
+    .order('display_order', { ascending: true });
 
   if (catError) {
     console.log(`❌ エラー: ${catError.message}`);
