@@ -332,7 +332,7 @@
                             </div>
                             
                             <div class="mt-3 flex flex-wrap gap-1">
-                                <template x-for="tag in (plan.tags || [])" :key="tag">
+                                <template x-for="(tag, index) in (plan.tags || [])" :key="`tag-${plan.id}-${index}`">
                                     <span x-text="tag" class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"></span>
                                 </template>
                             </div>
@@ -417,7 +417,7 @@
                             
                             <!-- Tags -->
                             <div class="mb-4">
-                                <template x-for="tag in plan.tags" :key="tag">
+                                <template x-for="(tag, index) in plan.tags" :key="`tag-${plan.id}-${index}`">
                                     <span x-text="tag" class="tag"></span>
                                 </template>
                             </div>
@@ -523,7 +523,7 @@
                                 </div>
                                 
                                 <div class="flex flex-wrap gap-2">
-                                    <template x-for="tag in plan.tags" :key="tag">
+                                    <template x-for="(tag, index) in plan.tags" :key="`tag-${plan.id}-${index}`">
                                         <span x-text="tag" class="tag"></span>
                                     </template>
                                 </div>

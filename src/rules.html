@@ -197,7 +197,7 @@
                                                         <div class="mt-4">
                                                             <p class="text-sm font-medium text-gray-900 mb-2">関連ドキュメント</p>
                                                             <div class="space-y-2">
-                                                                <template x-for="doc in rule.documents" :key="doc.url">
+                                                                <template x-for="(doc, docIndex) in rule.documents" :key="`doc-${ruleIndex}-${docIndex}`">
                                                                     <a :href="doc.url" target="_blank"
                                                                        class="flex items-center gap-2 text-sm text-primary-600 hover:text-primary-700">
                                                                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
