@@ -68,6 +68,16 @@ npm run preview
 # コード品質チェック
 npm run lint
 npm run lint:fix
+
+# テスト実行
+npm test                    # E2Eテスト実行
+npm run test:ui             # テストUIモードで実行
+npm run test:headed         # ブラウザを表示してテスト
+npm run test:report         # テストレポートを表示
+
+# パフォーマンス計測
+npm run perf                # 手動パフォーマンス計測
+npm run lighthouse          # Lighthouse CI実行
 ```
 
 ## 📁 プロジェクト構造

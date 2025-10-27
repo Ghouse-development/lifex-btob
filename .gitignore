@@ -44,6 +44,17 @@ pids/
 coverage/
 *.lcov
 
+# Test results
+test-results/
+playwright-report/
+playwright/.cache/
+*.webm
+*.mp4
+
+# Lighthouse reports
+.lighthouseci/
+performance-report-*.json
+
 # Dependency directories
 jspm_packages/
 
